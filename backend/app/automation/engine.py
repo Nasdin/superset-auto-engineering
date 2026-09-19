@@ -427,6 +427,7 @@ class Engine:
             key,
             {
                 "provider": "github",
+                "repository": self.s.repo,
                 "number": number,
                 "body": f"<!-- {key} -->\n" + body,
             },
@@ -438,6 +439,7 @@ class Engine:
             key,
             {
                 "provider": "slack",
+                "channel": self.s.slack_channel,
                 "body": f"Cognition {self.s.repo} PR #{job['pr_number']}\n{body}",
             },
         )
@@ -446,24 +448,38 @@ class Engine:
         item = self.db.claim_publication()
         if not item:
             return
-        key = item["key"]
-        payload = item["payload"]
+        key, payload = item["key"], item["payload"]
+        receipt = item.get("receipt")
         try:
-            if payload["provider"] == "github":
-                result = self.p.comment(payload["number"], payload["body"])
-                url = result["html_url"]
-            else:
-                result = self.p.slack(
-                    payload["body"], str(uuid.uuid5(uuid.NAMESPACE_URL, key))
-                )
-                url = f"https://app.slack.com/archives/{result['channel']}/p{result['ts'].replace('.','')}"
+            if not receipt:
+                if payload["provider"] == "github":
+                    result = self.p.comment(
+                        payload["number"],
+                        payload["body"],
+                        repository=payload.get("repository", self.s.repo),
+                    )
+                    receipt = {"id": result["id"]}
+                else:
+                    result = self.p.slack(
+                        payload["body"],
+                        str(uuid.uuid5(uuid.NAMESPACE_URL, key)),
+                        channel=payload.get("channel", self.s.slack_channel),
+                    )
+                    receipt = {"channel": result["channel"], "ts": result["ts"]}
+                # Persist the acknowledged write BEFORE any readback. If the read
+                # fails or the worker crashes, only confirmation is retried.
+                self.db.finish_publication(key, "confirming", receipt=receipt)
+            url = self.p.confirm_publication(payload, receipt)
+            if not safe_link(url):
+                raise ProviderError("Provider returned an invalid report URL")
             self.db.finish_publication(key, "sent", url=url)
-        except (UnknownEffect, ProviderError) as e:
-            self.db.finish_publication(
-                key,
-                "unknown_effect" if isinstance(e, UnknownEffect) else "failed",
-                error=str(e),
+        except (UnknownEffect, ProviderError, KeyError, TypeError, ValueError) as error:
+            state = (
+                "delivered"
+                if receipt
+                else "failed" if isinstance(error, ProviderError) else "unknown_effect"
             )
+            self.db.finish_publication(key, state, error=str(error))
 
     def refresh_readiness(self):
         for job in self.db.jobs():

@@ -1,0 +1,51 @@
+{
+  "hook_id": 681964250,
+  "repository": "Nasdin/superset",
+  "url": "https://move-maritime-leisure-close.trycloudflare.com/api/live/webhooks/github",
+  "events": [
+    "issues"
+  ],
+  "active": true,
+  "scope": "Temporary signed webhook ingress only; dashboard and Superset remain local",
+  "public_boundary_statuses": [
+    404,
+    401
+  ],
+  "issue_delivery": {
+    "id": 3843652890870685696,
+    "guid": "e31072e0-b452-11f1-9b85-ac3de5fa5f53",
+    "event": "issues",
+    "action": "labeled",
+    "status_code": 200,
+    "delivered_at": "2026-09-19T17:52:33.132Z",
+    "response": "{\"status\":\"accepted\",\"job_id\":\"15fb900e-d51d-4b0a-8313-bf27f5ba3585\"}"
+  },
+  "local_readback": {
+    "deliveries": [
+      {
+        "id": "cognition-local-ingress-verification",
+        "received": 1789839678.1755772
+      },
+      {
+        "id": "e31072e0-b452-11f1-9b85-ac3de5fa5f53",
+        "received": 1789840353.0119452
+      }
+    ],
+    "jobs": [
+      {
+        "id": "15fb900e-d51d-4b0a-8313-bf27f5ba3585",
+        "state": "queued"
+      }
+    ]
+  },
+  "redelivery": {
+    "id": 3843653031304364032,
+    "guid": "e31072e0-b452-11f1-9b85-ac3de5fa5f53",
+    "status_code": 200,
+    "delivered_at": "2026-09-19T17:53:38.557Z",
+    "redelivery": true,
+    "response": {
+      "status": "duplicate"
+    }
+  }
+}

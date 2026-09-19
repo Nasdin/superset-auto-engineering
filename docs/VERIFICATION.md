@@ -5,10 +5,10 @@ Verified locally on 2026-09-20. This record distinguishes implementation checks,
 ## Application and orchestration
 
 - Production TypeScript/Vite build and Docker image build passed. API container is healthy on loopback port 8000; durable worker is running with dispatch disabled.
-- Backend pytest: **33 passed**. Coverage includes duplicate intake, atomic single-flight claiming, uncertain creation, polling outages, budget reservation, fresh-validator identity, exact SHA, contradictory or missing evidence, durable report outbox and stale evidence.
+- Backend pytest: **47 passed**. Coverage includes duplicate intake, atomic single-flight claiming, uncertain creation, polling outages, budget reservation, fresh-validator identity, exact SHA, contradictory or missing evidence, durable report outbox and stale evidence.
 - Lost-response simulations after GitHub branch, merge and PR creation resume with exactly one of each mutation and preserve validation capacity. These are provider-contract simulations, not real PRs.
 - Playwright dashboard: **3 passed**. Evidence and demo-review flows, navigation/search/mobile width, API failure and actual Live operations configuration/ledger are exercised.
-- Restricted gateway on loopback 8001: overview path 404, unsigned webhook 401, signed issue event accepted, duplicate delivery deduplicated into the existing job. This is a local ingress test, not a real GitHub webhook delivery.
+- Restricted gateway on loopback 8001: overview path 404, unsigned webhook 401, signed issue event accepted, duplicate delivery deduplicated into the existing job. That local ingress test is retained separately from the subsequent real delivery proof below.
 - Existing credentials were checked against publishable text files; no configured secret values were found. Runtime environment files are excluded from Git and Docker build context.
 
 ## Actual Superset baseline
@@ -24,8 +24,17 @@ Verified locally on 2026-09-20. This record distinguishes implementation checks,
 
 Real fork issue: https://github.com/Nasdin/superset/issues/1. Target branch `cognition-release-6.1` is present. One durable repair job is queued; zero Devin sessions and zero reported ACU through this app.
 
-Not yet proved: take-home organization API authentication, paid Devin repair, a real repair/integration PR, fresh independent validation of a repaired candidate, provider artifact ingestion, GitHub evidence comment delivery, Slack delivery, or a real scheduled discovery run. There is no public webhook tunnel. The goal remains active.
+Not yet proved: take-home organization API authentication, paid Devin repair, a real repair/integration PR, fresh independent validation of a repaired candidate, provider artifact ingestion for a repaired candidate, Slack delivery, or a real scheduled discovery run. A temporary signed webhook tunnel is active; it does not expose the dashboard or Superset. The goal remains active.
 
 The five original dashboard pages use labeled fixtures. The generated mockup is a design reference. Neither those fixtures nor the locally recorded baseline video qualifies a repaired release for approval. No approval, release merge or deployment has occurred.
 
 Dependency warnings from Starlette/httpx and AnyIO remain; there are no backend test failures. Human review is performed on the resulting GitHub evidence; authenticated multi-user review and automatic merge are outside the current implementation.
+
+## GitHub evidence delivery and real event verification
+
+- Baseline screenshot, video, reproduction results and manifest published to the separate `cognition/evidence/baseline-c37118ed` branch at `4277b0fee4e409618e9e189124f34c43b9ee75f7`. All four public URLs return 200; screenshot/video/reproduction bytes match local artifacts.
+- The control plane's outbox posted [issue comment 5744078328](https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328), then fetched it and checked its exact body and target. Repeating the publication request left one comment. The report explicitly says baseline qualification, not a fix or approval.
+- GitHub webhook `681964250` sends issue events through a temporary Cloudflare Quick Tunnel into only the signed endpoint. Public dashboard access returns 404; an unsigned event returns 401.
+- A real `issues/labeled` delivery was acknowledged with 200 and the existing repair job ID; its GUID is persisted in SQLite. GitHub redelivery returned `duplicate` with 200. The original issue label set was restored after testing.
+- Evidence records: `evidence/github-baseline-publication.json` and `evidence/github-webhook-live.json`. No paid Devin session started during these checks.
+- Receipt fault tests include process restart, readback outage, frozen Slack destination, malformed mutation responses and Slack's explicitly ambiguous internal errors. Acknowledged posts are never resent by readback recovery.

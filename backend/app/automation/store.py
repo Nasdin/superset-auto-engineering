@@ -26,9 +26,12 @@ class Store:
             CREATE TABLE IF NOT EXISTS publications (key TEXT PRIMARY KEY, state TEXT NOT NULL, url TEXT, error TEXT, updated REAL NOT NULL, payload TEXT);
             CREATE TABLE IF NOT EXISTS decisions (id TEXT PRIMARY KEY, job_id TEXT NOT NULL, sha TEXT NOT NULL, decision TEXT NOT NULL, note TEXT NOT NULL, created REAL NOT NULL);
             """)
+            # Serialize schema upgrades across the API and worker processes.
+            c.execute("BEGIN IMMEDIATE")
             for table, column, declaration in [
                 ("jobs", "started", "REAL"),
                 ("publications", "payload", "TEXT"),
+                ("publications", "receipt", "TEXT"),
             ]:
                 if column not in {
                     r[1] for r in c.execute(f"PRAGMA table_info({table})")
@@ -50,7 +53,7 @@ class Store:
         if row is None:
             return None
         d = dict(row)
-        for k in ("payload", "result"):
+        for k in ("payload", "result", "receipt"):
             if d.get(k):
                 d[k] = json.loads(d[k])
         return d
@@ -185,32 +188,37 @@ class Store:
                 "UPDATE publications SET state='unknown_effect',error='Worker stopped during send; reconcile provider receipt' WHERE state='sending' AND updated<?",
                 (time.time() - 180,),
             )
+            c.execute(
+                "UPDATE publications SET state='delivered' WHERE state='confirming' AND receipt IS NOT NULL AND updated<?",
+                (time.time() - 180,),
+            )
             row = c.execute(
-                "SELECT * FROM publications WHERE state='pending' ORDER BY updated LIMIT 1"
+                "SELECT * FROM publications WHERE state IN ('pending','delivered') ORDER BY updated LIMIT 1"
             ).fetchone()
             if not row:
                 return None
             c.execute(
-                "UPDATE publications SET state='sending',updated=? WHERE key=?",
-                (time.time(), row["key"]),
+                "UPDATE publications SET state=?,updated=? WHERE key=?",
+                (
+                    "confirming" if row["receipt"] else "sending",
+                    time.time(),
+                    row["key"],
+                ),
             )
-            return {**dict(row), "payload": json.loads(row["payload"])}
+            return self.decode(row)
 
-    def begin_publication(self, key):
-        with self.connect() as c:
-            return (
-                c.execute(
-                    "INSERT OR IGNORE INTO publications(key,state,updated) VALUES(?,'sending',?)",
-                    (key, time.time()),
-                ).rowcount
-                == 1
-            )
-
-    def finish_publication(self, key, state, url=None, error=None):
+    def finish_publication(self, key, state, url=None, error=None, receipt=None):
         with self.connect() as c:
             c.execute(
-                "UPDATE publications SET state=?,url=?,error=?,updated=? WHERE key=?",
-                (state, url, error, time.time(), key),
+                "UPDATE publications SET state=?,url=?,error=?,receipt=COALESCE(?,receipt),updated=? WHERE key=?",
+                (
+                    state,
+                    url,
+                    error,
+                    json.dumps(receipt) if receipt else None,
+                    time.time(),
+                    key,
+                ),
             )
 
     def publications(self):

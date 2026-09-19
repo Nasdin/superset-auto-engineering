@@ -38,9 +38,15 @@ class FakeProvider:
             "html_url": f"https://github.com/Nasdin/superset/pull/{n}",
         }
 
-    def comment(self, n, body):
+    def comment(self, n, body, repository=None):
         self.comments.append((n, body))
-        return {"html_url": f"https://github.com/Nasdin/superset/issues/{n}#comment"}
+        return {
+            "id": len(self.comments),
+            "html_url": f"https://github.com/Nasdin/superset/issues/{n}#comment",
+        }
+
+    def confirm_publication(self, payload, receipt):
+        return f"https://github.com/Nasdin/superset/issues/{payload['number']}#comment"
 
     def attachments(self, sid):
         return [
@@ -452,3 +458,72 @@ def test_repair_reserves_a_slot_for_fresh_validation(setup):
     engine.tick()
     assert db.get(job["id"])["state"] == "blocked"
     assert provider.created == 0
+
+
+def test_report_readback_failure_never_resends_acknowledged_comment(setup):
+    db, provider, engine = setup
+    job = repair(db)
+    engine.publish(job["id"], 1, "A report with evidence links")
+    original = provider.confirm_publication
+    provider.confirm_publication = lambda *args: (_ for _ in ()).throw(
+        ProviderError("Readback unavailable")
+    )
+    engine.flush_publication()
+    assert db.publications()[0]["state"] == "delivered"
+    assert len(provider.comments) == 1
+    restarted = Engine(engine.s, Store(db.path), provider)
+    provider.confirm_publication = original
+    restarted.flush_publication()
+    assert db.publications()[0]["state"] == "sent"
+    assert len(provider.comments) == 1
+
+
+def test_crash_during_confirmation_recovers_without_resend(setup):
+    db, provider, engine = setup
+    job = repair(db)
+    engine.publish(job["id"], 1, "Report")
+    item = db.claim_publication()
+    db.finish_publication(item["key"], "confirming", receipt={"id": 123})
+    with db.connect() as connection:
+        connection.execute("UPDATE publications SET updated=?", (time.time() - 181,))
+    engine.flush_publication()
+    assert db.publications()[0]["state"] == "sent"
+    assert provider.comments == []
+
+
+def test_crash_before_receipt_is_not_automatically_resent(setup):
+    db, provider, engine = setup
+    job = repair(db)
+    engine.publish(job["id"], 1, "Report")
+    db.claim_publication()
+    with db.connect() as connection:
+        connection.execute("UPDATE publications SET updated=?", (time.time() - 181,))
+    engine.flush_publication()
+    assert db.publications()[0]["state"] == "unknown_effect"
+    assert provider.comments == []
+
+
+def test_slack_uses_saved_destination_and_provider_permalink(setup):
+    db, provider, engine = setup
+    engine.s = replace(engine.s, slack_channel="C_ORIGINAL")
+    job = {**repair(db), "pr_number": 2}
+    engine.publish_slack(job, "Evidence")
+    engine.s = replace(engine.s, slack_channel="C_CHANGED")
+    sent = []
+
+    def slack(text, key, channel):
+        sent.append(channel)
+        return {"channel": channel, "ts": "123.456"}
+
+    def confirm(payload, receipt):
+        assert payload["channel"] == receipt["channel"] == "C_ORIGINAL"
+        return "https://takehome.slack.com/archives/C_ORIGINAL/p123456"
+
+    provider.slack = slack
+    provider.confirm_publication = confirm
+    engine.flush_publication()
+    assert sent == ["C_ORIGINAL"]
+    assert (
+        db.publications()[0]["url"]
+        == "https://takehome.slack.com/archives/C_ORIGINAL/p123456"
+    )

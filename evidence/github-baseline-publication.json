@@ -1,0 +1,41 @@
+{
+  "repository": "Nasdin/superset",
+  "branch": "cognition/evidence/baseline-c37118ed",
+  "commit": "4277b0fee4e409618e9e189124f34c43b9ee75f7",
+  "scope": "Baseline qualification only. No Devin fix, repaired candidate or release approval is claimed.",
+  "files": [
+    "cognition-evidence/baseline-c37118ed/superset-sql-lab.png",
+    "cognition-evidence/baseline-c37118ed/superset-baseline.webm",
+    "cognition-evidence/baseline-c37118ed/mysql-baseline.json",
+    "cognition-evidence/baseline-c37118ed/manifest.json"
+  ],
+  "public_readback": [
+    {
+      "path": "cognition-evidence/baseline-c37118ed/superset-sql-lab.png",
+      "status": 200,
+      "sha256": "bdd5dceb58015f753ea525231b0822de363e7cc72f389c806e0a76661ad07a5c"
+    },
+    {
+      "path": "cognition-evidence/baseline-c37118ed/superset-baseline.webm",
+      "status": 200,
+      "sha256": "755f7691868d4185fa5c93a23836294be858b45c19a883870e2ac6cc443fbf46"
+    },
+    {
+      "path": "cognition-evidence/baseline-c37118ed/mysql-baseline.json",
+      "status": 200,
+      "sha256": "3795c69879a13c0f74e86ca937f763013993278ebaed2555ccd223f636007c3d"
+    },
+    {
+      "path": "cognition-evidence/baseline-c37118ed/manifest.json",
+      "status": 200,
+      "sha256": "de70a590d37d3af8e3dc5bae4aeb01d30b84afce66d771df6282fcca0ffc1e92"
+    }
+  ],
+  "issue_report": {
+    "key": "github:baseline-qualification-c37118ed:1",
+    "state": "sent",
+    "url": "https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328",
+    "error": null,
+    "updated": 1789840222.2178571
+  }
+}

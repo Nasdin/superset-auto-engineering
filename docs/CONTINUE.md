@@ -20,7 +20,7 @@ Verified signed-in Devin organization: Asmar DE Takehome, `org-f456da0f2e0940808
 
 The installed official Devin CLI (`/Users/nasdin/.local/bin/devin`) reports a **personal Devin Pro account**, not the take-home org. Do not spend the personal account's credits as a fallback.
 
-A Slack workspace/channel question is also pending. No Slack notification has been sent. The adapter needs an authorized bot token and a confirmed destination. Do not guess a channel.
+A Slack workspace/channel question is also pending. The connected Slack plugin exposes only Nextvestment, so it was not selected for this take-home. No Slack notification has been sent. The adapter needs an authorized bot token and a confirmed destination. Do not guess a channel.
 
 ## Start/rebuild local Superset baseline
 
@@ -41,12 +41,20 @@ Run the optional browser check with `cd frontend && SUPERSET_E2E=1 npx playwrigh
 1. After credential confirmation, configure the take-home org token and verify read-only organization/session access. Do not use the personal CLI account.
 2. Rebuild/recreate the application with automation enabled and observe the existing issue's **single** real repair session. Inspect provider status/cost and actual fork PR. Attach every created PR to the Codex task.
 3. Let integration form a draft PR from exact component SHAs, followed by a fresh validation session. The validator must start actual Superset from the integrated SHA, run the changed behavior through DB/browser/regression tests, and attach screenshot, video, logs and tests.
-4. Inspect the artifact contents and provenance. Observe report comments on the integration PR, component PR and issue; verify URLs and receipts. An agent saying finished is insufficient.
+4. Inspect the artifact contents and provenance. Observe repaired-candidate report comments on the integration PR, component PR and issue; verify URLs and receipts. The baseline issue report already proves outbox delivery and public artifact access, but does not validate a fix. An agent saying finished is insufficient.
 5. Configure the confirmed Slack destination, send the report through the outbox and verify the receipt and visible message. Missing Slack remains an explicit gap.
 6. Demonstrate the bounded scheduled scan as a separate real run, a discovered issue and its repair loop if a defect is found. Do not fabricate a discovery. The six-session total cap reserves validation capacity.
-7. Activate restricted signed GitHub ingress if required for the live event demo; the local gateway is running and signed/unsigned/duplicate requests are verified, but no public tunnel/webhook exists yet. Port 8001 gateway only, never port 8000.
+7. Recheck the existing temporary tunnel and GitHub webhook before live execution. Real issue delivery and redelivery deduplication are verified in `evidence/github-webhook-live.json`. Port 8001 gateway only, never port 8000.
 8. Record actual costs/durations/evidence and durable lessons, final checks and known limitations. Keep the goal active until all requested end-to-end proof is present.
 
 ## Failure handling
 
-Unknown session creation blocks further paid dispatch. Reconcile with `python3 scripts/operator.py reconcile --job JOB --session SESSION` only after reading provider tags. For integration writes, POST the authenticated `/api/live/jobs/JOB/resume-integration` endpoint; it performs GitHub readback before writes. Unknown publication delivery must be inspected at the provider before any manual resend. No code auto-merges the release branch.
+Unknown session creation blocks further paid dispatch. Reconcile with `python3 scripts/operator.py reconcile --job JOB --session SESSION` only after reading provider tags. For integration writes, POST the authenticated `/api/live/jobs/JOB/resume-integration` endpoint; it performs GitHub readback before writes. Acknowledged reports persist a receipt and retry readback without resending. Unknown publication writes without a receipt must be inspected at the provider before any manual resend. No code auto-merges the release branch.
+
+## Temporary webhook lifecycle
+
+The Cloudflare Quick Tunnel was started with `cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8001`; its output is `/tmp/cognition-webhook-tunnel.log`. The active task tool session is `34273`; poll that exact handle or inspect the matching process before restarting. Do not start a duplicate solely because a polling observation times out.
+
+GitHub hook ID: `681964250`. Its current public callback is recorded in `evidence/github-webhook-live.json`. A restarted Quick Tunnel gets a new hostname: update this same hook's URL, retain the local ignored HMAC secret, and verify delivery before claiming it is connected. Never expose port 8000 or 8188. If intentionally shutting down the demo, deactivate this hook before stopping its tunnel. Do not delete unrelated hooks or tunnel processes.
+
+Baseline report: https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328. Evidence branch: `cognition/evidence/baseline-c37118ed`, separate from the release branch. The actual repair job is still queued, zero Devin sessions, and the token-creation confirmation remains unanswered.
