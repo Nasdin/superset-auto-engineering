@@ -1,5 +1,7 @@
 # Four days to one credible end-to-end demo
 
+This is the original delivery plan, not a completion record. See [VERIFICATION.md](VERIFICATION.md) for verified results and [CONTINUE.md](CONTINUE.md) for remaining work.
+
 ## Day 1 — Evidence-first product shell
 
 This repository provides the React dashboard, FastAPI contract, local ledger, Docker packaging, fixtures and tests. Choose one reproducible, bounded Superset issue on a fork. Write explicit behavior-based acceptance criteria and retain a failing reproduction. The five workstreams in the UI are illustrative; the first real demo should use one or two issues.

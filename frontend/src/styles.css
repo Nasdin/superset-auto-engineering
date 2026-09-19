@@ -1377,3 +1377,42 @@ dialog::backdrop {
   padding: 0;
   top: 0;
 }
+.connection-strip {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.live-detail {
+  margin-top: 22px;
+}
+.live-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 20px 20px;
+}
+.live-detail > .sha-block,
+.live-detail > .notice {
+  margin: 0 20px 20px;
+}
+.live-detail > .check-row {
+  padding: 16px 20px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.publication {
+  padding: 15px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+}
+.publication a {
+  display: block;
+  color: var(--accent);
+  margin-top: 8px;
+}
+.publication p {
+  color: var(--muted);
+  line-height: 1.7;
+}

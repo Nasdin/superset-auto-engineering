@@ -1,0 +1,62 @@
+x-app: &app
+  image: cognition-superset-runtime:c37118ed
+  build:
+    context: .
+    dockerfile: Superset.Dockerfile
+  env_file: ../.env.superset
+  environment:
+    SUPERSET_CONFIG_PATH: /app/cognition/superset_config.py
+  volumes:
+    - ./superset_config.py:/app/cognition/superset_config.py:ro
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+services:
+  db:
+    image: postgres:17
+    env_file: ../.env.superset
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+    volumes:
+      - metadata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL','pg_isready -U superset']
+      interval: 5s
+      retries: 12
+  redis:
+    image: redis:7-alpine
+  mysql:
+    image: mysql:8.0
+    env_file: ../.env.superset
+    environment:
+      MYSQL_DATABASE: validation
+    volumes:
+      - mysql-data:/var/lib/mysql
+  init:
+    <<: *app
+    command: ['/bin/sh','-c','superset db upgrade && superset init']
+  superset:
+    <<: *app
+    command: ['/usr/bin/run-server.sh']
+    ports:
+      - '127.0.0.1:8188:8088'
+    depends_on:
+      init:
+        condition: service_completed_successfully
+  worker:
+    <<: *app
+    command: ['celery','--app=superset.tasks.celery_app:app','worker','--pool=solo','--concurrency=1','--loglevel=INFO']
+    healthcheck:
+      test: ['CMD-SHELL','celery --app=superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME --timeout=5']
+      interval: 30s
+      timeout: 15s
+      retries: 3
+    depends_on:
+      init:
+        condition: service_completed_successfully
+volumes:
+  metadata:
+  mysql-data:

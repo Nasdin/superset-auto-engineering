@@ -1,0 +1,28 @@
+{
+  "scope": "Local signed ingress test, not a real GitHub delivery",
+  "results": [
+    {
+      "path": "/api/live/overview",
+      "status": 404
+    },
+    {
+      "path": "/api/live/webhooks/github",
+      "status": 401
+    },
+    {
+      "path": "/api/live/webhooks/github",
+      "status": 200,
+      "response": {
+        "status": "accepted",
+        "job_id": "15fb900e-d51d-4b0a-8313-bf27f5ba3585"
+      }
+    },
+    {
+      "path": "/api/live/webhooks/github",
+      "status": 200,
+      "response": {
+        "status": "duplicate"
+      }
+    }
+  ]
+}

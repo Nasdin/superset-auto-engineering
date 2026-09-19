@@ -1,0 +1,11 @@
+Loaded your LOCAL configuration at [/app/cognition/superset_config.py]
+2026-09-19 17:28:39,836:WARNING:superset.initialization:We haven't found any Content Security Policy (CSP) defined in the configurations. Please make sure to configure CSP using the TALISMAN_ENABLED and TALISMAN_CONFIG keys or any other external software. Failing to configure CSP have serious security implications. Check https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for more information. You can disable this warning using the CONTENT_SECURITY_POLICY_WARNING key.
+2026-09-19 17:28:39,841:WARNING:py.warnings:/app/.venv/lib/python3.11/site-packages/flask_limiter/extension.py:324: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+
+2026-09-19 17:28:40,105:INFO:alembic.runtime.migration:Context impl PostgresqlImpl.
+2026-09-19 17:28:40,105:INFO:alembic.runtime.migration:Will assume transactional DDL.
+2026-09-19 17:28:40,219:INFO:superset.app:Syncing configuration to database...
+2026-09-19 17:28:40,222:INFO:superset.app:Configuration sync to database completed successfully
+2026-09-19 17:28:40,515:INFO:superset.core.mcp.core_mcp_injection:fastmcp is not installed, skipping MCP initialization. Install it with: pip install 'apache-superset[fastmcp]'
+Isolated validator account and MySQL fixture are ready; credentials omitted.

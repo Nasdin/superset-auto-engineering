@@ -84,6 +84,9 @@ def event(body: Event):
 def approve():
     raise HTTPException(409, 'Demo evidence cannot approve a real release. Live validation is not connected.')
 
+from .automation.routes import router as live_router
+app.include_router(live_router)
+
 # A single container serves the built frontend and API. Registered after API routes.
 from fastapi.staticfiles import StaticFiles
 if Path('static').is_dir():

@@ -82,3 +82,27 @@ test("API outage shows retry instead of fake success", async ({ page }) => {
     page.getByRole("button", { name: "Retry connection" }),
   ).toBeVisible();
 });
+
+test("live operations shows real ledger and configuration state", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Live operations", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", {
+      name: "From a real issue to reviewable proof.",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/^github: (configured|not connected)$/),
+  ).toBeVisible();
+  await expect(page.getByText("WF-041", { exact: true })).toHaveCount(0);
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.screenshot({
+    path: "../evidence/live-operations.png",
+    animations: "disabled",
+    fullPage: true,
+  });
+});

@@ -1,0 +1,48 @@
+{
+  "scope": "Local baseline qualification only; not Devin evidence or a repaired candidate",
+  "source_sha": "c37118edd0146019ab0ae4ae1a97a597cb56c88e",
+  "runtime_image_id": "sha256:8ca917c51660fdc822624f0ec84bb3843b4778fa78db4e65ff276f96a3624444",
+  "recorded_at": "2026-09-19T17:42:13.023819+00:00",
+  "checks": {
+    "services": "Superset and Celery worker health checks healthy",
+    "browser": "Playwright login and SQL Lab: fixture_count=3, total_value=6",
+    "baseline_defect": "6 of 9 MySQL time-grain cases fail as expected"
+  },
+  "artifacts": [
+    {
+      "path": "evidence/superset-sql-lab.png",
+      "bytes": 62104,
+      "sha256": "bdd5dceb58015f753ea525231b0822de363e7cc72f389c806e0a76661ad07a5c"
+    },
+    {
+      "path": "evidence/superset-baseline.webm",
+      "bytes": 286736,
+      "sha256": "755f7691868d4185fa5c93a23836294be858b45c19a883870e2ac6cc443fbf46"
+    },
+    {
+      "path": "evidence/mysql-baseline.json",
+      "bytes": 5623,
+      "sha256": "3795c69879a13c0f74e86ca937f763013993278ebaed2555ccd223f636007c3d"
+    },
+    {
+      "path": "evidence/superset-baseline-build.log",
+      "bytes": 262687,
+      "sha256": "27a9fce493da518d752eb0d639f965ceb01c7a4487c0ad6cb5ba80d3a8fcf2a3"
+    },
+    {
+      "path": "evidence/superset-runtime-build.log",
+      "bytes": 22992,
+      "sha256": "c7ecffe16d0b621f27f3a1ca8006063841313d3c7475941e665a35ec3902ebb6"
+    },
+    {
+      "path": "evidence/superset-seed.log",
+      "bytes": 1558,
+      "sha256": "8ac2ab692c1416c9bdd9a77e909c533099cc1e5b69736040aaac5111ba4a673d"
+    },
+    {
+      "path": "evidence/webhook-gateway.json",
+      "bytes": 562,
+      "sha256": "05ba594b6d818dddd8e579cd1b3a9ae0bb94ebe7210901bcdf57754cc50ef0b2"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "baseline_sha": "c37118edd0146019ab0ae4ae1a97a597cb56c88e",
+  "sqlglot_version": "28.10.0",
+  "mysql_version": "8.0.46",
+  "passed": false,
+  "checks": [
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 00:00:00' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 00:00:00' AS DATETIME))*60*60 + MINUTE(CAST('2026-09-18 00:00:00' AS DATETIME))*60 + SECOND(CAST('2026-09-18 00:00:00' AS DATETIME))) SECOND) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 00:00:00' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 00:00:00' AS DATETIME)) * 60 * 60 + MINUTE(CAST('2026-09-18 00:00:00' AS DATETIME)) * 60 + SECOND(CAST('2026-09-18 00:00:00' AS DATETIME))) SECOND) AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 00:00:00' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 00:00:00' AS DATETIME))*60 + MINUTE(CAST('2026-09-18 00:00:00' AS DATETIME))) MINUTE) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 00:00:00' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 00:00:00' AS DATETIME)) * 60 + MINUTE(CAST('2026-09-18 00:00:00' AS DATETIME))) MINUTE) AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 00:00:00' AS DATETIME)), INTERVAL HOUR(CAST('2026-09-18 00:00:00' AS DATETIME)) HOUR) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 00:00:00' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 00:00:00' AS DATETIME))) HOUR) AS bucket"
+    },
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:15:30",
+      "actual": "2026-09-18 16:31:00",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 08:15:30' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 08:15:30' AS DATETIME))*60*60 + MINUTE(CAST('2026-09-18 08:15:30' AS DATETIME))*60 + SECOND(CAST('2026-09-18 08:15:30' AS DATETIME))) SECOND) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 08:15:30' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 08:15:30' AS DATETIME)) * 60 * 60 + MINUTE(CAST('2026-09-18 08:15:30' AS DATETIME)) * 60 + SECOND(CAST('2026-09-18 08:15:30' AS DATETIME))) SECOND) AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:15:00",
+      "actual": "2026-09-18 16:30:30",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 08:15:30' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 08:15:30' AS DATETIME))*60 + MINUTE(CAST('2026-09-18 08:15:30' AS DATETIME))) MINUTE) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 08:15:30' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 08:15:30' AS DATETIME)) * 60 + MINUTE(CAST('2026-09-18 08:15:30' AS DATETIME))) MINUTE) AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:00:00",
+      "actual": "2026-09-18 16:15:30",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 08:15:30' AS DATETIME)), INTERVAL HOUR(CAST('2026-09-18 08:15:30' AS DATETIME)) HOUR) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 08:15:30' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 08:15:30' AS DATETIME))) HOUR) AS bucket"
+    },
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:59:59",
+      "actual": "2026-09-19 23:59:58",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 23:59:59' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 23:59:59' AS DATETIME))*60*60 + MINUTE(CAST('2026-09-18 23:59:59' AS DATETIME))*60 + SECOND(CAST('2026-09-18 23:59:59' AS DATETIME))) SECOND) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 23:59:59' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 23:59:59' AS DATETIME)) * 60 * 60 + MINUTE(CAST('2026-09-18 23:59:59' AS DATETIME)) * 60 + SECOND(CAST('2026-09-18 23:59:59' AS DATETIME))) SECOND) AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:59:00",
+      "actual": "2026-09-19 23:58:59",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 23:59:59' AS DATETIME)), INTERVAL (HOUR(CAST('2026-09-18 23:59:59' AS DATETIME))*60 + MINUTE(CAST('2026-09-18 23:59:59' AS DATETIME))) MINUTE) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 23:59:59' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 23:59:59' AS DATETIME)) * 60 + MINUTE(CAST('2026-09-18 23:59:59' AS DATETIME))) MINUTE) AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:00:00",
+      "actual": "2026-09-19 22:59:59",
+      "passed": false,
+      "original_sql": "SELECT DATE_ADD(DATE(CAST('2026-09-18 23:59:59' AS DATETIME)), INTERVAL HOUR(CAST('2026-09-18 23:59:59' AS DATETIME)) HOUR) AS bucket",
+      "rewritten_sql": "SELECT DATE_ADD(CAST('2026-09-18 23:59:59' AS DATETIME), INTERVAL (HOUR(CAST('2026-09-18 23:59:59' AS DATETIME))) HOUR) AS bucket"
+    }
+  ]
+}

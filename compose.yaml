@@ -1,14 +1,26 @@
+x-runtime: &runtime
+  build: .
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    AUTOMATION_DATABASE: /app/data/automation.db
+    ARTIFACT_DIR: /app/data/artifacts
+  volumes:
+    - cognition-data:/app/data
 services:
   cognition:
-    build: .
+    <<: *runtime
     ports:
       - "127.0.0.1:8000:8000"
-    volumes:
-      - cognition-data:/app/data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 15s
       timeout: 5s
       retries: 3
+  worker:
+    <<: *runtime
+    command: ["python", "-m", "app.automation.worker"]
+    restart: unless-stopped
 volumes:
   cognition-data:

@@ -1,3 +1,4 @@
+import LiveWorkspace from "./LiveWorkspace";
 import { useEffect, useRef, useState } from "react";
 import {
   Activity,
@@ -65,9 +66,17 @@ const pages = [
   "Devin runs",
   "Repository graph",
   "Analytics",
+  "Live operations",
 ] as const;
 type Page = (typeof pages)[number];
-const icons = [ShieldCheck, GitPullRequest, Terminal, GitBranch, Activity];
+const icons = [
+  ShieldCheck,
+  GitPullRequest,
+  Terminal,
+  GitBranch,
+  Activity,
+  LayoutDashboard,
+];
 async function api<T>(path: string, body?: unknown): Promise<T> {
   const res = await fetch(
     `/api/${path}`,
@@ -298,7 +307,9 @@ export default function App() {
             <strong>{page}</strong>
           </div>
           <div>
-            <Badge tone="amber">Demo data</Badge>
+            <Badge tone="amber">
+              {page === "Live operations" ? "Live ledger" : "Demo data"}
+            </Badge>
             <a
               href="https://github.com/apache/superset"
               target="_blank"
@@ -309,220 +320,232 @@ export default function App() {
             </a>
           </div>
         </header>
-        <main id="main">
-          <div className="heading">
-            <div>
-              <div className="eyebrow">
-                DEVIN RELEASE ASSURANCE <span> / </span>{" "}
-                {page === "Release validation"
-                  ? "EVIDENCE GATE"
-                  : page.toUpperCase()}
+        {page === "Live operations" ? (
+          <LiveWorkspace />
+        ) : (
+          <main id="main">
+            <div className="heading">
+              <div>
+                <div className="eyebrow">
+                  DEVIN RELEASE ASSURANCE <span> / </span>{" "}
+                  {page === "Release validation"
+                    ? "EVIDENCE GATE"
+                    : page.toUpperCase()}
+                </div>
+                <h1>
+                  {page === "Release validation"
+                    ? "Confidence, backed by evidence."
+                    : page === "Workflows"
+                      ? "From issue to integrated change."
+                      : page === "Devin runs"
+                        ? "Autonomy, with a paper trail."
+                        : page === "Repository graph"
+                          ? "See how the changes connect."
+                          : "Measure the work. Prove the value."}
+                </h1>
+                <p>
+                  {page === "Release validation"
+                    ? "Five workstreams. One integrated revision. The proof you need before you approve."
+                    : "A focused view of the Superset engineering loop, from request to review."}
+                </p>
               </div>
-              <h1>
-                {page === "Release validation"
-                  ? "Confidence, backed by evidence."
-                  : page === "Workflows"
-                    ? "From issue to integrated change."
-                    : page === "Devin runs"
-                      ? "Autonomy, with a paper trail."
-                      : page === "Repository graph"
-                        ? "See how the changes connect."
-                        : "Measure the work. Prove the value."}
-              </h1>
-              <p>
-                {page === "Release validation"
-                  ? "Five workstreams. One integrated revision. The proof you need before you approve."
-                  : "A focused view of the Superset engineering loop, from request to review."}
-              </p>
-            </div>
-            <button className="button" onClick={exportReport} disabled={!data}>
-              <ArrowDownToLine size={16} /> Export evidence
-            </button>
-          </div>
-          {error && (
-            <div role="alert" className="notice">
-              {error} <button onClick={refresh}>Retry connection</button>
-            </div>
-          )}
-          {notice && (
-            <div role="status" className="notice">
-              {notice}
               <button
-                aria-label="Dismiss notification"
-                onClick={() => setNotice("")}
+                className="button"
+                onClick={exportReport}
+                disabled={!data}
               >
-                <X size={15} />
+                <ArrowDownToLine size={16} /> Export evidence
               </button>
             </div>
-          )}
-          {!data && !error ? (
-            <div className="empty">Connecting to the evidence API…</div>
-          ) : (
-            data && (
-              <>
-                <div className="stats">
-                  {[
-                    [
-                      data.workflows.length,
-                      "Integrated workflows",
-                      "Across 5 areas",
-                      GitPullRequest,
-                    ],
-                    [
-                      data.checks.filter((c) => c.status === "passed").length +
-                        "/5",
-                      "Validation groups",
-                      "1 human review pending",
-                      CheckCircle2,
-                    ],
-                    [
-                      data.checks.filter((c) => c.kind !== "review").length,
-                      "Evidence artifacts",
-                      "Illustrative candidate evidence",
-                      FileText,
-                    ],
-                    [
-                      "6m 58s",
-                      "Validation time",
-                      "Illustrative demo run",
-                      Clock3,
-                    ],
-                  ].map(([v, l, s, Icon]) => {
-                    const I = Icon as typeof Activity;
-                    return (
-                      <div className="stat" key={String(l)}>
-                        <div>
-                          <span>{String(l)}</span>
-                          <I size={17} />
-                        </div>
-                        <strong>{String(v)}</strong>
-                        <small>{String(s)}</small>
-                      </div>
-                    );
-                  })}
-                </div>
-                {page === "Release validation" && (
-                  <>
-                    <section className="candidate">
-                      <div className="candidate-top">
-                        <div className="candidate-id">
-                          <span className="candidate-icon">
-                            <GitBranch size={24} />
-                          </span>
+            {error && (
+              <div role="alert" className="notice">
+                {error} <button onClick={refresh}>Retry connection</button>
+              </div>
+            )}
+            {notice && (
+              <div role="status" className="notice">
+                {notice}
+                <button
+                  aria-label="Dismiss notification"
+                  onClick={() => setNotice("")}
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            )}
+            {!data && !error ? (
+              <div className="empty">Connecting to the evidence API…</div>
+            ) : (
+              data && (
+                <>
+                  <div className="stats">
+                    {[
+                      [
+                        data.workflows.length,
+                        "Integrated workflows",
+                        "Across 5 areas",
+                        GitPullRequest,
+                      ],
+                      [
+                        data.checks.filter((c) => c.status === "passed")
+                          .length + "/5",
+                        "Validation groups",
+                        "1 human review pending",
+                        CheckCircle2,
+                      ],
+                      [
+                        data.checks.filter((c) => c.kind !== "review").length,
+                        "Evidence artifacts",
+                        "Illustrative candidate evidence",
+                        FileText,
+                      ],
+                      [
+                        "6m 58s",
+                        "Validation time",
+                        "Illustrative demo run",
+                        Clock3,
+                      ],
+                    ].map(([v, l, s, Icon]) => {
+                      const I = Icon as typeof Activity;
+                      return (
+                        <div className="stat" key={String(l)}>
                           <div>
-                            <h2>
-                              Release candidate <span>{data.candidate.id}</span>
-                            </h2>
-                            <div className="metadata">
-                              <code title={data.candidate.sha}>
-                                {data.candidate.sha.slice(0, 7)}
-                              </code>
-                              <span>←</span>
-                              <span>{data.candidate.branch}</span>
-                              <span className="divider">|</span>
-                              <span>
-                                {data.workflows.length} integrated workflows
-                              </span>
+                            <span>{String(l)}</span>
+                            <I size={17} />
+                          </div>
+                          <strong>{String(v)}</strong>
+                          <small>{String(s)}</small>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {page === "Release validation" && (
+                    <>
+                      <section className="candidate">
+                        <div className="candidate-top">
+                          <div className="candidate-id">
+                            <span className="candidate-icon">
+                              <GitBranch size={24} />
+                            </span>
+                            <div>
+                              <h2>
+                                Release candidate{" "}
+                                <span>{data.candidate.id}</span>
+                              </h2>
+                              <div className="metadata">
+                                <code title={data.candidate.sha}>
+                                  {data.candidate.sha.slice(0, 7)}
+                                </code>
+                                <span>←</span>
+                                <span>{data.candidate.branch}</span>
+                                <span className="divider">|</span>
+                                <span>
+                                  {data.workflows.length} integrated workflows
+                                </span>
+                              </div>
                             </div>
                           </div>
+                          <Badge tone="amber">
+                            {data.candidate.status === "needs_review"
+                              ? "Awaiting review"
+                              : data.candidate.status === "demo_approved"
+                                ? "Demo approval recorded"
+                                : "Changes requested"}
+                          </Badge>
                         </div>
-                        <Badge tone="amber">
-                          {data.candidate.status === "needs_review"
-                            ? "Awaiting review"
-                            : data.candidate.status === "demo_approved"
-                              ? "Demo approval recorded"
-                              : "Changes requested"}
-                        </Badge>
-                      </div>
-                      <div className="pipeline">
-                        {[
-                          "Integrate changes",
-                          "Start services",
-                          "Verify behavior",
-                          "Collect evidence",
-                          "Human review",
-                        ].map((s, i) => (
-                          <div key={s} className={i === 4 ? "pending" : ""}>
-                            <span>{i === 4 ? "5" : <Check size={14} />}</span>
-                            <strong>{s}</strong>
-                            <small>
-                              {
-                                [
-                                  "5 workflows combined",
-                                  "4 services healthy",
-                                  "20 scenario checks",
-                                  "4 artifacts captured",
-                                  "Your decision",
-                                ][i]
-                              }
-                            </small>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="candidate-footer">
-                        <ShieldCheck size={14} />
-                        <span>
-                          Independent validator{" "}
-                          <code>{data.candidate.validator}</code>
-                        </span>
-                        <span>
-                          All values below are demo fixtures · no live Superset
-                          run
-                        </span>
-                      </div>
-                    </section>
-                    <div className="evidence-grid">
-                      <section className="panel">
-                        <div className="panel-heading">
-                          <div>
-                            <h2>Validation checklist</h2>
-                            <p>The whole application, checked together.</p>
-                          </div>
-                          <span className="quiet">4 of 5</span>
-                        </div>
-                        <div className="checklist">
-                          {data.checks.map((c) => (
-                            <button
-                              key={c.id}
-                              className="check-row"
-                              onClick={() =>
-                                c.kind === "review"
-                                  ? setReview(true)
-                                  : setArtifact(c)
-                              }
-                            >
-                              <span className={`check-icon ${c.status}`}>
-                                {c.status === "passed" ? (
-                                  <Check size={15} />
-                                ) : (
-                                  <Clock3 size={16} />
-                                )}
-                              </span>
-                              <span>
-                                <strong>{c.title}</strong>
-                                <small>{c.detail}</small>
-                              </span>
-                              <span className="duration">{c.duration}</span>
-                              <ChevronRight size={14} />
-                            </button>
+                        <div className="pipeline">
+                          {[
+                            "Integrate changes",
+                            "Start services",
+                            "Verify behavior",
+                            "Collect evidence",
+                            "Human review",
+                          ].map((s, i) => (
+                            <div key={s} className={i === 4 ? "pending" : ""}>
+                              <span>{i === 4 ? "5" : <Check size={14} />}</span>
+                              <strong>{s}</strong>
+                              <small>
+                                {
+                                  [
+                                    "5 workflows combined",
+                                    "4 services healthy",
+                                    "20 scenario checks",
+                                    "4 artifacts captured",
+                                    "Your decision",
+                                  ][i]
+                                }
+                              </small>
+                            </div>
                           ))}
                         </div>
-                        <div className="panel-foot">
-                          <CircleDot size={13} /> Illustrative evidence for the
-                          demo candidate above.
+                        <div className="candidate-footer">
+                          <ShieldCheck size={14} />
+                          <span>
+                            Independent validator{" "}
+                            <code>{data.candidate.validator}</code>
+                          </span>
+                          <span>
+                            All values below are demo fixtures · no live
+                            Superset run
+                          </span>
                         </div>
                       </section>
-                      <section className="panel gallery">
-                        <div className="panel-heading">
-                          <div>
-                            <h2>Evidence, not just a green check.</h2>
-                            <p>Open an artifact and see what happened.</p>
+                      <div className="evidence-grid">
+                        <section className="panel">
+                          <div className="panel-heading">
+                            <div>
+                              <h2>Validation checklist</h2>
+                              <p>The whole application, checked together.</p>
+                            </div>
+                            <span className="quiet">4 of 5</span>
                           </div>
-                          <FileText size={18} />
-                        </div>
-                        <div className="tabs">
-                          {["All evidence", "Screenshot", "Logs", "Tests"].map(
-                            (f) => (
+                          <div className="checklist">
+                            {data.checks.map((c) => (
+                              <button
+                                key={c.id}
+                                className="check-row"
+                                onClick={() =>
+                                  c.kind === "review"
+                                    ? setReview(true)
+                                    : setArtifact(c)
+                                }
+                              >
+                                <span className={`check-icon ${c.status}`}>
+                                  {c.status === "passed" ? (
+                                    <Check size={15} />
+                                  ) : (
+                                    <Clock3 size={16} />
+                                  )}
+                                </span>
+                                <span>
+                                  <strong>{c.title}</strong>
+                                  <small>{c.detail}</small>
+                                </span>
+                                <span className="duration">{c.duration}</span>
+                                <ChevronRight size={14} />
+                              </button>
+                            ))}
+                          </div>
+                          <div className="panel-foot">
+                            <CircleDot size={13} /> Illustrative evidence for
+                            the demo candidate above.
+                          </div>
+                        </section>
+                        <section className="panel gallery">
+                          <div className="panel-heading">
+                            <div>
+                              <h2>Evidence, not just a green check.</h2>
+                              <p>Open an artifact and see what happened.</p>
+                            </div>
+                            <FileText size={18} />
+                          </div>
+                          <div className="tabs">
+                            {[
+                              "All evidence",
+                              "Screenshot",
+                              "Logs",
+                              "Tests",
+                            ].map((f) => (
                               <button
                                 key={f}
                                 className={filter === f ? "selected" : ""}
@@ -530,182 +553,146 @@ export default function App() {
                               >
                                 {f === "Screenshot" ? "Screenshots" : f}
                               </button>
-                            ),
-                          )}
-                        </div>
-                        <div className="artifact-grid">
-                          {visible.map((c) => (
-                            <button
-                              className="artifact"
-                              key={c.id}
-                              onClick={() => setArtifact(c)}
-                            >
-                              {c.kind === "screenshot" ? (
-                                <Chart />
-                              ) : (
-                                <div className={`artifact-preview ${c.kind}`}>
-                                  <div>
-                                    <Terminal size={14} />
-                                    <span>
-                                      {c.kind === "tests"
-                                        ? "pytest · regression"
-                                        : "docker compose · " + c.id}
-                                    </span>
-                                  </div>
-                                  <pre>{c.content}</pre>
-                                </div>
-                              )}
-                              <div className="artifact-caption">
-                                <span>
-                                  <strong>{c.title}</strong>
-                                  <small>{c.kind} · demo fixture</small>
-                                </span>
-                                <ExternalLink size={13} />
-                              </div>
-                            </button>
-                          ))}
-                          {visible.length === 0 && (
-                            <p className="empty">
-                              No evidence matches this filter.
-                            </p>
-                          )}
-                        </div>
-                      </section>
-                    </div>
-                    <section className="review-banner">
-                      <span className="review-icon">
-                        <ShieldCheck size={24} />
-                      </span>
-                      <div>
-                        <h2>The last mile is a human decision.</h2>
-                        <p>
-                          Inspect the artifacts, ask for changes, or record a
-                          demo approval.
-                        </p>
-                      </div>
-                      <button
-                        className="button primary"
-                        onClick={() => setReview(true)}
-                      >
-                        Review candidate <ArrowRight size={16} />
-                      </button>
-                    </section>
-                  </>
-                )}
-                {page === "Workflows" && (
-                  <section className="panel">
-                    <div className="panel-heading">
-                      <div>
-                        <h2>Engineering workstreams</h2>
-                        <p>Illustrative issues and integrated changes</p>
-                      </div>
-                      <button
-                        className="button primary"
-                        onClick={() => setNewIssue(true)}
-                      >
-                        <Play size={15} /> Simulate issue event
-                      </button>
-                    </div>
-                    <label className="search">
-                      <Search size={16} />
-                      <input
-                        aria-label="Search workflows"
-                        placeholder="Search workflows…"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                      />
-                    </label>
-                    <div className="table-wrap">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Workflow / issue</th>
-                            <th>Area</th>
-                            <th>Devin session</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.workflows
-                            .filter((w) =>
-                              `${w.title} ${w.id}`
-                                .toLowerCase()
-                                .includes(query.toLowerCase()),
-                            )
-                            .map((w) => (
-                              <tr key={w.id}>
-                                <td>
-                                  <strong>{w.title}</strong>
-                                  <small>
-                                    {w.id} · Issue #{w.issue}
-                                  </small>
-                                </td>
-                                <td>{w.area}</td>
-                                <td>
-                                  <code>{w.run}</code>
-                                </td>
-                                <td>
-                                  <Badge>{w.status}</Badge>
-                                </td>
-                              </tr>
                             ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <EventList data={data} />
-                  </section>
-                )}
-                {page === "Devin runs" && (
-                  <div className="runs">
-                    {data.workflows.map((w) => (
-                      <section className="panel run" key={w.id}>
+                          </div>
+                          <div className="artifact-grid">
+                            {visible.map((c) => (
+                              <button
+                                className="artifact"
+                                key={c.id}
+                                onClick={() => setArtifact(c)}
+                              >
+                                {c.kind === "screenshot" ? (
+                                  <Chart />
+                                ) : (
+                                  <div className={`artifact-preview ${c.kind}`}>
+                                    <div>
+                                      <Terminal size={14} />
+                                      <span>
+                                        {c.kind === "tests"
+                                          ? "pytest · regression"
+                                          : "docker compose · " + c.id}
+                                      </span>
+                                    </div>
+                                    <pre>{c.content}</pre>
+                                  </div>
+                                )}
+                                <div className="artifact-caption">
+                                  <span>
+                                    <strong>{c.title}</strong>
+                                    <small>{c.kind} · demo fixture</small>
+                                  </span>
+                                  <ExternalLink size={13} />
+                                </div>
+                              </button>
+                            ))}
+                            {visible.length === 0 && (
+                              <p className="empty">
+                                No evidence matches this filter.
+                              </p>
+                            )}
+                          </div>
+                        </section>
+                      </div>
+                      <section className="review-banner">
+                        <span className="review-icon">
+                          <ShieldCheck size={24} />
+                        </span>
                         <div>
-                          <Terminal size={22} />
-                          <Badge>Fixture completed</Badge>
-                        </div>
-                        <h2>{w.title}</h2>
-                        <p>{w.id} / implementation session</p>
-                        <div className="run-meta">
-                          <code>{w.run}</code>
-                          <span>{w.minutes} min</span>
+                          <h2>The last mile is a human decision.</h2>
+                          <p>
+                            Inspect the artifacts, ask for changes, or record a
+                            demo approval.
+                          </p>
                         </div>
                         <button
-                          className="button"
-                          onClick={() =>
-                            setArtifact({
-                              id: w.run,
-                              title: `${w.run} · ${w.title}`,
-                              detail: w.area,
-                              status: "passed",
-                              duration: `${w.minutes}m`,
-                              kind: "logs",
-                              content: `[DEMO SESSION TRACE]\nIssue #${w.issue} received\nScoped changes in ${w.area}\nImplementation prepared\nCandidate: ${data.candidate.sha}\nThis is an illustrative trace, not a real Devin session.`,
-                            })
-                          }
+                          className="button primary"
+                          onClick={() => setReview(true)}
                         >
-                          View session trace <ArrowRight size={14} />
+                          Review candidate <ArrowRight size={16} />
                         </button>
                       </section>
-                    ))}
-                  </div>
-                )}
-                {page === "Repository graph" && (
-                  <section className="panel graph-panel">
-                    <div className="panel-heading">
-                      <div>
-                        <h2>Five paths. One candidate.</h2>
-                        <p>
-                          Illustrative dependency map · click a workstream to
-                          inspect its trace
-                        </p>
+                    </>
+                  )}
+                  {page === "Workflows" && (
+                    <section className="panel">
+                      <div className="panel-heading">
+                        <div>
+                          <h2>Engineering workstreams</h2>
+                          <p>Illustrative issues and integrated changes</p>
+                        </div>
+                        <button
+                          className="button primary"
+                          onClick={() => setNewIssue(true)}
+                        >
+                          <Play size={15} /> Simulate issue event
+                        </button>
                       </div>
-                      <GitBranch size={20} />
-                    </div>
-                    <div className="graph">
-                      <div className="graph-inputs">
-                        {data.workflows.map((w) => (
+                      <label className="search">
+                        <Search size={16} />
+                        <input
+                          aria-label="Search workflows"
+                          placeholder="Search workflows…"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                        />
+                      </label>
+                      <div className="table-wrap">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Workflow / issue</th>
+                              <th>Area</th>
+                              <th>Devin session</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data.workflows
+                              .filter((w) =>
+                                `${w.title} ${w.id}`
+                                  .toLowerCase()
+                                  .includes(query.toLowerCase()),
+                              )
+                              .map((w) => (
+                                <tr key={w.id}>
+                                  <td>
+                                    <strong>{w.title}</strong>
+                                    <small>
+                                      {w.id} · Issue #{w.issue}
+                                    </small>
+                                  </td>
+                                  <td>{w.area}</td>
+                                  <td>
+                                    <code>{w.run}</code>
+                                  </td>
+                                  <td>
+                                    <Badge>{w.status}</Badge>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <EventList data={data} />
+                    </section>
+                  )}
+                  {page === "Devin runs" && (
+                    <div className="runs">
+                      {data.workflows.map((w) => (
+                        <section className="panel run" key={w.id}>
+                          <div>
+                            <Terminal size={22} />
+                            <Badge>Fixture completed</Badge>
+                          </div>
+                          <h2>{w.title}</h2>
+                          <p>{w.id} / implementation session</p>
+                          <div className="run-meta">
+                            <code>{w.run}</code>
+                            <span>{w.minutes} min</span>
+                          </div>
                           <button
-                            key={w.id}
+                            className="button"
                             onClick={() =>
                               setArtifact({
                                 id: w.run,
@@ -714,113 +701,153 @@ export default function App() {
                                 status: "passed",
                                 duration: `${w.minutes}m`,
                                 kind: "logs",
-                                content: `[DEMO SESSION TRACE]\nWorkflow ${w.id} in ${w.area}\nThis is an illustrative trace, not a real Devin session.`,
+                                content: `[DEMO SESSION TRACE]\nIssue #${w.issue} received\nScoped changes in ${w.area}\nImplementation prepared\nCandidate: ${data.candidate.sha}\nThis is an illustrative trace, not a real Devin session.`,
                               })
                             }
                           >
-                            <GitPullRequest size={16} />
-                            <span>
-                              <strong>{w.area}</strong>
-                              <small>
-                                {w.id} · {w.run}
-                              </small>
-                            </span>
-                            <CheckCircle2 size={14} />
+                            View session trace <ArrowRight size={14} />
                           </button>
-                        ))}
-                      </div>
-                      <div className="graph-link">→</div>
-                      <div className="graph-node">
-                        <GitBranch />
-                        <strong>{data.candidate.id}</strong>
-                        <code>{data.candidate.sha.slice(0, 7)}</code>
-                        <small>Integration candidate</small>
-                      </div>
-                      <div className="graph-link">→</div>
-                      <button
-                        className="graph-node validator"
-                        onClick={() => setPage("Release validation")}
-                      >
-                        <ShieldCheck />
-                        <strong>Evidence gate</strong>
-                        <small>Independent validation</small>
-                        <Badge tone="amber">Human review</Badge>
-                      </button>
+                        </section>
+                      ))}
                     </div>
-                    <div className="panel-foot">
-                      Area relationships are fixtures, not a parsed dependency
-                      graph of Superset.
-                    </div>
-                  </section>
-                )}
-                {page === "Analytics" && (
-                  <div className="analytics-grid">
-                    <section className="panel">
+                  )}
+                  {page === "Repository graph" && (
+                    <section className="panel graph-panel">
                       <div className="panel-heading">
                         <div>
-                          <h2>Where the time goes</h2>
-                          <p>Implementation duration · demo sessions</p>
+                          <h2>Five paths. One candidate.</h2>
+                          <p>
+                            Illustrative dependency map · click a workstream to
+                            inspect its trace
+                          </p>
                         </div>
-                        <Clock3 size={18} />
+                        <GitBranch size={20} />
                       </div>
-                      <div className="horizontal-bars">
-                        {data.workflows.map((w) => (
-                          <div key={w.id}>
-                            <span>{w.area}</span>
-                            <div>
-                              <i
-                                style={{ width: `${(w.minutes / 31) * 100}%` }}
-                              />
-                            </div>
-                            <code>{w.minutes}m</code>
+                      <div className="graph">
+                        <div className="graph-inputs">
+                          {data.workflows.map((w) => (
+                            <button
+                              key={w.id}
+                              onClick={() =>
+                                setArtifact({
+                                  id: w.run,
+                                  title: `${w.run} · ${w.title}`,
+                                  detail: w.area,
+                                  status: "passed",
+                                  duration: `${w.minutes}m`,
+                                  kind: "logs",
+                                  content: `[DEMO SESSION TRACE]\nWorkflow ${w.id} in ${w.area}\nThis is an illustrative trace, not a real Devin session.`,
+                                })
+                              }
+                            >
+                              <GitPullRequest size={16} />
+                              <span>
+                                <strong>{w.area}</strong>
+                                <small>
+                                  {w.id} · {w.run}
+                                </small>
+                              </span>
+                              <CheckCircle2 size={14} />
+                            </button>
+                          ))}
+                        </div>
+                        <div className="graph-link">→</div>
+                        <div className="graph-node">
+                          <GitBranch />
+                          <strong>{data.candidate.id}</strong>
+                          <code>{data.candidate.sha.slice(0, 7)}</code>
+                          <small>Integration candidate</small>
+                        </div>
+                        <div className="graph-link">→</div>
+                        <button
+                          className="graph-node validator"
+                          onClick={() => setPage("Release validation")}
+                        >
+                          <ShieldCheck />
+                          <strong>Evidence gate</strong>
+                          <small>Independent validation</small>
+                          <Badge tone="amber">Human review</Badge>
+                        </button>
+                      </div>
+                      <div className="panel-foot">
+                        Area relationships are fixtures, not a parsed dependency
+                        graph of Superset.
+                      </div>
+                    </section>
+                  )}
+                  {page === "Analytics" && (
+                    <div className="analytics-grid">
+                      <section className="panel">
+                        <div className="panel-heading">
+                          <div>
+                            <h2>Where the time goes</h2>
+                            <p>Implementation duration · demo sessions</p>
                           </div>
-                        ))}
-                      </div>
-                    </section>
-                    <section className="panel">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>Review readiness</h2>
-                          <p>Observed values in this demo dataset</p>
+                          <Clock3 size={18} />
                         </div>
-                      </div>
-                      <div className="readiness">
-                        <div className="donut">
-                          <strong>
-                            80%<small>check groups passed</small>
-                          </strong>
+                        <div className="horizontal-bars">
+                          {data.workflows.map((w) => (
+                            <div key={w.id}>
+                              <span>{w.area}</span>
+                              <div>
+                                <i
+                                  style={{
+                                    width: `${(w.minutes / 31) * 100}%`,
+                                  }}
+                                />
+                              </div>
+                              <code>{w.minutes}m</code>
+                            </div>
+                          ))}
                         </div>
-                        <p>
-                          4 passed · 1 pending
-                          <br />
-                          <small>No claim of engineering hours saved.</small>
-                        </p>
-                      </div>
-                    </section>
-                    <section className="panel full">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>Activity ledger</h2>
-                          <p>Local events and decisions, persisted in SQLite</p>
+                      </section>
+                      <section className="panel">
+                        <div className="panel-heading">
+                          <div>
+                            <h2>Review readiness</h2>
+                            <p>Observed values in this demo dataset</p>
+                          </div>
                         </div>
-                      </div>
-                      <EventList data={data} />
-                    </section>
-                  </div>
-                )}
-                <footer>
-                  <span>
-                    <span className="mini-logo">c.</span> COGNITION / RELEASE
-                    ASSURANCE
-                  </span>
-                  <span>
-                    Demo workspace · Live Devin integration not connected
-                  </span>
-                </footer>
-              </>
-            )
-          )}
-        </main>
+                        <div className="readiness">
+                          <div className="donut">
+                            <strong>
+                              80%<small>check groups passed</small>
+                            </strong>
+                          </div>
+                          <p>
+                            4 passed · 1 pending
+                            <br />
+                            <small>No claim of engineering hours saved.</small>
+                          </p>
+                        </div>
+                      </section>
+                      <section className="panel full">
+                        <div className="panel-heading">
+                          <div>
+                            <h2>Activity ledger</h2>
+                            <p>
+                              Local events and decisions, persisted in SQLite
+                            </p>
+                          </div>
+                        </div>
+                        <EventList data={data} />
+                      </section>
+                    </div>
+                  )}
+                  <footer>
+                    <span>
+                      <span className="mini-logo">c.</span> COGNITION / RELEASE
+                      ASSURANCE
+                    </span>
+                    <span>
+                      Demo workspace · Live Devin integration not connected
+                    </span>
+                  </footer>
+                </>
+              )
+            )}
+          </main>
+        )}
       </div>
       <dialog
         aria-label="Candidate evidence and review"

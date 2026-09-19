@@ -1,0 +1,239 @@
+ Image redis:7-alpine Pulling 
+ Image postgres:17 Pulling 
+ 248d4d6535e8 Pulling fs layer 0B
+ c436aca17997 Pulling fs layer 0B
+ 6c159c167f77 Pulling fs layer 0B
+ 80825e26e4d6 Pulling fs layer 0B
+ 459f390c40ba Pulling fs layer 0B
+ 574676109835 Pulling fs layer 0B
+ 4f4fb700ef54 Pulling fs layer 0B
+ 8ed27976e552 Pulling fs layer 0B
+ e85e0dbf28ca Pulling fs layer 0B
+ aee75b2aa415 Pulling fs layer 0B
+ 344ed0d36e61 Pulling fs layer 0B
+ eb9ecc778db0 Pulling fs layer 0B
+ 724cc01c4e68 Pulling fs layer 0B
+ b9bd31abcf11 Pulling fs layer 0B
+ bf5220ddf37c Pulling fs layer 0B
+ c2c7493c80ee Pulling fs layer 0B
+ b57c5ada52d4 Pulling fs layer 0B
+ 59a0df9d7a4a Pulling fs layer 0B
+ f5fe4b142e90 Pulling fs layer 0B
+ 0473fe57c965 Pulling fs layer 0B
+ 4f4fb700ef54 Already exists 0B
+ c436aca17997 Download complete 0B
+ 248d4d6535e8 Downloading 1.049MB
+ 8ed27976e552 Download complete 0B
+ 344ed0d36e61 Download complete 0B
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Download complete 0B
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ e85e0dbf28ca Download complete 0B
+ 80825e26e4d6 Download complete 0B
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ 6c159c167f77 Download complete 0B
+ 574676109835 Downloading 6.291MB
+ 459f390c40ba Download complete 0B
+ eb9ecc778db0 Download complete 0B
+ aee75b2aa415 Download complete 0B
+ b57c5ada52d4 Download complete 0B
+ 0473fe57c965 Download complete 0B
+ c2c7493c80ee Download complete 0B
+ 248d4d6535e8 Extracting 1B
+ 344ed0d36e61 Extracting 1B
+ 574676109835 Downloading 11.53MB
+ f5fe4b142e90 Downloading 1.049MB
+ 724cc01c4e68 Download complete 0B
+ 59a0df9d7a4a Downloading 1.049MB
+ b9bd31abcf11 Downloading 2.097MB
+ bf5220ddf37c Download complete 0B
+ 248d4d6535e8 Extracting 1B
+ 344ed0d36e61 Extracting 1B
+ 574676109835 Download complete 0B
+ f5fe4b142e90 Downloading 3.146MB
+ 59a0df9d7a4a Downloading 6.235MB
+ b9bd31abcf11 Downloading 7.34MB
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ 59a0df9d7a4a Download complete 0B
+ b9bd31abcf11 Downloading 13.63MB
+ f5fe4b142e90 Downloading 8.204MB
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 24.12MB
+ f5fe4b142e90 Download complete 0B
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 36.7MB
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 47.19MB
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 58.72MB
+ 344ed0d36e61 Extracting 1B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 70.43MB
+ 344ed0d36e61 Extracting 2B
+ 248d4d6535e8 Extracting 1B
+ b9bd31abcf11 Downloading 81.79MB
+ 344ed0d36e61 Extracting 2B
+ 248d4d6535e8 Extracting 2B
+ b9bd31abcf11 Downloading 93.32MB
+ 344ed0d36e61 Extracting 2B
+ 248d4d6535e8 Extracting 2B
+ b9bd31abcf11 Downloading 104.9MB
+ 344ed0d36e61 Extracting 2B
+ 248d4d6535e8 Extracting 2B
+ b9bd31abcf11 Downloading 112.9MB
+ 344ed0d36e61 Extracting 2B
+ 248d4d6535e8 Extracting 2B
+ b9bd31abcf11 Download complete 0B
+ 344ed0d36e61 Pull complete 0B
+ 248d4d6535e8 Pull complete 0B
+ 80825e26e4d6 Pull complete 0B
+ 6c159c167f77 Pull complete 0B
+ 574676109835 Extracting 1B
+ bf5220ddf37c Pull complete 0B
+ 59a0df9d7a4a Pull complete 0B
+ f5fe4b142e90 Extracting 1B
+ 4f4fb700ef54 Pull complete 0B
+ c436aca17997 Pull complete 0B
+ 459f390c40ba Pull complete 0B
+ 574676109835 Pull complete 0B
+ 724cc01c4e68 Extracting 1B
+ f5fe4b142e90 Pull complete 0B
+ 2b4e8b5dc339 Download complete 0B
+ 4b5913bd23b5 Download complete 0B
+ 8e340d1d2e57 Downloading 1.049MB
+ e85e0dbf28ca Pull complete 0B
+ c2c7493c80ee Pull complete 0B
+ 724cc01c4e68 Pull complete 0B
+ b9bd31abcf11 Extracting 1B
+ 8e340d1d2e57 Download complete 0B
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ 181388ee13fc Download complete 0B
+ Image redis:7-alpine Pulled 
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ b9bd31abcf11 Extracting 1B
+ eb9ecc778db0 Pull complete 0B
+ aee75b2aa415 Pull complete 0B
+ b57c5ada52d4 Pull complete 0B
+ 0473fe57c965 Pull complete 0B
+ b9bd31abcf11 Pull complete 0B
+ 8ed27976e552 Pull complete 0B
+ Image postgres:17 Pulled 
+ Image cognition-superset-runtime:c37118ed Building 
+ Image cognition-superset-runtime:c37118ed Building 
+ Image cognition-superset-runtime:c37118ed Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.59kB done
+#1 DONE 0.0s
+
+#2 [init internal] load build definition from Superset.Dockerfile
+#2 transferring dockerfile: 176B done
+#2 DONE 0.0s
+
+#3 [worker internal] load metadata for docker.io/library/cognition-superset:c37118ed
+#3 DONE 0.0s
+
+#4 [worker internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [superset 1/2] FROM docker.io/library/cognition-superset:c37118ed@sha256:af148dd84fdf2c859cb55ce5985e6a1dc9e988bfafa1ff2dd4b3fdb1f8dafae4
+#5 resolve docker.io/library/cognition-superset:c37118ed@sha256:af148dd84fdf2c859cb55ce5985e6a1dc9e988bfafa1ff2dd4b3fdb1f8dafae4 done
+#5 DONE 0.1s
+
+#6 [worker 2/2] RUN uv pip install pymysql==1.1.2
+#6 0.205 Resolved 1 package in 111ms
+#6 0.213 Prepared 1 package in 8ms
+#6 0.216 Installed 1 package in 2ms
+#6 0.216  + pymysql==1.1.2
+#6 DONE 0.5s
+
+#7 [superset] exporting to image
+#7 exporting layers 0.0s done
+#7 exporting manifest sha256:9cf7708d326666c2c0e6574d7fadd57d5d43987eff25aa5ff04a9a3398df8cb7 0.0s done
+#7 exporting config sha256:fbabebbf7a7056993709ed7a3ec717c68188b3d6f373dee9484f1978a332b356 done
+#7 exporting attestation manifest sha256:1968b31d1a7f4e37cf1f099a68863f1eb68a65c1e9c1fb2c4f46f759d138d79d 0.0s done
+#7 exporting manifest list sha256:0a6cdf88c7f8d84c06cdd72c9562b9d62b0cefd1fcc92536fe8a823f029a85e7 done
+#7 naming to docker.io/library/cognition-superset-runtime:c37118ed
+#7 naming to docker.io/library/cognition-superset-runtime:c37118ed done
+#7 unpacking to docker.io/library/cognition-superset-runtime:c37118ed 0.0s done
+#7 DONE 0.1s
+
+#8 [init] exporting to image
+#8 exporting layers 0.0s done
+#8 exporting manifest sha256:8d67d916032303419ec1fb71fc0af5283a96b179fcbcd431be2f87a5fb3add20 0.0s done
+#8 exporting config sha256:f88907cedf4aed80ecff48dc9a5aad7e2ed8852e9f783583bb5a821e6f86b9b5 0.0s done
+#8 exporting attestation manifest sha256:af43ac0b7071f739abe72670a2e72ce8f85f184797aa8228a32453b6d367b291 0.0s done
+#8 exporting manifest list sha256:c2ab0a1789c41324a3dd08be3cc132cd8750acdc8965739929e3ddd66df41a5f done
+#8 naming to docker.io/library/cognition-superset-runtime:c37118ed done
+#8 unpacking to docker.io/library/cognition-superset-runtime:c37118ed 0.0s done
+#8 DONE 0.1s
+
+#9 [worker] exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:a8713e08f655fc396631f4c685b243ffd3d1e35930fd1330685673342731e63a 0.0s done
+#9 exporting config sha256:bff26a160799b3750eddbebfa7b277c71e2e96ff895e8a9bff790cd420f48bee 0.0s done
+#9 exporting attestation manifest sha256:68a81ece8b1f83c17e05ede68f028a13cf899f786277d370353bd9912756eb09 0.0s done
+#9 exporting manifest list sha256:67644b80f30a613998ecbc3933d105b36f2d9509e701442a363b766b7aa99b27 done
+#9 naming to docker.io/library/cognition-superset-runtime:c37118ed done
+#9 unpacking to docker.io/library/cognition-superset-runtime:c37118ed 0.0s done
+#9 DONE 0.2s
+
+#10 [superset] resolving provenance for metadata file
+#10 DONE 0.0s
+
+#11 [init] resolving provenance for metadata file
+#11 DONE 0.0s
+
+#12 [worker] resolving provenance for metadata file
+#12 DONE 0.0s
+ Image cognition-superset-runtime:c37118ed Built 
+ Image cognition-superset-runtime:c37118ed Built 
+ Image cognition-superset-runtime:c37118ed Built 
+ Network cognition-validation_default Creating 
+ Network cognition-validation_default Created 
+ Volume cognition-validation_metadata Creating 
+ Volume cognition-validation_metadata Created 
+ Volume cognition-validation_mysql-data Creating 
+ Volume cognition-validation_mysql-data Created 
+ Container cognition-validation-db-1 Creating 
+ Container cognition-validation-mysql-1 Creating 
+ Container cognition-validation-redis-1 Creating 
+ Container cognition-validation-mysql-1 Created 
+ Container cognition-validation-redis-1 Created 
+ Container cognition-validation-db-1 Created 
+ Container cognition-validation-init-1 Creating 
+ Container cognition-validation-init-1 Created 
+ Container cognition-validation-worker-1 Creating 
+ Container cognition-validation-superset-1 Creating 
+ Container cognition-validation-worker-1 Created 
+ Container cognition-validation-superset-1 Created 
+ Container cognition-validation-redis-1 Starting 
+ Container cognition-validation-db-1 Starting 
+ Container cognition-validation-mysql-1 Starting 
+ Container cognition-validation-redis-1 Started 
+ Container cognition-validation-mysql-1 Started 
+ Container cognition-validation-db-1 Started 
+ Container cognition-validation-db-1 Waiting 
+ Container cognition-validation-db-1 Healthy 
+ Container cognition-validation-init-1 Starting 
+ Container cognition-validation-init-1 Started 
+ Container cognition-validation-init-1 Waiting 
+ Container cognition-validation-init-1 Waiting 
+ Container cognition-validation-init-1 Exited 
+ Container cognition-validation-superset-1 Starting 
+ Container cognition-validation-init-1 Exited 
+ Container cognition-validation-worker-1 Starting 
+ Container cognition-validation-superset-1 Started 
+ Container cognition-validation-worker-1 Started 

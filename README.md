@@ -1,19 +1,68 @@
 # Cognition · Release assurance
 
-An evidence-first dashboard for autonomous Superset engineering. Python FastAPI, React/TypeScript/Vite, SQLite, one Docker container. Local Git repository; no remote is configured.
+A small control plane for autonomous Superset engineering: issue → bounded Devin repair → integration candidate → fresh validator → evidence on GitHub and Slack → human review. Python FastAPI, React/TypeScript/Vite and SQLite, packaged as an API container and a durable worker from one image.
 
-## Run
+## Run the dashboard
 
 ```sh
+cp .env.example .env
 docker compose up --build -d
 ```
 
-Open http://localhost:8000. API docs: http://localhost:8000/docs.
-Data survives container recreation in the `cognition-data` Docker volume. Stop with `docker compose down` (keep the volume). Port binding is localhost only: this prototype has no authentication and must not be exposed publicly.
+Open [the dashboard](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/docs). Automation defaults to **disabled**. The shared `cognition-data` volume survives container recreation; `docker compose down` keeps it. The dashboard is deliberately bound to loopback: it has no multi-user authentication.
 
-### Local development
+The initial pages are Release validation, Workflows, Devin runs, Repository graph and Analytics. These use clearly labeled fixtures for offline demonstration. **Live operations** reads the real persistent execution ledger; it never fills gaps with fixtures. The generated design reference is [docs/dashboard-mockup.png](docs/dashboard-mockup.png).
 
-Python 3.12 and Node 22 recommended. In two terminals:
+## Current verification boundary
+
+- The dashboard, durable workflow engine, signed GitHub webhook, scheduled scan, provider adapters, integration batching and report outbox are implemented and covered by local tests.
+- A real fork issue exists: [MySQL time buckets on Superset 6.1](https://github.com/Nasdin/superset/issues/1). Its reproduction at `c37118edd0146019ab0ae4ae1a97a597cb56c88e` fails 6 of 9 cases against MySQL 8.0; [raw results](evidence/mysql-baseline.json) are retained.
+- Superset was built from that exact baseline source. An isolated PostgreSQL/Redis/MySQL/Superset/Celery stack is running locally. A browser test signed in and queried the seeded MySQL fixture, checking three rows totaling six. Screenshot, video and content hashes are recorded in [the baseline manifest](evidence/baseline-manifest.json). This is **baseline qualification, not a repaired candidate**.
+- Devin organization credentials and the Slack destination are not configured. No paid Devin session, repair PR, independent candidate validation, or delivered Slack report has been proved yet. The workflow goal remains unfinished.
+
+## Configure live execution
+
+Use server-side values in ignored `.env`; never put credentials in Vite variables. The intended organization is **Asmar DE Takehome**, with its verified ID in `.env.example`. A personal Devin CLI login is not proof of access to that organization's credits.
+
+Required: `DEVIN_API_KEY`, `GITHUB_TOKEN`, random `OPERATOR_TOKEN`, random `GITHUB_WEBHOOK_SECRET`. Optional reporting requires `SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID`. Verify the repository and release branch, then set `AUTOMATION_ENABLED=true` and recreate the containers. Defaults limit each session to 10 ACU, the entire stored run history to 6 sessions, and session duration to 2 hours. The worker reserves capacity for validation and does not reset budgets on restart. A daily scan can be disabled with `SCAN_INTERVAL_SECONDS=0`.
+
+```sh
+# Queue an explicitly labeled, authorized fork issue; the worker still needs enabling.
+python3 scripts/operator.py issue --number 1
+python3 scripts/operator.py overview
+# Queue one scan for the current schedule window.
+python3 scripts/operator.py scan
+```
+
+GitHub issue intake requires the configured author and `cognition:repair` label. Webhooks additionally require the configured repository, actor and valid HMAC signature. The worker polls labeled issues every minute as a fallback and coalesces implemented workstreams after a quiet period. Duplicate issues and deliveries are deduplicated in SQLite.
+
+For public GitHub ingress, start the restricted gateway with `docker compose -f compose.yaml -f compose.webhook.yaml up -d`. Tunnel **only port 8001** and configure the GitHub webhook to `/api/live/webhooks/github` with the same secret and `issues` events. The gateway rejects all other paths. No tunnel or GitHub webhook is currently installed; never tunnel dashboard port 8000.
+
+## Trust and recovery model
+
+- The repair agent must reproduce the original failure and open a PR in the configured fork. The worker checks the PR's target and head.
+- Integration merges exact component commits onto a separate `cognition/integration/...` branch and opens a draft PR. It never merges the release/default branch.
+- A **fresh** Devin session validates the full integrated SHA, starts actual Superset, checks services and database results, exercises the browser and runs regression tests.
+- Review readiness requires passing mandatory checks, no blocker, distinct provider-confirmed screenshot/video/log/test attachments, and a validator distinct from the implementers. Every later integration PR head change invalidates old evidence. Readiness is agent evidence for human review; it is not automatic approval, merge or deployment.
+- GitHub issue/PR reports and optional Slack notifications use a persistent outbox. The UI distinguishes pending, sent, failed and uncertain delivery. Provider-confirmed attachment metadata establishes origin; it does not independently prove the content of a video or log. A human still inspects the evidence, and provider URLs may require access or expire.
+- A timeout during session creation or external writes becomes `unknown_effect`; it is not blindly retried. Session reconciliation requires the matching job tag. Integration recovery reads the actual branch, merge parents and existing PR before resuming. Publication recovery currently requires operator inspection; no automatic resend follows an uncertain outcome.
+- SQLite retains jobs, audit events, delivery IDs, actual reported ACU, publication receipts and the last 20 repository lessons. Lessons are supplied as observations, never trusted instructions.
+
+## Architecture
+
+```text
+React dashboard → FastAPI → shared SQLite ledger ← single durable worker
+                     ↑                           ↙       ↓        ↘
+              signed issue event           GitHub     Devin v3    Slack
+                                              ↓
+                               exact integration SHA → fresh validator
+```
+
+Use one API, one worker and one database for this four-day exercise. Superset's database/cache containers belong to its validation environment, not the orchestration architecture. The repository graph and analytics outside Live operations remain illustrative fixtures.
+
+## Local development and verification
+
+Python 3.12 and Node 22 are recommended. Start FastAPI and Vite separately:
 
 ```sh
 cd backend
@@ -28,58 +77,15 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. Vite proxies `/api` to FastAPI.
-
-## What works today
-
-- Responsive release dashboard: exact candidate SHA, validation checklist, pipeline and evidence gallery.
-- Workflows with search and a local issue-event simulator; duplicate delivery IDs are deduplicated atomically.
-- Devin run trace viewers, an interactive illustrative repository graph, and fixture analytics.
-- Evidence viewer for screenshots, logs and tests, JSON export, and explicit unavailable-API handling.
-- SQLite-backed demo review decisions; stale candidate SHA returns 409. Real release approval is always blocked.
-- A polished generated mockup at `docs/dashboard-mockup.png` and actual UI screenshots in `evidence/` after browser checks.
-
-## Honest demo boundary
-
-The Superset issues, session IDs, candidate commit, durations, statuses, chart preview, graph relationships and evidence are **fixtures**. They are not upstream findings or actual Devin/Superset runs. The chart is an illustrative UI preview, not a captured Superset screenshot. Exported JSON includes `mode: demo`. Decisions only record local intent; they never approve, merge or deploy. The pending independent review check remains pending because no real independent validation happened, even after a demo decision is recorded.
-
-No GitHub webhook, Superset checkout, Devin API dispatch, polling worker, real artifact ingestion or production authentication is connected yet. The current simulator stores events but does not execute them. Review decisions are append-only; separate submissions create separate ledger entries. Do not automatically retry a decision after an uncertain response—inspect the activity ledger first.
-
-## Architecture
-
-```text
-Browser / React + Vite
-          │ /api
-          ▼
-FastAPI ───── SQLite event + review ledger
-   │
-   └── Built frontend files (same origin, same container)
-```
-
-Keep one API and one database for this four-day exercise. Add a small durable worker and Devin adapter in the same repository; no Redis, distributed orchestration platform or graph database is needed for the first complete demonstration. See `docs/FOUR_DAY_PLAN.md` for the live path and acceptance gates.
-
-## Verification
-
 ```sh
 cd backend
 .venv/bin/python -m pytest -q
 cd ../frontend
 npm run build
 npx playwright install chromium
-# With Docker app running; omit E2E_BASE_URL to use Vite on port 5173
 E2E_BASE_URL=http://127.0.0.1:8000 npm run test:e2e
 ```
 
-Browser checks cover evidence inspection, demo review persistence, workflow search, event creation, page navigation, narrow-screen overflow and API outage handling. They exercise this application, not Superset. Backend checks cover durable decisions, stale SHA, concurrent event deduplication and the real-approval block.
+The optional Superset browser test requires the isolated runtime described in [docs/CONTINUE.md](docs/CONTINUE.md) and `SUPERSET_E2E=1`. The default browser suite tests this dashboard, not Superset or Devin.
 
-## API
-
-| Endpoint | Behavior |
-| --- | --- |
-| `GET /api/health` | SQLite health, demo mode |
-| `GET /api/dashboard` | Fixtures plus local activity |
-| `POST /api/demo/events` | Save `{delivery_id, title}`; deduplicate by ID |
-| `POST /api/demo/decisions` | Save `{sha, decision, note}`; check SHA |
-| `POST /api/releases/approve` | Always 409: demo evidence is ineligible |
-
-Do not add API keys to frontend code. Future Devin credentials belong only in the backend environment. The current scaffold needs no credentials and makes no paid API calls.
+See [the four-day delivery plan](docs/FOUR_DAY_PLAN.md), [continuation checkpoint](docs/CONTINUE.md), and [provider references](docs/providers/README.md).

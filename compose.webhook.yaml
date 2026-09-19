@@ -1,0 +1,10 @@
+services:
+  webhook-gateway:
+    image: nginx:1.28-alpine
+    volumes:
+      - ./infra/webhook-gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:8001:8080"
+    depends_on:
+      cognition:
+        condition: service_healthy

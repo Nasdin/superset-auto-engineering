@@ -1,0 +1,2 @@
+# Preserve raw tool output, including terminal carriage returns and spacing.
+evidence/*.log -whitespace
