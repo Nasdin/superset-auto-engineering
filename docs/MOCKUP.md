@@ -1,0 +1,7 @@
+# Dashboard mockup
+
+Generated with the built-in image generation tool. This is a visual design reference, not execution evidence. The implemented dashboard deliberately marks all fixture evidence and decisions as demo-only.
+
+Prompt:
+
+Use case: ui-mockup. Create a polished high fidelity desktop web app screenshot for Cognition, an autonomous Devin-powered Superset engineering system. Main page titled Release validation. Refined editorial technical aesthetic, warm off-white canvas, dark ink text, terracotta orange accent, fine borders, compact monospace metadata. Left narrow sidebar with Cognition wordmark and navigation Overview, Workflows, Devin runs, Release validation (selected), Repository graph, Analytics. Main large headline 'Confidence, backed by evidence.' Small visible 'Demo workspace' label. Candidate RC-014 with commit 8f3a21c, five integrated workflows, independent validation. Wide pipeline steps Integrate, Start services, Verify behavior, Collect evidence, Human review. Main grid left checklist service boot, database checks, browser journeys, regression tests, one amber pending review. Right evidence gallery with realistic miniature Superset chart screenshot, terminal log, test report. Footer review panel says 'Review evidence' with orange button. Top stats 5 workflows, 24 checks, 8 artifacts, 1 review. Beautiful precise spacing, restrained colors, sophisticated enterprise product design, legible text, no futuristic effects. Landscape 16:10.
