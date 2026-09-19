@@ -1368,3 +1368,12 @@ dialog::backdrop {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+.skip:not(:focus) {
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0;
+  top: 0;
+}
