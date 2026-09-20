@@ -212,7 +212,7 @@ Use [the Lightsail template](infra/cloudformation/lightsail.yaml) for a low-traf
 
 Target region: **ap-southeast-2 (Sydney)**, approved for this demo. The current AWS project permits only Sydney; a standard AWS account is needed to choose a US region. The template defaults to the Sydney `small_3_2` bundle.
 
-The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup and local health checks. Automated backups are intentionally disabled; losing the host can lose its data. This is a single-server deployment, with downtime during host failure/recovery, not high availability. Public deployment remains pending until the account/region and live acceptance checks are complete.
+The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup and local health checks. Automated backups are intentionally disabled; losing the host can lose its data. This is a single-server deployment, with downtime during host failure/recovery, not high availability. The Sydney VM is provisioned and the application and migrated databases are running. DNS, public HTTPS and webhook cutover remain pending; the intended URL is not yet a verified public deployment. See [deployment evidence](docs/analysis/sydney-deployment.json).
 
 Follow [the low-cost deployment and recovery runbook](docs/LOW_COST_AWS.md), including migration of the existing execution ledger before enabling any automation. Do not run candidate-validation databases/services on this small dashboard VM.
 

@@ -1,6 +1,6 @@
 # Low-cost AWS deployment
 
-Target: `https://superset-devin.nasrudinsalim.com`, region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. Deployment acceptance is in progress. A created project or a completed CloudFormation stack is not evidence of a live application.
+Target: `https://superset-devin.nasrudinsalim.com`, region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. The VM and application are provisioned; DNS, public HTTPS, embedded-chart browser acceptance and webhook cutover remain pending. See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
 
 ## Capacity and cost
 

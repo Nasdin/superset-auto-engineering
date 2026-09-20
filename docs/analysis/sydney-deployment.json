@@ -1,0 +1,75 @@
+{
+  "verified_at": "2026-09-20T16:22:50.331563+00:00",
+  "status": "server_running_public_domain_pending",
+  "verified_application_revision": "53675759884cbe1e9eac28506281291f44840b1d",
+  "ci": "https://github.com/Nasdin/superset-auto-engineering/actions/runs/35522249708",
+  "region": "ap-southeast-2",
+  "stack": "superset-devin",
+  "instance": "superset-devin-host",
+  "static_ipv4": "54.206.155.25",
+  "target_url": "https://superset-devin.nasrudinsalim.com",
+  "bundle": {
+    "id": "small_3_2",
+    "ram_gib": 2,
+    "disk_gb": 60,
+    "monthly_usd": 12
+  },
+  "database": "PostgreSQL 17",
+  "scheduled_backups": false,
+  "automatic_snapshots": false,
+  "automation_enabled": false,
+  "migration": {
+    "local": {
+      "jobs": 7,
+      "paid_sessions": 4,
+      "publications": 5,
+      "audit": 164,
+      "lessons": 3,
+      "learning_contexts": 0,
+      "holds": 1
+    },
+    "sydney": {
+      "jobs": 7,
+      "paid_sessions": 4,
+      "publications": 5,
+      "audit": 164,
+      "lessons": 3,
+      "learning_contexts": 0,
+      "holds": 1
+    },
+    "matched": true
+  },
+  "history": {
+    "apache/superset": 11704,
+    "Nasdin/superset": 4,
+    "superset_charts": 6,
+    "superset_dashboards": 1
+  },
+  "checks": {
+    "cloudformation": "UPDATE_COMPLETE; instance not replaced",
+    "api_and_superset_health": "passed on server loopback",
+    "authentication_and_navigation": "2 Playwright tests passed against real server through SSH tunnel; public TLS not exercised",
+    "cookie_attributes": "Secure; HttpOnly; SameSite=Strict",
+    "analytics_api": "both repositories returned 200",
+    "external_ports": {
+      "80": "reachable, redirects to HTTPS",
+      "443": "reachable",
+      "8000": "blocked",
+      "8189": "blocked",
+      "55432": "blocked",
+      "5432": "blocked",
+      "6379": "blocked"
+    },
+    "ledger_migration": "counts matched; existing usage_limit_exceeded hold preserved",
+    "oom_kills": 0,
+    "service_startup": "cognition-app.service and cognition-check.timer enabled",
+    "bootstrap": "initial Lightsail POSIX-shell incompatibility repaired; committed template uses /bin/sh and set -eu",
+    "host_reboot": "passed; app and Superset healthy, startup and health timer active, 0 OOM, 0 MiB swap used after reboot"
+  },
+  "remaining": [
+    "Cloudflare DNS form blocked by browser extension interruption; no record change confirmed",
+    "Public HTTPS certificate, authenticated Superset chart UI and repository/window parity checks",
+    "Signed GitHub webhook cutover after public acceptance",
+    "Paid Devin execution remains disabled; existing validation needs attention for usage_limit_exceeded"
+  ]
+}

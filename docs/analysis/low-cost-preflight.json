@@ -26,5 +26,6 @@
     "automatic_lightsail_snapshots": false,
     "reason": "User requested a demo without backups on 2026-09-20",
     "hosting_region": "us-east-1 using the standard AWS account; simplified Sydney project is not the deployment destination"
-  }
+  },
+  "superseded_by": "sydney-deployment.json; original local preflight retained as historical evidence"
 }

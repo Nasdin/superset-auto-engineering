@@ -2156,7 +2156,7 @@ td small {
   font-weight: 600;
 }
 .candidate-revision {
-  margin: 18px 0 0;
+  margin: 18px 23px 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2170,7 +2170,7 @@ td small {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  padding: 24px 0 0;
+  padding: 24px 23px;
   margin-top: 24px;
   border-top: 1px solid var(--border);
 }
