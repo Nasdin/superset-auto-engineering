@@ -37,3 +37,11 @@ docker compose exec cognition python -m app.analytics.enrichment \
 ```
 
 This uses the existing private `GITHUB_TOKEN` and database configuration. It stops at the rate-limit reserve. Do not run multiple backfills against the same repository concurrently.
+
+## Public acceptance
+
+Deployed revision `212c7804153fc59527f537e8d0d1f7c61c3db9b9` to the existing Sydney Lightsail host on 21 September 2026 Singapore time (20 September UTC). [Code quality CI](https://github.com/Nasdin/superset-auto-engineering/actions/runs/35525035803) passed. The backend suite passed 228 tests with 86.06% branch coverage; the frontend suite passed 15 tests with three explicit environment-dependent skips. A separate real Superset test passed locally and against the public HTTPS deployment.
+
+The public test checked all five chart responses, monthly merge-metric parity with the API, monthly/rolling switching, 60-day windows, bot filtering, upstream/fork isolation, native rollout annotations and stacked charts at 390px. [Desktop screenshot](../screenshots/engineering-impact-desktop.png), [mobile screenshot](../screenshots/engineering-impact-mobile.png), and [API/authentication receipt](../analysis/engineering-impact-verification.json) are from this deployment.
+
+The initial detailed backfill imported 600 upstream PRs and four fork PRs. The hourly importer continues from persisted progress. Screenshots and receipts are point-in-time observations; counts can change during import. No post-launch improvement or measured labour savings is claimed before data exists. The workflow worker and its existing execution holds were not changed by this analytics deployment.

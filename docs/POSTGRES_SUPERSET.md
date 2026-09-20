@@ -14,7 +14,7 @@ flowchart LR
   API --> Embed
 ```
 
-[Verified local dashboard screenshot](images/superset-analytics-live.png) · [fork screenshot](images/superset-analytics-fork.png) · [verification receipt](analysis/superset-postgres-verification.json).
+[Current public dashboard](screenshots/engineering-impact-desktop.png) · [mobile layout](screenshots/engineering-impact-mobile.png) · [impact verification](analysis/engineering-impact-verification.json) · [design and methodology](design/ANALYTICS.md). Earlier local verification remains in [the original receipt](analysis/superset-postgres-verification.json).
 
 ## Start a clean installation
 
@@ -24,7 +24,7 @@ python3 scripts/configure_local_postgres.py
 docker compose up --build -d
 ```
 
-Open `http://127.0.0.1:8000` and select Analytics. Superset is available locally at `http://127.0.0.1:8189/bi`; the embedded page does not need an admin login. Provisioning creates six charts and four datasets idempotently. The optional Superset admin username is `cognition-admin`; its generated password remains in ignored `.env`. Credentials are generated once, not reset on container restart. Rotating a database or Superset account password requires updating that account as well as `.env`.
+Open `http://127.0.0.1:8000` and select Analytics. Superset is available locally at `http://127.0.0.1:8189/bi`; the embedded page does not need an admin login. Provisioning creates monthly and rolling dashboards with five visible charts each and nine datasets idempotently. The optional Superset admin username is `cognition-admin`; its generated password remains in ignored `.env`. Credentials are generated once, not reset on container restart. Rotating a database or Superset account password requires updating that account as well as `.env`.
 
 The production Compose runtime uses Postgres 17 for all jobs, audit records, memories, delivery receipts and imported history. SQLite remains only in isolated tests, the explicit legacy demo and a read-only committed public seed. The seed is copied into Postgres once; Superset never queries SQLite. A new installation imports actual public history and starts with an empty workflow ledger. Paid automation is disabled by default.
 

@@ -1,0 +1,111 @@
+{
+  "checked_at": "2026-09-20T17:17:02.020063+00:00",
+  "deployment_sha": "212c7804153fc59527f537e8d0d1f7c61c3db9b9",
+  "public_url": "https://superset-devin.nasrudinsalim.com/#analytics",
+  "anonymous_analytics_status": 401,
+  "secure_httponly_session": true,
+  "repositories": {
+    "apache/superset": {
+      "current": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged_prs": 806,
+        "merge_samples": 806,
+        "commits_samples": 102,
+        "rework_samples": 102,
+        "code_samples": 102,
+        "median_hours": 25.283194444444447,
+        "avg_commits": 7.323529411764706,
+        "avg_rework": 2.872549019607843,
+        "additions": 85863,
+        "deletions": 34283,
+        "avg_lines_changed": 1177.9019607843138,
+        "covered": true
+      },
+      "rollout": {
+        "before": {
+          "start": "2026-08-22",
+          "end": "2026-09-20",
+          "merged_prs": 780,
+          "merge_samples": 780,
+          "commits_samples": 104,
+          "rework_samples": 104,
+          "code_samples": 104,
+          "median_hours": 25.283194444444447,
+          "avg_commits": 7.221153846153846,
+          "avg_rework": 2.8173076923076925,
+          "additions": 85869,
+          "deletions": 34289,
+          "avg_lines_changed": 1155.3653846153845,
+          "covered": false
+        },
+        "after": null,
+        "days": 0,
+        "changes": {}
+      },
+      "estimate": {
+        "eligible_prs": 0,
+        "covered": true,
+        "by_segment": {
+          "Fixes": 0,
+          "Features": 0,
+          "Bots": 0,
+          "Other": 0
+        }
+      },
+      "monthly_cohorts": 28
+    },
+    "Nasdin/superset": {
+      "current": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged_prs": 0,
+        "merge_samples": 0,
+        "commits_samples": 0,
+        "rework_samples": 0,
+        "code_samples": 0,
+        "median_hours": null,
+        "avg_commits": null,
+        "avg_rework": null,
+        "additions": null,
+        "deletions": null,
+        "avg_lines_changed": null,
+        "covered": true
+      },
+      "rollout": {
+        "before": {
+          "start": "2026-08-22",
+          "end": "2026-09-20",
+          "merged_prs": 0,
+          "merge_samples": 0,
+          "commits_samples": 0,
+          "rework_samples": 0,
+          "code_samples": 0,
+          "median_hours": null,
+          "avg_commits": null,
+          "avg_rework": null,
+          "additions": null,
+          "deletions": null,
+          "avg_lines_changed": null,
+          "covered": false
+        },
+        "after": null,
+        "days": 0,
+        "changes": {}
+      },
+      "estimate": {
+        "eligible_prs": 0,
+        "covered": true,
+        "by_segment": {
+          "Fixes": 0,
+          "Features": 0,
+          "Bots": 0,
+          "Other": 0
+        }
+      },
+      "monthly_cohorts": 28
+    }
+  },
+  "ci_url": "https://github.com/Nasdin/superset-auto-engineering/actions/runs/35525035803",
+  "public_superset_browser_test": "passed; monthly/rolling, 60-day windows, bots, repository isolation, annotation and mobile stacking"
+}

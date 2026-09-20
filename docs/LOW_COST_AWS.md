@@ -74,7 +74,7 @@ Create only the `superset-devin` DNS-only A record in Cloudflare, pointing to th
 Acceptance requires all of:
 
 - Valid HTTPS; anonymous dashboard and `/bi` require authentication; diagnostic ports are inaccessible externally.
-- All six embedded charts load, agree with the Postgres-backed API, and respect upstream/fork and sliding-window filters.
+- All five embedded charts in each cadence load, agree with the Postgres-backed API, and respect upstream/fork and sliding-window filters.
 - Service and host restart persistence; no OOM kills, disk exhaustion or sustained swap thrashing under the expected low concurrent load.
 - Existing job/publication/memory/audit counts and budget holds survive migration.
 - Automatic snapshots and scheduled database backups remain disabled as requested for the demo.
