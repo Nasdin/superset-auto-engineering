@@ -153,6 +153,18 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
           name: "Fixture screenshot",
           url: "https://attachments.devin.ai/test.png",
         },
+        {
+          kind: "api_transcript",
+          name: "API transcript",
+          url: "https://attachments.devin.ai/api.txt",
+          public_url: "https://evidence.example/api.txt",
+        },
+        {
+          kind: "coverage",
+          name: "Coverage report",
+          url: "https://attachments.devin.ai/coverage.json",
+          public_url: "https://evidence.example/coverage.txt",
+        },
       ],
     },
   };
@@ -231,7 +243,7 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
   ).toHaveCount(0);
   await page.getByRole("button", { name: "#7 chore: bump PyJWT" }).click();
   await expect(
-    page.getByRole("link", { name: "Open evidence" }),
+    page.getByRole("link", { name: "Open evidence" }).first(),
   ).toHaveAttribute("href", "https://attachments.devin.ai/test.png");
   await expect(
     page.getByRole("link", { name: "Published report" }),
@@ -244,6 +256,15 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     "curl -X POST",
   );
   await expect(page.getByLabel("Observed response")).toContainText('"value":1');
+  await expect(
+    page.getByRole("link", { name: "Open API transcript" }),
+  ).toHaveAttribute("href", "https://evidence.example/api.txt");
+  await expect(
+    page.getByRole("link", { name: "Open coverage report" }),
+  ).toHaveAttribute("href", "https://evidence.example/coverage.txt");
+  await expect(
+    page.getByRole("link", { name: "Open test log" }),
+  ).toHaveAttribute("href", "https://attachments.devin.ai/tests.xml");
   await expect(page.getByText("80/100 (80.0%)", { exact: true })).toBeVisible();
   await expect(page.getByText("9 passed · 0 failed · 1 skipped")).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });

@@ -14,6 +14,10 @@ function ratio(covered: number, total: number) {
 export function ExecutionEvidence({ result }: { result: Job["result"] }) {
   const coverage = result?.coverage;
   const tests = result?.test_results;
+  const evidenceUrl = (url: string | undefined) =>
+    safeUrl(
+      result?.artifacts?.find((artifact) => artifact.url === url)?.public_url || "",
+    ) || safeUrl(url || "");
   return (
     <div className="execution-evidence">
       <h3>API requests & responses</h3>
@@ -40,9 +44,9 @@ export function ExecutionEvidence({ result }: { result: Job["result"] }) {
             <pre aria-label="Observed response">
               <code>{request.response_excerpt}</code>
             </pre>
-            {safeUrl(request.evidence_url) && (
+            {evidenceUrl(request.evidence_url) && (
               <a
-                href={safeUrl(request.evidence_url)}
+                href={evidenceUrl(request.evidence_url)}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -64,6 +68,15 @@ export function ExecutionEvidence({ result }: { result: Job["result"] }) {
           <pre>
             <code>{tests.command}</code>
           </pre>
+          {evidenceUrl(tests.report_url) && (
+            <a
+              href={evidenceUrl(tests.report_url)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open test log
+            </a>
+          )}
         </div>
       ) : (
         <p className="empty">Test totals unavailable.</p>
@@ -94,9 +107,9 @@ export function ExecutionEvidence({ result }: { result: Job["result"] }) {
             Scoped measurement, not overall Superset coverage. Review the linked
             report and affected paths.
           </p>
-          {safeUrl(coverage.report_url) && (
+          {evidenceUrl(coverage.report_url) && (
             <a
-              href={safeUrl(coverage.report_url)}
+              href={evidenceUrl(coverage.report_url)}
               target="_blank"
               rel="noreferrer"
             >
