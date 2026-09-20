@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Low-traffic Cognition host with bundled Lightsail storage, static IPv4 and daily snapshots.
+Description: Low-traffic Cognition host with bundled Lightsail storage, static IPv4; scheduled backups disabled for this demo.
 Parameters:
   BundleId:
     Type: String
@@ -28,9 +28,7 @@ Resources:
       BundleId: !Ref BundleId
       AddOns:
         - AddOnType: AutoSnapshot
-          Status: Enabled
-          AutoSnapshotAddOnRequest:
-            SnapshotTimeOfDay: '20:00'
+          Status: Disabled
       Networking:
         Ports:
           - FromPort: 22
@@ -77,9 +75,8 @@ Resources:
           cd /opt/cognition/app
           git checkout --detach ${ReleaseSha}
           install -m 0755 infra/host/cognition-compose /usr/local/bin/cognition-compose
-          install -m 0755 infra/host/backup.sh /usr/local/sbin/cognition-backup
           install -m 0755 infra/host/check.sh /usr/local/sbin/cognition-check
-          install -m 0644 infra/host/cognition-*.service infra/host/cognition-*.timer /etc/systemd/system/
+          install -m 0644 infra/host/cognition-app.service infra/host/cognition-check.service infra/host/cognition-check.timer /etc/systemd/system/
           systemctl daemon-reload
           # Operator transfers ignored config + database history before starting the application.
           # No credentials or enabled paid automation are embedded in this template.
@@ -99,4 +96,4 @@ Outputs:
   IntendedURL:
     Value: https://superset-devin.nasrudinsalim.com
   Recovery:
-    Value: Daily snapshots plus application-consistent database dumps. Verify restore before acceptance. Retained host and IP continue billing after stack deletion.
+    Value: Scheduled backups and snapshots are disabled for this demo. Host loss can lose data. Retained host and IP continue billing after stack deletion.

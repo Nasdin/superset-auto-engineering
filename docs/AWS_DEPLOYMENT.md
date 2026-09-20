@@ -14,7 +14,7 @@ Instance termination retains its root disk; replacement does not migrate volumes
 
 Use one EC2 host with Docker Compose, an encrypted persistent EBS volume, a stable public address and the optional Caddy ingress. Postgres is containerized on that durable disk. This keeps the take-home small; it is a single-host demo without high availability. For an enduring deployment, move both databases to private RDS Postgres with managed backups, introduce versioned application migrations, and use managed application hosting. Postgres database separation already avoids an SQLite redesign at that point.
 
-Choose the instance and disk after confirming the account and budget. Allow inbound 80/443 only; administration should use SSM. Ports 8000, 8189 and 55432 are loopback-bound and must not be exposed. Store `.env` with mode 0600 on the host, outside Git. Retain independent off-host database and artifact backups, and verify a restore before claiming durable operation. A Docker volume alone is not a backup.
+Choose the instance and disk after confirming the account and budget. Allow inbound 80/443 only; administration should use SSM. Ports 8000, 8189 and 55432 are loopback-bound and must not be exposed. Store `.env` with mode 0600 on the host, outside Git. Scheduled backups are intentionally disabled for this demo. A Docker volume survives container restarts but is not protection against host loss.
 
 ## Domain and HTTPS
 
@@ -33,11 +33,13 @@ Choose the instance and disk after confirming the account and budget. Allow inbo
    Generate the hash interactively using `python3 scripts/configure_login.py`. Superset's internal URL stays `http://analytics-superset:8088/bi`. Reviewers use the outer HTTPS login; operator commands run through SSM against loopback port 8000 with the application Bearer token, reviewer sessions never replace the operator token. Share credentials privately.
 3. Add a DNS-only Cloudflare A record for the subdomain to the host's public address. The existing domain uses Cloudflare nameservers. No DNS record was changed during local implementation.
 4. Run `docker compose -f compose.yaml -f compose.public.yaml up --build -d`. Caddy obtains TLS certificates once public DNS and ports resolve correctly. Never expose the unauthenticated local dashboard directly.
-5. Verify anonymous dashboard/BI requests require login, authenticated embedding loads all six charts, upstream/fork selections remain isolated, incomplete windows remain honest and public database ports are unreachable. Verify restart persistence and restore a backup into an isolated database. Only then switch the GitHub webhook to the exact signed endpoint `/api/live/webhooks/github`, send a real signed test delivery and read back its durable receipt.
+5. Verify anonymous dashboard/BI requests require login, authenticated embedding loads all six charts, upstream/fork selections remain isolated, incomplete windows remain honest and public database ports are unreachable. Verify restart persistence and confirm scheduled backups remain disabled. Only then switch the GitHub webhook to the exact signed endpoint `/api/live/webhooks/github`, send a real signed test delivery and read back its durable receipt.
 
 Private APIs require a reviewer session or the existing operator token. Login/session endpoints, minimal health checks and the separately signed GitHub POST endpoint remain reachable. Caddy retains the `/bi` prefix for Superset's application-root middleware. The browser receives only a short-lived guest token; the service issuer password remains in FastAPI. API health does not imply a successful BI query or completed Devin validation.
 
-## Backup / recovery
+## Optional manual migration / recovery
+
+The demo runs without scheduled backups or automatic snapshots. The following is an optional manual export procedure for migrations or preservation before deletion.
 
 Use `pg_dump -Fc` for both `cognition` and `superset_metadata`, preserve database role definitions securely, and back up the artifact volume and deployment secrets separately. Encrypt off-host backups and limit their access: the ledger contains private workflow details. Rehearse restoration into separate databases/volumes with automation disabled; verify job/publication counts, receipt readback and six guest charts before cutover. Never publish live SQL dumps or `.env` in the public repository.
 

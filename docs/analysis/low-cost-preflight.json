@@ -17,9 +17,14 @@
   "remaining": [
     "AWS provisioning in us-east-1",
     "Full VM capacity and reboot verification",
-    "Off-host snapshot and restoration",
     "Public HTTPS/authenticated chart acceptance",
     "Authoritative ledger migration and signed webhook cutover",
     "External operational alerts"
-  ]
+  ],
+  "deployment_policy": {
+    "scheduled_database_backups": false,
+    "automatic_lightsail_snapshots": false,
+    "reason": "User requested a demo without backups on 2026-09-20",
+    "hosting_region": "us-east-1 using the standard AWS account; simplified Sydney project is not the deployment destination"
+  }
 }
