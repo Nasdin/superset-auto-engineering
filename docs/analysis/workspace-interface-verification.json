@@ -1,0 +1,43 @@
+{
+  "verified_at_utc": "2026-09-20T17:39:40.263033+00:00",
+  "url": "https://superset-devin.nasrudinsalim.com",
+  "revision": "aba87b3b9f01cc09f93c400c6a163856e21d519d",
+  "ci": "https://github.com/Nasdin/superset-auto-engineering/actions/runs/35526277646",
+  "ci_result": "success",
+  "public_browser_tests": {
+    "passed": 2,
+    "views": [
+      "evidence",
+      "pull-requests",
+      "lineage",
+      "workflows",
+      "runs",
+      "dependencies",
+      "learning",
+      "analytics",
+      "operations"
+    ],
+    "sizes": [
+      "1440x1000",
+      "390x844"
+    ],
+    "real_superset_charts": 5,
+    "filter_checks": [
+      "monthly and rolling",
+      "60 day window",
+      "bot signal",
+      "upstream and fork"
+    ],
+    "page_errors": 0
+  },
+  "unauthenticated_http_status": {
+    "/api/health": 200,
+    "/api/live/overview": 401,
+    "/api/analytics/pull-requests": 401
+  },
+  "container": {
+    "state": "running",
+    "health": "healthy",
+    "oom_killed": false
+  }
+}
