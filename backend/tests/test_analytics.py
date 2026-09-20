@@ -230,3 +230,11 @@ def test_public_snapshot_bootstraps_once_and_never_overwrites_live_history(tmp_p
     AnalyticsStore(db_path, seed=seed_path)
     assert local.pulls("apache/superset")[0]["title"] == "updated title"
     assert seed.pulls("apache/superset")[0]["title"] == "fix: query regression"
+
+
+def test_superset_native_label_signals():
+    assert category(record(title="Repair query behavior", labels=["#bug"])) == "fix"
+    assert (
+        category(record(title="Refresh connector", labels=["dependencies:python"])) == "dependency"
+    )
+    assert category(record(title="Library compatibility", labels=[".dependency"])) == "dependency"

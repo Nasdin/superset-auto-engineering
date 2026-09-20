@@ -26,11 +26,21 @@ def category(pr):
         return "revert"
     if (
         "dependabot" in pr["author"].lower()
-        or "dependencies" in labels
+        or any(
+            label in {"dependencies", ".dependency", "dependabot"}
+            or label.startswith("dependencies:")
+            for label in labels
+        )
         or re.search(r"\b(deps|dependency|dependencies|bump)\b", title)
     ):
         return "dependency"
-    if re.match(r"(fix|bugfix)(\b|\()", title) or labels & {"bug", "fix", "bugfix", "type:bug"}:
+    if re.match(r"(fix|bugfix)(\b|\()", title) or labels & {
+        "#bug",
+        "bug",
+        "fix",
+        "bugfix",
+        "type:bug",
+    }:
         return "fix"
     return "other"
 
