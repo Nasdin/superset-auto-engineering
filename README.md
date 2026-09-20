@@ -1,4 +1,4 @@
-# Cognition · Release assurance
+# Superset Auto Engineering · Cognition
 
 A small control plane for autonomous Superset engineering: issue → bounded Devin repair → integration candidate → fresh validator → evidence on GitHub and Slack → human review. Python FastAPI, React/TypeScript/Vite and SQLite, packaged as an API container and a durable worker from one image.
 
@@ -18,7 +18,7 @@ The initial pages are Release validation, Workflows, Devin runs, Repository grap
 - The dashboard, durable workflow engine, signed GitHub webhook, scheduled scan, provider adapters, integration batching and report outbox are implemented and covered by local tests.
 - A real fork issue exists: [MySQL time buckets on Superset 6.1](https://github.com/Nasdin/superset/issues/1). Its reproduction at `c37118edd0146019ab0ae4ae1a97a597cb56c88e` fails 6 of 9 cases against MySQL 8.0; [raw results](evidence/mysql-baseline.json) are retained.
 - Superset was built from that exact baseline source. An isolated PostgreSQL/Redis/MySQL/Superset/Celery stack is running locally. A browser test signed in and queried the seeded MySQL fixture, checking three rows totaling six. Screenshot, video and content hashes are recorded in [the baseline manifest](evidence/baseline-manifest.json). This is **baseline qualification, not a repaired candidate**.
-- Devin organization credentials and the Slack destination are not configured. No paid Devin session, repair PR, independent candidate validation, or delivered Slack report has been proved yet. The workflow goal remains unfinished.
+- A seven-day Devin token was created on September 20 and verified against Asmar DE Takehome. Live execution is being connected. Slack reporting is targeted at the authorized Nasrudin workspace, Tech channel. A repair PR, independent candidate validation and delivered Slack report are still pending; the workflow goal remains unfinished.
 
 The real [baseline evidence report](https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328) was posted through the durable outbox and read back successfully. Its public screenshot/video/reproduction files match the locally recorded bytes. Repeating the publication request left exactly one comment. This qualifies reporting only; the repair is still pending.
 
