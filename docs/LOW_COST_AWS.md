@@ -4,7 +4,7 @@ Target: `https://superset-devin.nasrudinsalim.com`, region **us-east-1**. Deploy
 
 ## Capacity and cost
 
-The preferred starting point is Lightsail `small_3_2`: 2 GiB RAM, 2 burstable CPUs, 60 GB SSD and public IPv4, US$12/month before snapshots, taxes and transfer overages. The 4 GiB `medium_3_2` option is US$24/month. Verify the available bundle and price in the target account/region before execution. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
+The preferred starting point is Lightsail `small_3_0`: 2 GiB RAM, 2 burstable CPUs, 60 GB SSD and public IPv4, US$12/month before snapshots, taxes and transfer overages. The 4 GiB `medium_3_0` option is US$24/month. Verify the available bundle and price in the target account/region before execution. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
 
 One VM avoids a load balancer, NAT gateway, managed database and a serverless rewrite. The running Compose memory ceilings total 1,536 MiB; host swap is 4 GiB. The initial BI migration has a separate 768 MiB limit and image builds must run serially. These are a starting capacity budget, not a throughput guarantee. Real charts, concurrent requests, swap pressure and OOM events must be checked on the deployed VM. A bundle upgrade requires a replacement instance and data migration; CloudFormation cannot change the bundle in place.
 
@@ -18,7 +18,7 @@ Use a dedicated AWS profile with temporary console sign-in. Never use an unrelat
 aws login --profile cognition-production --region us-east-1
 export AWS_PROFILE=cognition-production AWS_REGION=us-east-1
 aws sts get-caller-identity
-aws lightsail get-bundles --query 'bundles[?bundleId==`small_3_2`].[bundleId,price,ramSizeInGb,diskSizeInGb]'
+aws lightsail get-bundles --query 'bundles[?bundleId==`small_3_0`].[bundleId,price,ramSizeInGb,diskSizeInGb]'
 aws cloudformation validate-template --template-body file://infra/cloudformation/lightsail.yaml
 aws cloudformation deploy \
   --stack-name superset-devin \
