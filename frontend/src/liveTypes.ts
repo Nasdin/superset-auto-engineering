@@ -9,9 +9,20 @@ export type Job = {
   error: string | null;
   acu: number;
   created: number;
-  payload: { title?: string; issue_number?: number; source?: string };
+  updated: number;
+  started: number | null;
+  parent_id: string | null;
+  payload: {
+    title?: string;
+    issue_number?: number;
+    source?: string;
+    members?: { job_id: string; pr_number: number; sha: string }[];
+    implementation_jobs?: string[];
+  };
   result?: {
     summary?: string;
+    gate_failures?: string[];
+    provenance?: string;
     artifacts?: Artifact[];
     checks?: {
       name: string;

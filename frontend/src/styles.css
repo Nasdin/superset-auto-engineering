@@ -1416,3 +1416,230 @@ dialog::backdrop {
   color: var(--muted);
   line-height: 1.7;
 }
+/* Real evidence and repository analytics */
+select {
+  font: inherit;
+  color: inherit;
+  max-width: 100%;
+}
+.compact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 550;
+  min-width: 150px;
+}
+.compact-field input,
+.compact-field select {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #fff;
+  min-width: 0;
+  max-width: 100%;
+}
+.compact-field input[type="range"] {
+  padding: 6px 0;
+  accent-color: var(--green);
+}
+.analytics-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 17px;
+  margin-bottom: 22px;
+}
+.filter-panel {
+  padding: 22px;
+}
+.filter-panel .analytics-filters {
+  margin: 0;
+}
+.source-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 18px 0;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.7fr 1fr;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fcfcf8;
+  margin: 5px 0 25px;
+}
+.window-card {
+  padding: 25px;
+}
+.window-card p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.window-card > strong {
+  font-family: Georgia, serif;
+  font-size: 49px;
+  display: block;
+  letter-spacing: -2px;
+  margin: 13px 0 2px;
+}
+.window-card > span {
+  font-size: 12px;
+}
+.window-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  margin: 20px 0 13px;
+}
+.comparison-change {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+  background: #eef2e9;
+}
+.comparison-change strong {
+  font-size: 33px;
+  color: var(--green);
+}
+.comparison-change > span:not(.eyebrow) {
+  font-size: 12px;
+}
+.comparison-change small {
+  line-height: 1.6;
+}
+.trend-chart {
+  padding: 15px 25px 25px;
+}
+.chart-axis {
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 14px;
+}
+.trend-chart svg {
+  width: 100%;
+  display: block;
+}
+.trend-chart summary {
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 15px;
+}
+.detail-body {
+  padding: 0 23px 23px;
+}
+.method-notes {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #626b61;
+}
+.category-bar {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 12px;
+}
+.category-bar > span {
+  width: 90px;
+}
+.category-bar progress {
+  flex: 1;
+  accent-color: var(--green);
+  height: 8px;
+}
+.pagination {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-size: 12px;
+}
+.artifact-grid,
+.lineage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+.artifact-card,
+.lineage-node {
+  background: #f7f8f2;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 20px;
+}
+.lineage {
+  padding: 22px;
+}
+.lineage-node h3 {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.lineage-node p {
+  font-size: 12px;
+}
+.text-button {
+  border: 0;
+  text-decoration: underline;
+  background: transparent;
+}
+.detail-body .check-row {
+  flex-wrap: wrap;
+}
+.detail-body .check-row code {
+  width: 100%;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.sha-block {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+td .button {
+  white-space: normal;
+  text-align: left;
+}
+.live-links {
+  flex-wrap: wrap;
+}
+td small {
+  display: block;
+  margin-top: 6px;
+}
+@media (max-width: 800px) {
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+  .window-card {
+    padding: 20px;
+  }
+  .comparison-change {
+    padding: 18px;
+  }
+  .analytics-filters {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .compact-field {
+    min-width: 0;
+  }
+  .source-strip {
+    line-height: 1.6;
+  }
+  .candidate-top {
+    flex-wrap: wrap;
+  }
+  .lineage {
+    grid-template-columns: 1fr;
+  }
+  .detail-body {
+    padding: 0 15px 15px;
+  }
+}

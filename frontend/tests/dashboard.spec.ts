@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("inspect evidence, persist a review, queue an event and navigate views", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?demo=1");
   await expect(
     page.getByRole("heading", { name: "Confidence, backed by evidence." }),
   ).toBeVisible();
@@ -76,7 +76,7 @@ test("API outage shows retry instead of fake success", async ({ page }) => {
   await page.route("**/api/dashboard", (route) =>
     route.fulfill({ status: 503, body: "unavailable" }),
   );
-  await page.goto("/");
+  await page.goto("/?demo=1");
   await expect(page.getByRole("alert")).toContainText("API is unavailable");
   await expect(
     page.getByRole("button", { name: "Retry connection" }),
@@ -86,7 +86,7 @@ test("API outage shows retry instead of fake success", async ({ page }) => {
 test("live operations shows real ledger and configuration state", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?demo=1");
   await page
     .getByRole("button", { name: "Live operations", exact: true })
     .click();
@@ -113,7 +113,7 @@ test("dashboard recovers after an unavailable response", async ({ page }) => {
     (route) => route.fulfill({ status: 503, body: "unavailable" }),
     { times: 1 },
   );
-  await page.goto("/");
+  await page.goto("/?demo=1");
   await expect(page.getByRole("alert")).toBeVisible();
   await page.getByRole("button", { name: "Retry connection" }).click();
   await expect(
@@ -146,7 +146,7 @@ test("live polling skips overlaps and refresh keeps the latest response", async 
       });
     }
   });
-  await page.goto("/");
+  await page.goto("/?demo=1");
   await page
     .getByRole("button", { name: "Live operations", exact: true })
     .click();

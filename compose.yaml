@@ -22,5 +22,9 @@ services:
     <<: *runtime
     command: ["python", "-m", "app.automation.worker"]
     restart: unless-stopped
+  analytics:
+    <<: *runtime
+    command: ["python", "-m", "app.analytics.sync"]
+    restart: unless-stopped
 volumes:
   cognition-data:

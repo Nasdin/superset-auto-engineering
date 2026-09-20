@@ -22,3 +22,5 @@ htmlcov/
 *.sqlite3
 *.sqlite3-*
 !backend/app/seeds/demo.sqlite3
+
+!backend/app/seeds/github-history.sqlite3
