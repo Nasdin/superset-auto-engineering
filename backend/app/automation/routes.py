@@ -1,32 +1,35 @@
 import hashlib
 import hmac
-import json
-import time
-from urllib.parse import parse_qs
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
+from starlette.concurrency import run_in_threadpool
+
 from .config import Settings
-from .store import Store
 from .engine import Engine
-from .providers import Providers, ProviderError
+from .providers import ProviderError
 
 router = APIRouter(prefix="/api/live", tags=["automation"])
-settings = Settings()
 
 
-def engine():
-    return Engine(settings, Store(settings.database), Providers(settings))
+def get_engine(request: Request) -> Engine:
+    return request.app.state.engine
 
 
-def operator(authorization: str = Header(default="")):
+def get_settings(engine: Engine = Depends(get_engine)) -> Settings:
+    return engine.settings
+
+
+def operator(authorization: str = Header(default=""), settings: Settings = Depends(get_settings)):
     expected = "Bearer " + settings.operator_token
     if not settings.operator_token or not hmac.compare_digest(authorization, expected):
         raise HTTPException(401, "Local operator authentication required")
 
 
 @router.get("/overview")
-def overview():
-    db = Store(settings.database)
+def overview(eng: Engine = Depends(get_engine)):
+    db = eng.store
+    settings = eng.settings
     jobs = db.jobs()
     return {
         "mode": "live",
@@ -48,16 +51,7 @@ def overview():
         "publications": db.publications(),
         "memory": db.recall("repository_lessons", []),
         "last_scan": db.recall("last_scan", {}),
-        "metrics": {
-            "sessions": sum(bool(j["session_id"]) for j in jobs),
-            "acu": sum(j["acu"] for j in jobs),
-            "review_ready": sum(j["state"] == "review_ready" for j in jobs),
-            "attention": sum(
-                j["state"]
-                in ["blocked", "needs_attention", "unknown_effect", "validation_failed"]
-                for j in jobs
-            ),
-        },
+        "metrics": db.metrics(),
     }
 
 
@@ -66,9 +60,9 @@ class IssueRequest(BaseModel):
 
 
 @router.post("/issues", dependencies=[Depends(operator)])
-def submit(body: IssueRequest):
+def submit(body: IssueRequest, eng: Engine = Depends(get_engine)):
     try:
-        return engine().accept_issue(body.number, "operator")
+        return eng.accept_issue(body.number, "operator")
     except ValueError as e:
         raise HTTPException(422, str(e)) from None
     except ProviderError as e:
@@ -76,70 +70,81 @@ def submit(body: IssueRequest):
 
 
 @router.post("/scan", dependencies=[Depends(operator)])
-def scan():
-    return engine().schedule_scan()
+def scan(eng: Engine = Depends(get_engine)):
+    return eng.schedule_scan()
+
+
+class WebhookRepository(BaseModel):
+    full_name: str
+
+
+class WebhookSender(BaseModel):
+    login: str
+
+
+class WebhookLabel(BaseModel):
+    name: str
+
+
+class WebhookIssue(BaseModel):
+    number: int = Field(gt=0)
+    labels: list[WebhookLabel] = Field(default_factory=list)
+
+
+class WebhookEnvelope(BaseModel):
+    repository: WebhookRepository
+    sender: WebhookSender
+    action: str = ""
+    issue: WebhookIssue | None = None
 
 
 @router.post("/webhooks/github")
 async def github_event(
     request: Request,
+    eng: Engine = Depends(get_engine),
     x_hub_signature_256: str = Header(default=""),
     x_github_delivery: str = Header(default=""),
     x_github_event: str = Header(default=""),
 ):
+    settings = eng.settings
     if not settings.webhook_secret:
         raise HTTPException(503, "GitHub webhook is not configured")
-    body = await request.body()
-    if len(body) > 1_000_000:
-        raise HTTPException(413, "Payload too large")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > 1_000_000:
+            raise HTTPException(413, "Payload too large")
     signature = (
-        "sha256="
-        + hmac.new(settings.webhook_secret.encode(), body, hashlib.sha256).hexdigest()
+        "sha256=" + hmac.new(settings.webhook_secret.encode(), body, hashlib.sha256).hexdigest()
     )
     if not hmac.compare_digest(signature, x_hub_signature_256):
         raise HTTPException(401, "Invalid webhook signature")
     if not x_github_delivery or len(x_github_delivery) > 200:
         raise HTTPException(400, "Delivery ID required")
     try:
-        payload = json.loads(body)
-    except ValueError:
-        raise HTTPException(400, "Invalid JSON") from None
-    if (
-        payload.get("repository", {}).get("full_name", "").lower()
-        != settings.repo.lower()
-    ):
+        payload = WebhookEnvelope.model_validate_json(body)
+    except ValidationError:
+        raise HTTPException(422, "Invalid webhook payload") from None
+    if payload.repository.full_name.lower() != settings.repo.lower():
         raise HTTPException(403, "Repository not allowed")
-    if (
-        payload.get("sender", {}).get("login", "").lower()
-        != settings.allowed_actor.lower()
-    ):
+    if payload.sender.login.lower() != settings.allowed_actor.lower():
         raise HTTPException(403, "Actor not allowed")
-    if x_github_event != "issues" or payload.get("action") not in [
+    if x_github_event != "issues" or payload.action not in [
         "opened",
         "labeled",
         "reopened",
     ]:
         return {"status": "ignored"}
-    if settings.label not in [
-        x["name"] for x in payload.get("issue", {}).get("labels", [])
-    ]:
+    if payload.issue is None:
+        raise HTTPException(422, "Issue is required for issue events")
+    if settings.label not in [label.name for label in payload.issue.labels]:
         return {"status": "ignored", "reason": "repair label missing"}
-    eng = engine()
-    with eng.db.connect() as c:
-        if c.execute(
-            "SELECT 1 FROM deliveries WHERE id=?", (x_github_delivery,)
-        ).fetchone():
-            return {"status": "duplicate"}
     try:
-        job = eng.accept_issue(payload["issue"]["number"], "github_webhook")
-    except (ValueError, KeyError) as e:
-        raise HTTPException(422, str(e)) from None
-    with eng.db.connect() as c:
-        c.execute(
-            "INSERT OR IGNORE INTO deliveries VALUES(?,?)",
-            (x_github_delivery, time.time()),
-        )
-    return {"status": "accepted", "job_id": job["id"]}
+        return await run_in_threadpool(eng.accept_webhook, payload.issue.number, x_github_delivery)
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from None
+    except ProviderError as error:
+        raise HTTPException(502, str(error)) from None
 
 
 class Reconcile(BaseModel):
@@ -147,19 +152,16 @@ class Reconcile(BaseModel):
 
 
 @router.post("/jobs/{job_id}/reconcile", dependencies=[Depends(operator)])
-def reconcile(job_id: str, body: Reconcile):
-    eng = engine()
-    job = eng.db.get(job_id)
+def reconcile(job_id: str, body: Reconcile, eng: Engine = Depends(get_engine)):
+    job = eng.store.get(job_id)
     if not job:
         raise HTTPException(404, "Job not found")
     if job["state"] not in ["unknown_effect", "needs_attention"]:
-        raise HTTPException(
-            409, "Only uncertain or attention-required jobs may be reconciled"
-        )
-    session = eng.p.session(body.session_id)
+        raise HTTPException(409, "Only uncertain or attention-required jobs may be reconciled")
+    session = eng.providers.session(body.session_id)
     if f"cognition-job:{job_id}" not in session.get("tags", []):
         raise HTTPException(409, "Session lacks the matching correlation tag")
-    eng.db.update(
+    eng.store.update(
         job_id,
         state="running",
         session_id=body.session_id,
@@ -168,19 +170,18 @@ def reconcile(job_id: str, body: Reconcile):
         error=None,
         next_poll=0,
     )
-    eng.db.audit(job_id, "operator_reconciled", {"session_id": body.session_id})
-    return eng.db.get(job_id)
+    eng.store.audit(job_id, "operator_reconciled", {"session_id": body.session_id})
+    return eng.store.get(job_id)
 
 
 @router.post("/jobs/{job_id}/resume-integration", dependencies=[Depends(operator)])
-def resume_integration(job_id: str):
-    eng = engine()
-    job = eng.db.get(job_id)
+def resume_integration(job_id: str, eng: Engine = Depends(get_engine)):
+    job = eng.store.get(job_id)
     if not job or job["kind"] != "integration":
         raise HTTPException(404, "Integration job not found")
     if job["state"] not in ["unknown_effect", "needs_attention", "blocked"]:
         raise HTTPException(409, "Job is not stopped")
     # assemble_candidate reads the branch, merge parents and existing PR before writes.
-    eng.db.update(job_id, state="queued", lease_until=0, error=None)
-    eng.db.audit(job_id, "operator_requested_integration_readback", {})
+    eng.store.update(job_id, state="queued", lease_until=0, error=None)
+    eng.store.audit(job_id, "operator_requested_integration_readback", {})
     return {"status": "queued_for_github_reconciliation"}

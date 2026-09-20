@@ -1,11 +1,12 @@
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
-import time
+
 import pytest
 from app.automation.config import Settings
-from app.automation.store import Store
 from app.automation.engine import Engine
-from app.automation.providers import UnknownEffect, ProviderError
+from app.automation.providers import ProviderError, UnknownEffect
+from app.automation.store import Store
 
 SHA = "a" * 40
 
@@ -143,7 +144,7 @@ def test_repair_waits_for_integration_batch(setup):
     e.tick()
     assert db.get(job["id"])["state"] == "implemented"
     assert not any(j["kind"] == "validation" for j in db.jobs())
-    e.s = replace(e.s, batch_seconds=0)
+    e.settings = replace(e.settings, batch_seconds=0)
     batch = e.schedule_batch()
     assert batch["kind"] == "integration"
     assert batch["payload"]["members"][0]["sha"] == SHA
@@ -163,9 +164,7 @@ def test_repair_waits_for_integration_batch(setup):
         ("suspended", "waiting_for_user", True, "needs_attention"),
     ],
 )
-def test_explicit_handoff_does_not_bypass_session_state(
-    setup, status, detail, complete, expected
-):
+def test_explicit_handoff_does_not_bypass_session_state(setup, status, detail, complete, expected):
     db, p, e = setup
     job = repair(db)
     e.tick()
@@ -315,7 +314,7 @@ def test_wrong_revision_is_rejected(setup):
 def test_total_budget_limit_prevents_dispatch(setup):
     db, p, e = setup
     job = repair(db)
-    e.s = replace(e.s, max_sessions=0)
+    e.settings = replace(e.settings, max_sessions=0)
     e.tick()
     assert db.get(job["id"])["state"] == "blocked"
     assert p.created == 0
@@ -356,7 +355,7 @@ def test_outbox_survives_process_restart(setup):
     job = validation(db)
     e.finish_validation(job, result())
     assert len(db.publications()) == 2 and not p.comments
-    restarted = Engine(e.s, Store(db.path), p)
+    restarted = Engine(e.settings, Store(db.path), p)
     restarted.flush_publication()
     restarted.flush_publication()
     assert len(p.comments) == 2
@@ -367,9 +366,7 @@ def test_queue_age_does_not_consume_session_timeout(setup):
     db, p, e = setup
     job = repair(db)
     with db.connect() as c:
-        c.execute(
-            "UPDATE jobs SET created=? WHERE id=?", (time.time() - 999999, job["id"])
-        )
+        c.execute("UPDATE jobs SET created=? WHERE id=?", (time.time() - 999999, job["id"]))
     e.tick()
     db.update(job["id"], next_poll=0)
     p.response = {"status": "running", "status_detail": "working"}
@@ -391,14 +388,12 @@ def test_later_pr_push_invalidates_ready_evidence(setup):
     p.pr = changed
     e.refresh_readiness()
     assert db.get(job["id"])["state"] == "stale"
-    assert any(
-        j["candidate_sha"] == "b" * 40 and j["state"] == "queued" for j in db.jobs()
-    )
+    assert any(j["candidate_sha"] == "b" * 40 and j["state"] == "queued" for j in db.jobs())
 
 
 def test_schedule_disabled_still_allows_manual_scan(setup):
     db, p, e = setup
-    e.s = replace(e.s, scan_interval=0)
+    e.settings = replace(e.settings, scan_interval=0)
     p.gh = lambda *a, **kw: {"sha": SHA}
     assert e.schedule_scan()["kind"] == "scan"
 
@@ -411,7 +406,7 @@ def test_intake_outage_does_not_skip_provider_poll(setup):
     e.tick()
     db.update(job["id"], next_poll=0)
     p.response = {"status": "running", "status_detail": "working"}
-    e.s = replace(e.s, scan_interval=0)
+    e.settings = replace(e.settings, scan_interval=0)
     p.gh = lambda *a, **kw: (_ for _ in ()).throw(ProviderError("outage"))
     cycle(e)
     assert db.get(job["id"])["next_poll"] > time.time()
@@ -428,7 +423,7 @@ def test_integration_never_merges_default_or_release_branch(setup):
         candidate_sha=SHA,
         session_id="implementation",
     )
-    e.s = replace(e.s, batch_seconds=0)
+    e.settings = replace(e.settings, batch_seconds=0)
     batch = e.schedule_batch()
     mutations = []
 
@@ -472,7 +467,7 @@ def test_integration_recovers_lost_write_responses_without_duplicates(setup, los
         candidate_sha=SHA,
         session_id="implementation",
     )
-    engine.s = replace(engine.s, batch_seconds=0, max_sessions=2)
+    engine.settings = replace(engine.settings, batch_seconds=0, max_sessions=2)
     job = engine.schedule_batch()
     remote = {"head": None, "pr": None}
     writes = {"refs": 0, "merges": 0, "pulls": 0}
@@ -527,7 +522,7 @@ def test_integration_recovers_lost_write_responses_without_duplicates(setup, los
 def test_repair_reserves_a_slot_for_fresh_validation(setup):
     db, provider, engine = setup
     job = repair(db)
-    engine.s = replace(engine.s, max_sessions=1)
+    engine.settings = replace(engine.settings, max_sessions=1)
     engine.tick()
     assert db.get(job["id"])["state"] == "blocked"
     assert provider.created == 0
@@ -544,7 +539,7 @@ def test_report_readback_failure_never_resends_acknowledged_comment(setup):
     engine.flush_publication()
     assert db.publications()[0]["state"] == "delivered"
     assert len(provider.comments) == 1
-    restarted = Engine(engine.s, Store(db.path), provider)
+    restarted = Engine(engine.settings, Store(db.path), provider)
     provider.confirm_publication = original
     restarted.flush_publication()
     assert db.publications()[0]["state"] == "sent"
@@ -578,10 +573,10 @@ def test_crash_before_receipt_is_not_automatically_resent(setup):
 
 def test_slack_uses_saved_destination_and_provider_permalink(setup):
     db, provider, engine = setup
-    engine.s = replace(engine.s, slack_channel="C_ORIGINAL")
+    engine.settings = replace(engine.settings, slack_channel="C_ORIGINAL")
     job = {**repair(db), "pr_number": 2}
     engine.publish_slack(job, "Evidence")
-    engine.s = replace(engine.s, slack_channel="C_CHANGED")
+    engine.settings = replace(engine.settings, slack_channel="C_CHANGED")
     sent = []
 
     def slack(text, key, channel):
@@ -596,7 +591,196 @@ def test_slack_uses_saved_destination_and_provider_permalink(setup):
     provider.confirm_publication = confirm
     engine.flush_publication()
     assert sent == ["C_ORIGINAL"]
-    assert (
-        db.publications()[0]["url"]
-        == "https://takehome.slack.com/archives/C_ORIGINAL/p123456"
+    assert db.publications()[0]["url"] == "https://takehome.slack.com/archives/C_ORIGINAL/p123456"
+
+
+def test_moved_pr_during_validation_schedules_exact_replacement_once(setup):
+    db, p, e = setup
+    job = validation(db)
+    original = p.pr
+    p.pr = lambda number: {**original(number), "head": {"sha": "b" * 40}}
+    e.finish_validation(job, result())
+    e.finish_validation(job, result())
+    assert db.get(job["id"])["state"] == "stale"
+    replacements = [j for j in db.jobs() if j["candidate_sha"] == "b" * 40]
+    assert len(replacements) == 1
+    assert replacements[0]["session_id"] is None
+    assert not db.publications()
+
+
+def test_old_implemented_job_remains_eligible_beyond_dashboard_limit(setup):
+    db, p, e = setup
+    job = repair(db)
+    db.update(job["id"], state="implemented", candidate_sha=SHA, pr_number=2)
+    for number in range(101):
+        newer = db.enqueue(f"scan:{number}", "scan", {})
+        db.update(newer["id"], state="completed")
+    assert len(db.jobs()) == 100
+    e.settings = replace(e.settings, batch_seconds=0)
+    batch = e.schedule_batch()
+    assert batch["payload"]["members"][0]["job_id"] == job["id"]
+    assert e.schedule_batch() is None
+
+
+def test_metrics_count_all_history_not_only_dashboard_page(setup):
+    db, p, e = setup
+    job = repair(db)
+    db.update(job["id"], session_id="real-session", acu=3.5, state="implemented")
+    for number in range(101):
+        db.enqueue(f"scan:{number}", "scan", {})
+    assert db.metrics()["sessions"] == 1
+    assert db.metrics()["acu"] == 3.5
+
+
+def test_scope_cannot_redirect_queued_jobs_on_restart(setup):
+    db, p, e = setup
+    repair(db)
+    for change in [{"repo": "Nasdin/other"}, {"branch": "another-branch"}, {"org": "other-org"}]:
+        with pytest.raises(ValueError, match="scope changed"):
+            Engine(replace(e.settings, **change), Store(db.path), p)
+    assert p.created == 0
+
+
+def test_replacement_and_invalidation_roll_back_together(setup):
+    import sqlite3
+
+    db, p, e = setup
+    job = validation(db)
+    before = len(db.jobs())
+    with db.connect() as connection:
+        connection.execute(
+            "CREATE TRIGGER reject_stale BEFORE UPDATE ON jobs WHEN NEW.state='stale' BEGIN SELECT RAISE(ABORT,'injected failure'); END"
+        )
+    with pytest.raises(sqlite3.IntegrityError):
+        db.supersede_validation(job, "b" * 40, e.settings.repo)
+    assert len(db.jobs()) == before
+    assert db.get(job["id"])["state"] == "running"
+
+
+def test_missing_implementation_identity_cannot_pass_gate(setup):
+    db, p, e = setup
+    job = validation(db)
+    job["payload"]["implementation_jobs"] = ["missing-job"]
+    e.finish_validation(job, result())
+    assert db.get(job["id"])["state"] == "validation_failed"
+
+
+def test_issue_intake_validates_scope_and_deduplicates(setup):
+    db, provider, engine = setup
+    issue = {
+        "state": "open",
+        "title": "Fix",
+        "html_url": "https://github.com/Nasdin/superset/issues/1",
+        "labels": [{"name": engine.settings.label}],
+        "user": {"login": engine.settings.allowed_actor},
+    }
+    calls = []
+
+    def github(method, path, **kwargs):
+        calls.append(path)
+        return {"sha": SHA} if "/commits/" in path else issue
+
+    provider.gh = github
+    first = engine.accept_issue(1, "operator")
+    assert first["payload"]["base_sha"] == SHA
+    assert engine.accept_issue(1, "operator")["id"] == first["id"]
+    assert len(calls) == 2
+    issue["user"]["login"] = "untrusted"
+    with pytest.raises(ValueError, match="author"):
+        engine.accept_issue(2, "operator")
+    issue["labels"] = []
+    with pytest.raises(ValueError, match="label"):
+        engine.accept_issue(2, "operator")
+    issue["state"] = "closed"
+    with pytest.raises(ValueError, match="open"):
+        engine.accept_issue(2, "operator")
+    assert len(db.jobs()) == 1
+
+
+def test_scan_reconciles_existing_finding_without_duplicate_issue(setup):
+    db, provider, engine = setup
+    job = db.enqueue("scan-test", "scan", {"base_sha": SHA})
+    job["session_url"] = "https://app.devin.ai/sessions/discovery"
+    finding = {
+        "base_sha": SHA,
+        "title": "Reproducible defect",
+        "description": "Details",
+        "reproduction": "pytest test_bug",
+        "acceptance": "Regression passes",
+    }
+    issues = []
+    posts = []
+
+    def github(method, path, **kwargs):
+        if method == "POST":
+            issue = {
+                **kwargs["json"],
+                "number": 17,
+                "state": "open",
+                "html_url": "https://github.com/Nasdin/superset/issues/17",
+                "user": {"login": engine.settings.allowed_actor},
+                "labels": [{"name": engine.settings.label}],
+            }
+            issues.append(issue)
+            posts.append(issue)
+            return issue
+        if path.endswith("/issues"):
+            return issues
+        if "/commits/" in path:
+            return {"sha": SHA}
+        return issues[0]
+
+    provider.gh = github
+    engine.finish_scan(job, {"findings": [finding]})
+    assert db.get(job["id"])["state"] == "completed"
+    assert db.by_key("issue:Nasdin/superset:17")["kind"] == "repair"
+    # Simulate lost local finding memory after the remote issue was created.
+    with db.connect() as connection:
+        connection.execute("DELETE FROM memory WHERE key LIKE 'finding:%'")
+    engine.finish_scan(job, {"findings": [finding]})
+    assert len(posts) == 1
+    engine.finish_scan(job, {"findings": [finding]})
+    assert len(posts) == 1
+
+
+def test_scan_rejects_unreproduced_or_out_of_scope_findings(setup):
+    db, provider, engine = setup
+    job = db.enqueue("scan-test", "scan", {"base_sha": SHA})
+    with pytest.raises(ValueError, match="one-issue"):
+        engine.finish_scan(job, {"findings": [{}, {}]})
+    with pytest.raises(ValueError, match="reproduction"):
+        engine.finish_scan(job, {"findings": [{"base_sha": "wrong"}]})
+
+
+def test_schedule_uses_time_bucket_and_resolved_baseline(setup):
+    db, provider, engine = setup
+    provider.gh = lambda *args, **kwargs: {"sha": SHA}
+    first = engine.schedule_scan()
+    assert first["payload"]["base_sha"] == SHA
+    assert engine.schedule_scan()["id"] == first["id"]
+
+
+def test_return_to_previous_sha_creates_new_validation_attempt(setup):
+    db, provider, engine = setup
+    first = db.enqueue(
+        f"validation:{engine.settings.repo}:2:{SHA}",
+        "validation",
+        {"issue_number": 1},
+        candidate_sha=SHA,
+        pr_number=2,
     )
+    db.update(first["id"], state="review_ready", session_id="original-validator")
+    next_sha = "b" * 40
+    db.supersede_validation(first, next_sha, engine.settings.repo)
+    second = db.by_key(f"validation:{engine.settings.repo}:2:{next_sha}")
+    db.supersede_validation(second, SHA, engine.settings.repo)
+    db.supersede_validation(second, SHA, engine.settings.repo)
+    # A late retry of the original A -> B transition must not resurrect B.
+    db.supersede_validation(first, next_sha, engine.settings.repo)
+    jobs = db.operational_jobs()
+    assert len(jobs) == 3
+    fresh = next(job for job in jobs if job["state"] == "queued")
+    assert fresh["candidate_sha"] == SHA
+    assert fresh["session_id"] is None
+    assert fresh["id"] != first["id"]
+    assert db.get(first["id"])["session_id"] == "original-validator"

@@ -1,9 +1,9 @@
-from contextlib import contextmanager
 import json
-from pathlib import Path
 import sqlite3
 import time
 import uuid
+from contextlib import contextmanager
+from pathlib import Path
 
 
 class Store:
@@ -33,9 +33,7 @@ class Store:
                 ("publications", "payload", "TEXT"),
                 ("publications", "receipt", "TEXT"),
             ]:
-                if column not in {
-                    r[1] for r in c.execute(f"PRAGMA table_info({table})")
-                }:
+                if column not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
                     c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {declaration}")
 
     @contextmanager
@@ -58,9 +56,7 @@ class Store:
                 d[k] = json.loads(d[k])
         return d
 
-    def enqueue(
-        self, key, kind, payload, parent_id=None, candidate_sha=None, pr_number=None
-    ):
+    def enqueue(self, key, kind, payload, parent_id=None, candidate_sha=None, pr_number=None):
         now = time.time()
         with self.connect() as c:
             c.execute(
@@ -78,9 +74,7 @@ class Store:
                     now,
                 ),
             )
-            return self.decode(
-                c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone()
-            )
+            return self.decode(c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone())
 
     def claim(self):
         now = time.time()
@@ -138,15 +132,77 @@ class Store:
 
     def by_key(self, key):
         with self.connect() as c:
-            return self.decode(
-                c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone()
-            )
+            return self.decode(c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone())
 
     def get(self, jid):
         with self.connect() as c:
-            return self.decode(
-                c.execute("SELECT * FROM jobs WHERE id=?", (jid,)).fetchone()
+            return self.decode(c.execute("SELECT * FROM jobs WHERE id=?", (jid,)).fetchone())
+
+    def bind_scope(self, repository: str, branch: str, organization: str) -> None:
+        """A durable ledger must never be repurposed for a different execution scope."""
+        scope = {"repository": repository, "branch": branch, "organization": organization}
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT value FROM memory WHERE key='execution_scope'"
+            ).fetchone()
+            if row and json.loads(row["value"]) != scope:
+                raise ValueError("Ledger execution scope changed; use a separate database")
+            if not row:
+                # Legacy keys carry repository identity; scan keys also carry the branch.
+                # Preserve exact spelling because durable deduplication keys are case-sensitive.
+                for job in connection.execute("SELECT dedup FROM jobs"):
+                    parts = job["dedup"].split(":")
+                    if len(parts) >= 3 and parts[0] in {"issue", "scan", "validation"}:
+                        if parts[1] != repository:
+                            raise ValueError(
+                                "Ledger execution scope changed; use a separate database"
+                            )
+                        if parts[0] == "scan" and len(parts) >= 4 and parts[2] != branch:
+                            raise ValueError(
+                                "Ledger execution scope changed; use a separate database"
+                            )
+                connection.execute(
+                    "INSERT INTO memory VALUES('execution_scope',?,?)",
+                    (json.dumps(scope), time.time()),
+                )
+
+    def session_count(self, excluding: str) -> int:
+        with self.connect() as connection:
+            return connection.execute(
+                "SELECT COUNT(*) FROM jobs WHERE id!=? AND kind!='integration' AND (session_id IS NOT NULL OR state IN ('dispatching','unknown_effect'))",
+                (excluding,),
+            ).fetchone()[0]
+
+    def has_delivery(self, delivery: str) -> bool:
+        with self.connect() as connection:
+            return (
+                connection.execute("SELECT 1 FROM deliveries WHERE id=?", (delivery,)).fetchone()
+                is not None
             )
+
+    def record_delivery(self, delivery: str) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                "INSERT OR IGNORE INTO deliveries VALUES(?,?)", (delivery, time.time())
+            )
+
+    def operational_jobs(self):
+        """Complete history for workflow decisions; never use dashboard pagination."""
+        with self.connect() as connection:
+            return [
+                self.decode(row)
+                for row in connection.execute("SELECT * FROM jobs ORDER BY created DESC")
+            ]
+
+    def metrics(self):
+        with self.connect() as connection:
+            row = connection.execute("""SELECT
+                COUNT(session_id) AS sessions, COALESCE(SUM(acu),0) AS acu,
+                COALESCE(SUM(state='review_ready'),0) AS review_ready,
+                COALESCE(SUM(state IN ('blocked','needs_attention','unknown_effect','validation_failed')),0) AS attention
+                FROM jobs""").fetchone()
+            return dict(row)
 
     def jobs(self):
         with self.connect() as c:
@@ -154,6 +210,43 @@ class Store:
                 self.decode(r)
                 for r in c.execute("SELECT * FROM jobs ORDER BY created DESC LIMIT 100")
             ]
+
+    def supersede_validation(self, job, replacement_sha: str | None, repository: str) -> None:
+        """Invalidate old evidence and schedule its replacement in one transaction."""
+        now = time.time()
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            current = connection.execute(
+                "SELECT state FROM jobs WHERE id=?", (job["id"],)
+            ).fetchone()
+            if current is None or current["state"] == "stale":
+                return  # The atomic transition already happened; delayed observations cannot revive it.
+            if replacement_sha:
+                key = f"validation:{repository}:{job['pr_number']}:{replacement_sha}"
+                previous = connection.execute(
+                    "SELECT state FROM jobs WHERE dedup=?", (key,)
+                ).fetchone()
+                if previous and previous["state"] == "stale":
+                    # A -> B -> A needs a fresh session; preserve the original A evidence.
+                    # The superseded job makes retries deterministic without reusing old evidence.
+                    key += f":after:{job['id']}"
+                connection.execute(
+                    """INSERT OR IGNORE INTO jobs
+                    (id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated)
+                    SELECT ?,?,'validation','queued',payload,parent_id,?,pr_number,?,? FROM jobs WHERE id=?""",
+                    (
+                        str(uuid.uuid4()),
+                        key,
+                        replacement_sha,
+                        now,
+                        now,
+                        job["id"],
+                    ),
+                )
+            connection.execute(
+                "UPDATE jobs SET state='stale',error=?,updated=? WHERE id=?",
+                ("PR changed; previous evidence is stale", now, job["id"]),
+            )
 
     def audit(self, jid, kind, detail):
         with self.connect() as c:

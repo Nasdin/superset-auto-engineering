@@ -1,31 +1,98 @@
-from dataclasses import dataclass
 import os
+import re
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
 @dataclass(frozen=True)
 class Settings:
-    database: str = os.getenv("AUTOMATION_DATABASE", "data/automation.db")
-    repo: str = os.getenv("GITHUB_REPOSITORY", "Nasdin/superset")
-    branch: str = os.getenv("TARGET_BRANCH", "cognition-release-6.1")
-    org: str = os.getenv("DEVIN_ORG_ID", "org-f456da0f2e0940808b5c8b3a20312d8c")
-    devin_key: str = os.getenv("DEVIN_API_KEY", "")
-    github_token: str = os.getenv("GITHUB_TOKEN", "")
-    webhook_secret: str = os.getenv("GITHUB_WEBHOOK_SECRET", "")
-    operator_token: str = os.getenv("OPERATOR_TOKEN", "")
-    slack_token: str = os.getenv("SLACK_BOT_TOKEN", "")
-    slack_channel: str = os.getenv("SLACK_CHANNEL_ID", "")
-    label: str = os.getenv("TRIGGER_LABEL", "cognition:repair")
-    allowed_actor: str = os.getenv("GITHUB_ALLOWED_ACTOR", "Nasdin")
-    max_acu: int = int(os.getenv("DEVIN_MAX_ACU", "10"))
-    max_sessions: int = int(os.getenv("DEVIN_MAX_SESSIONS", "6"))
-    session_timeout: int = int(os.getenv("SESSION_TIMEOUT_SECONDS", "7200"))
-    poll_seconds: int = int(os.getenv("POLL_SECONDS", "30"))
-    scan_interval: int = int(os.getenv("SCAN_INTERVAL_SECONDS", "86400"))
-    batch_seconds: int = int(os.getenv("BATCH_WINDOW_SECONDS", "60"))
-    enabled: bool = os.getenv("AUTOMATION_ENABLED", "false").lower() == "true"
-    artifacts: Path = Path(os.getenv("ARTIFACT_DIR", "data/artifacts"))
+    database: str = "data/automation.db"
+    repo: str = "Nasdin/superset"
+    branch: str = "cognition-release-6.1"
+    org: str = "org-f456da0f2e0940808b5c8b3a20312d8c"
+    devin_key: str = field(default="", repr=False)
+    github_token: str = field(default="", repr=False)
+    webhook_secret: str = field(default="", repr=False)
+    operator_token: str = field(default="", repr=False)
+    slack_token: str = field(default="", repr=False)
+    slack_channel: str = ""
+    label: str = "cognition:repair"
+    allowed_actor: str = "Nasdin"
+    max_acu: int = 10
+    max_sessions: int = 6
+    session_timeout: int = 7200
+    poll_seconds: int = 30
+    scan_interval: int = 86400
+    batch_seconds: int = 60
+    enabled: bool = False
+    artifacts: Path = Path("data/artifacts")
+
+    @classmethod
+    def from_env(cls, environ: Mapping[str, str] | None = None) -> "Settings":
+        """Read configuration at startup, not at module import time."""
+        env = os.environ if environ is None else environ
+        values = {}
+        if "AUTOMATION_DATABASE" in env:
+            values["database"] = str(env["AUTOMATION_DATABASE"])
+        if "GITHUB_REPOSITORY" in env:
+            values["repo"] = str(env["GITHUB_REPOSITORY"])
+        if "TARGET_BRANCH" in env:
+            values["branch"] = str(env["TARGET_BRANCH"])
+        if "DEVIN_ORG_ID" in env:
+            values["org"] = str(env["DEVIN_ORG_ID"])
+        if "DEVIN_API_KEY" in env:
+            values["devin_key"] = str(env["DEVIN_API_KEY"])
+        if "GITHUB_TOKEN" in env:
+            values["github_token"] = str(env["GITHUB_TOKEN"])
+        if "GITHUB_WEBHOOK_SECRET" in env:
+            values["webhook_secret"] = str(env["GITHUB_WEBHOOK_SECRET"])
+        if "OPERATOR_TOKEN" in env:
+            values["operator_token"] = str(env["OPERATOR_TOKEN"])
+        if "SLACK_BOT_TOKEN" in env:
+            values["slack_token"] = str(env["SLACK_BOT_TOKEN"])
+        if "SLACK_CHANNEL_ID" in env:
+            values["slack_channel"] = str(env["SLACK_CHANNEL_ID"])
+        if "TRIGGER_LABEL" in env:
+            values["label"] = str(env["TRIGGER_LABEL"])
+        if "GITHUB_ALLOWED_ACTOR" in env:
+            values["allowed_actor"] = str(env["GITHUB_ALLOWED_ACTOR"])
+        if "DEVIN_MAX_ACU" in env:
+            values["max_acu"] = int(env["DEVIN_MAX_ACU"])
+        if "DEVIN_MAX_SESSIONS" in env:
+            values["max_sessions"] = int(env["DEVIN_MAX_SESSIONS"])
+        if "SESSION_TIMEOUT_SECONDS" in env:
+            values["session_timeout"] = int(env["SESSION_TIMEOUT_SECONDS"])
+        if "POLL_SECONDS" in env:
+            values["poll_seconds"] = int(env["POLL_SECONDS"])
+        if "SCAN_INTERVAL_SECONDS" in env:
+            values["scan_interval"] = int(env["SCAN_INTERVAL_SECONDS"])
+        if "BATCH_WINDOW_SECONDS" in env:
+            values["batch_seconds"] = int(env["BATCH_WINDOW_SECONDS"])
+        if "AUTOMATION_ENABLED" in env:
+            values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
+        if "ARTIFACT_DIR" in env:
+            values["artifacts"] = Path(env["ARTIFACT_DIR"])
+        settings = cls(**values)
+        settings.check_repo()
+        return settings
 
     def check_repo(self):
-        if self.repo.lower() == "apache/superset" or "/" not in self.repo:
+        if self.repo.lower() == "apache/superset" or not re.fullmatch(
+            r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", self.repo
+        ):
             raise ValueError("Automation must target an explicitly configured fork")
+
+        if not self.branch or not self.org:
+            raise ValueError("Branch and Devin organization are required")
+        if (
+            self.max_acu <= 0
+            or self.max_sessions < 0
+            or self.poll_seconds <= 0
+            or self.session_timeout <= 0
+            or self.scan_interval < 0
+            or self.batch_seconds < 0
+        ):
+            raise ValueError(
+                "Execution limits must be positive; session/scan/batch limits may be zero"
+            )

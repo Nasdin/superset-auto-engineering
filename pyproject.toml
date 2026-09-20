@@ -1,0 +1,20 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+include = ["backend/**/*.py"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
+ignore = ["B008"] # FastAPI declares dependencies in endpoint defaults.
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
