@@ -764,3 +764,23 @@
     padding: 18px 15px;
   }
 }
+
+.schedule-card {
+  margin-bottom: 16px;
+}
+.schedule-history > button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 18px 8px;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.schedule-history > button + button {
+  border-top: 1px solid var(--border, #e1e3da);
+}
+.schedule-history > button:hover {
+  background: #f4f5ef;
+}

@@ -94,6 +94,10 @@ class ScheduleService:
                 "('queued','dispatching','running','needs_attention','unknown_effect') LIMIT 1"
             ).fetchone()
             if active:
+                c.execute(
+                    "UPDATE schedules SET next_run=:due,last_job_id=:job WHERE id='discovery'",
+                    {"due": now + current["interval_seconds"], "job": active["id"]},
+                )
                 return self.store.decode(active)
             interval = current["interval_seconds"]
             bucket = int(now // interval)

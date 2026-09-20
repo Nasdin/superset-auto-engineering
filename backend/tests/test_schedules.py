@@ -77,6 +77,7 @@ def test_schedule_coalesces_downtime_and_respects_existing_scan(setup):
         c.execute("UPDATE schedules SET next_run=1")
     assert service.tick()["id"] == store.jobs()[0]["id"]
     assert len(store.jobs()) == 1
+    assert service.schedule()["next_run"] > time.time()
 
 
 def test_disabled_schedule_still_allows_manual_intent(setup):
