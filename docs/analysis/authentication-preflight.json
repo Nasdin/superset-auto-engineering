@@ -1,0 +1,16 @@
+{
+  "verified_at": "2026-09-20T13:31:55.958835+00:00",
+  "scope": "Local FastAPI and Postgres with Caddy forward-auth; not an AWS or public HTTPS verification",
+  "cloud_deployed": false,
+  "checks": {
+    "browser_login": "Wrong password rejected, login succeeds, session survives reload, sign-out revokes persisted cookie",
+    "ingress": "Anonymous BI API returns 401; BI HTML redirects to login; signed-in BI health returns 200; replayed cookie after logout returns 401",
+    "real_superset": "Six embedded chart responses successful; medians and cohort counts match Postgres; 30/60-day and upstream/fork/dependency filters pass",
+    "layout": "Desktop and mobile login screenshots visually reviewed; no horizontal overflow at 390px",
+    "backend": "Expiry, password rotation, operator separation, CSRF, durable rate limits and password-hash concurrency covered by automated tests"
+  },
+  "remaining": [
+    "Public HTTPS with Secure cookies",
+    "AWS us-east-1 provisioning and deployment"
+  ]
+}

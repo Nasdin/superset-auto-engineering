@@ -68,6 +68,8 @@ jobs:
         working-directory: frontend
         env:
           TEST_PYTHON: python
-        run: npm run test:e2e
+        run: |
+          npm run test:e2e
+          python ../scripts/test_login_e2e.py
       - name: Build production container
         run: docker build -t cognition-quality .

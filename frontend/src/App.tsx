@@ -42,11 +42,16 @@ const icons = [
   BrainCircuit,
   LayoutDashboard,
 ];
-export default function App() {
+export default function App({ onLogout }: { onLogout?: () => void }) {
   const [page, setPage] = useState<Page>("Release validation");
   if (new URLSearchParams(window.location.search).get("demo") === "1") {
     return (
       <Suspense fallback={<p>Loading example workspace…</p>}>
+        {onLogout && (
+          <button className="demo-signout" onClick={onLogout}>
+            Sign out
+          </button>
+        )}
         <DemoApp />
       </Suspense>
     );
@@ -114,6 +119,11 @@ export default function App() {
             <span className="badge green">
               {page === "Analytics" ? "GitHub history" : "Live ledger"}
             </span>
+            {onLogout && (
+              <button className="signout-button" onClick={onLogout}>
+                Sign out
+              </button>
+            )}
           </div>
         </header>
         {page === "Analytics" ? (

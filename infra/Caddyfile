@@ -1,18 +1,18 @@
 {$PUBLIC_HOST} {
-    # GitHub signs this exact endpoint; every other route requires reviewer login.
-    @webhook {
-        path /api/live/webhooks/github
-        method POST
+    @login path /api/auth/login
+    request_body @login {
+        max_size 4KB
     }
-    handle @webhook {
-        reverse_proxy cognition:8000
+    @bi path /bi /bi/*
+    handle @bi {
+        forward_auth cognition:8000 {
+            uri /api/auth/verify
+        }
+        reverse_proxy analytics-superset:8088
     }
     handle {
-        basic_auth {
-            {$REVIEWER_USER} {$REVIEWER_PASSWORD_HASH}
-        }
-        @bi path /bi /bi/*
-        reverse_proxy @bi analytics-superset:8088
+        # FastAPI protects private APIs; the frontend shows the login page.
+        # The exact GitHub webhook verifies its HMAC independently.
         reverse_proxy cognition:8000
     }
 }

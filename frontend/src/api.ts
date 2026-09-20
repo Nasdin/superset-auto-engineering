@@ -9,7 +9,10 @@ export async function api<T>(
       ? {
           signal,
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Cognition-Intent": "session",
+          },
           body: JSON.stringify(body),
         }
       : { signal },

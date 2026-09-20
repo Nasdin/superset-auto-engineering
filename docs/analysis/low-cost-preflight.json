@@ -12,7 +12,7 @@
     "container_oom_kills": 0,
     "backup": "logical dumps of both databases, empty artifact directory, checksum verification, rotation and failed-dump preservation passed",
     "restore": "cognition dump restored successfully to a separate disposable Postgres database; 11 public tables",
-    "ingress": "Anonymous dashboard/BI HTTP requests return 401; authenticated API/BI return 200; API remains 200 during BI outage (BI returns 502). Public HTTPS still untested."
+    "ingress": "Prior Basic Auth check superseded by cookie login; see authentication-preflight.json for the current local ingress checks. Public HTTPS remains untested."
   },
   "remaining": [
     "AWS provisioning in us-east-1",

@@ -2,7 +2,6 @@ import { test, expect, type Response } from "@playwright/test";
 
 test("real guest Superset charts match Postgres cohorts and isolate repository filters", async ({
   page,
-  request,
 }) => {
   test.skip(
     !process.env.SUPERSET_ANALYTICS_E2E,
@@ -26,7 +25,7 @@ test("real guest Superset charts match Postgres cohorts and isolate repository f
         return body.result[0];
       }),
     );
-    const referenceResponse = await request.get(
+    const referenceResponse = await page.request.get(
       `/api/analytics/pull-requests?${query}`,
     );
     expect(referenceResponse.ok()).toBeTruthy();
@@ -56,6 +55,12 @@ test("real guest Superset charts match Postgres cohorts and isolate repository f
     ).toHaveCount(0);
   };
   await page.goto("/");
+  if (process.env.AUTH_E2E_PASSWORD) {
+    await page
+      .getByLabel("Workspace password")
+      .fill(process.env.AUTH_E2E_PASSWORD);
+    await page.getByRole("button", { name: "Open workspace" }).click();
+  }
   await page.getByRole("button", { name: "Analytics", exact: true }).click();
   await checkCharts("repository=apache%2Fsuperset");
   await page.screenshot({

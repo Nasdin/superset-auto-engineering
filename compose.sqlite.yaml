@@ -31,6 +31,11 @@ x-runtime: &sqlite-runtime
 services:
   cognition:
     <<: *sqlite-runtime
+    environment:
+      <<: *sqlite-environment
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      REVIEWER_PASSWORD_HASH: ${REVIEWER_PASSWORD_HASH:-}
     ports:
       - "127.0.0.1:${COGNITION_PORT:-8000}:8000"
     healthcheck:
