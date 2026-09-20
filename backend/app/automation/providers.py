@@ -1,5 +1,8 @@
 """Provider adapters; no retry of uncertain mutations, no credential logging."""
 
+from urllib.parse import quote, urlparse
+from uuid import UUID
+
 import httpx
 
 
@@ -71,6 +74,52 @@ class Providers:
 
     def attachments(self, sid):
         return self.devin("GET", f"sessions/{sid}/attachments")
+
+    def attachment_content(self, attachment, limit=20_000_000):
+        """Fetch only provider-confirmed attachment identities; never agent-chosen URLs."""
+        try:
+            identity = str(UUID(attachment["attachment_id"]))
+            name = quote(attachment["name"], safe="")
+            endpoint = (
+                f"https://api.devin.ai/v3/organizations/{self.s.org}/attachments/{identity}/{name}"
+            )
+            response = self.client.get(
+                endpoint, headers={"Authorization": f"Bearer {self.s.devin_key}"}
+            )
+            if response.status_code != 307:
+                raise ProviderError(f"Attachment download HTTP {response.status_code}")
+            location = response.headers.get("location", "")
+            parsed = urlparse(location)
+            if (
+                parsed.scheme != "https"
+                or parsed.username
+                or parsed.password
+                or parsed.port not in {None, 443}
+                or not (parsed.hostname or "").endswith(".amazonaws.com")
+                or ".s3" not in (parsed.hostname or "")
+            ):
+                raise ProviderError("Unsupported attachment download destination")
+            # Fresh request: no API credential forwarded to object storage.
+            download_request = self.client.build_request("GET", location)
+            for header in ("authorization", "cookie"):
+                download_request.headers.pop(header, None)
+            downloaded = self.client.send(
+                download_request, stream=True, auth=None, follow_redirects=False
+            )
+            try:
+                if downloaded.status_code != 200:
+                    raise ProviderError(f"Attachment content HTTP {downloaded.status_code}")
+                chunks, size = [], 0
+                for chunk in downloaded.iter_bytes():
+                    size += len(chunk)
+                    if size > limit:
+                        raise ProviderError("Attachment exceeds the configured size limit")
+                    chunks.append(chunk)
+                return b"".join(chunks), downloaded.headers.get("content-type", "")
+            finally:
+                downloaded.close()
+        except (httpx.RequestError, ValueError, KeyError, TypeError):
+            raise ProviderError("Attachment could not be read safely") from None
 
     def pr(self, number):
         return self.gh("GET", f"repos/{self.s.repo}/pulls/{number}")

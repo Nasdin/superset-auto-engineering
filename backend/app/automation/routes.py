@@ -74,11 +74,6 @@ def submit(body: IssueRequest, eng: Engine = Depends(get_engine)):
         raise HTTPException(502, str(e)) from None
 
 
-@router.post("/scan", dependencies=[Depends(operator)])
-def scan(eng: Engine = Depends(get_engine)):
-    return eng.schedule_scan()
-
-
 class WebhookRepository(BaseModel):
     full_name: str
 

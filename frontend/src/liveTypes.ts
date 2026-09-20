@@ -1,4 +1,9 @@
-export type Artifact = { kind: string; name: string; url: string };
+export type Artifact = {
+  kind: string;
+  name: string;
+  url: string;
+  public_url?: string;
+};
 export type Job = {
   id: string;
   kind: string;

@@ -431,7 +431,10 @@ def test_schedule_disabled_still_allows_manual_scan(setup):
     db, p, e = setup
     e.settings = replace(e.settings, scan_interval=0)
     p.gh = lambda *a, **kw: {"sha": SHA}
-    assert e.schedule_scan()["kind"] == "scan"
+    from app.automation.schedules import ScheduleService
+
+    assert e.schedule_scan() is None
+    assert ScheduleService(e.settings, db, p).run_now("manual-test")["kind"] == "scan"
 
 
 def test_intake_outage_does_not_skip_provider_poll(setup):

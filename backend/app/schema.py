@@ -11,6 +11,19 @@ def col(name, kind=Text, **options):
 
 
 Table(
+    "schedules",
+    automation,
+    col("id", primary_key=True),
+    col("name", nullable=False),
+    col("enabled", Integer, nullable=False),
+    col("interval_seconds", Integer, nullable=False),
+    col("next_run", Float, nullable=False),
+    col("last_job_id"),
+    col("updated", Float, nullable=False),
+)
+
+
+Table(
     "lessons",
     automation,
     col("id", primary_key=True),

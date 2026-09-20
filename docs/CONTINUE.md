@@ -1,66 +1,24 @@
-# Live workflow continuation checkpoint
+# Current handoff — 21 September 2026
 
-Checkpoint: 2026-09-20. The end-to-end goal is active and unfinished. Do not substitute the fixture dashboard or a healthy Superset baseline for a successful autonomous fix.
+This replaces the earlier pre-deployment checkpoint. The app is live in Sydney at https://superset-devin.nasrudinsalim.com with Postgres, embedded Superset BI, reviewer login, a signed permanent GitHub webhook and one cloud workflow worker. Local paid dispatch remains disabled. Source: `Nasdin/superset-auto-engineering`, branch `main`; workflow scope: `Nasdin/superset`, branch `cognition-release-6.1`. Secrets remain in ignored `.env` and the root-only cloud configuration.
 
-## Latest analytics/storage change
+## Real workflow evidence
 
-The local application now runs on Postgres 17. Superset BI at `http://127.0.0.1:8189/bi` renders actual analytics in the dashboard, separate from candidate-validation Superset at 8188. Migration preserved the existing ledger and 11,706 PR records with cell-by-cell readback. [Migration and BI guide](POSTGRES_SUPERSET.md). AWS target is `superset-devin.nasrudinsalim.com`, but no AWS resources or DNS records have been created: account/profile, region and budget are pending (only `nextvestment` is configured locally). [Deployment preparation](AWS_DEPLOYMENT.md).
+- Issue #1 → Devin repair PR #2 → integration PR #4 at `7c5857dc4d2acb3ce324a25681dbd41cedada7da`.
+- Independent session `cce0a57c5e0a4fc7ac58df0884d10cbb` built this candidate, ran real MySQL/Superset browser/API checks and uploaded screenshots, video, logs and scoped coverage. Its original immutable handoff schema required a v2 JSON attachment; use the recovery helper to reassess, never fabricate missing fields.
+- Scheduled discovery found issue #3, Devin produced PR #5, integration PR #7 awaits independent validation. Dependabot PR #6 has entered actual Devin preparation. Re-read live states before claiming either is complete.
+- Review the actual public report receipts in the workspace and GitHub. A failed v1 gate comment remains historical; a corrected v2 report has a new publication key.
 
-The paid Devin usage hold and existing blocked validation remain in effect. Do not mistake a passing BI dashboard for a completed repair-validation run. Older checkpoints below describe historical progress.
+## Operator surfaces
 
-## Repositories and runtime
+Workflows → Schedules & triggers supports saved cadence/pause, Run now, existing issue/PR intake and resuming the same paused provider session. Execution access uses the private operator token, separate from the shared reviewer password. Learning is its own tab and shows knowledge observations, dispatch snapshots and subsequent outcomes.
 
-- Application: `/Users/nasdin/code/personal/cognition` (the `code` directory resolves to `/Volumes/CORSAIR/code`). Public delivery repository: https://github.com/Nasdin/superset-auto-engineering. Original private remote retained: https://github.com/Nasdin/cognition.
-- Superset fork: https://github.com/Nasdin/superset. Clone: `/Users/nasdin/code/personal/superset`.
-- Baseline worktree: `/Users/nasdin/code/personal/superset-baseline`, detached at `c37118edd0146019ab0ae4ae1a97a597cb56c88e`, Apache Superset `6.1`.
-- Fork target branch: `cognition-release-6.1`. Default branch is unchanged. Issue: https://github.com/Nasdin/superset/issues/1.
-- Local control plane: http://127.0.0.1:8000. Actual live job ledger: `/api/live/overview`; automation enabled after take-home API authentication.
-- Queued repair job: `15fb900e-d51d-4b0a-8313-bf27f5ba3585`. Implemented by session `e9b26529705f4aa3bdcded5fa85e5a43` in Asmar DE Takehome, PR #2 at `0d0c15d181379d8e1426ba69d7201a05a4a438f7`; check actual provider cost before claims.
-- Local baseline Superset: http://127.0.0.1:8188. Compose project `cognition-validation`; app and Celery worker health checks passed.
+The saved discovery schedule supersedes the seed SCAN_INTERVAL_SECONDS after first startup. Changing .env requires container recreation. Do not run a second worker against an independent fresh ledger: it discards capacity and idempotency history.
 
-## Credentials and authorization boundary
+## Remaining presentation work
 
-GitHub CLI is authenticated as Nasdin. `.env` contains the local GitHub credential, random webhook secret and operator token. `.env.superset` contains synthetic runtime credentials. Both files are ignored and must stay local; never display their values.
+Use `CHALLENGE_ACCEPTANCE.md` for the criteria and Loom outline. The required presenter Loom link has not been recorded/submitted. Agent browser MP4 evidence is supporting material, not that deliverable. Do not submit automatically.
 
-Verified signed-in Devin organization: Asmar DE Takehome, `org-f456da0f2e0940808b5c8b3a20312d8c`. The user confirmed token creation. A PAT named Cognition take-home was created September 20, expires September 27, and is stored only in ignored `.env` (mode 0600). Organization session listing returned HTTP 200 with that token. Never display its value.
+## Deployment
 
-The installed official Devin CLI reports a personal Devin Pro account. Do not spend personal credits as a fallback; use the configured take-home API organization.
-
-The user explicitly authorized the Nasrudin Slack workspace (`T0C2NTV3Z39`), Tech channel `C0C2NTYCPTR`. The browser is logged in to this workspace. The existing Slack connector only exposes a different workspace; do not use it for this project. The Superset Evidence app (`A0C3YS07V16`, only `chat:write`) is installed and added to #tech. Its bot token is in ignored `.env` (0600). The API/worker were rebuilt from merged main `5a65980` and report Slack connected. A queued message was delivered and visibly verified: https://nasrudingroup.slack.com/archives/C0C2NTYCPTR/p1789875265091599. Receipt: `evidence/slack-live.json`. The webhook gateway was restarted after the API IP changed; unsigned requests return 401 again.
-
-## Start/rebuild local Superset baseline
-
-The baseline image was already built from the exact worktree:
-
-```sh
-docker build --target ci --label cognition.baseline-sha=c37118edd0146019ab0ae4ae1a97a597cb56c88e -t cognition-superset:c37118ed /Users/nasdin/code/personal/superset-baseline
-docker compose -f infra/superset.compose.yaml --env-file .env.superset -p cognition-validation up --build -d
-docker compose -f infra/superset.compose.yaml --env-file .env.superset -p cognition-validation exec -T superset python < scripts/seed_superset.py
-```
-
-On a fresh machine, create `.env.superset` with independent random alphanumeric values for `SUPERSET_SECRET_KEY`, `POSTGRES_PASSWORD`, `MYSQL_ROOT_PASSWORD`, and `VALIDATION_ADMIN_PASSWORD` (at least 32 characters each). The validator username is `validator`. Never commit this file. The environment is isolated and loopback-only, with synthetic rows; HTTP/Talisman is disabled for this local exercise.
-
-Run the optional browser check with `cd frontend && SUPERSET_E2E=1 npx playwright test tests/superset.spec.ts`. The latest run passed: login → SQL Lab → COUNT=3 and SUM=6, with a saved screenshot and video. Review fresh results before later claims. SQL Lab is seeded with Cognition MySQL and `validation.grain_fixture`. The original defect reproduction is in `scripts/reproduce_mysql_grains.py`; its failure output is `evidence/mysql-baseline.json`.
-
-## Remaining acceptance path
-
-1. Take-home token and read-only organization/session access are verified. Do not use the personal CLI account.
-2. Rebuild/recreate the application with automation enabled and observe the existing issue's **single** real repair session. Inspect provider status/cost and actual fork PR. Attach every created PR to the Codex task.
-3. Let integration form a draft PR from exact component SHAs, followed by a fresh validation session. The validator must start actual Superset from the integrated SHA, run the changed behavior through DB/browser/regression tests, and attach screenshot, video, logs and tests.
-4. Inspect the artifact contents and provenance. Observe repaired-candidate report comments on the integration PR, component PR and issue; verify URLs and receipts. The baseline issue report already proves outbox delivery and public artifact access, but does not validate a fix. An agent saying finished is insufficient.
-5. Slack connection and outbox delivery are verified. Confirm the eventual candidate-validation report separately; the connection-check message is not release evidence.
-6. Demonstrate the bounded scheduled scan as a separate real run, a discovered issue and its repair loop if a defect is found. Do not fabricate a discovery. The six-session total cap reserves validation capacity.
-7. Recheck the existing temporary tunnel and GitHub webhook before live execution. Real issue delivery and redelivery deduplication are verified in `evidence/github-webhook-live.json`. Port 8001 gateway only, never port 8000.
-8. Record actual costs/durations/evidence and durable lessons, final checks and known limitations. Keep the goal active until all requested end-to-end proof is present.
-
-## Failure handling
-
-Unknown session creation blocks further paid dispatch. Reconcile with `python3 scripts/cognition_operator.py reconcile --job JOB --session SESSION` only after reading provider tags. For integration writes, POST the authenticated `/api/live/jobs/JOB/resume-integration` endpoint; it performs GitHub readback before writes. Acknowledged reports persist a receipt and retry readback without resending. Unknown publication writes without a receipt must be inspected at the provider before any manual resend. No code auto-merges the release branch.
-
-## Temporary webhook lifecycle
-
-The Cloudflare Quick Tunnel was started with `cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8001`; its output is `/tmp/cognition-webhook-tunnel.log`. The active task tool session is `34273`; poll that exact handle or inspect the matching process before restarting. Do not start a duplicate solely because a polling observation times out.
-
-GitHub hook ID: `681964250`. Its current public callback is recorded in `evidence/github-webhook-live.json`. A restarted Quick Tunnel gets a new hostname: update this same hook's URL, retain the local ignored HMAC secret, and verify delivery before claiming it is connected. Never expose port 8000 or 8188. If intentionally shutting down the demo, deactivate this hook before stopping its tunnel. Do not delete unrelated hooks or tunnel processes.
-
-Baseline report: https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328. Evidence branch: `cognition/evidence/baseline-c37118ed`, separate from the release branch. The first repair is implemented in PR #2. A legacy-schema handoff was audited because the final response used waiting_for_user; future schemas carry task_complete. Check live ledger for scheduled scan/integration/validation progression. Do not create duplicate sessions.
+Use `docs/LOW_COST_AWS.md`. Cloud source is `/opt/cognition/app`; wrapper `/usr/local/bin/cognition-compose`. Rebuild app/worker serially on the small VM; do not replace the host or databases. No backups/snapshots are enabled per demo preference. Recheck public login, all workspaces, Superset charts, read-only/operator boundaries and anonymous evidence rendering after each deployment.

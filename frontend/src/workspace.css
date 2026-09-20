@@ -543,3 +543,224 @@
   display: grid;
   gap: 16px;
 }
+
+/* Autonomous work: cadence, trigger and outcome stay visually distinct. */
+.automation-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 18px;
+}
+.automation-form .compact-field {
+  min-width: 180px;
+  flex: 1;
+}
+.automation-form .quiet {
+  flex-basis: 100%;
+  margin: 0;
+}
+.automation-hold {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.automation-hold p {
+  margin: 7px 0;
+}
+.schedule-card .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.schedule-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 25px;
+  padding: 24px;
+}
+.schedule-summary small,
+.schedule-summary strong {
+  display: block;
+}
+.schedule-summary small {
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.schedule-summary strong {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.automation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  padding: 0 24px 24px;
+}
+.schedule-card > .disclosure {
+  margin: 0 24px 24px;
+}
+.trigger-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 24px;
+}
+.trigger-grid article {
+  background: #f3f4ed;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.trigger-grid h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.trigger-grid p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.trigger-grid small {
+  display: block;
+  color: var(--muted);
+  margin-top: 14px;
+}
+.automation-footnote {
+  padding: 0 24px 24px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.schedule-history {
+  padding: 0 24px 24px;
+}
+.schedule-history > button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.schedule-history small {
+  display: block;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.workflow-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 14px 20px;
+  background: #edf1e8;
+  border-radius: 8px;
+}
+.workflow-entry p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.learning-timeline {
+  padding: 24px;
+}
+.learning-day {
+  display: grid;
+  grid-template-columns: 100px minmax(60px, 1fr) 145px 170px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.learning-day small,
+.learning-day time {
+  color: var(--muted);
+}
+.learning-bar {
+  height: 12px;
+  background: #edf0e9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.learning-bar span {
+  display: block;
+  height: 100%;
+  background: #6b8569;
+}
+.learning-transfers {
+  padding: 0 24px 24px;
+}
+.learning-transfers article {
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr 20px 1fr;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+.learning-transfers small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.learning-transfers button {
+  display: block;
+  text-align: left;
+  margin-bottom: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.learning-transfers p {
+  font-size: 12px;
+}
+.evidence-preview {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  margin-bottom: 15px;
+  background: #eff0e9;
+}
+@media (max-width: 900px) {
+  .trigger-grid,
+  .schedule-summary {
+    grid-template-columns: 1fr;
+  }
+  .learning-day {
+    grid-template-columns: 90px 1fr;
+  }
+  .learning-transfers article {
+    grid-template-columns: 1fr;
+  }
+  .learning-transfers article > span {
+    transform: rotate(90deg);
+    width: 20px;
+  }
+}
+@media (max-width: 600px) {
+  .automation-hold,
+  .workflow-entry {
+    align-items: start;
+    flex-direction: column;
+  }
+  .automation-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .schedule-card > .disclosure {
+    margin-inline: 15px;
+  }
+  .schedule-summary,
+  .trigger-grid,
+  .learning-timeline {
+    padding: 18px 15px;
+  }
+}

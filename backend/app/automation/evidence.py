@@ -96,7 +96,9 @@ def assess_evidence(
             and isinstance(mime, str)
             and media_matches(kind, mime)
         ):
-            verified.append({**artifact, "attachment_id": meta["attachment_id"]})
+            verified.append(
+                {"kind": kind, "name": name, "url": url, "attachment_id": meta["attachment_id"]}
+            )
     if (
         len(verified) != len(artifacts)
         or not REQUIRED_ARTIFACTS.issubset(a["kind"] for a in verified)

@@ -12,8 +12,13 @@ def redact_text(value, secrets=()):
             text = text.replace(secret, "[REDACTED]")
     text = re.sub(r"(?i)\bBearer\s+(?!\$)[A-Za-z0-9._~+/=-]+", "Bearer [REDACTED]", text)
     text = re.sub(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", "[REDACTED]", text)
-    text = re.sub(r"(?i)(https?://)[^\s/@]+:[^\s/@]+@", r"\1[REDACTED]@", text)
+    text = re.sub(r"(?i)([a-z][a-z0-9+.-]*://)[^\s/@]+:[^\s/@]+@", r"\1[REDACTED]@", text)
     text = re.sub(rf"(?i)([?&](?:{SECRET_FIELDS})=)[^\s&'\"]+", r"\1[REDACTED]", text)
+    text = re.sub(
+        r"(?im)(\b[A-Z][A-Z0-9_]*(?:PASSWORD|SECRET|SECRET_KEY|TOKEN|API_KEY)\s*=\s*)(?:\"[^\"]*\"|'[^']*'|[^\s]+)",
+        r"\1[REDACTED]",
+        text,
+    )
     # curl credentials can be positional option values, not named headers.
     text = re.sub(
         r"""(?i)((?:--(?:user|proxy-user|cookie|oauth2-bearer)(?:=|\s+)|(?<!\S)-[ubU]\s*))(?:"[^"]*"|'[^']*'|[^\s]+)""",

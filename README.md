@@ -57,11 +57,12 @@ Compose reads `.env` for interpolation and passes an explicit set of settings to
 | `GITHUB_TOKEN` | Server-side GitHub credential; optional for public history, required for workflow writes |
 | `DEVIN_ORG_ID`, `DEVIN_API_KEY` | Organization API v3 scope and credential; required for Devin execution |
 | `GITHUB_WEBHOOK_SECRET` | Generated shared secret for signed GitHub deliveries |
-| `OPERATOR_TOKEN` | Generated token for local operator commands |
+| `OPERATOR_TOKEN` | Generated owner key for operator commands and the browser’s Execution access expander; never the shared reviewer password |
 | `DEVIN_MAX_ACU`, `DEVIN_MAX_SESSIONS` | Defaults: 10 ACU per session, 6 sessions across the ledger's lifetime |
 | `SESSION_TIMEOUT_SECONDS` | Default: 7200 seconds per session |
 | `POLL_SECONDS`, `BATCH_WINDOW_SECONDS` | Default polling/batching: 30/60 seconds |
-| `SCAN_INTERVAL_SECONDS` | Default: 86400; `0` disables scheduled discovery |
+| `SCAN_INTERVAL_SECONDS` | Seeds the first discovery schedule (86400 daily; 0 paused). After first startup, edit the durable schedule in Workflows → Schedules & triggers |
+| `EVIDENCE_PUBLIC_URL` | Optional HTTPS app origin for public, sanitized evidence copies embedded in PR comments; blank keeps authenticated Devin links |
 | `DEPENDABOT_ENABLED` | Default `true`; dependency intake/dispatch remains subject to automation limits |
 | `LEARNING_ENABLED` | Default `true`; syncs scoped observations to Devin Knowledge. Turning it off may retire app-owned notes |
 | `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID` | Optional evidence delivery; leave both blank to omit Slack |
@@ -308,3 +309,22 @@ E2E_BASE_URL=http://127.0.0.1:8000 SUPERSET_ANALYTICS_E2E=1 npx playwright test 
 Analytics compares **Fixes, Features, Bots and Other** across seven calendar months or rolling 7–180 day windows. It measures commits per PR, median merge hours, post-review commit rework and added/removed lines, with per-metric sample coverage. A dotted **21 September 2026** rollout marker separates baseline from later observations. The effort-saved calculator uses editable assumptions and completed Devin work; it never equates waiting time with engineering effort. [Design concepts and metric definitions](docs/design/ANALYTICS.md). Upstream/fork selection, six-month/previous/custom baselines, author/label/branch/work-type filters and tracked-work attribution remain available. Time to merge is elapsed creation-to-merge time grouped by merge date; incomplete/small cohorts remain visible and do not establish a causal Devin improvement. [Metric definitions and SQL](docs/POSTGRES_SUPERSET.md) · [code boundaries and tests](docs/CODE_QUALITY.md).
 
 The latest local BI/storage verification is [recorded here](docs/analysis/superset-postgres-verification.json). It is distinct from repaired-candidate acceptance: the previously observed independent Devin validation was blocked at its configured usage limit. See [the continuation checkpoint](docs/CONTINUE.md) for that workflow's evidence and remaining work.
+
+
+## Schedules, manual work and release gates
+
+Open **Workflows → Schedules & triggers**. The page shows the saved cadence, next due time, discovery history, repository triggers, worker health and session capacity. Expand **Execution access** and enter the `OPERATOR_TOKEN` from your private `.env` to run work or edit schedules. It stays only in tab memory for 15 minutes and disappears on refresh. The reviewer password grants viewing access, not paid execution.
+
+- **Edit schedule:** hourly, every six hours, daily or weekly; enable/pause persists in Postgres or SQLite. Saving sets the next tick one full interval ahead. Missed ticks coalesce; an active scan prevents duplicates.
+- **Run discovery now:** creates a separate manual intent. Network retries use the same request ID. Existing issue/PR intake uses the same scope and label checks as webhooks.
+- **Repository events:** signed GitHub issues and PR events enqueue eligible repairs, Dependabot preparation and independent validation. Periodic readback recovers missed deliveries. Only the configured fork and release branch are writable.
+- **Learning:** repository observations sync to Devin Knowledge. The timeline shows recorded observations and confirmed memory supplied to later sessions, linked to their validation outcome. This does not claim model retraining or causal productivity improvements.
+- **Release gates:** a fresh Devin session builds the exact integration/PR SHA in its own isolated VM, starts Superset and its databases, exercises the browser and functional APIs with curl, and runs regression tests with scoped coverage. The BI Superset serving analytics is a separate runtime; it is not candidate-validation proof. No second always-on AWS VM is necessary.
+
+For PRs to show images without a Devin login, set `EVIDENCE_PUBLIC_URL=https://YOUR_APP_DOMAIN` and recreate the app and worker. The worker downloads only provider-confirmed attachments through the organization API, redacts known credentials from text, and stores immutable PNG/MP4/plaintext copies in the shared artifact volume. These copies are deliberately public at `/public-evidence/<content-hash>.<extension>`; the dashboard and other APIs retain login protection. Use synthetic test data and sanitize captures at source. Public files are not backed up in this demo; deleting the host can break old evidence links.
+
+The gate checks session independence, current candidate SHA, six required checks, artifact ownership and structured API/test/coverage evidence. A passing gate prepares a human review; it never merges automatically. A provider suspension or unknown outcome stays visible and blocks further paid dispatch until reconciled. **Resume same session** preserves the existing provider session and budget; it does not create a replacement.
+
+Older sessions with an immutable v1 output schema can provide a same-SHA `evidence-report.json` attachment. It must agree with the final session verdict and pass the same v2 gate. To reassess a completed legacy session, run `PYTHONPATH=backend python scripts/recover_validation_handoff.py --job JOB_ID` in the configured runtime. This reads existing evidence; it cannot start paid work. Revised reports get distinct durable publication receipts, preserving the earlier failed-gate history.
+
+See [challenge acceptance and five-minute demo plan](docs/CHALLENGE_ACCEPTANCE.md).

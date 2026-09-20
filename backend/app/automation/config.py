@@ -28,6 +28,7 @@ class Settings:
     dependabot_enabled: bool = True
     learning_enabled: bool = True
     enabled: bool = False
+    evidence_public_url: str = ""
     artifacts: Path = Path("data/artifacts")
 
     @property
@@ -85,6 +86,8 @@ class Settings:
             values["dependabot_enabled"] = env["DEPENDABOT_ENABLED"].lower() == "true"
         if "AUTOMATION_ENABLED" in env:
             values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
+        if "EVIDENCE_PUBLIC_URL" in env:
+            values["evidence_public_url"] = env["EVIDENCE_PUBLIC_URL"].rstrip("/")
         if "ARTIFACT_DIR" in env:
             values["artifacts"] = Path(env["ARTIFACT_DIR"])
         if env.get("DATABASE_URL"):

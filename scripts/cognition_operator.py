@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import uuid
 from pathlib import Path
 import urllib.request
 
@@ -26,7 +27,7 @@ path = {
 payload = (
     {"number": a.number}
     if a.action == "issue"
-    else {"session_id": a.session} if a.action == "reconcile" else {}
+    else {"session_id": a.session} if a.action == "reconcile" else {"request_id": str(uuid.uuid4())}
 )
 req = urllib.request.Request(
     "http://127.0.0.1:8000/api/live/" + path,

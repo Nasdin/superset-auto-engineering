@@ -6,6 +6,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Disclosure, Inspection } from "../components/Disclosure";
+import { LearningProgress } from "../components/LearningProgress";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job } from "../liveTypes";
@@ -174,6 +175,12 @@ export function Learning() {
                 </button>
               </p>
             ))}
+          <LearningProgress
+            lessons={data.lessons}
+            contexts={data.contexts}
+            jobs={data.jobs}
+            select={setSelected}
+          />
           <section className="panel">
             <div className="panel-heading">
               <div>

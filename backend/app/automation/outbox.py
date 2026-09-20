@@ -18,6 +18,8 @@ class PublicationOutbox:
 
     def publish(self, jid, number, body, validation=None):
         key = f"github:{jid}:{number}"
+        if validation and validation.get("revision"):
+            key += ":" + validation["revision"]
         self.store.queue_publication(
             key,
             {
@@ -31,6 +33,8 @@ class PublicationOutbox:
 
     def publish_slack(self, job, body, validation=None):
         key = f"slack:{job['id']}"
+        if validation and validation.get("revision"):
+            key += ":" + validation["revision"]
         self.store.queue_publication(
             key,
             {

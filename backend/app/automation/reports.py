@@ -99,12 +99,13 @@ class ReleaseReportBuilder:
         lines += ["", "### Screenshots, video and execution evidence"]
         artifacts = result.get("artifacts", [])
         for artifact in artifacts:
-            if not safe_link(artifact.get("url")):
+            url = artifact.get("public_url") or artifact.get("url")
+            if not safe_link(url):
                 continue
             name = plain_report(str(artifact.get("name", "Evidence"))[:180]).replace("\n", " ")
-            lines.append(f"- [{artifact['kind']}: {name}](<{artifact['url']}>)")
+            lines.append(f"- [{artifact['kind']}: {name}](<{url}>)")
             if artifact["kind"] == "screenshot":
-                lines.append(f"![Superset running — {name}](<{artifact['url']}>)")
+                lines.append(f"![Superset running — {name}](<{url}>)")
         if not artifacts:
             lines.append("No provider-confirmed artifacts available. The evidence gate is blocked.")
         if result.get("gate_failures"):

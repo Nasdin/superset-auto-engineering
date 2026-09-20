@@ -73,21 +73,9 @@ class Engine:
         return accepted
 
     def schedule_scan(self):
-        bucket = int(time.time() // max(self.settings.scan_interval, 1))
-        key = f"scan:{self.settings.repo}:{self.settings.branch}:{bucket}"
-        prior = self.store.by_key(key)
-        if prior:
-            return prior
-        ref = self.providers.gh("GET", f"repos/{self.settings.repo}/commits/{self.settings.branch}")
-        return self.store.enqueue(
-            key,
-            "scan",
-            {
-                "base_sha": ref["sha"],
-                "source": "schedule",
-                "title": "Scheduled bounded correctness scan",
-            },
-        )
+        from .schedules import ScheduleService
+
+        return ScheduleService(self.settings, self.store, self.providers).tick()
 
     def tick(self):
         if not self.settings.enabled:

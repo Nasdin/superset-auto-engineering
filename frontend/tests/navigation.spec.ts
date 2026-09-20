@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("four workspaces retain every feature, deep links and mobile navigation", async ({
+test("five workspaces retain every feature, deep links and mobile navigation", async ({
   page,
 }) => {
   await page.goto("/");
@@ -20,8 +20,14 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
     animations: "disabled",
   });
   const primary = page.getByRole("navigation", { name: "Workspace" });
-  await expect(primary.getByRole("button")).toHaveCount(4);
-  for (const name of ["Evidence", "Workflows", "Analytics", "Operations"])
+  await expect(primary.getByRole("button")).toHaveCount(5);
+  for (const name of [
+    "Release gates",
+    "Workflows",
+    "Learning",
+    "Analytics",
+    "Operations",
+  ])
     await expect(
       primary.getByRole("button", { name, exact: true }),
     ).toBeVisible();
@@ -47,9 +53,7 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   await expect(
     page.getByRole("heading", { name: "Dependency updates" }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Learning & memory", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Learning", exact: true }).click();
   await expect(page).toHaveURL(/#learning$/);
   await page.reload();
   await expect(
@@ -84,12 +88,12 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   await page.setViewportSize({ width: 390, height: 844 });
   await primary.getByRole("button", { name: "Workflows", exact: true }).click();
   const learning = page.getByRole("button", {
-    name: "Learning & memory",
+    name: "Learning",
     exact: true,
   });
   await learning.focus();
   await page.keyboard.press("Enter");
-  await expect(learning).toHaveAttribute("aria-pressed", "true");
+  await expect(learning).toHaveAttribute("aria-current", "page");
   await expect(
     page.getByRole("heading", { name: "Learning & memory", exact: true }),
   ).toBeVisible();

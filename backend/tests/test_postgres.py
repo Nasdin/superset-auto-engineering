@@ -244,3 +244,26 @@ def test_postgres_sql_views_match_reference_windows_filters_and_small_samples(po
             ).fetchone()["merged_prs"]
             == 0
         )
+
+
+def test_postgres_schedule_and_manual_intents_are_single_flight(postgres):
+    from dataclasses import replace
+    from uuid import uuid4
+
+    from app.automation.config import Settings
+    from app.automation.schedules import ScheduleService
+    from test_automation import FakeProvider
+
+    store, _ = postgres
+    provider = FakeProvider()
+    provider.gh = lambda *args, **kwargs: {"sha": "a" * 40}
+    service = ScheduleService(replace(Settings(), database=store.path), store, provider)
+    request_id = str(uuid4())
+    with ThreadPoolExecutor(4) as pool:
+        jobs = list(pool.map(lambda _: service.run_now(request_id), range(4)))
+    assert len({j["id"] for j in jobs}) == 1
+    store.update(jobs[0]["id"], state="completed")
+    service.schedule()
+    with ThreadPoolExecutor(4) as pool:
+        list(pool.map(lambda _: service.tick(), range(4)))
+    assert len(store.jobs()) == 2

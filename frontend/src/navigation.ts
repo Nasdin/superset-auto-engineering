@@ -1,8 +1,14 @@
-import { Activity, GitPullRequest, Settings2, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  BrainCircuit,
+  GitPullRequest,
+  Settings2,
+  ShieldCheck,
+} from "lucide-react";
 
 export const sections = [
   {
-    name: "Evidence",
+    name: "Release gates",
     icon: ShieldCheck,
     description: "Review the proof",
     views: [
@@ -21,12 +27,24 @@ export const sections = [
     description: "Follow the work",
     views: [
       { page: "Workflows", label: "Workflow lanes", slug: "workflows" },
+      {
+        page: "Schedules & triggers",
+        label: "Schedules & triggers",
+        slug: "automations",
+      },
       { page: "Devin runs", label: "Devin runs", slug: "runs" },
       {
         page: "Dependabot runs",
         label: "Dependabot runs",
         slug: "dependencies",
       },
+    ],
+  },
+  {
+    name: "Learning",
+    icon: BrainCircuit,
+    description: "Remember & improve",
+    views: [
       {
         page: "Learning & memory",
         label: "Learning & memory",

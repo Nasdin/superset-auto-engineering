@@ -1,5 +1,6 @@
 """Independent evidence acceptance and candidate freshness."""
 
+from .artifacts import EvidenceArchive, attachment_records, complete_handoff
 from .config import Settings
 from .evidence import assess_evidence
 from .outbox import PublicationOutbox
@@ -54,6 +55,8 @@ class ValidationService:
     def finish_validation(self, job, result):
         if not self.is_current(job):
             return
+        attachments = attachment_records(self.providers.attachments(job["session_id"]))
+        result = complete_handoff(self.providers, result, attachments)
         result = sanitize(result, provider_secrets(self.settings))
         implementation_ids = job["payload"].get("implementation_jobs", [job["parent_id"]])
         implementations = [self.store.get(jid) for jid in implementation_ids]
@@ -64,7 +67,7 @@ class ValidationService:
                 item.get("session_id") if item else None for item in implementations
             ],
             result=result,
-            attachments=self.providers.attachments(job["session_id"]),
+            attachments=attachments,
             external_implementation=job["payload"].get("implementation_origin") == "external_pr"
             and job["payload"].get("work_type") == "pr_validation"
             and self.store.has_audit(job["id"], "session_created"),
@@ -73,7 +76,9 @@ class ValidationService:
         status = "review_ready" if valid else "validation_failed"
         result = {
             **result,
-            "artifacts": assessment.artifacts,
+            "artifacts": EvidenceArchive(self.settings, self.providers).publish(
+                assessment.artifacts, attachments
+            ),
             "provenance": "independent_devin_session" if valid else "unverified_validation",
             "gate_failures": assessment.failures,
             "gate": status,
@@ -92,6 +97,8 @@ class ValidationService:
                 for m in job["payload"].get("members", [])
             ],
         }
+        if result.get("handoff_attachment_id"):
+            metadata["revision"] = result["handoff_attachment_id"]
         for number in dict.fromkeys(targets):
             self.outbox.publish(job["id"], number, report, validation=metadata)
         if self.settings.slack_token and self.settings.slack_channel:

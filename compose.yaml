@@ -9,6 +9,7 @@ x-runtime: &runtime
   environment: &runtime-environment
     DATABASE_URL: postgresql+psycopg://cognition_app:${POSTGRES_APP_PASSWORD:?Run scripts/configure_local_postgres.py}@postgres:5432/cognition
     ARTIFACT_DIR: /app/data/artifacts
+    EVIDENCE_PUBLIC_URL: ${EVIDENCE_PUBLIC_URL:-}
     AUTOMATION_ENABLED: ${AUTOMATION_ENABLED:-false}
     GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
     TARGET_BRANCH: ${TARGET_BRANCH:-cognition-release-6.1}

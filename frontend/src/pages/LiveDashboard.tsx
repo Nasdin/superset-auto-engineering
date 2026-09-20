@@ -137,7 +137,25 @@ export function JobDetail({
             <article className="artifact-card" key={artifact.url}>
               <div className="eyebrow">{artifact.kind}</div>
               <h3>{artifact.name}</h3>
-              <External url={artifact.url}>Open evidence</External>
+              {artifact.kind === "screenshot" &&
+                safeUrl(artifact.public_url || artifact.url) && (
+                  <a
+                    href={safeUrl(artifact.public_url || artifact.url)!}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <img
+                      className="evidence-preview"
+                      src={safeUrl(artifact.public_url || artifact.url)!}
+                      alt={artifact.name}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  </a>
+                )}
+              <External url={artifact.public_url || artifact.url}>
+                Open evidence
+              </External>
             </article>
           ))}
         </div>
@@ -204,6 +222,14 @@ export function LiveDashboard({ page }: { page: Page }) {
           </button>
         </Disclosure>
       </div>
+      {page === "Workflows" && (
+        <div className="workflow-entry">
+          <p>See the queue below, or choose when and how work begins.</p>
+          <a className="button" href="#automations">
+            Schedules & manual runs →
+          </a>
+        </div>
+      )}
       {error && (
         <div role="alert" className="notice">
           {error} <button onClick={() => refresh()}>Retry connection</button>

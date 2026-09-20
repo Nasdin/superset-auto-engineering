@@ -13,7 +13,9 @@ from .analytics.embedding import router as superset_router
 from .analytics.routes import router as analytics_router
 from .analytics.store import AnalyticsStore
 from .auth import AuthSettings, ReviewerAuth, install_auth
+from .automation.artifacts import public_evidence
 from .automation.config import Settings
+from .automation.controls import router as controls_router
 from .automation.providers import Providers
 from .automation.routes import router as live_router
 from .automation.runtime import create_runtime
@@ -74,8 +76,14 @@ def create_app(
             )
         )
     application.include_router(live_router)
+    application.include_router(controls_router)
     application.include_router(analytics_router)
     application.include_router(superset_router)
+
+    @application.get("/public-evidence/{name}", include_in_schema=False)
+    def published_evidence(name: str):
+        return public_evidence(configured.artifacts, name)
+
     if static_directory.is_dir():
         application.mount("/", StaticFiles(directory=static_directory, html=True), name="frontend")
     return application
