@@ -118,6 +118,36 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     payload: { title: "chore: bump PyJWT", work_type: "dependency" },
     result: {
       summary: "Test fixture: independent validation",
+      api_requests: [
+        {
+          name: "Saved chart query",
+          method: "POST",
+          url: "http://localhost:8088/api/v1/chart/data",
+          curl: "curl -X POST http://localhost:8088/api/v1/chart/data -H 'Authorization: [REDACTED]'",
+          expected_status: 200,
+          actual_status: 200,
+          assertion: "Returned expected synthetic row",
+          response_excerpt: '{"result":[{"value":1}]}',
+          passed: true,
+          evidence_url: "https://attachments.devin.ai/api.txt",
+        },
+      ],
+      coverage: {
+        scope: "superset/db_engine_specs/mysql.py",
+        command: "pytest --cov=superset.db_engine_specs.mysql",
+        lines_covered: 80,
+        lines_total: 100,
+        branches_covered: 10,
+        branches_total: 20,
+        report_url: "https://attachments.devin.ai/coverage.json",
+      },
+      test_results: {
+        command: "pytest tests/unit_tests/db_engine_specs/mysql_tests.py",
+        passed: 9,
+        failed: 0,
+        skipped: 1,
+        report_url: "https://attachments.devin.ai/tests.xml",
+      },
       checks: [
         {
           name: "browser",
@@ -215,6 +245,30 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     page.getByRole("link", { name: "Published report" }),
   ).toHaveAttribute("href", /issuecomment-1$/);
   await expect(page.getByText("a".repeat(40), { exact: true })).toBeVisible();
+  await page
+    .getByText("Saved chart query · POST · HTTP 200 · reported pass")
+    .click();
+  await expect(page.getByLabel("Executed curl request")).toContainText(
+    "curl -X POST",
+  );
+  await expect(page.getByLabel("Observed response")).toContainText('"value":1');
+  await expect(page.getByText("80/100 (80.0%)", { exact: true })).toBeVisible();
+  await expect(page.getByText("9 passed · 0 failed · 1 skipped")).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/pr-execution-evidence-mobile.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.screenshot({
+    path: "test-results/pr-execution-evidence-fixture.png",
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "PR evidence", exact: true }).click();
   await page.getByLabel("Change type").selectOption("feature");
   await expect(

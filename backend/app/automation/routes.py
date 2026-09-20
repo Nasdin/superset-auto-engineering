@@ -10,6 +10,7 @@ from .dependencies import DependencyService
 from .engine import Engine
 from .learning import LearningService, workflow_lane
 from .patches import PatchService
+from .pr_validation import VALIDATE_LABEL, PullRequestValidationService
 from .providers import ProviderError
 
 router = APIRouter(prefix="/api/live", tags=["automation"])
@@ -154,6 +155,25 @@ async def github_event(
             raise HTTPException(422, "Pull request is required")
         try:
             pr = await run_in_threadpool(eng.providers.pr, payload.pull_request.number)
+            if VALIDATE_LABEL in [x.get("name") for x in pr.get("labels", [])] or any(
+                j["pr_number"] == payload.pull_request.number
+                and j["kind"] in {"repair", "integration"}
+                for j in eng.store.operational_jobs()
+            ):
+                if eng.store.has_delivery(x_github_delivery):
+                    return {"status": "duplicate"}
+                job = await run_in_threadpool(
+                    PullRequestValidationService(settings, eng.store, eng.providers).accept,
+                    payload.pull_request.number,
+                    "pr_validation_webhook",
+                    payload.pull_request.head.sha,
+                )
+                eng.store.record_delivery(x_github_delivery)
+                return {
+                    "status": job.get("status", "accepted"),
+                    "job_id": job.get("id"),
+                    "reason": job.get("reason"),
+                }
             service = (
                 PatchService
                 if pr.get("user", {}).get("login", "").lower() == settings.allowed_actor.lower()

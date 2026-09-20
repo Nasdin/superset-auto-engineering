@@ -76,3 +76,13 @@ This checkpoint supersedes older implementation counts and configuration notes a
 - Real browser inspection showed three native notes, the existing usage blocker, and scan → repair PR #5 lineage in the autonomous lane. Screenshots are in `docs/screenshots/learning-memory.png` and `docs/screenshots/workflow-lanes.png`.
 
 - Corrected the legacy health endpoint: `/api/health` checks the live ledger and reports live mode plus the automation switch; demo health remains explicitly under `/api/demo/health`.
+
+## PR execution evidence and replies — 2026-09-20
+
+- Added v2 evidence for executed Superset curl requests/responses, behavioral assertions, scoped coverage counts and test totals, alongside screenshots/video/logs. No missing measurements are substituted with dashboard coverage.
+- Engineer and Devin PR changes can trigger independent validation; known implementation sessions are preserved through integration edits. Current heads are rechecked before report publication.
+- 184 backend tests passed with 84.63% control-plane coverage; 13 browser/API tests passed, one optional external Superset test skipped; frontend and Docker builds passed.
+- Actual [PR #4 reply](https://github.com/Nasdin/superset/pull/4#issuecomment-5747889051) was posted and read back. Repeating its publication left exactly one comment. The configured GitHub publisher is Nasdin.
+- This is blocked-status delivery proof only: Devin remains suspended at its 10-ACU limit with zero uploaded attachments. No full live Superset validation, passing coverage or release approval is claimed. See [PR validation](PR_VALIDATION.md).
+
+- Live PR #4 label event `2cabc190-b4b5-11f1-967f-740dff2b043d` was signed and delivered by GitHub; the endpoint returned HTTP 200 with the existing validator ID. No duplicate session was dispatched.

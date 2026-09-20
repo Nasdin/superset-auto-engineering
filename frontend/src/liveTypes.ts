@@ -26,6 +26,34 @@ export type Job = {
     gate_failures?: string[];
     provenance?: string;
     artifacts?: Artifact[];
+    api_requests?: {
+      name: string;
+      method: string;
+      url: string;
+      curl: string;
+      expected_status: number;
+      actual_status: number;
+      assertion: string;
+      response_excerpt: string;
+      passed: boolean;
+      evidence_url: string;
+    }[];
+    test_results?: {
+      command: string;
+      passed: number;
+      failed: number;
+      skipped: number;
+      report_url: string;
+    };
+    coverage?: {
+      command: string;
+      scope: string;
+      lines_covered: number;
+      lines_total: number;
+      branches_covered: number;
+      branches_total: number;
+      report_url: string;
+    };
     checks?: {
       name: string;
       passed: boolean;

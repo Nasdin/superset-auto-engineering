@@ -1,0 +1,14 @@
+{
+  "guid": "2cabc190-b4b5-11f1-967f-740dff2b043d",
+  "delivered_at": "2026-09-20T05:36:08.076Z",
+  "event": "pull_request",
+  "action": "labeled",
+  "status_code": 200,
+  "response": {
+    "status": "accepted",
+    "job_id": "f8c560ee-e962-4080-9d8a-266b1a15023b",
+    "reason": null
+  },
+  "request_pr": 4,
+  "source": "GitHub actual signed PR labeling event; no synthetic request"
+}

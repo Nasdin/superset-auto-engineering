@@ -328,9 +328,15 @@ def test_workbench_connects_component_pr_to_integrated_validation(setup):
         candidate_sha=SHA,
     )
     publications = [{"key": f"github:{validation['id']}:{n}", "state": "sent"} for n in [1, 2, 4]]
+    publications.append(
+        {"key": f"github:validation-status-v2:{validation['id']}:4", "state": "sent"}
+    )
     rows = {r["number"]: r for r in pull_request_rows([], db.jobs(), publications)}
     assert set(rows) == {2, 4}
     assert rows[2]["runs"][0]["pr_number"] == 4
     assert rows[2]["runs"][0]["candidate_sha"] == SHA
     assert [p["key"] for p in rows[2]["publications"]] == [f"github:{validation['id']}:2"]
-    assert [p["key"] for p in rows[4]["publications"]] == [f"github:{validation['id']}:4"]
+    assert [p["key"] for p in rows[4]["publications"]] == [
+        f"github:{validation['id']}:4",
+        f"github:validation-status-v2:{validation['id']}:4",
+    ]

@@ -6,6 +6,7 @@ from .config import Settings
 from .links import safe_link
 from .ports import ProviderGateway
 from .providers import ProviderError, UnknownEffect
+from .redaction import provider_secrets, redact_text
 from .store import Store
 
 
@@ -15,7 +16,7 @@ class PublicationOutbox:
         self.store = store
         self.providers = providers
 
-    def publish(self, jid, number, body):
+    def publish(self, jid, number, body, validation=None):
         key = f"github:{jid}:{number}"
         self.store.queue_publication(
             key,
@@ -23,20 +24,43 @@ class PublicationOutbox:
                 "provider": "github",
                 "repository": self.settings.repo,
                 "number": number,
-                "body": f"<!-- {key} -->\n" + body,
+                "body": f"<!-- {key} -->\n" + redact_text(body, provider_secrets(self.settings)),
+                "validation": validation,
             },
         )
 
-    def publish_slack(self, job, body):
+    def publish_slack(self, job, body, validation=None):
         key = f"slack:{job['id']}"
         self.store.queue_publication(
             key,
             {
                 "provider": "slack",
                 "channel": self.settings.slack_channel,
-                "body": f"Cognition {self.settings.repo} PR #{job['pr_number']}\n{body}",
+                "body": f"Cognition {self.settings.repo} PR #{job['pr_number']}\n{redact_text(body, provider_secrets(self.settings))}",
+                "validation": validation,
             },
         )
+
+    def current_report(self, metadata):
+        from .validation import ValidationService
+
+        job = self.store.get(metadata["job_id"])
+        if job and job["state"] in {"running", "dispatching"}:
+            raise ProviderError("Validation handoff is still being committed")
+        if not job or job["state"] not in {"review_ready", "validation_failed", "needs_attention"}:
+            return False
+        if not ValidationService(self.settings, self.store, self.providers).is_current(job):
+            return False
+        for target in metadata.get("targets", []):
+            pr = self.providers.pr(target["number"])
+            if (
+                pr["state"] != "open"
+                or pr["head"]["sha"] != target["sha"]
+                or pr["base"]["repo"]["full_name"].lower() != self.settings.repo.lower()
+                or pr["base"]["ref"] != self.settings.branch
+            ):
+                return False
+        return True
 
     def flush_publication(self):
         item = self.store.claim_publication()
@@ -46,6 +70,19 @@ class PublicationOutbox:
         receipt = item.get("receipt")
         try:
             if not receipt:
+                if payload.get("validation"):
+                    try:
+                        current = self.current_report(payload["validation"])
+                    except ProviderError as error:
+                        self.store.finish_publication(key, "pending", error=str(error))
+                        return  # Read failed before a write: safe to retry verification.
+                    if not current:
+                        self.store.finish_publication(
+                            key,
+                            "stale",
+                            error="PR changed before publication; previous evidence was not posted",
+                        )
+                        return
                 if payload["provider"] == "github":
                     result = self.providers.comment(
                         payload["number"],

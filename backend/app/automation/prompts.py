@@ -1,5 +1,7 @@
 import json
 
+from .execution_evidence import EXECUTION_PROPERTIES
+
 REPAIR_SCHEMA = {
     "type": "object",
     "properties": {
@@ -40,7 +42,7 @@ VALIDATION_SCHEMA = {
                 "properties": {
                     "kind": {
                         "type": "string",
-                        "enum": ["screenshot", "video", "logs", "tests"],
+                        "enum": ["screenshot", "video", "logs", "tests", "api", "coverage"],
                     },
                     "url": {"type": "string"},
                     "name": {"type": "string"},
@@ -62,6 +64,10 @@ VALIDATION_SCHEMA = {
     ],
     "additionalProperties": False,
 }
+
+
+VALIDATION_SCHEMA["properties"].update(EXECUTION_PROPERTIES)
+VALIDATION_SCHEMA["required"].extend(EXECUTION_PROPERTIES)
 
 
 def execution_payload(settings, job, memory):
@@ -121,7 +127,9 @@ Start Superset locally with its actual Python code from this exact checkout; a s
 Use computer controls to sign in, execute the changed workflow in Superset (including SQL Lab and a chart/dashboard where relevant), inspect query results against known data, and verify the fix. Also run relevant regression tests.
 Capture a real video and screenshots of the browser journey. Save service logs, database/behavioral result logs and test outputs. Upload these as session attachments using Devin's file/recording capabilities; use the actual returned attachment URLs.
 All media must come from this session and this exact checkout. Include SHA and commands in the text evidence. Do not substitute mockups, old screenshots or image generation. Screenshots alone are not test proof.
-Provide checks named services, database, browser, regression. Set passed=true only if all four pass and actual screenshot, video, logs and tests attachments exist. Otherwise report precise blockers and passed=false.
+Exercise the running Superset HTTP API yourself using curl, authenticated with synthetic local fixture credentials. Call an affected functional /api/ endpoint (not just health or login); assert status AND expected returned data. Record the actual curl commands with credentials replaced by environment-variable placeholders, observed response statuses and sanitized response excerpts, and behavior assertions. Upload a separate API transcript. Never publish Authorization/Cookie headers, passwords, tokens, connection secrets or unsanitized response dumps.
+Run relevant regression tests with coverage instrumentation on the real changed Superset Python modules. Save the actual test report and coverage JSON/XML as separate provider attachments. Return measured line/branch covered and total counts, exact coverage scope and command, and passed/failed/skipped test counts. Do not substitute the orchestration dashboard's coverage or invent an overall Superset percentage. If coverage cannot run, explicitly fail this check and explain why; zero is not a substitute for missing measurement.
+Provide checks named services, database, browser, regression, api, coverage. Return evidence_version=2, api_requests, coverage, test_results using the required schema. Set passed=true only if all six pass and actual screenshot, video, logs, tests, api transcript and coverage attachments exist. Otherwise report precise blockers and passed=false.
 Return the full candidate_sha, checks and each artifact's URL/kind/name in structured output. Leave missing URLs absent rather than inventing them.
 """
         )

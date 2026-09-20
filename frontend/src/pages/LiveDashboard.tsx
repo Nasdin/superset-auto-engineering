@@ -1,3 +1,4 @@
+import { ExecutionEvidence } from "../components/ExecutionEvidence";
 import { WorkflowLanes } from "./WorkflowLanes";
 import { useState } from "react";
 import {
@@ -129,6 +130,7 @@ export function JobDetail({
             <code>{check.command}</code>
           </div>
         ))}
+        {job.kind === "validation" && <ExecutionEvidence result={job.result} />}
         <div className="artifact-grid">
           {job.result?.artifacts?.map((artifact) => (
             <article className="artifact-card" key={artifact.url}>

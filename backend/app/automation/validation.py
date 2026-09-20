@@ -4,6 +4,7 @@ from .config import Settings
 from .evidence import assess_evidence
 from .outbox import PublicationOutbox
 from .ports import ProviderGateway
+from .redaction import provider_secrets, sanitize
 from .reports import ReleaseReportBuilder
 from .store import Store
 
@@ -23,6 +24,16 @@ class ValidationService:
             and pr["base"]["repo"]["full_name"].lower() == self.settings.repo.lower()
             and pr["base"]["ref"] == self.settings.branch
         )
+        if job["payload"].get("work_type") == "pr_validation":
+            from .pr_validation import eligible_validation
+
+            try:
+                eligible_validation(
+                    self.settings, pr, tracked=job["payload"].get("tracked_pr", False)
+                )
+                eligible = eligible and pr["head"]["ref"] == job["payload"]["head_ref"]
+            except ValueError:
+                eligible = False
         if job["payload"].get("work_type") in {"dependency", "patch"}:
             from .patches import preparation_service
 
@@ -43,6 +54,7 @@ class ValidationService:
     def finish_validation(self, job, result):
         if not self.is_current(job):
             return
+        result = sanitize(result, provider_secrets(self.settings))
         implementation_ids = job["payload"].get("implementation_jobs", [job["parent_id"]])
         implementations = [self.store.get(jid) for jid in implementation_ids]
         assessment = assess_evidence(
@@ -53,6 +65,9 @@ class ValidationService:
             ],
             result=result,
             attachments=self.providers.attachments(job["session_id"]),
+            external_implementation=job["payload"].get("implementation_origin") == "external_pr"
+            and job["payload"].get("work_type") == "pr_validation"
+            and self.store.has_audit(job["id"], "session_created"),
         )
         valid = assessment.passed
         status = "review_ready" if valid else "validation_failed"
@@ -69,10 +84,18 @@ class ValidationService:
             targets.append(job["payload"]["issue_number"])
         for member in job["payload"].get("members", []):
             targets += [member["pr_number"], member["issue_number"]]
+        metadata = {
+            "job_id": job["id"],
+            "targets": [{"number": job["pr_number"], "sha": job["candidate_sha"]}]
+            + [
+                {"number": m["pr_number"], "sha": m["sha"]}
+                for m in job["payload"].get("members", [])
+            ],
+        }
         for number in dict.fromkeys(targets):
-            self.outbox.publish(job["id"], number, report)
+            self.outbox.publish(job["id"], number, report, validation=metadata)
         if self.settings.slack_token and self.settings.slack_channel:
-            self.outbox.publish_slack(job, report)
+            self.outbox.publish_slack(job, report, validation=metadata)
         self.store.update(
             job["id"],
             state=status,

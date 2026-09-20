@@ -100,6 +100,14 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
             “review ready” has passed the evidence gate; merge remains a human
             action.
           </div>
+          {!botOnly && (
+            <p className="notice">
+              To validate an engineer’s or Devin’s existing fork PR, add the{" "}
+              <code>cognition:validate</code> label. New commits get a new
+              validation run. Tracked repairs also follow subsequent changes
+              automatically.
+            </p>
+          )}
           {data.queue_holds?.map((hold) => (
             <div className="notice" key={hold.id} role="status">
               <strong>

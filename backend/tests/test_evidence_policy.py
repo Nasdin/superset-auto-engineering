@@ -68,3 +68,108 @@ def test_report_preserves_markdown_table_and_escapes_agent_text():
     assert "@everyone" not in report
     assert "@all" not in report
     assert "\\[click\\]" in report
+
+
+@pytest.mark.parametrize("field", ["api_requests", "coverage", "test_results"])
+def test_missing_execution_evidence_blocks_release(field):
+    payload = result()
+    payload.pop(field)
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("lines_total", 0),
+        ("lines_covered", 101),
+        ("branches_covered", 21),
+        ("lines_covered", True),
+        ("lines_total", float("nan")),
+    ],
+)
+def test_coverage_counts_are_measured_and_valid(field, value):
+    payload = result()
+    payload["coverage"][field] = value
+    assert not assess(payload).passed
+
+
+def test_api_failure_and_unconfirmed_transcript_cannot_pass():
+    payload = result()
+    payload["api_requests"][0]["actual_status"] = 500
+    assert not assess(payload).passed
+    payload = result()
+    payload["api_requests"][0]["evidence_url"] = "https://example.com/invented"
+    assert not assess(payload).passed
+
+
+def test_report_includes_curl_response_coverage_and_embedded_superset_image():
+    report = ReleaseReportBuilder().build(
+        {"candidate_sha": SHA, "session_url": "https://app.devin.ai/sessions/validator"},
+        result(),
+        "review_ready",
+    )
+    assert "curl -X POST" in report and "observed HTTP 200" in report
+    assert "80/100 (80.0%)" in report and "9 passed" in report
+    assert "![Superset running" in report
+    assert '"value":1' in report
+
+
+def test_execution_text_is_redacted_before_report_and_durable_storage():
+    from app.automation.redaction import sanitize
+
+    payload = result()
+    payload["summary"] = "Authorization: Bearer secret123"
+    payload["api_requests"][0]["curl"] = (
+        "curl -H 'Authorization: Bearer SECRET_TOKEN' -H 'Cookie: session=SESSION_SECRET' http://localhost:8088/api/v1/chart/"
+    )
+    payload["api_requests"][0]["response_excerpt"] = (
+        '{"access_token":"TOKEN_SECRET","password":"PASSWORD_SECRET"}'
+    )
+    payload["checks"][0]["detail"] = "https://user:URL_SECRET@localhost/api/?api_key=QUERY_SECRET"
+    clean = sanitize(payload)
+    import json
+
+    report = ReleaseReportBuilder().build(
+        {"candidate_sha": SHA, "session_url": "https://app.devin.ai/sessions/validator"},
+        clean,
+        "validation_failed",
+    )
+    for secret in [
+        "secret123",
+        "SECRET_TOKEN",
+        "SESSION_SECRET",
+        "TOKEN_SECRET",
+        "PASSWORD_SECRET",
+        "URL_SECRET",
+        "QUERY_SECRET",
+    ]:
+        assert secret not in json.dumps(clean) and secret not in report
+    assert "[REDACTED]" in report
+
+
+@pytest.mark.parametrize(
+    "url", ["http://localhost:8088/api/v1/security/login", "http://localhost:8088/api/health"]
+)
+def test_authentication_or_health_only_is_not_functional_api_evidence(url):
+    payload = result()
+    payload["api_requests"][0]["url"] = url
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "option",
+    [
+        "-u alice:PRIVATE",
+        "--user=alice:PRIVATE",
+        "-b session=PRIVATE",
+        "--cookie 'session=PRIVATE'",
+        "-Ualice:PRIVATE",
+        "-H 'X-CSRFToken: PRIVATE'",
+    ],
+)
+def test_curl_credential_options_are_redacted(option):
+    from app.automation.redaction import sanitize
+
+    assert "PRIVATE" not in str(
+        sanitize({"curl": f"curl {option} http://localhost:8088/api/v1/chart/"})
+    )

@@ -7,6 +7,7 @@ from .config import Settings
 from .dependencies import DependencyService
 from .learning import LearningService
 from .patches import PatchService
+from .pr_validation import PullRequestValidationService
 from .runtime import create_runtime
 
 
@@ -27,6 +28,7 @@ def cycle(engine):
             ("github_events", engine.poll_issues),
             ("dependabot", DependencyService(s, db, engine.providers).poll),
             ("patches", PatchService(s, db, engine.providers).poll),
+            ("pr_validation", PullRequestValidationService(s, db, engine.providers).poll),
             ("freshness", engine.refresh_readiness),
         ]
     if s.scan_interval > 0 and time.time() - db.recall("last_schedule_tick", 0) >= 60:

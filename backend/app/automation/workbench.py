@@ -43,7 +43,12 @@ def pull_request_rows(pulls, jobs, publications):
         row["publications"] = [
             pub
             for pub in publications
-            if pub["key"].split(":")[1] in ids
+            if (
+                pub["key"].split(":")[-2]
+                if pub["key"].startswith("github:")
+                else pub["key"].split(":")[-1]
+            )
+            in ids
             and (
                 pub["key"].startswith("slack:")
                 or pub["key"].rsplit(":", 1)[-1] == str(row["number"])

@@ -1832,3 +1832,48 @@ td small {
     flex-direction: column;
   }
 }
+
+.execution-evidence {
+  margin: 24px 0;
+  min-width: 0;
+}
+.execution-evidence h3 {
+  margin-top: 24px;
+}
+.execution-evidence pre {
+  max-width: 100%;
+  overflow: auto;
+  padding: 16px;
+  background: #f2f6f4;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.execution-evidence p {
+  overflow-wrap: anywhere;
+}
+.execution-request {
+  border: 1px solid #dfe7e3;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.execution-request summary {
+  cursor: pointer;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.execution-request summary:focus-visible {
+  outline: 2px solid #458774;
+  outline-offset: 4px;
+}
+.coverage-metrics {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.coverage-metrics strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 8px;
+}

@@ -263,6 +263,15 @@ class Store:
                 (jid, kind, json.dumps(detail), time.time()),
             )
 
+    def has_audit(self, job_id, kind):
+        with self.connect() as connection:
+            return (
+                connection.execute(
+                    "SELECT 1 FROM audit WHERE job_id=? AND kind=? LIMIT 1", (job_id, kind)
+                ).fetchone()
+                is not None
+            )
+
     def remember(self, key, value):
         with self.connect() as c:
             c.execute(

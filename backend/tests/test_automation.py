@@ -60,9 +60,11 @@ class FakeProvider:
                     "video": "video/webm",
                     "logs": "text/plain",
                     "tests": "application/json",
+                    "api": "text/plain",
+                    "coverage": "application/json",
                 }[kind],
             }
-            for kind in ["screenshot", "video", "logs", "tests"]
+            for kind in ["screenshot", "video", "logs", "tests", "api", "coverage"]
         ]
 
 
@@ -247,14 +249,45 @@ def result():
         "candidate_sha": SHA,
         "passed": True,
         "summary": "All checked",
+        "evidence_version": 2,
+        "api_requests": [
+            {
+                "name": "SQL query",
+                "method": "POST",
+                "url": "http://localhost:8088/api/v1/sqllab/execute/",
+                "curl": "curl -X POST http://localhost:8088/api/v1/sqllab/execute/",
+                "expected_status": 200,
+                "actual_status": 200,
+                "assertion": "query result equals fixture",
+                "response_excerpt": '{"data":[{"value":1}]}',
+                "passed": True,
+                "evidence_url": "https://attachments.devin.ai/api",
+            }
+        ],
+        "coverage": {
+            "command": "pytest --cov=superset.db_engine_specs.mysql",
+            "scope": "superset.db_engine_specs.mysql",
+            "lines_covered": 80,
+            "lines_total": 100,
+            "branches_covered": 10,
+            "branches_total": 20,
+            "report_url": "https://attachments.devin.ai/coverage",
+        },
+        "test_results": {
+            "command": "pytest regression",
+            "passed": 9,
+            "failed": 0,
+            "skipped": 0,
+            "report_url": "https://attachments.devin.ai/tests",
+        },
         "blocker": "",
         "checks": [
             {"name": n, "passed": True, "command": "test", "detail": "ok"}
-            for n in ["services", "database", "browser", "regression"]
+            for n in ["services", "database", "browser", "regression", "api", "coverage"]
         ],
         "artifacts": [
             {"kind": k, "name": k, "url": f"https://attachments.devin.ai/{k}"}
-            for k in ["screenshot", "video", "logs", "tests"]
+            for k in ["screenshot", "video", "logs", "tests", "api", "coverage"]
         ],
     }
 
@@ -512,6 +545,8 @@ def test_integration_recovers_lost_write_responses_without_duplicates(setup, los
     engine.tick()
     assert db.get(job["id"])["state"] == "integrated"
     assert writes == {"refs": 1, "merges": 1, "pulls": 1}
+    component_pr = p.pr
+    p.pr = lambda number: {**component_pr(number), **(remote["pr"] if number == 3 else {})}
     engine.tick()
     validator = next(j for j in db.jobs() if j["kind"] == "validation")
     assert validator["state"] == "running"

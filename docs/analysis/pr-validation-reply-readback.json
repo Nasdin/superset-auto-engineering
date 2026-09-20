@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-09-20T05:32:41.354417+00:00",
+  "repository": "Nasdin/superset",
+  "pull_request": 4,
+  "candidate_sha": "7c5857dc4d2acb3ce324a25681dbd41cedada7da",
+  "session_status": "suspended",
+  "session_status_detail": "usage_limit_exceeded",
+  "provider_attachments": 0,
+  "publication_state": "sent",
+  "url": "https://github.com/Nasdin/superset/pull/4#issuecomment-5747889051",
+  "comment_id": 5747889051,
+  "comment_author": "Nasdin",
+  "duplicate_test_comment_count": 1,
+  "scope": "Live blocked-status reply delivery/readback only; full Superset validation remains incomplete."
+}

@@ -133,10 +133,7 @@ class Engine:
             self.settings, self.store, self.providers, job["kind"]
         ).preflight(job):
             return
-        if job["kind"] == "validation" and job["payload"].get("work_type") in {
-            "dependency",
-            "patch",
-        }:
+        if job["kind"] == "validation":
             if not ValidationService(self.settings, self.store, self.providers).is_current(job):
                 return
             if (

@@ -3,10 +3,11 @@
 from dataclasses import dataclass
 from typing import Any
 
+from .execution_evidence import execution_failures
 from .links import safe_link
 
-REQUIRED_CHECKS = {"services", "database", "browser", "regression"}
-REQUIRED_ARTIFACTS = {"screenshot", "video", "logs", "tests"}
+REQUIRED_CHECKS = {"services", "database", "browser", "regression", "api", "coverage"}
+REQUIRED_ARTIFACTS = {"screenshot", "video", "logs", "tests", "api", "coverage"}
 
 
 @dataclass(frozen=True)
@@ -28,7 +29,7 @@ def media_matches(kind: str, content_type: str) -> bool:
         return mime.startswith("image/")
     if kind == "video":
         return mime.startswith("video/")
-    return kind in {"logs", "tests"} and (
+    return kind in {"logs", "tests", "api", "coverage"} and (
         mime.startswith("text/")
         or mime in {"application/json", "application/xml", "application/zip"}
     )
@@ -41,6 +42,7 @@ def assess_evidence(
     implementation_sessions: list[str | None],
     result: dict[str, Any],
     attachments: Any,
+    external_implementation: bool = False,
 ) -> EvidenceAssessment:
     if isinstance(attachments, dict):
         attachments = attachments.get("items", attachments.get("attachments", []))
@@ -74,7 +76,7 @@ def assess_evidence(
         failures.append("Mandatory checks are missing, duplicated, or failing")
     if (
         not validator_session
-        or not implementation_sessions
+        or (not implementation_sessions and not external_implementation)
         or any(not session or session == validator_session for session in implementation_sessions)
     ):
         failures.append("Validator independence is not established")
@@ -102,4 +104,5 @@ def assess_evidence(
         or len({a["attachment_id"] for a in verified}) != len(verified)
     ):
         failures.append("Distinct provider-confirmed artifacts are missing or invalid")
+    failures.extend(execution_failures(result, verified))
     return EvidenceAssessment(not failures, verified, tuple(failures))

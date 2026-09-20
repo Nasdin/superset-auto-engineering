@@ -4,6 +4,7 @@ Start with the slides, then inspect the underlying data. The charts describe pub
 
 - [Editable nine-slide deck](slides/cognition-story.pptx)
 - [Product and analysis explainer](EXPLAINER.md)
+- [PR replies, API evidence and coverage](PR_VALIDATION.md)
 - [Dependabot workflow, configuration and live verification](DEPENDABOT.md)
 - [Machine-readable analysis](analysis/summary.json) · [commit classifications](analysis/commit-classification.csv) · [August PR classifications](analysis/august-pr-classification.csv)
 - [Code quality](CODE_QUALITY.md) · [Four-day plan](FOUR_DAY_PLAN.md) · [Verification history](VERIFICATION.md)
