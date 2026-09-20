@@ -7,6 +7,8 @@ import {
 } from "react";
 import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { ApiError, requestJson } from "./api";
+
 type Session = { enabled: boolean; authenticated: boolean };
 
 export default function AuthGate({
@@ -23,16 +25,16 @@ export default function AuthGate({
 
   useEffect(() => {
     const controller = new AbortController();
+    let checking = false;
     const check = async () => {
-      if (mutation.current.pending) return;
+      if (mutation.current.pending || checking) return;
+      checking = true;
       const generation = mutation.current.generation;
       try {
-        const response = await fetch("/api/auth/session", {
+        const result = await requestJson<Session>("/api/auth/session", {
           signal: controller.signal,
           cache: "no-store",
         });
-        if (!response.ok) throw new Error("Session check failed");
-        const result: Session = await response.json();
         if (
           !controller.signal.aborted &&
           generation === mutation.current.generation
@@ -48,6 +50,8 @@ export default function AuthGate({
           setSession(null);
           setError("Unable to connect. Please try again.");
         }
+      } finally {
+        checking = false;
       }
     };
     void check();
@@ -60,6 +64,7 @@ export default function AuthGate({
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mutation.current.pending) return;
     mutation.current = {
       generation: mutation.current.generation + 1,
       pending: true,
@@ -67,7 +72,7 @@ export default function AuthGate({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/auth/login", {
+      await requestJson("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,20 +80,16 @@ export default function AuthGate({
         },
         body: JSON.stringify({ password }),
       });
-      if (!response.ok) {
-        setError(
-          response.status === 429
-            ? "Too many attempts. Try again in one minute."
-            : response.status === 401
-              ? "Incorrect password. Please try again."
-              : "Unable to sign in. Please try again.",
-        );
-        return;
-      }
       setPassword("");
       setSession({ enabled: true, authenticated: true });
-    } catch {
-      setError("Unable to connect. Please try again.");
+    } catch (cause) {
+      setError(
+        cause instanceof ApiError && cause.status === 429
+          ? "Too many attempts. Try again in one minute."
+          : cause instanceof ApiError && cause.status === 401
+            ? "Incorrect password. Please try again."
+            : "Unable to sign in. Please try again.",
+      );
     } finally {
       mutation.current.pending = false;
       setBusy(false);
@@ -102,11 +103,10 @@ export default function AuthGate({
       pending: true,
     };
     try {
-      const response = await fetch("/api/auth/logout", {
+      await requestJson("/api/auth/logout", {
         method: "POST",
         headers: { "X-Cognition-Intent": "session" },
       });
-      if (!response.ok) throw new Error("Logout failed");
       setSession({ enabled: true, authenticated: false });
       setPassword("");
       setError("");

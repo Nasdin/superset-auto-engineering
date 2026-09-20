@@ -50,7 +50,13 @@ class Providers:
         self.s = settings
         self.store = None
         self.client = (
-            client if client is not None else httpx.Client(timeout=45, follow_redirects=False)
+            client
+            if client is not None
+            else httpx.Client(
+                timeout=httpx.Timeout(45, connect=5, pool=5),
+                limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+                follow_redirects=False,
+            )
         )
 
     def close(self) -> None:

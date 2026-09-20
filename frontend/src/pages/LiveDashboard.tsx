@@ -3,17 +3,13 @@ import { ResiliencePanel } from "../components/ResiliencePanel";
 import { ExecutionEvidence } from "../components/ExecutionEvidence";
 import { WorkflowLanes } from "./WorkflowLanes";
 import { useState } from "react";
-import {
-  ArrowDownToLine,
-  ExternalLink,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowDownToLine, RefreshCw, ShieldCheck } from "lucide-react";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job, Overview } from "../liveTypes";
 import type { Page } from "../App";
 import { safeUrl } from "../links";
+import { External } from "../components/External";
 const load = (signal: AbortSignal) =>
   api<Overview>("live/overview", undefined, signal);
 const goodStates = new Set([
@@ -29,23 +25,6 @@ export function State({ value }: { value: string }) {
     <span className={`badge ${goodStates.has(value) ? "green" : "amber"}`}>
       {value.replaceAll("_", " ")}
     </span>
-  );
-}
-export function External({
-  url,
-  children,
-}: {
-  url: string;
-  children: React.ReactNode;
-}) {
-  const href = safeUrl(url);
-  return href ? (
-    <a className="button" href={href} target="_blank" rel="noreferrer">
-      {children}
-      <ExternalLink size={12} />
-    </a>
-  ) : (
-    <span>Unavailable link</span>
   );
 }
 function exportData(data: Overview) {

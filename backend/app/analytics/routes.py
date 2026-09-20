@@ -1,14 +1,34 @@
 from datetime import UTC, date, datetime, timedelta
+from threading import BoundedSemaphore
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from .metrics import analyze, months_before
 
 router = APIRouter(prefix="/api/analytics", tags=["repository analytics"])
+analysis_slots = BoundedSemaphore(1)
 
 
-@router.get("/pull-requests")
+def analysis_capacity():
+    """Bound full-history Python allocations, not just database connections.
+
+    Per process, deliberately fail fast so overload cannot fill the threadpool
+    with waiting analyses. Replace with SQL read models before raising capacity.
+    """
+    if not analysis_slots.acquire(blocking=False):
+        raise HTTPException(
+            503,
+            "Analytics is busy. Please retry shortly.",
+            headers={"Retry-After": "2"},
+        )
+    try:
+        yield
+    finally:
+        analysis_slots.release()
+
+
+@router.get("/pull-requests", dependencies=[Depends(analysis_capacity)])
 def pull_requests(
     request: Request,
     repository: str = "apache/superset",

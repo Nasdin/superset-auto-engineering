@@ -1,10 +1,11 @@
+import { External } from "./components/External";
 import type { Overview } from "./liveTypes";
 import { api } from "./api";
 import { usePollingResource } from "./hooks/usePollingResource";
 import { useState } from "react";
 import { Activity, RefreshCw, Plug, ShieldCheck } from "lucide-react";
 import { Disclosure, Inspection } from "./components/Disclosure";
-import { External, JobDetail, State } from "./pages/LiveDashboard";
+import { JobDetail, State } from "./pages/LiveDashboard";
 const loadOverview = (signal: AbortSignal) =>
   api<Overview>("live/overview", undefined, signal);
 

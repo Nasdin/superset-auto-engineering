@@ -6,7 +6,7 @@ The original implementation had useful safety mechanisms (durable jobs, bounded 
 
 | Boundary | Responsibility | Main files |
 | --- | --- | --- |
-| Application/runtime factories | Construct dependencies, own one HTTP pool, close it on shutdown or failed startup | `backend/app/main.py`, `automation/runtime.py` |
+| Application/runtime factories | Construct dependencies and register cleanup immediately; close HTTP and database pools on shutdown or partial startup failure | `backend/app/main.py`, `automation/runtime.py` |
 | Provider port and adapter | Describe the external operations workflows need; implement them with HTTPX; allow fake providers in tests | `automation/ports.py`, `providers.py` |
 | Repository | SQLAlchemy/Postgres transactions, durable identity, job claims, metrics and publication receipts | `automation/store.py` |
 | Application services | Coordinate issue intake, bounded sessions, integration and validation | `engine.py`, `integration.py`, `validation.py` |
@@ -17,6 +17,30 @@ The original implementation had useful safety mechanisms (durable jobs, bounded 
 | Frontend request state | Centralize error handling, abort superseded requests, skip overlapping polls, stop on unmount | `api.ts`, `hooks/usePollingResource.ts` |
 
 Use patterns where they provide a useful boundary. The runtime factory and report builder solve concrete construction and formatting problems. A hierarchy of abstract factories, generic repositories or fluent builders would add ceremony to this small application. Services use composition and structural provider interfaces; tests do not need an inheritance framework.
+
+## Concurrency and resource budgets
+
+FastAPI routes using synchronous SQLAlchemy or HTTPX are ordinary `def` handlers, which FastAPI executes in its bounded thread pool. The asynchronous webhook reads the request stream and then explicitly offloads durable intake. Authentication middleware also offloads its database lookup. Startup and cleanup use `contextmanager_in_threadpool` with an `ExitStack`, so dependencies acquired before a later startup failure are still closed. No request starts an in-process background task for durable Devin work; the separate worker owns that lifecycle.
+
+This is intentional mixed concurrency. Changing a handler to `async def` while retaining synchronous I/O would block the event loop. If API throughput eventually justifies native async SQLAlchemy/HTTPX, migrate complete request paths and resource lifetimes together. The synchronous worker can remain independent. See [FastAPI's concurrency guidance](https://fastapi.tiangolo.com/async/).
+
+Postgres application engines default to two retained connections plus one overflow connection, a five-second pool/connect timeout, a 30-second statement timeout and a five-second lock timeout. Idle transactions are terminated after 60 seconds. `pool_pre_ping` checks reused connections, but does not replay a failed transaction. `.env` exposes `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_TIMEOUT`, `DB_CONNECT_TIMEOUT`, `DB_STATEMENT_TIMEOUT_MS` and `DB_LOCK_TIMEOUT_MS`; these are forwarded by Compose. Zero/unbounded pools or waits are rejected. SQLite retains its local adapter and lock timeout.
+
+The API owns two engines; the worker and history-sync process own one each. These application pools can therefore consume **12 connections** at their defaults. Superset, administration, migrations and any extra processes need additional capacity. Every API replica multiplies its two pools; review the entire connection budget before increasing replicas or limits. The small host currently caps Postgres at 40 connections. See [SQLAlchemy's pool configuration](https://docs.sqlalchemy.org/en/20/core/pooling.html#connection-pool-configuration).
+
+Superset's metadata engine is separately bounded at two retained plus one overflow connection. Chart engines use Superset's `NullPool`, with five-second connects and 30-second statement deadlines; the four server threads bound concurrent chart work on the small host. Do not pass QueuePool-only arguments into these chart engines. Existing deployments must rerun the idempotent analytics bootstrap after changing persisted reporting-database connection settings.
+
+Full-history Python analytics permits one analysis per API process. A second concurrent request is rejected immediately with `503` and `Retry-After: 2`, before loading repository records. The slot is released even when analysis fails; ordinary API traffic remains available. This protects the memory budget but deliberately limits throughput until analytics moves to SQL read models.
+
+Provider HTTP clients also have bounded connection pools and separate connection/pool waits. Neither database middleware nor the browser transport automatically repeats mutations after a timeout. A timed-out response can follow a successful external action; retrieve the durable status and reconcile the existing intent first.
+
+## Failure behavior in the API and browser
+
+`/api/health/live` checks that the ASGI process responds without querying dependencies. `/api/health` remains the database-backed readiness check used by Compose. Database disconnections, lock/statement failures and pool exhaustion return a sanitized `503` with `code=database_unavailable`, `Retry-After` and an `X-Request-ID` matching the response body. Logs record the generated correlation ID and exception type, excluding SQL parameters and raw provider errors. Authentication fails closed during a database outage. These responses never claim that a write was rolled back at an external provider.
+
+The frontend remains **React 19 + TypeScript + Vite** with strict type checking. Pages load lazily and have a keyed React error boundary so a failed view preserves navigation and sign-out. Shared requests have cancellation and a deadline; malformed gateway responses produce a readable error. Operator writes surface uncertain outcomes without automatic replay. Polls do not overlap, and stale responses cannot replace a newer selection.
+
+Superset uses the official embedded SDK and server-issued, short-lived guest tokens scoped to the configured dashboard and a persisted filter selection. Its iframe lifecycle is separate from the parent application; token refresh, failed loading and rapid filter changes need their own recovery. The live chart test checks actual Superset query results against the reference analytics, repository isolation, cadence switching, rollout annotations and mobile layout. A successful iframe handshake alone is not proof that chart queries succeeded.
 
 ## Durable invariants
 
@@ -49,7 +73,7 @@ npm run test:e2e
 
 The browser suite starts its own server at port 8010 with temporary databases, no provider credentials and automation disabled. Screenshots go into ignored `frontend/test-results/`. It tests navigation, review persistence, API failure/recovery, polling overlap, stale responses and cleanup. Set `TEST_PYTHON` if the test interpreter is elsewhere. `E2E_BASE_URL` explicitly opts into testing a different server; the demo interaction test writes demo review/event records there.
 
-The optional Superset test remains separately gated by `SUPERSET_E2E=1`. Dashboard tests and mocked providers do not prove a real Devin repair or candidate validation.
+The candidate Superset test uses `SUPERSET_E2E=1`; the separate BI analytics test uses `SUPERSET_ANALYTICS_E2E=1` against a provisioned stack. Dashboard tests and mocked providers do not prove a real Devin repair or candidate validation.
 
 `.github/workflows/quality.yml` runs Python lint/format checks, branch-aware coverage with an 80% minimum, TypeScript checks, Prettier, browser tests, a production frontend build and a Docker build. Actions are pinned to verified commit SHAs, permissions are read-only, and no live credentials are supplied. The coverage threshold guards against regression; it is not a claim of complete test coverage.
 
@@ -57,4 +81,12 @@ The optional Superset test remains separately gated by `SUPERSET_E2E=1`. Dashboa
 
 Add a failing behavioral test for workflow bugs, then change the narrowest responsible service. Keep networking out of evidence policy/report construction and SQL out of routes/services. Keep mutable provider responses at the boundary and expose only the fields each UI page needs. Add a database migration when durable records change. Run local checks before opening a PR; do not rebuild a live worker mid-session to test a refactor.
 
-The runtime now uses Postgres with short advisory-lock transactions for single-flight job claims across processes. Real Postgres tests cover concurrency, atomic supersession, receipt persistence and SQL analytics parity. Superset owns the embedded charts using a read-only reporting role. The prepared AWS topology remains a single-host demo; managed availability, user accounts and large-history optimizations remain separate follow-ups. See [Postgres/Superset](POSTGRES_SUPERSET.md) and [deployment](AWS_DEPLOYMENT.md).
+The runtime uses Postgres with short advisory-lock transactions for single-flight job claims across processes. Real Postgres tests cover concurrency, atomic supersession, receipt persistence, SQL analytics parity, pool saturation and statement-timeout recovery. ASGI tests hold authentication and route I/O open while checking that liveness still responds. Superset owns the embedded charts using a read-only reporting role.
+
+## Scaling boundaries
+
+The deployed AWS topology is a **single-host demo**, not a highly available cluster. It has durable queues, backoff, dead letters and conservative effects handling, but no enabled backups or automatic host failover. The worker's filesystem lock is deliberately local; do not scale it across separate hosts. Generalizing it requires distributed fencing, per-job concurrency limits and isolated execution ownership first.
+
+Scale in measured stages: move Postgres to a managed service and artifacts to object storage; introduce schema migrations as a separately coordinated deployment step; add stateless API replicas within the database budget; then distribute workers with fencing. Keep callback/webhook identities and publication receipts in shared storage. Add SSO/RBAC, external alerting and a restore exercise before broader organizational use. Large history currently loads repository records for some Python analyses; push those scans/aggregations into indexed SQL or precomputed summaries before claiming large-scale analytics capacity. No load-test throughput or availability SLA is claimed.
+
+See [Postgres/Superset](POSTGRES_SUPERSET.md), [recovery design](RESILIENCE.md) and [deployment](AWS_DEPLOYMENT.md).

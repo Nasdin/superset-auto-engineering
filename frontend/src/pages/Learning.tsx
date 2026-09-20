@@ -1,3 +1,4 @@
+import { External } from "../components/External";
 import { useState } from "react";
 import {
   BrainCircuit,
@@ -10,7 +11,7 @@ import { LearningProgress } from "../components/LearningProgress";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job } from "../liveTypes";
-import { External, JobDetail, State } from "./LiveDashboard";
+import { JobDetail, State } from "./LiveDashboard";
 
 type Observation = {
   job_id: string;

@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { Disclosure } from "./Disclosure";
+import { requestJson } from "../api";
 
 type Access = {
   token: string;
@@ -40,7 +41,7 @@ export async function operatorApi<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  const response = await fetch(`/api/live/${path}`, {
+  return requestJson<T>(`/api/live/${path}`, {
     method: body === undefined ? "GET" : "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -49,14 +50,6 @@ export async function operatorApi<T>(
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  const result = await response.json();
-  if (!response.ok)
-    throw new Error(
-      typeof result.detail === "string"
-        ? result.detail
-        : "Request could not be completed",
-    );
-  return result;
 }
 export function OperatorAccess() {
   const access = useOperator();

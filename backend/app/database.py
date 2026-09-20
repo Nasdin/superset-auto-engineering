@@ -4,10 +4,38 @@ Postgres is the deployed database. SQLite paths remain supported for isolated un
 fixtures and reading the legacy ledger during migration; no SQL dialect rewriting.
 """
 
+import os
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
+
+
+@dataclass(frozen=True)
+class DatabaseLimits:
+    """Per-engine budgets; replicas multiply the connection ceiling."""
+
+    pool_size: int = 2
+    max_overflow: int = 1
+    pool_timeout: int = 5
+    connect_timeout: int = 5
+    statement_timeout_ms: int = 30_000
+    lock_timeout_ms: int = 5_000
+
+    def __post_init__(self):
+        for name, value in vars(self).items():
+            if value < (0 if name == "max_overflow" else 1):
+                raise ValueError(f"Database limit {name} must be positive (overflow may be zero)")
+
+    @classmethod
+    def from_env(cls):
+        return cls(
+            **{
+                name: int(os.getenv("DB_" + name.upper(), str(default)))
+                for name, default in vars(cls()).items()
+            }
+        )
 
 
 class Result:
@@ -46,18 +74,37 @@ class Transaction:
 
 
 class Database:
-    def __init__(self, location):
+    def __init__(self, location, *, limits: DatabaseLimits | None = None):
         location = str(location)
         if "://" not in location:
             Path(location).parent.mkdir(parents=True, exist_ok=True)
             location = "sqlite:///" + location
         if location.startswith("postgresql://"):
             location = location.replace("postgresql://", "postgresql+psycopg://", 1)
+        limits = limits or DatabaseLimits.from_env()
+        postgres_options = (
+            {
+                "pool_size": limits.pool_size,
+                "max_overflow": limits.max_overflow,
+                "pool_timeout": limits.pool_timeout,
+                "pool_use_lifo": True,
+                "connect_args": {
+                    "connect_timeout": limits.connect_timeout,
+                    "options": (
+                        f"-c statement_timeout={limits.statement_timeout_ms} "
+                        f"-c lock_timeout={limits.lock_timeout_ms} "
+                        "-c idle_in_transaction_session_timeout=60000"
+                    ),
+                },
+            }
+            if location.startswith("postgresql")
+            else {"connect_args": {"timeout": 20}}
+        )
         self.engine = create_engine(
             location,
             pool_pre_ping=True,
             hide_parameters=True,
-            connect_args={"timeout": 20} if location.startswith("sqlite:") else {},
+            **postgres_options,
         )
 
     @contextmanager
@@ -66,9 +113,14 @@ class Database:
             yield Transaction(connection)
 
     def initialize(self, metadata):
-        with self.connect() as transaction:
-            transaction.lock()
-            metadata.create_all(transaction.connection)
+        try:
+            with self.connect() as transaction:
+                transaction.lock()
+                metadata.create_all(transaction.connection)
+        except Exception:
+            # Store construction has not returned, so no caller owns this pool yet.
+            self.close()
+            raise
 
     def close(self):
         self.engine.dispose()

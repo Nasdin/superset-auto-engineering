@@ -223,6 +223,7 @@ def install_auth(application, settings: AuthSettings, operator_token: str):
         path = request.url.path
         public = path in {
             "/api/health",
+            "/api/health/live",
             "/api/auth/session",
             "/api/auth/login",
             "/api/auth/logout",

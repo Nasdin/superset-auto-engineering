@@ -9,7 +9,7 @@ from datetime import UTC, date, datetime, timedelta
 from typing import Literal
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field, ValidationError
 
 from .metrics import months_before
@@ -71,51 +71,72 @@ def remember_selection(store, values):
 
 class SupersetClient:
     def __init__(self, internal_url, password, client=None):
-        self.client = client or httpx.Client(base_url=internal_url.rstrip("/"), timeout=30)
+        self.client = client or httpx.Client(
+            base_url=internal_url.rstrip("/"),
+            timeout=httpx.Timeout(30, connect=5, pool=5, write=5),
+            limits=httpx.Limits(max_connections=2, max_keepalive_connections=1),
+        )
         self.password = password
         self.access_token = ""
         self.expires = 0
         self.lock = threading.Lock()
 
+    def _login(self):
+        response = self.client.post(
+            "/api/v1/security/login",
+            json={
+                "username": "cognition-issuer",
+                "password": self.password,
+                "provider": "db",
+                "refresh": False,
+            },
+        )
+        response.raise_for_status()
+        self.access_token = response.json()["access_token"]
+        self.expires = time.monotonic() + 240
+
     def guest_token(self, dashboard_id, selection_id):
-        with self.lock:
+        # The only SQL interpolated into guest RLS is a server-generated digest.
+        if len(selection_id) != 64 or any(c not in "0123456789abcdef" for c in selection_id):
+            raise ValueError("Invalid server selection identity")
+        if not self.lock.acquire(timeout=5):
+            raise httpx.PoolTimeout("Superset token issuer is busy")
+        try:
             if time.monotonic() >= self.expires:
+                self._login()
+            payload = {
+                "user": {
+                    "username": "cognition-viewer",
+                    "first_name": "Cognition",
+                    "last_name": "Viewer",
+                },
+                "resources": [{"type": "dashboard", "id": dashboard_id}],
+                "rls": [{"clause": f"selection_id = '{selection_id}'"}],
+            }
+            for attempt in range(2):
                 response = self.client.post(
-                    "/api/v1/security/login",
-                    json={
-                        "username": "cognition-issuer",
-                        "password": self.password,
-                        "provider": "db",
-                        "refresh": False,
-                    },
+                    "/api/v1/security/guest_token/",
+                    headers={"Authorization": f"Bearer {self.access_token}"},
+                    json=payload,
                 )
+                # A service restart/token rotation may invalidate the cached issuer
+                # JWT early. Reauthenticate once; never loop on denied permissions.
+                if response.status_code == 401 and attempt == 0:
+                    self.expires = 0
+                    self._login()
+                    continue
                 response.raise_for_status()
-                self.access_token = response.json()["access_token"]
-                self.expires = time.monotonic() + 240
-            response = self.client.post(
-                "/api/v1/security/guest_token/",
-                headers={
-                    "Authorization": f"Bearer {self.access_token}",
-                },
-                json={
-                    "user": {
-                        "username": "cognition-viewer",
-                        "first_name": "Cognition",
-                        "last_name": "Viewer",
-                    },
-                    "resources": [{"type": "dashboard", "id": dashboard_id}],
-                    "rls": [{"clause": f"selection_id = '{selection_id}'"}],
-                },
-            )
-            response.raise_for_status()
-            return response.json()["token"]
+                return response.json()["token"]
+        finally:
+            self.lock.release()
 
     def close(self):
         self.client.close()
 
 
 @router.post("/session")
-def session(request: Request):
+def session(request: Request, response: Response):
+    response.headers["Cache-Control"] = "no-store"
     engine = request.app.state.engine
     client = getattr(request.app.state, "superset", None)
     configured = engine.store.recall("superset_dashboard")

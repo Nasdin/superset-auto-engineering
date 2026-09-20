@@ -16,6 +16,19 @@ SQLALCHEMY_DATABASE_URI = URL.create(
     host=os.getenv("POSTGRES_HOST", "postgres"),
     database="superset_metadata",
 ).render_as_string(hide_password=False)
+# Per Gunicorn process: reserve at most three metadata connections and fail
+# promptly under saturation. Account for this separately from chart connections.
+SQLALCHEMY_ENGINE_OPTIONS = {
+    "pool_size": 2,
+    "max_overflow": 1,
+    "pool_timeout": 5,
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+    "connect_args": {
+        "connect_timeout": 5,
+        "options": "-c statement_timeout=30000 -c lock_timeout=5000",
+    },
+}
 FEATURE_FLAGS = {"EMBEDDED_SUPERSET": True, "ENABLE_TEMPLATE_PROCESSING": False}
 GUEST_ROLE_NAME = "CognitionGuest"
 GUEST_TOKEN_JWT_SECRET = hashlib.sha256(("guest:" + SECRET_KEY).encode()).hexdigest()

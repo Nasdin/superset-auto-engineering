@@ -14,7 +14,7 @@ from app.analytics.embedding import router as embedding_router
 from app.analytics.metrics import analyze
 from app.analytics.store import AnalyticsStore
 from app.automation.store import Store
-from app.database import Database
+from app.database import Database, DatabaseLimits
 from app.schema import analytics, automation
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -136,9 +136,11 @@ def test_embedding_endpoint_limits_resources_filters_and_provider_errors(postgre
     with TestClient(app) as client:
         assert client.post("/api/analytics/superset/session").status_code == 503
         store.remember("superset_dashboard", {"dashboard_id": "fixed-dashboard"})
-        result = client.post(
+        response = client.post(
             "/api/analytics/superset/session?repository=apache/superset&dashboard_id=attacker"
-        ).json()
+        )
+        assert response.headers["Cache-Control"] == "no-store"
+        result = response.json()
         assert (
             result["dashboard_id"] == "fixed-dashboard" and result["token"] == "short-lived-guest"
         )
@@ -326,3 +328,34 @@ def test_postgres_webhook_inbox_survives_restart(postgres):
         assert inbox.claim() is None
     finally:
         restarted.database.close()
+
+
+def test_postgres_limits_cancel_slow_query_then_recover(postgres):
+    from sqlalchemy.exc import OperationalError
+
+    store, _ = postgres
+    db = Database(store.path, limits=DatabaseLimits(statement_timeout_ms=50))
+    try:
+        with pytest.raises(OperationalError, match="statement timeout"), db.connect() as c:
+            c.execute("SELECT pg_sleep(1)")
+        with db.connect() as c:
+            assert c.execute("SELECT 1 AS alive").fetchone()["alive"] == 1
+            assert c.execute("SHOW lock_timeout").fetchone()["lock_timeout"] == "5s"
+    finally:
+        db.close()
+
+
+def test_postgres_pool_saturation_is_bounded_and_recovers(postgres):
+    from sqlalchemy.exc import TimeoutError
+
+    store, _ = postgres
+    db = Database(store.path, limits=DatabaseLimits(pool_size=1, max_overflow=0, pool_timeout=1))
+    try:
+        with db.connect() as first:
+            first.execute("SELECT 1")
+            with pytest.raises(TimeoutError), db.connect():
+                pytest.fail("A saturated pool must not grow past its budget")
+        with db.connect() as c:
+            assert c.execute("SELECT 1 AS alive").fetchone()["alive"] == 1
+    finally:
+        db.close()

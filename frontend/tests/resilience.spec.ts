@@ -135,7 +135,7 @@ test("recovery is owner-only, reuses uncertain request intents and never replays
   await expect(retry).toBeEnabled();
   await retry.click();
   await expect(panel.getByRole("alert")).toHaveText(
-    "Recovery response unavailable",
+    "Recovery response unavailable Check the activity ledger before repeating this action.",
   );
   await retry.click();
   await expect(panel.getByRole("status")).toContainText(

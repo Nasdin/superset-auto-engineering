@@ -1,14 +1,33 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Box, ChevronRight, ShieldCheck } from "lucide-react";
-import { Learning } from "./pages/Learning";
-import LiveWorkspace from "./LiveWorkspace";
-import { LiveDashboard } from "./pages/LiveDashboard";
-import { RepositoryAnalytics } from "./pages/RepositoryAnalytics";
-import { PullRequestWorkbench } from "./pages/PullRequestWorkbench";
-import { Automations } from "./pages/Automations";
+import { PageBoundary } from "./components/PageBoundary";
 import { OperatorProvider } from "./components/OperatorAccess";
 import { sections, views, pageFromHash, type Page } from "./navigation";
 export type { Page } from "./navigation";
+const Learning = lazy(() =>
+  import("./pages/Learning").then((module) => ({ default: module.Learning })),
+);
+const LiveDashboard = lazy(() =>
+  import("./pages/LiveDashboard").then((module) => ({
+    default: module.LiveDashboard,
+  })),
+);
+const RepositoryAnalytics = lazy(() =>
+  import("./pages/RepositoryAnalytics").then((module) => ({
+    default: module.RepositoryAnalytics,
+  })),
+);
+const PullRequestWorkbench = lazy(() =>
+  import("./pages/PullRequestWorkbench").then((module) => ({
+    default: module.PullRequestWorkbench,
+  })),
+);
+const Automations = lazy(() =>
+  import("./pages/Automations").then((module) => ({
+    default: module.Automations,
+  })),
+);
+const LiveWorkspace = lazy(() => import("./LiveWorkspace"));
 const DemoApp = lazy(() => import("./DemoApp"));
 
 export default function App({ onLogout }: { onLogout?: () => void }) {
@@ -154,22 +173,32 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
               ))}
             </div>
           )}
-          {page === "Analytics" ? (
-            <RepositoryAnalytics />
-          ) : page === "Dependabot runs" || page === "PR evidence" ? (
-            <PullRequestWorkbench
-              key={page}
-              botOnly={page === "Dependabot runs"}
-            />
-          ) : page === "Schedules & triggers" ? (
-            <Automations />
-          ) : page === "Learning & memory" ? (
-            <Learning />
-          ) : page === "Live operations" ? (
-            <LiveWorkspace />
-          ) : (
-            <LiveDashboard key={page} page={page} />
-          )}
+          <PageBoundary key={page}>
+            <Suspense
+              fallback={
+                <main id="main" role="status">
+                  Loading workspace view…
+                </main>
+              }
+            >
+              {page === "Analytics" ? (
+                <RepositoryAnalytics />
+              ) : page === "Dependabot runs" || page === "PR evidence" ? (
+                <PullRequestWorkbench
+                  key={page}
+                  botOnly={page === "Dependabot runs"}
+                />
+              ) : page === "Schedules & triggers" ? (
+                <Automations />
+              ) : page === "Learning & memory" ? (
+                <Learning />
+              ) : page === "Live operations" ? (
+                <LiveWorkspace />
+              ) : (
+                <LiveDashboard key={page} page={page} />
+              )}
+            </Suspense>
+          </PageBoundary>
         </div>
       </div>
     </OperatorProvider>

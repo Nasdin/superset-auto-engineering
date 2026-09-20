@@ -1,3 +1,4 @@
+import { External } from "../components/External";
 import { useRef, useState } from "react";
 import { Clock3, Play, RefreshCw, Zap } from "lucide-react";
 import { api } from "../api";
@@ -8,7 +9,7 @@ import {
   operatorApi,
   useOperator,
 } from "../components/OperatorAccess";
-import { External, JobDetail, State } from "./LiveDashboard";
+import { JobDetail, State } from "./LiveDashboard";
 import type { Job } from "../liveTypes";
 
 type Schedule = {

@@ -286,6 +286,8 @@ Verify public HTTPS, reviewer login, all five guest charts in each cadence, repo
 
 ## Development, tests and architecture
 
+The application uses FastAPI with explicit thread-pool boundaries for synchronous database/provider I/O, and React 19/TypeScript/Vite with lazy pages, error isolation and bounded requests. Database pools and query waits are bounded for the small deployment. The [architecture guide](docs/CODE_QUALITY.md) explains factories, service/provider boundaries, async usage, Superset embedding and the changes needed before distributing workers across hosts.
+
 Python 3.12 and Node 22 are used in the Docker build. For backend-only development, the default file adapter works without Postgres; full analytics requires the Compose BI stack. Standalone Python does not automatically load `.env`: explicitly export the needed values using your development environment's dotenv loader. Use host-mapped Postgres port 55432 and BI port 8189 instead of Docker service hostnames. For Vite on port 5173, add its exact origin to `SUPERSET_ALLOWED_ORIGINS` and rerun Superset initialization to update the dashboard allowlist.
 
 ```sh

@@ -77,6 +77,17 @@ def provision():
             "cognition_reader", os.environ["POSTGRES_READER_PASSWORD"], "cognition"
         ).render_as_string(hide_password=False)
     )
+    # Superset uses NullPool for chart engines, so QueuePool-only settings here
+    # would crash queries. Concurrent chart connections are bounded by Gunicorn
+    # threads (four on the demo host); driver deadlines bound each operation.
+    extra = json.loads(database.extra or "{}")
+    extra["engine_params"] = {
+        "connect_args": {
+            "connect_timeout": 5,
+            "options": "-c statement_timeout=30000 -c lock_timeout=5000",
+        },
+    }
+    database.extra = json.dumps(extra)
     database.expose_in_sqllab = False
     database.allow_dml = False
     database.allow_ctas = False

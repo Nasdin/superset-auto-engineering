@@ -2,10 +2,11 @@
 
 import os
 from collections.abc import Callable
-from contextlib import asynccontextmanager
+from contextlib import ExitStack, asynccontextmanager, contextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.concurrency import contextmanager_in_threadpool
 from fastapi.staticfiles import StaticFiles
 
 from .analytics.embedding import SupersetClient
@@ -21,6 +22,7 @@ from .automation.recovery_routes import router as recovery_router
 from .automation.routes import router as live_router
 from .automation.runtime import create_runtime
 from .demo import create_demo_router
+from .http_errors import InfrastructureErrorsMiddleware
 
 
 def create_app(
@@ -36,14 +38,18 @@ def create_app(
 
     authentication = auth_settings or AuthSettings.from_env()
 
-    @asynccontextmanager
-    async def lifespan(application: FastAPI):
-        with create_runtime(configured, provider_factory=provider_factory) as engine:
+    @contextmanager
+    def resources(application: FastAPI):
+        with ExitStack() as stack:
+            engine = stack.enter_context(
+                create_runtime(configured, provider_factory=provider_factory)
+            )
             application.state.engine = engine
             application.state.reviewer_auth = ReviewerAuth(engine.store.database, authentication)
             application.state.analytics = AnalyticsStore(
                 configured.analytics_database, seed=analytics_seed
             )
+            stack.callback(application.state.analytics.database.close)
             application.state.superset = (
                 SupersetClient(
                     os.environ["SUPERSET_INTERNAL_URL"],
@@ -53,16 +59,24 @@ def create_app(
                 and os.getenv("ANALYTICS_SUPERSET_SERVICE_PASSWORD")
                 else None
             )
-            try:
-                yield
-            finally:
-                application.state.analytics.database.close()
-                if application.state.superset:
-                    application.state.superset.close()
+            if application.state.superset:
+                stack.callback(application.state.superset.close)
+            yield
+
+    @asynccontextmanager
+    async def lifespan(application: FastAPI):
+        async with contextmanager_in_threadpool(resources(application)):
+            yield
 
     application = FastAPI(title="Cognition Evidence API", version="0.1.0", lifespan=lifespan)
 
     install_auth(application, authentication, configured.operator_token)
+    # Outside auth: its database lookups can fail before a route is reached.
+    application.add_middleware(InfrastructureErrorsMiddleware)
+
+    @application.get("/api/health/live")
+    async def liveness():
+        return {"status": "alive"}
 
     @application.get("/api/health")
     def health(request: Request):

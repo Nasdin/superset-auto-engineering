@@ -22,6 +22,13 @@ class AnalyticsStore:
     def __init__(self, path, *, seed: Path | None = None):
         self.path = str(path)
         self.database = Database(path)
+        try:
+            self._initialize(seed)
+        except Exception:
+            self.database.close()
+            raise
+
+    def _initialize(self, seed: Path | None):
         self.database.initialize(analytics)
         if seed is not None and seed.is_file():
             # Historic, read-only public snapshot. Runtime writes use DATABASE_URL.

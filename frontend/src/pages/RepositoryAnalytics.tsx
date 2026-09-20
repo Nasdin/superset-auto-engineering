@@ -12,7 +12,7 @@ import {
   ImpactEstimate,
   RolloutComparison,
 } from "../components/EngineeringImpact";
-import { External } from "./LiveDashboard";
+import { External } from "../components/External";
 const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 export function RepositoryAnalytics() {
   const [filters, setFilters] = useState({

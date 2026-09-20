@@ -1,10 +1,11 @@
+import { External } from "../components/External";
 import { useCallback, useState } from "react";
 import { ExternalLink, RefreshCw } from "lucide-react";
 import { Disclosure, Inspection } from "../components/Disclosure";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job, Overview } from "../liveTypes";
-import { External, JobDetail, State } from "./LiveDashboard";
+import { JobDetail, State } from "./LiveDashboard";
 
 type Pull = {
   number: number;
