@@ -1,6 +1,6 @@
 # Low-cost AWS deployment
 
-Target: `https://superset-devin.nasrudinsalim.com`, region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. The VM and application are provisioned; DNS, public HTTPS, embedded-chart browser acceptance and webhook cutover remain pending. See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
+Live: [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com), region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. DNS and valid public HTTPS are active. Login/logout, all six Superset charts, upstream/fork filters, rolling-window parity and signed GitHub duplicate delivery passed on the public domain. The cloud worker is enabled with the existing provider usage-limit hold retained; the local worker is disabled. See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
 
 ## Capacity and cost
 

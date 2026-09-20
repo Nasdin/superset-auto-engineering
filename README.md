@@ -10,11 +10,11 @@ Issues and Dependabot PRs → Devin implementation → exact candidate SHA → a
 | --- | --- | --- |
 | Current local dashboard | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Running locally; open **Analytics** for embedded Superset |
 | Local BI Superset | [http://127.0.0.1:8189/bi](http://127.0.0.1:8189/bi) | Separate from candidate-validation Superset |
-| Planned AWS dashboard | `https://superset-devin.nasrudinsalim.com` | **Not deployed**; DNS did not resolve when checked September 20, 2026 |
-| Planned public Superset | `https://superset-devin.nasrudinsalim.com/bi` | Prepared routing; not a live public service |
+| Public AWS dashboard | [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com) | Live in Sydney; reviewer password required |
+| Public analytics | [Analytics workspace](https://superset-devin.nasrudinsalim.com/#analytics) | Six real Superset charts behind the same reviewer login |
 | Public source | [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering) | Application code, documentation and CI |
 
-The local addresses above refer to the computer running Docker. No AWS account/region has been selected for this project. A [CloudFormation template](infra/cloudformation/demo-host.yaml) and deployment steps below prepare the AWS host; they do not imply a deployed application.
+The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker is authoritative; local automatic dispatch is disabled. The existing validator remains paused at a provider per-message limit, so deployment success does not mean candidate acceptance.
 
 [Live analytics screenshot](docs/images/superset-analytics-live.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
@@ -212,7 +212,7 @@ Use [the Lightsail template](infra/cloudformation/lightsail.yaml) for a low-traf
 
 Target region: **ap-southeast-2 (Sydney)**, approved for this demo. The current AWS project permits only Sydney; a standard AWS account is needed to choose a US region. The template defaults to the Sydney `small_3_2` bundle.
 
-The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup and local health checks. Automated backups are intentionally disabled; losing the host can lose its data. This is a single-server deployment, with downtime during host failure/recovery, not high availability. The Sydney VM is provisioned and the application and migrated databases are running. DNS, public HTTPS and webhook cutover remain pending; the intended URL is not yet a verified public deployment. See [deployment evidence](docs/analysis/sydney-deployment.json).
+The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup and local health checks. Automated backups are intentionally disabled; losing the host can lose its data. This is a single-server deployment, with downtime during host failure/recovery, not high availability. The Sydney application is live with Cloudflare DNS, valid HTTPS, reviewer authentication, embedded Superset and signed GitHub webhook delivery verified. See [deployment evidence](docs/analysis/sydney-deployment.json).
 
 Follow [the low-cost deployment and recovery runbook](docs/LOW_COST_AWS.md), including migration of the existing execution ledger before enabling any automation. Do not run candidate-validation databases/services on this small dashboard VM.
 

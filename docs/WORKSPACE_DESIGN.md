@@ -22,3 +22,11 @@ These screenshots show the real Sydney database through an authenticated SSH tun
 ![Sydney evidence dashboard](screenshots/sydney-evidence-desktop.png)
 
 ![Phone navigation](screenshots/sydney-navigation-mobile.png)
+
+## Public launch
+
+The public HTTPS deployment at [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com) passed login, navigation and Superset chart/filter acceptance. The following images were captured by those tests on the public domain at revision `dbe780e`.
+
+![Public workspace login](screenshots/public-login.png)
+
+![Live Superset analytics](screenshots/public-superset-analytics.png)

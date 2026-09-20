@@ -1,12 +1,12 @@
 # AWS deployment preparation
 
-For the preferred small Lightsail VM, use the [low-cost deployment runbook](LOW_COST_AWS.md) and [Lightsail CloudFormation template](../infra/cloudformation/lightsail.yaml). The requested region is **us-east-1**. The EC2 alternative below remains available.
+For the preferred small Lightsail VM, use the [low-cost deployment runbook](LOW_COST_AWS.md) and [Lightsail CloudFormation template](../infra/cloudformation/lightsail.yaml). The live deployment is in **ap-southeast-2 (Sydney)** at [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com). Public HTTPS, reviewer login and Superset analytics have been verified. The EC2 alternative below remains available but is not the deployed topology.
 
 Target: **https://superset-devin.nasrudinsalim.com**, with Superset under `/bi`. Local Postgres and embedded Superset are implemented. AWS provisioning, public DNS, certificates and public browser acceptance have **not** been performed. The intended AWS account/profile, region and monthly budget must be selected first; the existing `nextvestment` profile is not assumed to be the intended account.
 
 ## CloudFormation host template
 
-Use [infra/cloudformation/demo-host.yaml](../infra/cloudformation/demo-host.yaml) and the [README deployment walkthrough](../README.md#5-aws-with-cloudformation-and-the-custom-domain). The template provisions a host in an existing public subnet, with encrypted disk, Elastic IP, SSM role and ports 80/443. It does not deploy application code, RDS, DNS or backups. CloudFormation completion is not application readiness. Local linting is the current validation boundary; no stack has been deployed.
+Use [infra/cloudformation/demo-host.yaml](../infra/cloudformation/demo-host.yaml) and the [README deployment walkthrough](../README.md#5-aws-with-cloudformation-and-the-custom-domain). The template provisions a host in an existing public subnet, with encrypted disk, Elastic IP, SSM role and ports 80/443. It does not deploy application code, RDS, DNS or backups. CloudFormation completion is not application readiness. This alternative EC2 template is locally linted and has not been deployed; the live stack uses Lightsail instead.
 
 Instance termination retains its root disk; replacement does not migrate volumes or secrets to the new host. Review replacements and backups before executing a change set. Retained disks need deliberate cleanup to stop storage charges.
 
@@ -31,7 +31,7 @@ Choose the instance and disk after confirming the account and budget. Allow inbo
    ```
 
    Generate the hash interactively using `python3 scripts/configure_login.py`. Superset's internal URL stays `http://analytics-superset:8088/bi`. Reviewers use the outer HTTPS login; operator commands run through SSM against loopback port 8000 with the application Bearer token, reviewer sessions never replace the operator token. Share credentials privately.
-3. Add a DNS-only Cloudflare A record for the subdomain to the host's public address. The existing domain uses Cloudflare nameservers. No DNS record was changed during local implementation.
+3. Add a DNS-only Cloudflare A record for the subdomain to the host's public address. The existing domain uses Cloudflare nameservers. The live Lightsail deployment already has this DNS record; do not overwrite it when testing the EC2 alternative.
 4. Run `docker compose -f compose.yaml -f compose.public.yaml up --build -d`. Caddy obtains TLS certificates once public DNS and ports resolve correctly. Never expose the unauthenticated local dashboard directly.
 5. Verify anonymous dashboard/BI requests require login, authenticated embedding loads all six charts, upstream/fork selections remain isolated, incomplete windows remain honest and public database ports are unreachable. Verify restart persistence and confirm scheduled backups remain disabled. Only then switch the GitHub webhook to the exact signed endpoint `/api/live/webhooks/github`, send a real signed test delivery and read back its durable receipt.
 

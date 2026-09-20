@@ -1,8 +1,8 @@
 {
-  "verified_at": "2026-09-20T16:22:50.331563+00:00",
-  "status": "server_running_public_domain_pending",
-  "verified_application_revision": "53675759884cbe1e9eac28506281291f44840b1d",
-  "ci": "https://github.com/Nasdin/superset-auto-engineering/actions/runs/35522249708",
+  "verified_at": "2026-09-20T16:35:37.862028+00:00",
+  "status": "public_live",
+  "verified_application_revision": "dbe780eb7624800e6b2909955ff54b6d551b2d8d",
+  "ci": "https://github.com/Nasdin/superset-auto-engineering/actions/runs/35522575337",
   "region": "ap-southeast-2",
   "stack": "superset-devin",
   "instance": "superset-devin-host",
@@ -17,7 +17,7 @@
   "database": "PostgreSQL 17",
   "scheduled_backups": false,
   "automatic_snapshots": false,
-  "automation_enabled": false,
+  "automation_enabled": true,
   "migration": {
     "local": {
       "jobs": 7,
@@ -48,7 +48,7 @@
   "checks": {
     "cloudformation": "UPDATE_COMPLETE; instance not replaced",
     "api_and_superset_health": "passed on server loopback",
-    "authentication_and_navigation": "2 Playwright tests passed against real server through SSH tunnel; public TLS not exercised",
+    "authentication_and_navigation": "3 Playwright tests passed on public HTTPS: login rejects incorrect passwords, persists refresh, logout revokes session; anonymous private API and BI denied; all views and mobile navigation work",
     "cookie_attributes": "Secure; HttpOnly; SameSite=Strict",
     "analytics_api": "both repositories returned 200",
     "external_ports": {
@@ -64,12 +64,20 @@
     "oom_kills": 0,
     "service_startup": "cognition-app.service and cognition-check.timer enabled",
     "bootstrap": "initial Lightsail POSIX-shell incompatibility repaired; committed template uses /bin/sh and set -eu",
-    "host_reboot": "passed; app and Superset healthy, startup and health timer active, 0 OOM, 0 MiB swap used after reboot"
+    "host_reboot": "passed; app and Superset healthy, startup and health timer active, 0 OOM, 0 MiB swap used after reboot",
+    "public_https": "HTTP 200; certificate validation passed; Caddy issued a trusted Let's Encrypt certificate",
+    "dns": "Cloudflare DNS-only A record verified in browser and public resolver: 54.206.155.25",
+    "superset_analytics": "6 guest charts agree with Postgres API; 30/60-day windows, dependency category and both repositories verified",
+    "webhook": {
+      "guid": "2cabc190-b4b5-11f1-967f-740dff2b043d",
+      "status_code": 200,
+      "redelivery": true,
+      "delivered_at": "2026-09-20T16:33:03.909Z",
+      "response": "{\"status\":\"duplicate\"}"
+    }
   },
   "remaining": [
-    "Cloudflare DNS form blocked by browser extension interruption; no record change confirmed",
-    "Public HTTPS certificate, authenticated Superset chart UI and repository/window parity checks",
-    "Signed GitHub webhook cutover after public acceptance",
-    "Paid Devin execution remains disabled; existing validation needs attention for usage_limit_exceeded"
+    "Existing validation session is suspended at its provider per-message usage limit; no limit increase or paid resume performed",
+    "External operational alerting and high availability are outside this single-VM demo"
   ]
 }
