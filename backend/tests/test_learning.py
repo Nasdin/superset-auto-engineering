@@ -23,6 +23,7 @@ class KnowledgeProvider(FakeProvider):
 
     def devin(self, method, path, **kwargs):
         if method == "PUT":
+            assert {"name", "body", "trigger"} <= kwargs["json"].keys()
             note = self.notes[path.rsplit("/", 1)[-1]]
             note.update(kwargs["json"])
             return note
@@ -264,9 +265,12 @@ def test_stale_and_disabled_native_notes_are_retired_with_readback(setup):
     learning.sync()
     note = next(iter(p.notes.values()))
     assert note["is_enabled"] is True
+    note["folder_id"] = "folder-retain"
+    original = {k: note[k] for k in ("name", "body", "trigger", "pinned_repo", "folder_id")}
     db.update(source["id"], state="stale")
     learning.sync()
     assert note["is_enabled"] is False
+    assert {k: note[k] for k in original} == original
     assert learning.lessons()[-1]["native_state"] == "retired"
     db.update(source["id"], state="review_ready")
     learning.sync()

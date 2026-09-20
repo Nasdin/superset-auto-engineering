@@ -81,7 +81,10 @@ class LearningService:
         path = "knowledge/notes/" + quote(note["note_id"], safe="")
         if note.get("is_enabled") is not active:
             self._native(lesson["id"], "updating", note["note_id"])
-            self.providers.devin("PUT", path, json={"is_enabled": active})
+            # Devin's PUT uses the complete create schema, not a partial PATCH.
+            payload = {key: note[key] for key in ("name", "body", "trigger", "pinned_repo")}
+            payload.update(is_enabled=active, folder_id=note.get("folder_id"))
+            self.providers.devin("PUT", path, json=payload)
             note = self.providers.devin("GET", path)
             if not self._owned(note, lesson) or note.get("is_enabled") is not active:
                 raise ProviderError("Knowledge enablement readback mismatch")

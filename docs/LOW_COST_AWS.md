@@ -1,6 +1,6 @@
 # Low-cost AWS deployment
 
-Live: [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com), region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. DNS and valid public HTTPS are active. Login/logout, all six Superset charts, upstream/fork filters, rolling-window parity and signed GitHub duplicate delivery passed on the public domain. The cloud worker is enabled with the existing provider usage-limit hold retained; the local worker is disabled. See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
+Live: [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com), region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. DNS and valid public HTTPS are active. Login/logout, all six Superset charts, upstream/fork filters, rolling-window parity and signed GitHub duplicate delivery passed on the public domain. The cloud worker is enabled; the original validator was resumed and its passing evidence is now published. The pilot has ten total session slots and a ten-ACU per-session cap; the local worker is disabled. See [current challenge acceptance](CHALLENGE_ACCEPTANCE.md). See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
 
 ## Capacity and cost
 

@@ -4,12 +4,13 @@ The referenced “Explain Challenge Updates” conversation centered on an indep
 
 ![Original concept](dashboard-mockup.png)
 
-The implemented dashboard groups nine destinations into four workspaces:
+The implemented dashboard groups ten destinations into five workspaces:
 
 | Workspace | Features inside it |
 |---|---|
-| Evidence | Release validation, PR evidence, repository graph |
-| Workflows | Workflow lanes, Devin runs, Dependabot runs, learning and memory |
+| Release gates | Release validation, PR evidence, repository graph |
+| Workflows | Workflow lanes, schedules and manual triggers, Devin runs, Dependabot runs |
+| Learning | Observations, native Knowledge, dispatch history and later outcomes |
 | Analytics | Embedded Superset analysis, upstream/fork selection, sliding windows |
 | Operations | Provider configuration, worker status, limits, receipts |
 

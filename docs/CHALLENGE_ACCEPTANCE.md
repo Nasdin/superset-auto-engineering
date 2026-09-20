@@ -10,7 +10,7 @@ Reviewed against Asmar’s original assignment, as supplied by Nasrudin. Snapsho
 | Event-driven Devin automation | Signed issue/PR webhook at the public domain; durable deduplication; periodic recovery; saved discovery cadence and manual intake | Real webhook delivery verified; scheduled discovery produced #3 |
 | Programmatically manage Devin sessions | Organization API v3 creates correlated repair, discovery, dependency and fresh validation sessions; bounded session/ACU limits; uncertain outcomes hold dispatch | Real repair and discovery sessions completed |
 | Successfully remediate selected issues | [PR #2](https://github.com/Nasdin/superset/pull/2) fixes #1; [PR #5](https://github.com/Nasdin/superset/pull/5) fixes #3 | Both implementation PRs exist; independent proof below applies to #2/#4 only |
-| Independent working-system evidence | [Integration PR #4](https://github.com/Nasdin/superset/pull/4), exact SHA `7c5857dc4d2acb3ce324a25681dbd41cedada7da`; fresh [Devin validator](https://app.devin.ai/sessions/cce0a57c5e0a4fc7ac58df0884d10cbb) | Actual browser, database, API, regression and coverage artifacts inspected; v2 manifest passes gate policy |
+| Independent working-system evidence | [Integration PR #4](https://github.com/Nasdin/superset/pull/4), exact SHA `7c5857dc4d2acb3ce324a25681dbd41cedada7da`; fresh [Devin validator](https://app.devin.ai/sessions/cce0a57c5e0a4fc7ac58df0884d10cbb) | Actual artifacts inspected; release gate is review ready; corrected replies and anonymous screenshot rendering verified |
 | Observability for engineering leaders | [Live workspace](https://superset-devin.nasrudinsalim.com): Analytics, Workflows, Release gates, Learning, Operations | Live data, status/error signals, candidate provenance, provider links and delivery receipts |
 | Public Docker solution with README | [Solution repository](https://github.com/Nasdin/superset-auto-engineering), root README, Compose/Postgres/Superset and optional SQLite setup | Available |
 | Loom link within five minutes | Outline below | **Still required. Not recorded or submitted.** |
@@ -44,3 +44,16 @@ PR #5’s independent validation and [Dependabot PR #6](https://github.com/Nasdi
 | 3:20–4:05 | Learning, later session context; Dependabot lane | Devin can inspect, diagnose, edit, run services and interact with the browser. Memory transfers observations into later work; it does not itself prove improvement. |
 | 4:05–4:45 | Analytics trends and Operations | Explain next steps: more repaired/validated cases, measured review effort, stronger isolation/retention and customer-specific policy. Mention the single-host demo limit and human merge boundary. |
 | 4:45–5:00 | Public repos and live app | Close with the concrete working result and where evaluators can inspect it. Submit a Loom link, not an MP4 file. |
+
+
+## Published reviewer proof
+
+The same provider-owned evidence is now posted on [integration PR #4](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737), [implementation PR #2](https://github.com/Nasdin/superset/pull/2#issuecomment-5751678273) and [issue #1](https://github.com/Nasdin/superset/issues/1#issuecomment-5751678227). All four delivery receipts, including the authorized Tech Slack channel, were read back. Eight public files returned HTTP 200 without credentials; all three images rendered through GitHub’s image proxy. Private workspace APIs still returned HTTP 401 anonymously. [Readback record](evidence/mysql-validation/readback.json).
+
+![Real Superset hour buckets](evidence/mysql-validation/hour-results.png)
+
+![The generated candidate SQL](evidence/mysql-validation/generated-sql.png)
+
+![The reloaded candidate dashboard](evidence/mysql-validation/dashboard.png)
+
+The earlier suspended/failed gate comments remain an honest history. The linked corrected report above is the passing v2 handoff; it did not rerun or fabricate a replacement validation.

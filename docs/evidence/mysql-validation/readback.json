@@ -1,0 +1,90 @@
+{
+  "candidate": "7c5857dc4d2acb3ce324a25681dbd41cedada7da",
+  "state": "review_ready",
+  "artifacts": [
+    {
+      "kind": "video",
+      "name": "mysql-ui-validation-edited.mp4",
+      "url": "https://app.devin.ai/attachments/e5b6d670-4564-4e9f-9075-5c4f3066367c/mysql-ui-validation-edited.mp4",
+      "attachment_id": "e5b6d670-4564-4e9f-9075-5c4f3066367c",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/5f3ff8c3b5454b42d0f0768518526fdf8a77685d3c533c42abc5b01dcbfc1ce5.mp4",
+      "content_sha256": "5f3ff8c3b5454b42d0f0768518526fdf8a77685d3c533c42abc5b01dcbfc1ce5"
+    },
+    {
+      "kind": "screenshot",
+      "name": "04-hour-results.png",
+      "url": "https://app.devin.ai/attachments/f16499a3-81db-4d07-88b8-3aa73b28a0c3/04-hour-results.png",
+      "attachment_id": "f16499a3-81db-4d07-88b8-3aa73b28a0c3",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/224abca272a0da4a4eb9ca36a2366862fc5ad5e535731601ceac2191c777ee17.png",
+      "content_sha256": "224abca272a0da4a4eb9ca36a2366862fc5ad5e535731601ceac2191c777ee17"
+    },
+    {
+      "kind": "screenshot",
+      "name": "05-hour-generated-sql.png",
+      "url": "https://app.devin.ai/attachments/af8348af-cdbc-473f-8253-5bd41d8fc978/05-hour-generated-sql.png",
+      "attachment_id": "af8348af-cdbc-473f-8253-5bd41d8fc978",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/1a70337cbb0b85b9569ab899bd5c33f7648e18f46c97e0bda93705fe81cb56d0.png",
+      "content_sha256": "1a70337cbb0b85b9569ab899bd5c33f7648e18f46c97e0bda93705fe81cb56d0"
+    },
+    {
+      "kind": "screenshot",
+      "name": "10-dashboard-reloaded.png",
+      "url": "https://app.devin.ai/attachments/7088c334-a65a-473e-9c53-27b684417721/10-dashboard-reloaded.png",
+      "attachment_id": "7088c334-a65a-473e-9c53-27b684417721",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/d4ef98e2cf456a24f5e2ce585734f06497609f0baa8f68d9e841a8c2a5e03c4a.png",
+      "content_sha256": "d4ef98e2cf456a24f5e2ce585734f06497609f0baa8f68d9e841a8c2a5e03c4a"
+    },
+    {
+      "kind": "logs",
+      "name": "service-and-db-logs.txt",
+      "url": "https://app.devin.ai/attachments/3d665b45-3238-4f4b-87fb-f98775cf1ddd/service-and-db-logs.txt",
+      "attachment_id": "3d665b45-3238-4f4b-87fb-f98775cf1ddd",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/1a7268596b8691ed2a6c65fb7301468fcc0e18ae4f27392fa6bf37ca63dd5cb0.txt",
+      "content_sha256": "1a7268596b8691ed2a6c65fb7301468fcc0e18ae4f27392fa6bf37ca63dd5cb0"
+    },
+    {
+      "kind": "tests",
+      "name": "regression-tests.txt",
+      "url": "https://app.devin.ai/attachments/097380d2-388b-403a-b15a-df9dc8705bc3/regression-tests.txt",
+      "attachment_id": "097380d2-388b-403a-b15a-df9dc8705bc3",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/52c2b0edad0f8b2d7cf88a4916854cb45bdd3cbeca6a1ff1a3588a64774eee31.txt",
+      "content_sha256": "52c2b0edad0f8b2d7cf88a4916854cb45bdd3cbeca6a1ff1a3588a64774eee31"
+    },
+    {
+      "kind": "api",
+      "name": "api-transcript.txt",
+      "url": "https://app.devin.ai/attachments/d3ac431c-631e-4261-9579-b5f5b432799f/api-transcript.txt",
+      "attachment_id": "d3ac431c-631e-4261-9579-b5f5b432799f",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/bd8d3483f1369dfff98e79cd70e056bacbe138ed3a4b046951a102f77fec52d3.txt",
+      "content_sha256": "bd8d3483f1369dfff98e79cd70e056bacbe138ed3a4b046951a102f77fec52d3"
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage.json",
+      "url": "https://app.devin.ai/attachments/9e9d6f07-b881-4496-94bd-06daac086fe0/coverage.json",
+      "attachment_id": "9e9d6f07-b881-4496-94bd-06daac086fe0",
+      "public_url": "https://superset-devin.nasrudinsalim.com/public-evidence/a8fc840cc8e42f3a8765ad49f2da2529784d77317066ca86cecc93e0be316f6e.txt",
+      "content_sha256": "a8fc840cc8e42f3a8765ad49f2da2529784d77317066ca86cecc93e0be316f6e"
+    }
+  ],
+  "publications": [
+    {
+      "key": "github:f8c560ee-e962-4080-9d8a-266b1a15023b:2:950c4abb-7422-4ec2-a4b6-639097ffaa90",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/2#issuecomment-5751678273"
+    },
+    {
+      "key": "github:f8c560ee-e962-4080-9d8a-266b1a15023b:1:950c4abb-7422-4ec2-a4b6-639097ffaa90",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/issues/1#issuecomment-5751678227"
+    },
+    {
+      "key": "github:f8c560ee-e962-4080-9d8a-266b1a15023b:4:950c4abb-7422-4ec2-a4b6-639097ffaa90",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737"
+    }
+  ],
+  "anonymous_access_verified": true,
+  "github_rendered_screenshot_count": 3,
+  "app_revision": "de11a547d91d62ad8790ff3e401d265319087cf0"
+}
