@@ -21,6 +21,7 @@ export type PRRow = {
   tracked: boolean;
 };
 export type Analytics = {
+  impact: Impact;
   repository: string;
   repositories: string[];
   workflow_repository: string;
@@ -44,5 +45,46 @@ export type Analytics = {
     last_success?: string;
     pages?: number;
     error?: string | null;
+  };
+};
+
+export type ImpactMeasure = {
+  start: string;
+  end: string;
+  covered: boolean;
+  merged_prs: number;
+  merge_samples: number;
+  commits_samples: number;
+  rework_samples: number;
+  code_samples: number;
+  median_hours: number | null;
+  avg_commits: number | null;
+  avg_rework: number | null;
+  additions: number | null;
+  deletions: number | null;
+  avg_lines_changed: number | null;
+};
+export type Impact = {
+  rollout_date: string;
+  current: ImpactMeasure;
+  baseline: ImpactMeasure;
+  changes: Record<string, number | null>;
+  categories: {
+    segment: string;
+    current: ImpactMeasure;
+    baseline: ImpactMeasure;
+    changes: Record<string, number | null>;
+  }[];
+  monthly: (ImpactMeasure & { month: string; segment: string })[];
+  rollout: {
+    before: ImpactMeasure;
+    after: ImpactMeasure | null;
+    days: number;
+    changes: Record<string, number | null>;
+  };
+  estimate: {
+    eligible_prs: number;
+    covered: boolean;
+    by_segment: Record<string, number>;
   };
 };

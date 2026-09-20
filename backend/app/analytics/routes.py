@@ -19,7 +19,7 @@ def pull_requests(
     author: str = Query(default="", max_length=100),
     label: str = Query(default="", max_length=200),
     base: str = Query(default="", max_length=200),
-    kind: Literal["", "fix", "dependency", "feature", "revert", "other"] = "",
+    kind: Literal["", "fix", "dependency", "feature", "revert", "other", "bot"] = "",
     provenance: Literal["all", "tracked", "untracked"] = "all",
     offset: int = Query(default=0, ge=0, le=100000),
 ):
@@ -46,6 +46,13 @@ def pull_requests(
         if repository == engine.settings.repo
         else set()
     )
+    completed = {
+        job["pr_number"]
+        for job in engine.store.operational_jobs()
+        if job["pr_number"] in tracked
+        and job.get("session_id")
+        and job["state"] in {"implemented", "prepared"}
+    }
     store = request.app.state.analytics
     return {
         "repository": repository,
@@ -63,6 +70,7 @@ def pull_requests(
             base=base,
             kind=kind,
             tracked=tracked,
+            completed=completed,
             provenance=provenance,
             offset=offset,
         ),

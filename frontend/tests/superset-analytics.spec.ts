@@ -1,94 +1,157 @@
 import { test, expect, type Response } from "@playwright/test";
 
-test("real guest Superset charts match Postgres cohorts and isolate repository filters", async ({
+test("real Superset impact charts match cohorts, switch cadence and isolate repositories", async ({
   page,
 }) => {
   test.skip(
     !process.env.SUPERSET_ANALYTICS_E2E,
-    "Requires running Postgres and provisioned BI Superset",
+    "Requires provisioned BI Superset",
   );
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
+  page.on("pageerror", (error) => console.log("Browser error:", error.message));
   let responses: Response[] = [];
   page.on("response", (response) => {
     if (response.url().includes("/api/v1/chart/data?"))
       responses.push(response);
   });
-  const checkCharts = async (query: string) => {
+  async function checkCharts(query: string) {
+    const frame = page.frameLocator("iframe");
+    for (const name of [
+      "Hours to merge",
+      "Commits per PR",
+      "Rework after review",
+      "Lines changed per PR",
+      "Merged changes · current window",
+    ]) {
+      await page.locator(".superset-panel").scrollIntoViewIfNeeded();
+      await frame
+        .locator('[data-test="span-title"]')
+        .filter({ hasText: name })
+        .scrollIntoViewIfNeeded({ timeout: 30_000 });
+    }
     await expect
-      .poll(() => responses.length, { timeout: 45_000 })
-      .toBeGreaterThanOrEqual(6);
+      .poll(() => responses.length, { timeout: 60_000 })
+      .toBeGreaterThanOrEqual(5);
+    const captured = responses.slice();
     const charts = await Promise.all(
-      responses.map(async (response) => {
-        expect(response.status()).toBe(200);
-        const body = await response.json();
+      captured.map(async (r) => {
+        expect(r.status()).toBe(200);
+        const body = await r.json();
         for (const result of body.result) expect(result.status).toBe("success");
-        return body.result[0];
+        return {
+          ...body.result[0],
+          metric: r.request().postDataJSON()?.queries?.[0]?.metrics?.[0],
+        };
       }),
     );
-    const referenceResponse = await page.request.get(
-      `/api/analytics/pull-requests?${query}`,
-    );
-    expect(referenceResponse.ok()).toBeTruthy();
-    const reference = await referenceResponse.json();
-    const metric = (name: string) =>
-      charts.find((chart) => chart.colnames.includes(name))?.data[0]?.[name];
-    expect(metric("current_median_hours")).toBe(reference.current.median_hours);
-    expect(metric("baseline_median_hours")).toBe(
-      reference.baseline.median_hours,
-    );
-    const change = metric("median_change_percent");
-    if (reference.change_percent === null) expect(change).toBeNull();
-    else expect(change).toBeCloseTo(reference.change_percent, 8);
-    const cohorts = charts.find((chart) =>
-      chart.colnames.includes("cohort"),
-    )?.data;
-    expect(
-      cohorts.find((row: { cohort: string }) => row.cohort === "Current")
-        .merged_prs,
-    ).toBe(reference.current.merged);
-    const frame = page.frameLocator("iframe");
-    await expect(
-      frame.getByText("Current median · hours", { exact: true }),
-    ).toBeVisible();
+    const reference = await (
+      await page.request.get(`/api/analytics/pull-requests?${query}`)
+    ).json();
+    const trendCharts = charts.filter((c) => c.colnames.includes("chart_date"));
+    expect(trendCharts).toHaveLength(4);
+    const mergeTrend = trendCharts.find((c) => c.metric === "median_hours");
+    expect(mergeTrend).toBeDefined();
+    if (!query.includes("cadence=rolling")) {
+      for (const expected of reference.impact.monthly) {
+        const actual = mergeTrend.data.find(
+          (r: { chart_date: number }) =>
+            new Date(r.chart_date).toISOString().slice(0, 10) ===
+            expected.month,
+        );
+        expect(actual).toBeDefined();
+        if (expected.covered && expected.median_hours !== null)
+          expect(actual[expected.segment]).toBeCloseTo(
+            expected.median_hours,
+            8,
+          );
+        else expect(actual[expected.segment]).toBeNull();
+      }
+    }
+    for (const chart of trendCharts) {
+      expect(
+        chart.annotation_data?.["System introduced"]?.records?.[0]?.start_dttm,
+      ).toBeTruthy();
+      for (const segment of ["Fixes", "Features", "Bots", "Other"])
+        expect(chart.colnames).toContain(segment);
+    }
+    for (const name of [
+      "Hours to merge",
+      "Commits per PR",
+      "Rework after review",
+      "Lines changed per PR",
+    ])
+      await expect(
+        frame.locator('[data-test="span-title"]').filter({ hasText: name }),
+      ).toBeVisible();
+    await expect(frame.getByText("Data error", { exact: true })).toHaveCount(0);
     await expect(
       frame.getByText("Unexpected error", { exact: false }),
     ).toHaveCount(0);
-  };
-  await page.goto("/");
+    return { charts, reference };
+  }
+  await page.goto("/#analytics");
   if (process.env.AUTH_E2E_PASSWORD) {
     await page
       .getByLabel("Workspace password")
       .fill(process.env.AUTH_E2E_PASSWORD);
     await page.getByRole("button", { name: "Open workspace" }).click();
   }
-  await page.getByRole("button", { name: "Analytics", exact: true }).click();
-  await checkCharts("repository=apache%2Fsuperset");
+  await expect(
+    page.getByRole("heading", { name: "Engineering impact" }),
+  ).toBeVisible();
+  const initial = await checkCharts("repository=apache%2Fsuperset");
+  console.log(
+    JSON.stringify({
+      monthly_chart_columns: initial.charts
+        .filter((c) => c.colnames.includes("chart_date"))
+        .map((c) => c.colnames),
+      current: initial.reference.impact.current,
+    }),
+  );
   await page.screenshot({
-    path: "test-results/superset-analytics-live.png",
+    path: "test-results/engineering-impact-desktop.png",
     fullPage: true,
   });
   responses = [];
+  await page
+    .getByRole("button", { name: "Rolling window", exact: true })
+    .click();
+  await checkCharts("repository=apache%2Fsuperset&cadence=rolling");
+  responses = [];
   await page.getByRole("slider").fill("60");
-  await checkCharts("repository=apache%2Fsuperset&days=60");
+  await checkCharts("repository=apache%2Fsuperset&days=60&cadence=rolling");
   responses = [];
-  await page.getByRole("slider").fill("30");
-  await checkCharts("repository=apache%2Fsuperset&days=30");
-  responses = [];
-  await page.getByLabel("Work signal").selectOption("dependency");
-  await checkCharts("repository=apache%2Fsuperset&kind=dependency");
+  await page.getByText("Refine cohort", { exact: true }).click();
+  await page.getByLabel("Work signal").selectOption("bot");
+  await checkCharts(
+    "repository=apache%2Fsuperset&days=60&kind=bot&cadence=rolling",
+  );
   responses = [];
   await page
     .getByRole("combobox", { name: "Repository", exact: true })
     .selectOption("Nasdin/superset");
-  await checkCharts("repository=Nasdin%2Fsuperset&kind=dependency");
-  await page.screenshot({
-    path: "test-results/superset-analytics-fork.png",
-    fullPage: true,
-  });
+  await checkCharts(
+    "repository=Nasdin%2Fsuperset&days=60&kind=bot&cadence=rolling",
+  );
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByLabel("Work signal").selectOption("");
+  responses = [];
+  await page
+    .getByRole("combobox", { name: "Repository", exact: true })
+    .selectOption("apache/superset");
+  await checkCharts("repository=apache%2Fsuperset&days=60&cadence=rolling");
+  const cards = page.frameLocator("iframe").locator(".chart-slice");
+  const first = await cards.nth(0).boundingBox();
+  const second = await cards.nth(1).boundingBox();
+  expect(first?.width).toBeGreaterThan(270);
+  expect(second!.y).toBeGreaterThan(first!.y + first!.height);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/engineering-impact-mobile.png",
+    fullPage: true,
+  });
 });

@@ -36,12 +36,13 @@ test("analytics passes repository and cohort filters to Superset and reports una
   await page.goto("/");
   await page.getByRole("button", { name: "Analytics", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Is the work getting faster?" }),
+    page.getByRole("heading", { name: "Engineering impact" }),
   ).toBeVisible();
   await expect(page.getByRole("alert")).toContainText(
     "Superset analytics is not configured",
   );
   await expect(page.locator("iframe")).toHaveCount(0);
+  await page.getByText("Refine cohort", { exact: true }).click();
   await page.getByLabel("Work signal").selectOption("dependency");
   await expect.poll(() => selections.at(-1)?.get("kind")).toBe("dependency");
   await page.getByLabel("Work signal").selectOption("fix");

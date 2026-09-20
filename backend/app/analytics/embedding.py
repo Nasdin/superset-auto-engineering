@@ -26,7 +26,8 @@ class Selection(BaseModel):
     author: str = Field(default="", max_length=100)
     label: str = Field(default="", max_length=200)
     base: str = Field(default="", max_length=200)
-    kind: Literal["", "fix", "dependency", "feature", "revert", "other"] = ""
+    kind: Literal["", "fix", "dependency", "feature", "revert", "other", "bot"] = ""
+    cadence: Literal["monthly", "rolling"] = "monthly"
     provenance: Literal["all", "tracked", "untracked"] = "all"
 
     def resolved(self, fork):
@@ -124,18 +125,26 @@ def session(request: Request):
             "Superset analytics is not configured. No replacement charts or demo values are shown.",
         )
     try:
-        values = Selection.model_validate(dict(request.query_params)).resolved(engine.settings.repo)
+        selection = Selection.model_validate(dict(request.query_params))
+        values = selection.resolved(engine.settings.repo)
     except (ValidationError, ValueError) as error:
         raise HTTPException(422, "Invalid analytics filters") from error
+    dashboard_id = (
+        configured.get("rolling_dashboard_id")
+        if selection.cadence == "rolling"
+        else configured["dashboard_id"]
+    )
+    if not dashboard_id:
+        raise HTTPException(503, "Rolling analytics dashboard has not been provisioned")
     identity = remember_selection(request.app.state.analytics, values)
     try:
-        token = client.guest_token(configured["dashboard_id"], identity)
+        token = client.guest_token(dashboard_id, identity)
     except (httpx.HTTPError, KeyError, ValueError) as error:
         raise HTTPException(
             502, "Superset could not open this dashboard. Check the BI service connection."
         ) from error
     return {
-        "dashboard_id": configured["dashboard_id"],
+        "dashboard_id": dashboard_id,
         "superset_url": os.environ["SUPERSET_PUBLIC_URL"],
         "token": token,
         "selection_id": identity,

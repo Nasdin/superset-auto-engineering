@@ -3,6 +3,7 @@
 import json
 import os
 import time
+from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
@@ -83,7 +84,17 @@ def provision():
     database.allow_file_upload = False
     db.session.flush()
     tables = {}
-    for name in ("comparison", "cohorts", "trend", "details"):
+    for name in (
+        "comparison",
+        "cohorts",
+        "trend",
+        "details",
+        "impact_monthly",
+        "impact_rolling",
+        "impact_categories",
+        "impact_monthly_chart",
+        "impact_rolling_chart",
+    ):
         table = (
             db.session.query(SqlaTable)
             .filter_by(database_id=database.id, schema="reporting", table_name=name)
@@ -96,78 +107,61 @@ def provision():
             db.session.add(table)
         db.session.flush()
         table.fetch_metadata()
-        if name in {"trend", "cohorts"}:
+        if name in {
+            "trend",
+            "cohorts",
+            "impact_monthly",
+            "impact_rolling",
+            "impact_categories",
+        }:
             table.main_dttm_col = "window_end"
+        if name.endswith("_chart"):
+            table.main_dttm_col = "chart_date"
         for column in table.columns:
             column.verbose_name = column.column_name.replace("_", " ").capitalize()
         tables[name] = table
-    definitions = [
-        (
-            "Current median · hours",
-            "comparison",
-            "big_number_total",
-            "current_median_hours",
-            None,
-        ),
-        (
-            "Baseline median · hours",
-            "comparison",
-            "big_number_total",
-            "baseline_median_hours",
-            None,
-        ),
-        (
-            "Median change · %",
-            "comparison",
-            "big_number_total",
-            "median_change_percent",
-            None,
-        ),
-        (
-            "Rolling merge time · hours",
-            "trend",
-            "echarts_timeseries_line",
-            "covered_median_hours",
-            None,
-        ),
-        (
-            "Comparable windows & sample sizes",
-            "cohorts",
-            "table",
-            None,
-            [
-                "cohort",
-                "window_end",
-                "days",
-                "merged_prs",
-                "measured_prs",
-                "invalid_durations",
-                "median_hours",
-                "p75_hours",
-                "history_covered",
-            ],
-        ),
-        (
-            "Merged changes · current window",
-            "details",
-            "table",
-            None,
-            [
-                "number",
-                "title",
-                "author",
-                "category",
-                "dependabot",
-                "tracked",
-                "merged_at",
-                "hours_to_merge",
-                "url",
-            ],
-        ),
-    ]
-    charts = []
-    for name, view, viz, metric_name, columns in definitions:
+    # Native events are rendered as ECharts vertical markLines. This records a
+    # rollout date, not an observed improvement or a synthetic post-rollout value.
+    layer = (
+        db.session.query(AnnotationLayer)
+        .filter_by(name="Cognition rollout")
+        .one_or_none()
+    )
+    if layer is None:
+        layer = AnnotationLayer(
+            name="Cognition rollout", descr="Recorded deployment date"
+        )
+        db.session.add(layer)
+    db.session.flush()
+    event = db.session.query(Annotation).filter_by(layer_id=layer.id).first()
+    if event is None:
+        event = Annotation(layer=layer)
+        db.session.add(event)
+    event.start_dttm = datetime(2026, 9, 21)
+    event.end_dttm = datetime(2026, 9, 21)
+    event.short_descr = "21 Sep 2026"
+    event.long_descr = ""
+    annotation = {
+        "name": "System introduced",
+        "annotationType": "EVENT",
+        "sourceType": "NATIVE",
+        "value": layer.id,
+        "show": True,
+        "showLabel": True,
+        "showMarkers": False,
+        "color": "#c55330",
+        "style": "dotted",
+        "width": 2,
+    }
+    annotation_read = security_manager.find_permission_view_menu(
+        "can_read", "Annotation"
+    )
+    if annotation_read and annotation_read not in guest.permissions:
+        guest.permissions.append(annotation_read)
+
+    def chart_for(name, view, metric_name=None, columns=None):
         table = tables[view]
+        viz = "echarts_timeseries_line" if metric_name else "table"
         chart = (
             db.session.query(Slice)
             .filter_by(slice_name=name, datasource_id=table.id, datasource_type="table")
@@ -208,37 +202,63 @@ def provision():
                 )
                 table.metrics.append(metric)
             metric.expression = f"MAX({metric_name})"
-            query["metrics"] = [metric_name]
-            if viz == "big_number_total":
-                params.update(
-                    metric=metric_name, y_axis_format=",.2f", show_trend_line=False
-                )
-            else:
-                params.update(
-                    x_axis="window_end",
-                    granularity_sqla="window_end",
-                    time_grain_sqla="P1D",
-                    metrics=[metric_name],
-                    groupby=[],
-                    show_legend=False,
-                    rich_tooltip=True,
-                    y_axis_format=",.1f",
-                    x_axis_time_format="%Y-%m-%d",
-                )
-                query.update(
-                    columns=[
-                        {
-                            "timeGrain": "P1D",
-                            "columnType": "BASE_AXIS",
-                            "sqlExpression": "window_end",
-                            "label": "window_end",
-                            "expressionType": "SQL",
-                            "isColumnReference": True,
-                        }
-                    ],
-                    granularity="window_end",
-                    orderby=[[metric_name, False]],
-                )
+            params.update(
+                x_axis="chart_date",
+                granularity_sqla="chart_date",
+                time_grain_sqla="P1D",
+                metrics=[metric_name],
+                groupby=["segment"],
+                show_legend=True,
+                legendType="plain",
+                legendOrientation="bottom",
+                rich_tooltip=True,
+                y_axis_format=",.1f",
+                x_axis_time_format="%b %Y",
+                show_empty_columns=True,
+                annotation_layers=[annotation],
+                markerEnabled=True,
+                markerSize=4,
+                truncate_metric=True,
+                forecastEnabled=False,
+                color_scheme="supersetColors",
+                seriesType="line",
+                stack=None,
+                area=False,
+            )
+            query.update(
+                columns=[
+                    {
+                        "timeGrain": "P1D",
+                        "columnType": "BASE_AXIS",
+                        "sqlExpression": "chart_date",
+                        "label": "chart_date",
+                        "expressionType": "SQL",
+                        "isColumnReference": True,
+                    },
+                    "segment",
+                ],
+                granularity="chart_date",
+                metrics=[metric_name],
+                series_columns=["segment"],
+                annotation_layers=[annotation],
+                post_processing=[
+                    {
+                        "operation": "pivot",
+                        "options": {
+                            "index": ["chart_date"],
+                            "columns": ["segment"],
+                            "aggregates": {metric_name: {"operator": "mean"}},
+                            "drop_missing_columns": False,
+                        },
+                    },
+                    {"operation": "flatten"},
+                ],
+            )
+            chart.description = (
+                "Merged PRs grouped into mutually exclusive Bots, Fixes, Features and Other. "
+                "Missing enrichment remains blank; it is never measured zero. The dotted line "
+                "marks 2026-09-21, not a proven effect. An axis-only null row keeps the marker visible."
+            )
         else:
             params.update(
                 query_mode="raw",
@@ -251,7 +271,13 @@ def provision():
                 column_config={
                     **{
                         c: {"d3NumberFormat": ",.2f"}
-                        for c in ("median_hours", "p75_hours", "hours_to_merge")
+                        for c in (
+                            "median_hours",
+                            "hours_to_merge",
+                            "avg_commits",
+                            "avg_rework",
+                            "avg_lines_changed",
+                        )
                     },
                     "url": {"linkType": "url", "linkTarget": "_blank"},
                 },
@@ -261,89 +287,176 @@ def provision():
         params["slice_id"] = chart.id
         chart.viz_type = viz
         chart.params = json.dumps(params)
-        chart.query_context = json.dumps(
-            {
-                "datasource": {"id": table.id, "type": "table"},
-                "queries": [query],
-                "result_format": "json",
-                "result_type": "full",
-                "form_data": params,
-            }
-        )
-        charts.append(chart)
-    dashboard = (
-        db.session.query(Dashboard).filter_by(slug="superset-engineering").one_or_none()
-    )
-    if dashboard is None:
-        dashboard = Dashboard(
-            dashboard_title="Superset analyzing Superset",
-            slug="superset-engineering",
-            owners=[admin],
-        )
-        db.session.add(dashboard)
-    dashboard.slices = charts
-    dashboard.published = True
-    positions = {
-        "DASHBOARD_VERSION_KEY": "v2",
-        "ROOT_ID": {"id": "ROOT_ID", "type": "ROOT", "children": ["GRID_ID"]},
-        "GRID_ID": {
-            "id": "GRID_ID",
-            "type": "GRID",
-            "parents": ["ROOT_ID"],
-            "children": [],
-        },
-    }
-    for row_number, row_charts in enumerate(
-        (charts[:3], charts[3:4], charts[4:5], charts[5:6])
-    ):
-        row_id = f"ROW-{row_number}"
-        positions["GRID_ID"]["children"].append(row_id)
-        positions[row_id] = {
-            "id": row_id,
-            "type": "ROW",
-            "parents": ["ROOT_ID", "GRID_ID"],
-            "children": [],
-            "meta": {"background": "BACKGROUND_TRANSPARENT"},
+        query_context = {
+            "datasource": {"id": table.id, "type": "table"},
+            "queries": [query],
+            "result_format": "json",
+            "result_type": "full",
+            "form_data": params,
         }
-        for chart in row_charts:
-            chart_id = f"CHART-{chart.id}"
-            positions[row_id]["children"].append(chart_id)
-            positions[chart_id] = {
-                "id": chart_id,
-                "type": "CHART",
-                "parents": ["ROOT_ID", "GRID_ID", row_id],
+        # Validate against the installed Superset version before publishing any
+        # charts, including required annotation fields not used by event lines.
+        errors = ChartDataQueryContextSchema().validate(query_context)
+        if errors:
+            raise ValueError(
+                f"Invalid Superset chart configuration for {name}: {errors}"
+            )
+        chart.query_context = json.dumps(query_context)
+        return chart
+
+    chart_for(
+        "Change categories · comparison",
+        "impact_categories",
+        columns=[
+            "cohort",
+            "segment",
+            "window_start",
+            "window_end",
+            "merged_prs",
+            "measured_prs",
+            "median_hours",
+            "commits_samples",
+            "avg_commits",
+            "rework_samples",
+            "avg_rework",
+            "code_samples",
+            "additions",
+            "deletions",
+            "avg_lines_changed",
+            "history_covered",
+        ],
+    )
+    detail_chart = chart_for(
+        "Merged changes · current window",
+        "details",
+        columns=[
+            "number",
+            "title",
+            "author",
+            "segment",
+            "category",
+            "tracked",
+            "merged_at",
+            "hours_to_merge",
+            "commits_count",
+            "rework_commits",
+            "additions",
+            "deletions",
+            "changed_files",
+            "first_review_at",
+            "enrichment_state",
+            "url",
+        ],
+    )
+    measures = [
+        ("Hours to merge", "median_hours"),
+        ("Commits per PR", "avg_commits"),
+        ("Rework after review", "avg_rework"),
+        ("Lines changed per PR", "avg_lines_changed"),
+    ]
+    dashboards = {}
+    chart_ids = {}
+    for cadence in ("monthly", "rolling"):
+        charts = [
+            chart_for(name, f"impact_{cadence}_chart", metric)
+            for name, metric in measures
+        ]
+        charts += [detail_chart]
+        slug = "superset-engineering" + ("-rolling" if cadence == "rolling" else "")
+        dashboard = db.session.query(Dashboard).filter_by(slug=slug).one_or_none()
+        if dashboard is None:
+            dashboard = Dashboard(slug=slug, owners=[admin])
+            db.session.add(dashboard)
+        dashboard.dashboard_title = f"Superset analyzing Superset · {cadence}"
+        dashboard.slices = charts
+        dashboard.published = True
+        # Superset's grid keeps desktop column widths on narrow embedded views.
+        # Let its chart resize observer measure full-width cards on phones.
+        dashboard.css = """
+@media (max-width: 600px) {
+  .dashboard .grid-row { flex-direction: column; }
+  .dashboard .grid-row > .dragdroppable-column { width: 100% !important; }
+  .dashboard .grid-row > .dragdroppable-column > .resizable-container {
+    width: 100% !important; max-width: 100% !important;
+  }
+}
+"""
+        positions = {
+            "DASHBOARD_VERSION_KEY": "v2",
+            "ROOT_ID": {"id": "ROOT_ID", "type": "ROOT", "children": ["GRID_ID"]},
+            "GRID_ID": {
+                "id": "GRID_ID",
+                "type": "GRID",
+                "parents": ["ROOT_ID"],
                 "children": [],
-                "meta": {
-                    "chartId": chart.id,
-                    "sliceName": chart.slice_name,
-                    "width": 12 // len(row_charts),
-                    "height": (24, 55, 28, 60)[row_number],
+            },
+        }
+        for row_number, row_charts in enumerate(
+            (charts[:2], charts[2:4], charts[4:5])
+        ):
+            row_id = f"ROW-{row_number}"
+            positions["GRID_ID"]["children"].append(row_id)
+            positions[row_id] = {
+                "id": row_id,
+                "type": "ROW",
+                "parents": ["ROOT_ID", "GRID_ID"],
+                "children": [],
+                "meta": {"background": "BACKGROUND_TRANSPARENT"},
+            }
+            for chart in row_charts:
+                chart_id = f"CHART-{chart.id}"
+                positions[row_id]["children"].append(chart_id)
+                positions[chart_id] = {
+                    "id": chart_id,
+                    "type": "CHART",
+                    "parents": ["ROOT_ID", "GRID_ID", row_id],
+                    "children": [],
+                    "meta": {
+                        "chartId": chart.id,
+                        "sliceName": chart.slice_name,
+                        "width": 12 // len(row_charts),
+                        "height": (42, 42, 46)[row_number],
+                    },
+                }
+        dashboard.position_json = json.dumps(positions)
+        dashboard.json_metadata = json.dumps(
+            {
+                "refresh_frequency": 0,
+                "cross_filters_enabled": False,
+                "native_filter_configuration": [],
+                "label_colors": {
+                    "Bots": "#d39027",
+                    "Fixes": "#128777",
+                    "Features": "#3780d1",
+                    "Other": "#929b92",
                 },
             }
-    dashboard.position_json = json.dumps(positions)
-    dashboard.json_metadata = json.dumps(
-        {
-            "refresh_frequency": 0,
-            "cross_filters_enabled": False,
-            "native_filter_configuration": [],
-        }
-    )
-    db.session.flush()
-    embedded = EmbeddedDashboardDAO.upsert(
-        dashboard, os.environ["SUPERSET_ALLOWED_ORIGINS"].split(",")
-    )
+        )
+        db.session.flush()
+        embedded = EmbeddedDashboardDAO.upsert(
+            dashboard, os.environ["SUPERSET_ALLOWED_ORIGINS"].split(",")
+        )
+        # A newly embedded dashboard receives its UUID on SQLAlchemy flush.
+        # Persisting str(None) here would break the first rolling-dashboard login.
+        db.session.flush()
+        dashboards[cadence] = str(embedded.uuid)
+        chart_ids[cadence] = [c.id for c in charts]
     db.session.commit()
     with engine.begin() as connection:
         connection.execute(
             text(
-                "INSERT INTO memory(key,value,updated) VALUES('superset_dashboard',:value,:now) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated"
+                "INSERT INTO memory(key,value,updated) VALUES('superset_dashboard',:value,:now) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated"
             ),
             {
                 "value": json.dumps(
                     {
-                        "dashboard_id": str(embedded.uuid),
+                        "dashboard_id": dashboards["monthly"],
+                        "rolling_dashboard_id": dashboards["rolling"],
                         "dashboard_path": "/superset/dashboard/superset-engineering/",
-                        "chart_ids": [c.id for c in charts],
+                        "rolling_dashboard_path": "/superset/dashboard/superset-engineering-rolling/",
+                        "chart_ids": chart_ids["monthly"],
+                        "rolling_chart_ids": chart_ids["rolling"],
                     }
                 ),
                 "now": time.time(),
@@ -353,8 +466,8 @@ def provision():
     print(
         json.dumps(
             {
-                "dashboard_id": str(embedded.uuid),
-                "charts": len(charts),
+                "dashboards": dashboards,
+                "charts_per_dashboard": 5,
                 "datasets": len(tables),
             }
         )
@@ -363,6 +476,8 @@ def provision():
 
 if __name__ == "__main__":
     with create_app().app_context():
+        from superset.charts.schemas import ChartDataQueryContextSchema
+        from superset.models.annotations import Annotation, AnnotationLayer
         from superset.models.core import Database
         from superset.connectors.sqla.models import SqlaTable, SqlMetric
         from superset.models.slice import Slice

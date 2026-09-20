@@ -8,6 +8,7 @@ from pathlib import Path
 import httpx
 
 from ..automation.config import Settings
+from .enrichment import enrich_repository
 from .store import AnalyticsStore
 
 HISTORY_DAYS = 730
@@ -107,6 +108,8 @@ def main():
             for repository in dict.fromkeys([settings.repo, "apache/superset"]):
                 sync_repository(store, repository, client)
                 logging.info("Analytics %s: %s", repository, store.status(repository)["state"])
+                progress = enrich_repository(store, repository, client)
+                logging.info("Analytics detail enrichment %s: %s", repository, progress)
             time.sleep(3600)
 
 

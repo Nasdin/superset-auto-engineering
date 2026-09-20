@@ -102,9 +102,12 @@ def analyze(
     base="",
     kind="",
     tracked=None,
+    completed=None,
     provenance="all",
     offset=0,
 ):
+    from .impact import impact_report, is_bot
+
     tracked = tracked or set()
     selected = [
         pr
@@ -112,7 +115,7 @@ def analyze(
         if (not author or pr["author"] == author)
         and (not label or label in pr["labels"])
         and (not base or pr["base"] == base)
-        and (not kind or category(pr) == kind)
+        and (not kind or (is_bot(pr) if kind == "bot" else category(pr) == kind))
         and (provenance != "tracked" or pr["number"] in tracked)
         and (provenance != "untracked" or pr["number"] not in tracked)
     ]
@@ -137,6 +140,15 @@ def analyze(
         for pr in selected
     )
     return {
+        "impact": impact_report(
+            selected,
+            status,
+            end=end,
+            days=days,
+            baseline_end=baseline_end,
+            tracked=tracked,
+            completed=completed,
+        ),
         "current": current,
         "baseline": baseline,
         "change_percent": change,

@@ -92,8 +92,11 @@ export function SupersetAnalytics({ query }: { query: string }) {
     >
       <div className="panel-heading">
         <div>
-          <h2>Superset · Engineering intelligence</h2>
-          <p>Live Postgres queries · selected repository and cohort filters</p>
+          <h2>Superset · Delivery, rework & code</h2>
+          <p>
+            Real GitHub history · every chart follows your repository and cohort
+            filters
+          </p>
         </div>
         <span className="badge green">Powered by Apache Superset</span>
       </div>

@@ -4,6 +4,13 @@ import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Analytics } from "../analyticsTypes";
 import { SupersetAnalytics } from "../components/SupersetAnalytics";
+import {
+  MonthlyCoverage,
+  ImpactOverview,
+  CategoryComparison,
+  ImpactEstimate,
+  RolloutComparison,
+} from "../components/EngineeringImpact";
 import { External } from "./LiveDashboard";
 const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 export function RepositoryAnalytics() {
@@ -18,7 +25,9 @@ export function RepositoryAnalytics() {
     base: "",
     kind: "",
     provenance: "all",
+    cadence: "monthly",
   });
+  const [chartRevision, setChartRevision] = useState(0);
   const offset = 0;
   const params = new URLSearchParams({ ...filters, offset: String(offset) });
   if (!filters.baseline_end) params.delete("baseline_end");
@@ -34,7 +43,7 @@ export function RepositoryAnalytics() {
     }),
     [query],
   );
-  const { data: response, error, refresh } = usePollingResource(load, 15000);
+  const { data: response, error, refresh } = usePollingResource(load, 60000);
   // Never show results from the previous filter under newly selected controls.
   const data = response?.query === query ? response.value : null;
   function change(name: keyof typeof filters, value: string) {
@@ -72,15 +81,21 @@ export function RepositoryAnalytics() {
     <main id="main">
       <div className="heading">
         <div>
-          <div className="eyebrow">REPOSITORY INTELLIGENCE / DELIVERY TIME</div>
-          <h1>Is the work getting faster?</h1>
+          <div className="eyebrow">ENGINEERING INTELLIGENCE / SUPERSET</div>
+          <h1>Engineering impact</h1>
           <p>
-            Apache Superset analyzes its own engineering history, directly from
-            Postgres.
+            Understand what ships, what needs rework, and what changes over
+            time.
           </p>
         </div>
         <div className="live-links">
-          <button className="button" onClick={() => refresh()}>
+          <button
+            className="button"
+            onClick={() => {
+              refresh();
+              setChartRevision((v) => v + 1);
+            }}
+          >
             <RefreshCw size={15} />
             Refresh data
           </button>
@@ -90,7 +105,7 @@ export function RepositoryAnalytics() {
           </button>
         </div>
       </div>
-      <section className="panel filter-panel">
+      <section className="panel filter-panel impact-filters">
         <div className="analytics-filters">
           <label className="compact-field">
             Repository
@@ -151,51 +166,57 @@ export function RepositoryAnalytics() {
               />
             </label>
           )}
-          <label className="compact-field">
-            Work signal
-            <select
-              value={filters.kind}
-              onChange={(e) => change("kind", e.target.value)}
-            >
-              <option value="">All work</option>
-              <option value="fix">Fix / bug labels</option>
-              <option value="dependency">Dependencies / Dependabot</option>
-              <option value="feature">Feature / enhancement signals</option>
-              <option value="revert">Revert / rollback title</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
-          <label className="compact-field">
-            Attribution
-            <select
-              value={filters.provenance}
-              onChange={(e) => change("provenance", e.target.value)}
-            >
-              <option value="all">All PRs</option>
-              <option value="tracked">Tracked Devin work</option>
-              <option value="untracked">Not tracked by this system</option>
-            </select>
-          </label>
-          {(
-            [
-              ["author", "Author", "authors"],
-              ["label", "Label", "labels"],
-              ["base", "Base branch", "bases"],
-            ] as const
-          ).map(([key, title, list]) => (
-            <label className="compact-field" key={key}>
-              {title}
-              <select
-                value={filters[key]}
-                onChange={(e) => change(key, e.target.value)}
-              >
-                <option value="">All</option>
-                {response?.value.filters[list].map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-            </label>
-          ))}
+          <details className="impact-advanced">
+            <summary>Refine cohort</summary>
+            <div className="analytics-filters">
+              <label className="compact-field">
+                Work signal
+                <select
+                  value={filters.kind}
+                  onChange={(e) => change("kind", e.target.value)}
+                >
+                  <option value="">All work</option>
+                  <option value="bot">Bot authors</option>
+                  <option value="fix">Fix / bug labels</option>
+                  <option value="dependency">Dependencies / Dependabot</option>
+                  <option value="feature">Feature / enhancement signals</option>
+                  <option value="revert">Revert / rollback title</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <label className="compact-field">
+                Attribution
+                <select
+                  value={filters.provenance}
+                  onChange={(e) => change("provenance", e.target.value)}
+                >
+                  <option value="all">All PRs</option>
+                  <option value="tracked">Tracked Devin work</option>
+                  <option value="untracked">Not tracked by this system</option>
+                </select>
+              </label>
+              {(
+                [
+                  ["author", "Author", "authors"],
+                  ["label", "Label", "labels"],
+                  ["base", "Base branch", "bases"],
+                ] as const
+              ).map(([key, title, list]) => (
+                <label className="compact-field" key={key}>
+                  {title}
+                  <select
+                    value={filters[key]}
+                    onChange={(e) => change(key, e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {response?.value.filters[list].map((value) => (
+                      <option key={value}>{value}</option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </details>
         </div>
       </section>
       {response && (
@@ -211,7 +232,15 @@ export function RepositoryAnalytics() {
       )}
       {error && (
         <div role="alert" className="notice">
-          {error} <button onClick={() => refresh()}>Retry connection</button>
+          {error}{" "}
+          <button
+            onClick={() => {
+              refresh();
+              setChartRevision((v) => v + 1);
+            }}
+          >
+            Retry connection
+          </button>
         </div>
       )}
       {!data && !error && (
@@ -230,6 +259,10 @@ export function RepositoryAnalytics() {
             <span>
               {data.stored_prs.toLocaleString()} PRs stored ·{" "}
               {data.sync.pages || 0} pages in latest sync
+            </span>
+            <span>
+              Measured details: {data.impact.current.commits_samples} /{" "}
+              {data.impact.current.merged_prs} current PRs
             </span>
             <span>
               Last successful sync:{" "}
@@ -251,35 +284,34 @@ export function RepositoryAnalytics() {
               required.
             </div>
           )}
-          <SupersetAnalytics query={query} />
-          <section className="panel live-detail">
-            <div className="detail-body method-notes">
-              <h2>Superset analyzing Superset</h2>
+          <ImpactOverview impact={data.impact} />
+          <div className="impact-trend-heading">
+            <div>
+              <h2>The direction of travel</h2>
               <p>
-                The charts above are rendered by Apache Superset 6.1, querying
-                read-only Postgres views of real GitHub history. The workflow
-                ledger and BI metadata use separate database access.
-              </p>
-              <p>
-                Time to merge is elapsed calendar hours from PR creation to
-                merge, grouped by UTC merge date. Rolling medians use the
-                selected window, sampled every seven days. The comparison needs
-                complete history and at least five measured PRs in both windows.
-              </p>
-              <p>
-                Negative median change means faster merging. Differences
-                describe observed PRs; they do not prove a Devin effect. Work
-                categories are title/label signals. Untracked does not mean
-                human-authored.
-              </p>
-              <p>
-                History coverage begins{" "}
-                {data.sync.coverage_from || "after a complete import"}. Empty or
-                incomplete cohorts remain visible; no example values are
-                substituted.
+                Fixes <span className="segment-dot fixes" /> Features{" "}
+                <span className="segment-dot features" /> Bots{" "}
+                <span className="segment-dot bots" /> · 21 Sep marks the start
+                of this system
               </p>
             </div>
-          </section>
+            <div className="segmented" aria-label="Trend cadence">
+              {(["monthly", "rolling"] as const).map((value) => (
+                <button
+                  key={value}
+                  aria-pressed={filters.cadence === value}
+                  onClick={() => change("cadence", value)}
+                >
+                  {value === "monthly" ? "By month" : "Rolling window"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <SupersetAnalytics key={chartRevision} query={query} />
+          <MonthlyCoverage impact={data.impact} />
+          <CategoryComparison impact={data.impact} />
+          <ImpactEstimate impact={data.impact} />
+          <RolloutComparison impact={data.impact} />
           <footer>
             <span>{data.provenance}</span>
             <span>UTC dates · completed days only · no fixture values</span>
