@@ -150,6 +150,79 @@ def test_repair_waits_for_integration_batch(setup):
     assert e.schedule_batch() is None
 
 
+@pytest.mark.parametrize(
+    "status,detail,complete,expected",
+    [
+        ("running", "waiting_for_user", True, "implemented"),
+        ("running", "waiting_for_user", False, "needs_attention"),
+        ("running", "waiting_for_user", None, "needs_attention"),
+        ("running", "waiting_for_user", 1, "needs_attention"),
+        ("running", "waiting_for_user", "true", "needs_attention"),
+        ("running", "waiting_for_approval", True, "needs_attention"),
+        ("running", "working", True, "running"),
+        ("suspended", "waiting_for_user", True, "needs_attention"),
+    ],
+)
+def test_explicit_handoff_does_not_bypass_session_state(
+    setup, status, detail, complete, expected
+):
+    db, p, e = setup
+    job = repair(db)
+    e.tick()
+    db.update(job["id"], next_poll=0)
+    result = {
+        "pr_url": "https://github.com/Nasdin/superset/pull/2",
+        "summary": "Fix prepared, independent validation still required",
+        "tests": ["regression passed"],
+        "blocker": "",
+    }
+    if complete is not None:
+        result["task_complete"] = complete
+    p.response = {
+        "status": status,
+        "status_detail": detail,
+        "structured_output": result,
+    }
+    e.tick()
+    assert db.get(job["id"])["state"] == expected
+    assert not any(j["state"] == "review_ready" for j in db.jobs())
+    assert p.created == 1
+
+
+def test_explicit_handoff_still_checks_pr_target(setup):
+    db, p, e = setup
+    job = repair(db)
+    e.tick()
+    db.update(job["id"], next_poll=0)
+    p.response = {
+        "status": "running",
+        "status_detail": "waiting_for_user",
+        "structured_output": {
+            "task_complete": True,
+            "pr_url": "https://github.com/apache/superset/pull/2",
+            "blocker": "",
+        },
+    }
+    e.tick()
+    assert db.get(job["id"])["state"] == "needs_attention"
+    assert not db.publications()
+
+
+def test_repair_handoff_with_pr_and_blocker_never_advances(setup):
+    db, p, e = setup
+    job = repair(db)
+    e.finish_repair(
+        job,
+        {
+            "task_complete": True,
+            "pr_url": "https://github.com/Nasdin/superset/pull/2",
+            "blocker": "Candidate regression still fails",
+        },
+    )
+    assert db.get(job["id"])["state"] == "needs_attention"
+    assert not db.publications()
+
+
 def validation(db):
     parent = repair(db)
     db.update(parent["id"], session_id="implementation", state="implemented")

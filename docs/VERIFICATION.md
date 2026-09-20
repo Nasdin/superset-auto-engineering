@@ -5,7 +5,7 @@ Verified locally on 2026-09-20. This record distinguishes implementation checks,
 ## Application and orchestration
 
 - Production TypeScript/Vite build and Docker image build passed. API container is healthy on loopback port 8000; durable worker is running with bounded dispatch enabled after take-home authentication.
-- Backend pytest: **47 passed**. Coverage includes duplicate intake, atomic single-flight claiming, uncertain creation, polling outages, budget reservation, fresh-validator identity, exact SHA, contradictory or missing evidence, durable report outbox and stale evidence.
+- Backend pytest: **57 passed**. Coverage includes duplicate intake, atomic single-flight claiming, uncertain creation, polling outages, budget reservation, fresh-validator identity, exact SHA, contradictory or missing evidence, durable report outbox and stale evidence.
 - Lost-response simulations after GitHub branch, merge and PR creation resume with exactly one of each mutation and preserve validation capacity. These are provider-contract simulations, not real PRs.
 - Playwright dashboard: **3 passed**. Evidence and demo-review flows, navigation/search/mobile width, API failure and actual Live operations configuration/ledger are exercised.
 - Restricted gateway on loopback 8001: overview path 404, unsigned webhook 401, signed issue event accepted, duplicate delivery deduplicated into the existing job. That local ingress test is retained separately from the subsequent real delivery proof below.
@@ -45,3 +45,11 @@ Dependency warnings from Starlette/httpx and AnyIO remain; there are no backend 
 - Scanned 89 historical Git blobs before publication against locally configured secret values and common credential patterns; no matches. Original private remote remains available; `public` is the new delivery remote.
 - Fresh application checks after configuration: 47 backend tests passed and production frontend build passed.
 - Nasrudin workspace `T0C2NTV3Z39`, #tech `C0C2NTYCPTR` was verified in the browser. The dedicated bot manifest requests only `chat:write`; installation awaits the browser tool's required action-time confirmation. No Slack report has been sent yet.
+
+## First real repair and lifecycle correction
+
+- Devin opened https://github.com/Nasdin/superset/pull/2 at `0d0c15d181379d8e1426ba69d7201a05a4a438f7`, targeting `cognition-release-6.1`. The PR reports 54 passing MySQL unit tests and 995 passing engine-spec tests (3 skipped), with baseline failures recorded separately.
+- Independently reran the original nine-case matrix from the fetched PR SHA against local MySQL 8.0.46 and SQLGlot 28.10.0: **9/9 passed**. Raw results: `evidence/mysql-repair-pr2.json` (the reproduction script's `baseline_sha` field identifies the supplied PR reference). This is database-expression verification, not browser or integrated-release approval.
+- Actual provider final handoff contained a PR and no blocker but returned `running/waiting_for_user`, so the initial worker parked it for attention. Future schemas require `task_complete`; an idle handoff is accepted only for literal boolean true and still goes through the same PR/evidence checks. Active work, approval waits, suspended sessions, missing/false/truthy substitutes and repair blockers remain excluded.
+- The initial legacy-schema handoff was manually reviewed and audited with its exact session/status/PR SHA, then processed through `finish_repair`. No completion flag was invented and no validation was bypassed.
+- Fresh verification after the correction: **57 backend tests passed**, production Docker build passed, containers restarted with the durable ledger retained. Slack bot installation still awaits confirmation.

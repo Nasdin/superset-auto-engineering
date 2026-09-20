@@ -1,0 +1,89 @@
+{
+  "baseline_sha": "0d0c15d181379d8e1426ba69d7201a05a4a438f7",
+  "sqlglot_version": "28.10.0",
+  "mysql_version": "8.0.46",
+  "passed": true,
+  "checks": [
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %H:%i:%s') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %T') AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 00:00:00",
+      "expected": "2026-09-18 00:00:00",
+      "actual": "2026-09-18 00:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 00:00:00' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket"
+    },
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:15:30",
+      "actual": "2026-09-18 08:15:30",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %H:%i:%s') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %T') AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:15:00",
+      "actual": "2026-09-18 08:15:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 08:15:30",
+      "expected": "2026-09-18 08:00:00",
+      "actual": "2026-09-18 08:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 08:15:30' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket"
+    },
+    {
+      "grain": "SECOND",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:59:59",
+      "actual": "2026-09-18 23:59:59",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %H:%i:%s') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %T') AS bucket"
+    },
+    {
+      "grain": "MINUTE",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:59:00",
+      "actual": "2026-09-18 23:59:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %H:%i:00') AS bucket"
+    },
+    {
+      "grain": "HOUR",
+      "input": "2026-09-18 23:59:59",
+      "expected": "2026-09-18 23:00:00",
+      "actual": "2026-09-18 23:00:00",
+      "passed": true,
+      "original_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket",
+      "rewritten_sql": "SELECT DATE_FORMAT(CAST('2026-09-18 23:59:59' AS DATETIME), '%Y-%m-%d %H:00:00') AS bucket"
+    }
+  ]
+}

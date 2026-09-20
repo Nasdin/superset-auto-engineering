@@ -184,8 +184,16 @@ class Engine:
             "session_observed",
             {"status": session.get("status"), "detail": session.get("status_detail")},
         )
-        if session.get("status_detail") == "finished":
-            result = session.get("structured_output")
+        result = session.get("structured_output")
+        # Devin can idle awaiting another instruction after completing a task.
+        # Only an explicit final handoff may enter the normal evidence checks.
+        ready = session.get("status_detail") == "finished" or (
+            session.get("status") == "running"
+            and session.get("status_detail") == "waiting_for_user"
+            and isinstance(result, dict)
+            and result.get("task_complete") is True
+        )
+        if ready:
             if not isinstance(result, dict):
                 raise ValueError("Finished session has no structured output")
             if job["kind"] == "repair":
@@ -213,6 +221,13 @@ class Engine:
             )
 
     def finish_repair(self, job, result):
+        if result.get("blocker"):
+            self.db.update(
+                job["id"],
+                state="needs_attention",
+                error="Repair blocker: " + str(result["blocker"])[:250],
+            )
+            return
         pattern = rf"https://github\.com/{re.escape(self.s.repo)}/pull/(\d+)"
         match = re.fullmatch(pattern, result.get("pr_url", ""), flags=re.I)
         if not match:
