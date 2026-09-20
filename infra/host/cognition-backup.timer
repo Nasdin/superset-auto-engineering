@@ -1,0 +1,10 @@
+[Unit]
+Description=Dump Cognition before daily off-host snapshot
+
+[Timer]
+OnCalendar=*-*-* 19:00:00 UTC
+Persistent=true
+Unit=cognition-backup.service
+
+[Install]
+WantedBy=timers.target

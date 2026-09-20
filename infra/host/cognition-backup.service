@@ -1,0 +1,9 @@
+[Unit]
+Description=Cognition database and artifact backup
+After=cognition-app.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cognition-backup
+Nice=10
+IOSchedulingClass=idle

@@ -1,0 +1,25 @@
+{
+  "verified_at": "2026-09-20T13:10:51.858918+00:00",
+  "scope": "Local isolated containers with production memory limits; not an AWS deployment or full 2 GiB VM benchmark",
+  "requested_region": "us-east-1",
+  "target": "https://superset-devin.nasrudinsalim.com",
+  "cloud_deployed": false,
+  "checks": {
+    "cloudformation_template": "cfn-lint passed",
+    "shell_scripts": "bash -n passed",
+    "fresh_postgres_and_bi_initialization": "passed under compose.small.yaml memory limits",
+    "real_superset_chart_parity_and_repository_filters": "1 Playwright test passed, before and after API/Postgres/BI restart",
+    "container_oom_kills": 0,
+    "backup": "logical dumps of both databases, empty artifact directory, checksum verification, rotation and failed-dump preservation passed",
+    "restore": "cognition dump restored successfully to a separate disposable Postgres database; 11 public tables",
+    "ingress": "Anonymous dashboard/BI HTTP requests return 401; authenticated API/BI return 200; API remains 200 during BI outage (BI returns 502). Public HTTPS still untested."
+  },
+  "remaining": [
+    "AWS provisioning in us-east-1",
+    "Full VM capacity and reboot verification",
+    "Off-host snapshot and restoration",
+    "Public HTTPS/authenticated chart acceptance",
+    "Authoritative ledger migration and signed webhook cutover",
+    "External operational alerts"
+  ]
+}

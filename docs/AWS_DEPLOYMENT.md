@@ -1,5 +1,7 @@
 # AWS deployment preparation
 
+For the preferred small Lightsail VM, use the [low-cost deployment runbook](LOW_COST_AWS.md) and [Lightsail CloudFormation template](../infra/cloudformation/lightsail.yaml). The requested region is **us-east-1**. The EC2 alternative below remains available.
+
 Target: **https://superset-devin.nasrudinsalim.com**, with Superset under `/bi`. Local Postgres and embedded Superset are implemented. AWS provisioning, public DNS, certificates and public browser acceptance have **not** been performed. The intended AWS account/profile, region and monthly budget must be selected first; the existing `nextvestment` profile is not assumed to be the intended account.
 
 ## CloudFormation host template

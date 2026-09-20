@@ -1,0 +1,16 @@
+[Unit]
+Description=Cognition application containers
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/cognition/app/.env
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/cognition-compose up -d --no-build
+ExecStop=/usr/local/bin/cognition-compose stop
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

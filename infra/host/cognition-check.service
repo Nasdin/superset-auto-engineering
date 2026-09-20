@@ -1,0 +1,7 @@
+[Unit]
+Description=Check Cognition health, storage and backup freshness
+After=cognition-app.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/cognition-check

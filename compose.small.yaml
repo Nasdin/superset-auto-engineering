@@ -1,0 +1,76 @@
+# Low-traffic 2 GiB host; provision 4 GiB host swap separately.
+# docker compose -f compose.yaml -f compose.public.yaml -f compose.small.yaml up -d
+# Steady-state container RAM ceilings total 1536 MiB; these are limits, not
+# reservations. Superset initialization replaces the BI server during first
+# boot. Build images serially: runtime limits do not constrain image builds.
+x-small-logging: &small-logging
+  driver: json-file
+  options:
+    max-size: '5m'
+    max-file: '3'
+
+services:
+  cognition:
+    mem_limit: 192m
+    memswap_limit: 384m
+    logging: *small-logging
+  worker:
+    mem_limit: 160m
+    memswap_limit: 320m
+    logging: *small-logging
+  analytics:
+    mem_limit: 160m
+    memswap_limit: 320m
+    logging: *small-logging
+  postgres:
+    mem_limit: 256m
+    memswap_limit: 512m
+    logging: *small-logging
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - effective_cache_size=256MB
+      - -c
+      - max_connections=40
+      - -c
+      - max_parallel_workers_per_gather=0
+  analytics-redis:
+    mem_limit: 64m
+    memswap_limit: 128m
+    logging: *small-logging
+    # Cache and rate-limit counters share this Redis instance. LRU policies
+    # could evict active limiter counters, including keys with a TTL. Reject
+    # new writes at capacity instead; expiry frees space and pressure is visible.
+    command:
+      - redis-server
+      - --maxmemory
+      - 32mb
+      - --maxmemory-policy
+      - noeviction
+      - --save
+      - ''
+      - --appendonly
+      - 'no'
+  analytics-superset-init:
+    mem_limit: 768m
+    memswap_limit: 1536m
+    logging: *small-logging
+  analytics-superset:
+    mem_limit: 640m
+    memswap_limit: 1280m
+    logging: *small-logging
+    environment:
+      SERVER_WORKER_AMOUNT: '1'
+      SERVER_THREADS_AMOUNT: '4'
+      WORKER_MAX_REQUESTS: '1000'
+      WORKER_MAX_REQUESTS_JITTER: '100'
+  ingress:
+    mem_limit: 64m
+    memswap_limit: 128m
+    logging: *small-logging

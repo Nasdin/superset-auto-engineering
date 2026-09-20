@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Low-traffic Cognition host with bundled Lightsail storage, static IPv4 and daily snapshots.
+Parameters:
+  BundleId:
+    Type: String
+    Default: small_3_2
+    AllowedValues: [small_3_2, medium_3_2]
+    Description: Verify regional pricing. small is 2 GiB; medium is 4 GiB. Changing bundle requires a replacement migration.
+  BlueprintId:
+    Type: String
+    Default: ubuntu_24_04
+  AdminCidr:
+    Type: String
+    AllowedPattern: '(\d{1,3}\.){3}\d{1,3}/32'
+    Description: Operator public IPv4 /32. Never expose SSH to all addresses.
+  ReleaseSha:
+    Type: String
+    AllowedPattern: '[a-f0-9]{40}'
+    Description: Reviewed public repository commit to install. No mutable branch deployment.
+Resources:
+  Host:
+    Type: AWS::Lightsail::Instance
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      InstanceName: !Sub '${AWS::StackName}-host'
+      BlueprintId: !Ref BlueprintId
+      BundleId: !Ref BundleId
+      AddOns:
+        - AddOnType: AutoSnapshot
+          Status: Enabled
+          AutoSnapshotAddOnRequest:
+            SnapshotTimeOfDay: '20:00'
+      Networking:
+        Ports:
+          - FromPort: 22
+            ToPort: 22
+            Protocol: tcp
+            Cidrs: [!Ref AdminCidr]
+            CidrListAliases: [lightsail-connect]
+          - FromPort: 80
+            ToPort: 80
+            Protocol: tcp
+            Cidrs: ['0.0.0.0/0']
+          - FromPort: 443
+            ToPort: 443
+            Protocol: tcp
+            Cidrs: ['0.0.0.0/0']
+      Tags:
+        - Key: Application
+          Value: superset-auto-engineering
+      UserData:
+        Fn::Sub: |
+          #!/bin/bash
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y ca-certificates curl git python3 unattended-upgrades
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          chmod a+r /etc/apt/keyrings/docker.asc
+          echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable' > /etc/apt/sources.list.d/docker.list
+          apt-get update
+          apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          systemctl enable --now docker
+          if [ ! -f /swapfile ]; then
+            fallocate -l 4G /swapfile
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
+            echo '/swapfile none swap sw 0 0' >> /etc/fstab
+          fi
+          echo 'vm.swappiness=10' > /etc/sysctl.d/90-cognition.conf
+          sysctl --system
+          install -d -m 0700 /opt/cognition
+          git clone https://github.com/Nasdin/superset-auto-engineering.git /opt/cognition/app
+          cd /opt/cognition/app
+          git checkout --detach ${ReleaseSha}
+          install -m 0755 infra/host/cognition-compose /usr/local/bin/cognition-compose
+          install -m 0755 infra/host/backup.sh /usr/local/sbin/cognition-backup
+          install -m 0755 infra/host/check.sh /usr/local/sbin/cognition-check
+          install -m 0644 infra/host/cognition-*.service infra/host/cognition-*.timer /etc/systemd/system/
+          systemctl daemon-reload
+          # Operator transfers ignored config + database history before starting the application.
+          # No credentials or enabled paid automation are embedded in this template.
+          touch /opt/cognition/bootstrap-ready
+  Address:
+    Type: AWS::Lightsail::StaticIp
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      StaticIpName: !Sub '${AWS::StackName}-ip'
+      AttachedTo: !Ref Host
+Outputs:
+  InstanceName:
+    Value: !Ref Host
+  PublicIPv4:
+    Value: !GetAtt Address.IpAddress
+  IntendedURL:
+    Value: https://superset-devin.nasrudinsalim.com
+  Recovery:
+    Value: Daily snapshots plus application-consistent database dumps. Verify restore before acceptance. Retained host and IP continue billing after stack deletion.

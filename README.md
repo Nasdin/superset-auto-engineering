@@ -180,6 +180,18 @@ For Slack, install a bot in the intended workspace, grant the posting/readback p
 
 ## 5. AWS with CloudFormation and the custom domain
 
+### Low-cost deployment (preferred)
+
+Use [the Lightsail template](infra/cloudformation/lightsail.yaml) for a low-traffic installation on one VM: FastAPI/React, Postgres, Superset and Redis. The 2 GiB Linux bundle includes 60 GB disk and public IPv4 at **US$12/month**, before snapshots, taxes, excess transfer and Devin usage. Daily snapshots cost extra; no free-tier credits are assumed. A 4 GiB bundle costs US$24/month if measured load needs more headroom. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
+
+Target region: **us-east-1 (Northern Virginia)** for US reviewers. Verify account access first: AWS's simplified project experience may restrict all projects to a single region. Creating another project does not remove that organization policy. Do not silently deploy in another region or activate irreversible account features to bypass the restriction.
+
+The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup, logical backups and local health checks. The daily AWS snapshot captures those dumps off-host. This is a single-server deployment, with downtime during host failure/recovery, not high availability. Public deployment remains pending until the account/region and live acceptance checks are complete.
+
+Follow [the low-cost deployment and recovery runbook](docs/LOW_COST_AWS.md), including migration of the existing execution ledger before enabling any automation. Do not run candidate-validation databases/services on this small dashboard VM.
+
+### Alternative: EC2 in an existing VPC
+
 [infra/cloudformation/demo-host.yaml](infra/cloudformation/demo-host.yaml) provisions an **EC2 demo host**, encrypted persistent root disk, Elastic IP, web-only security group and SSM administration role in an existing VPC/public subnet. Postgres runs in Docker on that host; this template does **not** provision RDS, high availability, backups, DNS or a ready application. Source/configuration setup remains explicit. The template is locally linted; it has not been deployed to AWS.
 
 Use an intentionally selected AWS account/profile, region and budget. Do not assume an unrelated configured profile is the correct account. This provisions billable resources. Install AWS CLI and the Session Manager plugin, choose a public subnet with Internet routing, then review a change set:

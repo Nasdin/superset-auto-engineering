@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+cd /opt/cognition/app
+exec docker compose -p cognition --env-file /opt/cognition/app/.env -f compose.yaml -f compose.public.yaml -f compose.small.yaml "$@"

@@ -14,11 +14,8 @@ services:
       - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
       - cognition-tls:/data
       - cognition-caddy-config:/config
-    depends_on:
-      cognition:
-        condition: service_healthy
-      analytics-superset:
-        condition: service_healthy
+    # Start even while API/BI are booting. A failed BI migration must not take
+    # the dashboard, webhook ingress or certificate renewal offline.
   cognition:
     restart: unless-stopped
   postgres:
