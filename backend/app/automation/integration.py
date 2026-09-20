@@ -21,7 +21,11 @@ class IntegrationService:
         taken = {
             m["job_id"] for j in jobs if j["kind"] == "integration" for m in j["payload"]["members"]
         }
-        ready = [j for j in jobs if j["state"] == "implemented" and j["id"] not in taken]
+        ready = [
+            j
+            for j in jobs
+            if j["kind"] == "repair" and j["state"] == "implemented" and j["id"] not in taken
+        ]
         # A short quiet period coalesces commits; other queued/running repairs complete first.
         if not ready or any(
             j["kind"] == "repair" and j["state"] in {"queued", "running", "dispatching"}

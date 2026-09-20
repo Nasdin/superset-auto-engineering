@@ -5,6 +5,7 @@ import re
 import time
 
 from .config import Settings
+from .dependencies import DependencyService
 from .integration import IntegrationService
 from .links import safe_link
 from .outbox import PublicationOutbox
@@ -127,8 +128,20 @@ class Engine:
         if job["kind"] == "integration":
             self.assemble_candidate(job)
             return
+        if job["kind"] == "dependency" and not DependencyService(
+            self.settings, self.store, self.providers
+        ).preflight(job):
+            return
+        if job["kind"] == "validation" and job["payload"].get("work_type") == "dependency":
+            if not ValidationService(self.settings, self.store, self.providers).is_current(job):
+                return
+            if not self.settings.dependabot_enabled:
+                self.store.update(
+                    job["id"], state="blocked", error="Dependabot automation is disabled"
+                )
+                return
         used = self.store.session_count(excluding=job["id"])
-        required_slots = {"repair": 2, "scan": 3, "validation": 1}[job["kind"]]
+        required_slots = {"repair": 2, "dependency": 2, "scan": 3, "validation": 1}[job["kind"]]
         if used + required_slots > self.settings.max_sessions:
             self.store.update(
                 job["id"],
@@ -185,6 +198,8 @@ class Engine:
                 raise ValueError("Finished session has no structured output")
             if job["kind"] == "repair":
                 self.finish_repair(job, result)
+            elif job["kind"] == "dependency":
+                DependencyService(self.settings, self.store, self.providers).finish(job, result)
             elif job["kind"] == "scan":
                 self.finish_scan(job, result)
             else:

@@ -1,0 +1,1119 @@
+{
+  "seed": 42,
+  "method": "Three PRs per stratum from August merge cohort; sorted by PR number then random.Random(42).sample independently per stratum. Up to first 100 retained commits per PR. Strata deliberately balanced, not population representative.",
+  "pull_requests": [
+    {
+      "stratum": "dependabot",
+      "number": 42777,
+      "title": "chore(deps): bump selenium from 4.45.0 to 4.46.0",
+      "url": "https://github.com/apache/superset/pull/42777",
+      "created_at": "2026-08-05T03:11:06Z",
+      "merged_at": "2026-08-05T06:33:38Z",
+      "commits": [
+        {
+          "sha": "7219f202061025f4865550d20c0d68813828620f",
+          "url": "https://github.com/apache/superset/commit/7219f202061025f4865550d20c0d68813828620f",
+          "title": "chore(deps): bump selenium from 4.45.0 to 4.46.0",
+          "committed_at": "2026-08-05T03:11:04Z",
+          "merge": false
+        },
+        {
+          "sha": "36591bc737b827a6410a2fa120ffc49cb76d64ce",
+          "url": "https://github.com/apache/superset/commit/36591bc737b827a6410a2fa120ffc49cb76d64ce",
+          "title": "build(deps): sync pinned requirements for Dependabot pip PRs",
+          "committed_at": "2026-08-05T03:18:22Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 2,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "dependabot",
+      "number": 42680,
+      "title": "chore(deps): bump the storybook group in /docs with 2 updates",
+      "url": "https://github.com/apache/superset/pull/42680",
+      "created_at": "2026-08-03T07:04:29Z",
+      "merged_at": "2026-08-03T14:44:37Z",
+      "commits": [
+        {
+          "sha": "8a1af1734223867ed312e65bb1cefe79cd3b0603",
+          "url": "https://github.com/apache/superset/commit/8a1af1734223867ed312e65bb1cefe79cd3b0603",
+          "title": "chore(deps): bump the storybook group in /docs with 2 updates",
+          "committed_at": "2026-08-03T07:04:28Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "dependabot",
+      "number": 43106,
+      "title": "chore(deps-dev): bump tsx from 4.23.7 to 4.23.9 in /superset-frontend",
+      "url": "https://github.com/apache/superset/pull/43106",
+      "created_at": "2026-08-13T07:12:01Z",
+      "merged_at": "2026-08-13T09:33:14Z",
+      "commits": [
+        {
+          "sha": "b54392051a3334100608de0b3c460c532d6854a0",
+          "url": "https://github.com/apache/superset/commit/b54392051a3334100608de0b3c460c532d6854a0",
+          "title": "chore(deps-dev): bump tsx from 4.23.7 to 4.23.9 in /superset-frontend",
+          "committed_at": "2026-08-13T07:11:59Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "fix",
+      "number": 42596,
+      "title": "fix(filters): sort numeric filter values numerically, not lexicographically (#36775)",
+      "url": "https://github.com/apache/superset/pull/42596",
+      "created_at": "2026-07-30T00:56:01Z",
+      "merged_at": "2026-08-05T06:06:40Z",
+      "commits": [
+        {
+          "sha": "12ee488af0868aac5bf21ae930e10834164fa0ed",
+          "url": "https://github.com/apache/superset/commit/12ee488af0868aac5bf21ae930e10834164fa0ed",
+          "title": "test(filters): pin numeric filter values sort numerically, not lexicographically (#36775)",
+          "committed_at": "2026-08-04T05:59:30Z",
+          "merge": false
+        },
+        {
+          "sha": "d775586caa2932a38a36b3104f9a7ebceeb69429",
+          "url": "https://github.com/apache/superset/commit/d775586caa2932a38a36b3104f9a7ebceeb69429",
+          "title": "fix(filters): sort numeric filter values numerically, not lexicographically",
+          "committed_at": "2026-08-04T05:59:32Z",
+          "merge": false
+        },
+        {
+          "sha": "5f44491dc3048d59006d42fe853ce2f19435f0dc",
+          "url": "https://github.com/apache/superset/commit/5f44491dc3048d59006d42fe853ce2f19435f0dc",
+          "title": "fix(filters): handle bigint values in propertyComparator's numeric branch",
+          "committed_at": "2026-08-04T05:59:36Z",
+          "merge": false
+        },
+        {
+          "sha": "470887987748b3efee1ed739cca548f7cb8ecad1",
+          "url": "https://github.com/apache/superset/commit/470887987748b3efee1ed739cca548f7cb8ecad1",
+          "title": "test(filters): unit test propertyComparator's bigint branch directly",
+          "committed_at": "2026-08-04T09:47:39Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 4,
+      "committed_after_open": 4,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "fix",
+      "number": 41589,
+      "title": "fix(calendar): clean up d3-tip tooltips",
+      "url": "https://github.com/apache/superset/pull/41589",
+      "created_at": "2026-06-30T19:25:42Z",
+      "merged_at": "2026-08-10T19:28:07Z",
+      "commits": [
+        {
+          "sha": "059c01fc28fe474e0239305bb4b6e0f53554caab",
+          "url": "https://github.com/apache/superset/commit/059c01fc28fe474e0239305bb4b6e0f53554caab",
+          "title": "fix(calendar): clean up d3-tip tooltips",
+          "committed_at": "2026-07-07T14:11:05Z",
+          "merge": false
+        },
+        {
+          "sha": "251d3f8895581860242c94e9d728e9ca73f59720",
+          "url": "https://github.com/apache/superset/commit/251d3f8895581860242c94e9d728e9ca73f59720",
+          "title": "fix(calendar): scope d3-tip cleanup per chart",
+          "committed_at": "2026-07-07T14:11:05Z",
+          "merge": false
+        },
+        {
+          "sha": "8d4dfba97341a259ad7ccf2813bf5f596d625b1b",
+          "url": "https://github.com/apache/superset/commit/8d4dfba97341a259ad7ccf2813bf5f596d625b1b",
+          "title": "chore(calendar): format cal-heatmap tooltip classes",
+          "committed_at": "2026-07-07T14:11:06Z",
+          "merge": false
+        },
+        {
+          "sha": "e827b0566b5e891146ee1cd0ca47b0ab86a54845",
+          "url": "https://github.com/apache/superset/commit/e827b0566b5e891146ee1cd0ca47b0ab86a54845",
+          "title": "Merge master into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-07-13T22:11:49Z",
+          "merge": true
+        },
+        {
+          "sha": "5c80d38e68f129b1d586da089885e0b54bce4ad5",
+          "url": "https://github.com/apache/superset/commit/5c80d38e68f129b1d586da089885e0b54bce4ad5",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-07-14T18:50:39Z",
+          "merge": true
+        },
+        {
+          "sha": "9ffca6df4845aa5ffb00b3357c4359d858497422",
+          "url": "https://github.com/apache/superset/commit/9ffca6df4845aa5ffb00b3357c4359d858497422",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-07-15T22:59:28Z",
+          "merge": true
+        },
+        {
+          "sha": "9c6c8e231af0b62d302d6181c96c326137d51138",
+          "url": "https://github.com/apache/superset/commit/9c6c8e231af0b62d302d6181c96c326137d51138",
+          "title": "test(calendar): cover tooltip lifecycle cleanup",
+          "committed_at": "2026-07-15T23:51:33Z",
+          "merge": false
+        },
+        {
+          "sha": "bd0a217d84fdbbb7fa261683e23ad8408e46c16e",
+          "url": "https://github.com/apache/superset/commit/bd0a217d84fdbbb7fa261683e23ad8408e46c16e",
+          "title": "fix(calendar): harden tooltip lifecycle cleanup",
+          "committed_at": "2026-07-17T19:15:25Z",
+          "merge": false
+        },
+        {
+          "sha": "6b79983f830993d357b02767a7bd29e74a41ef0d",
+          "url": "https://github.com/apache/superset/commit/6b79983f830993d357b02767a7bd29e74a41ef0d",
+          "title": "test(calendar): harden tooltip lifecycle coverage",
+          "committed_at": "2026-07-24T22:47:55Z",
+          "merge": false
+        },
+        {
+          "sha": "4ce54a70d6cdc260f01d509853af21cb77f90cf3",
+          "url": "https://github.com/apache/superset/commit/4ce54a70d6cdc260f01d509853af21cb77f90cf3",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-07-31T20:42:18Z",
+          "merge": true
+        },
+        {
+          "sha": "e2f49c219cbba6c4d000e4db2378840c07481800",
+          "url": "https://github.com/apache/superset/commit/e2f49c219cbba6c4d000e4db2378840c07481800",
+          "title": "fix(calendar): type the vendor constructor in tooltip tests",
+          "committed_at": "2026-07-31T20:58:58Z",
+          "merge": false
+        },
+        {
+          "sha": "f1575db9b78506aa587e17f2f31adce861bba6c9",
+          "url": "https://github.com/apache/superset/commit/f1575db9b78506aa587e17f2f31adce861bba6c9",
+          "title": "fix(calendar): destroy instances directly on unmount",
+          "committed_at": "2026-08-04T18:02:01Z",
+          "merge": false
+        },
+        {
+          "sha": "e08d81e2e8905421f68212b7899f258dc893252b",
+          "url": "https://github.com/apache/superset/commit/e08d81e2e8905421f68212b7899f258dc893252b",
+          "title": "Merge remote-tracking branch 'origin/master' into fix-pr-41589-ci-f1575db9",
+          "committed_at": "2026-08-04T18:30:02Z",
+          "merge": true
+        },
+        {
+          "sha": "db9bcee7fce8e01f25cb7463c1b7c21715ba398e",
+          "url": "https://github.com/apache/superset/commit/db9bcee7fce8e01f25cb7463c1b7c21715ba398e",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-08-05T04:55:25Z",
+          "merge": true
+        },
+        {
+          "sha": "5bb3599c7557ec1ff18a254788d1d96361ccb40e",
+          "url": "https://github.com/apache/superset/commit/5bb3599c7557ec1ff18a254788d1d96361ccb40e",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-08-06T17:49:03Z",
+          "merge": true
+        },
+        {
+          "sha": "f3b600fb316d762ac91050a57ff5d3c4c1912986",
+          "url": "https://github.com/apache/superset/commit/f3b600fb316d762ac91050a57ff5d3c4c1912986",
+          "title": "Merge remote-tracking branch 'origin/master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-08-06T23:35:25Z",
+          "merge": true
+        },
+        {
+          "sha": "43fd70a553fb07ca37c5e598ee4e66315795fbea",
+          "url": "https://github.com/apache/superset/commit/43fd70a553fb07ca37c5e598ee4e66315795fbea",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-08-08T01:58:31Z",
+          "merge": true
+        },
+        {
+          "sha": "dd9316012305ca939a931bc34d9ba80156e0854f",
+          "url": "https://github.com/apache/superset/commit/dd9316012305ca939a931bc34d9ba80156e0854f",
+          "title": "Merge branch 'master' into fix-calendar-heatmap-tooltip-cleanup-41583",
+          "committed_at": "2026-08-10T18:25:13Z",
+          "merge": true
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 18,
+      "committed_after_open": 18,
+      "merge_commits": 10
+    },
+    {
+      "stratum": "fix",
+      "number": 42920,
+      "title": "fix(import): isolate per-tag import in a SAVEPOINT to avoid poisoned session (#42912)",
+      "url": "https://github.com/apache/superset/pull/42920",
+      "created_at": "2026-08-08T20:59:07Z",
+      "merged_at": "2026-08-15T04:56:44Z",
+      "commits": [
+        {
+          "sha": "e47e145829cf68950d16005300721fd60e51729c",
+          "url": "https://github.com/apache/superset/commit/e47e145829cf68950d16005300721fd60e51729c",
+          "title": "fix(import): isolate per-tag import in a SAVEPOINT to avoid poisoned session",
+          "committed_at": "2026-08-08T20:57:54Z",
+          "merge": false
+        },
+        {
+          "sha": "c13bed2d630b5478a94c70412e0bba8f3dab45b9",
+          "url": "https://github.com/apache/superset/commit/c13bed2d630b5478a94c70412e0bba8f3dab45b9",
+          "title": "test(import): verify SAVEPOINT isolates per-tag failures",
+          "committed_at": "2026-08-08T20:58:59Z",
+          "merge": false
+        },
+        {
+          "sha": "23a27d9529eec104c72447308277f29e2cc44a31",
+          "url": "https://github.com/apache/superset/commit/23a27d9529eec104c72447308277f29e2cc44a31",
+          "title": "fix(import): record a tag's id only after its SAVEPOINT commits",
+          "committed_at": "2026-08-12T04:36:30Z",
+          "merge": false
+        },
+        {
+          "sha": "008ce4a599546e003188911b50a2801d0f65bbca",
+          "url": "https://github.com/apache/superset/commit/008ce4a599546e003188911b50a2801d0f65bbca",
+          "title": "Merge branch 'master' into fix/import-tag-savepoint-42912",
+          "committed_at": "2026-08-15T00:47:30Z",
+          "merge": true
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 4,
+      "committed_after_open": 2,
+      "merge_commits": 1
+    },
+    {
+      "stratum": "feature",
+      "number": 42053,
+      "title": "feat: Color Picker replaces the color selection drop-down list in conditional formatting",
+      "url": "https://github.com/apache/superset/pull/42053",
+      "created_at": "2026-07-14T21:24:43Z",
+      "merged_at": "2026-08-07T23:00:56Z",
+      "commits": [
+        {
+          "sha": "19151d1e4a6d735f4229a28eae2c6b00e1409227",
+          "url": "https://github.com/apache/superset/commit/19151d1e4a6d735f4229a28eae2c6b00e1409227",
+          "title": "fix: fixed Add Metrics to Tree Chart (#29158)",
+          "committed_at": "2024-10-22T20:07:40Z",
+          "merge": false
+        },
+        {
+          "sha": "35aaeb66bf9d01a4e3f1cb7c9c92989b1503b25e",
+          "url": "https://github.com/apache/superset/commit/35aaeb66bf9d01a4e3f1cb7c9c92989b1503b25e",
+          "title": "fix: clear modal after CSS templates is added",
+          "committed_at": "2024-10-22T20:45:27Z",
+          "merge": false
+        },
+        {
+          "sha": "db3afda17db52cf217af4f20b09a4d1e09848117",
+          "url": "https://github.com/apache/superset/commit/db3afda17db52cf217af4f20b09a4d1e09848117",
+          "title": "Revert \"fix: clear modal after CSS templates is added\"",
+          "committed_at": "2024-10-23T19:15:52Z",
+          "merge": false
+        },
+        {
+          "sha": "9eea2e6fd6ac5cf4f41ae91b2941a9bfea82718b",
+          "url": "https://github.com/apache/superset/commit/9eea2e6fd6ac5cf4f41ae91b2941a9bfea82718b",
+          "title": "fix: tree metrics exclude validator",
+          "committed_at": "2024-11-25T18:45:32Z",
+          "merge": false
+        },
+        {
+          "sha": "3930c954fa33e708c6e726a55541c93dd06e2d5b",
+          "url": "https://github.com/apache/superset/commit/3930c954fa33e708c6e726a55541c93dd06e2d5b",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-03-11T19:02:08Z",
+          "merge": true
+        },
+        {
+          "sha": "b355212c9a9f1a720d6df0556d4a7fc327ccdc9c",
+          "url": "https://github.com/apache/superset/commit/b355212c9a9f1a720d6df0556d4a7fc327ccdc9c",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-03-18T19:19:24Z",
+          "merge": true
+        },
+        {
+          "sha": "7200d6cfc96e7f77c138642bd055256a78f8a54d",
+          "url": "https://github.com/apache/superset/commit/7200d6cfc96e7f77c138642bd055256a78f8a54d",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-03-20T19:26:43Z",
+          "merge": true
+        },
+        {
+          "sha": "3049a3def8dc04fd2e3d79f600df6601c07cbc86",
+          "url": "https://github.com/apache/superset/commit/3049a3def8dc04fd2e3d79f600df6601c07cbc86",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-03-25T12:01:48Z",
+          "merge": true
+        },
+        {
+          "sha": "247aef87f7507a53376ae131c7488a57424bb149",
+          "url": "https://github.com/apache/superset/commit/247aef87f7507a53376ae131c7488a57424bb149",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-04-02T09:41:58Z",
+          "merge": true
+        },
+        {
+          "sha": "b4678ec5ca14c44b10b10bfcd7aaffe7000101ea",
+          "url": "https://github.com/apache/superset/commit/b4678ec5ca14c44b10b10bfcd7aaffe7000101ea",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-04-04T06:54:45Z",
+          "merge": true
+        },
+        {
+          "sha": "0ae844d69faf4cf9b45986ccb0cbe6653d6cd0dd",
+          "url": "https://github.com/apache/superset/commit/0ae844d69faf4cf9b45986ccb0cbe6653d6cd0dd",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-01T19:26:46Z",
+          "merge": true
+        },
+        {
+          "sha": "49fc529da3fab01e9449843954564caf08bc9ccd",
+          "url": "https://github.com/apache/superset/commit/49fc529da3fab01e9449843954564caf08bc9ccd",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-10T19:34:53Z",
+          "merge": true
+        },
+        {
+          "sha": "601dde2bb5fbde32df0a7311559b2ccf7e4773e0",
+          "url": "https://github.com/apache/superset/commit/601dde2bb5fbde32df0a7311559b2ccf7e4773e0",
+          "title": "fix: revert #30679",
+          "committed_at": "2025-07-10T19:36:17Z",
+          "merge": false
+        },
+        {
+          "sha": "66823a570a51409a88d43b59f85ee093cc01fe74",
+          "url": "https://github.com/apache/superset/commit/66823a570a51409a88d43b59f85ee093cc01fe74",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-12T18:56:24Z",
+          "merge": true
+        },
+        {
+          "sha": "4f59629b380213e5ce53ba30d0ceb3f37e4b964f",
+          "url": "https://github.com/apache/superset/commit/4f59629b380213e5ce53ba30d0ceb3f37e4b964f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-16T13:30:04Z",
+          "merge": true
+        },
+        {
+          "sha": "a7ce4e9db2e4e893c37ab94e6e44e1d75c769b79",
+          "url": "https://github.com/apache/superset/commit/a7ce4e9db2e4e893c37ab94e6e44e1d75c769b79",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-20T19:01:31Z",
+          "merge": true
+        },
+        {
+          "sha": "1bf4fdda7732c9c57c2bddcf001078e3cf9fe68a",
+          "url": "https://github.com/apache/superset/commit/1bf4fdda7732c9c57c2bddcf001078e3cf9fe68a",
+          "title": "fix",
+          "committed_at": "2025-07-20T19:04:40Z",
+          "merge": false
+        },
+        {
+          "sha": "124186779bfb3bba05b0b85128a3370651a2e76a",
+          "url": "https://github.com/apache/superset/commit/124186779bfb3bba05b0b85128a3370651a2e76a",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-07-31T09:22:42Z",
+          "merge": true
+        },
+        {
+          "sha": "045cf6bb501aea4be392c814be3fb52409c6bda3",
+          "url": "https://github.com/apache/superset/commit/045cf6bb501aea4be392c814be3fb52409c6bda3",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-02T08:20:28Z",
+          "merge": true
+        },
+        {
+          "sha": "acdba8aa26a3a3a106c00c434a19d997c266358b",
+          "url": "https://github.com/apache/superset/commit/acdba8aa26a3a3a106c00c434a19d997c266358b",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-10T12:14:04Z",
+          "merge": true
+        },
+        {
+          "sha": "4fb89c2dfc6e73c001479d9ec2cb22ceeb63cb8f",
+          "url": "https://github.com/apache/superset/commit/4fb89c2dfc6e73c001479d9ec2cb22ceeb63cb8f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-15T18:46:27Z",
+          "merge": true
+        },
+        {
+          "sha": "f47d28b8db53388c5c0735724d3eb431de1f0946",
+          "url": "https://github.com/apache/superset/commit/f47d28b8db53388c5c0735724d3eb431de1f0946",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-18T19:43:39Z",
+          "merge": true
+        },
+        {
+          "sha": "3bdf3372fd6f6eafeec968286526818625755bcf",
+          "url": "https://github.com/apache/superset/commit/3bdf3372fd6f6eafeec968286526818625755bcf",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-19T09:34:40Z",
+          "merge": true
+        },
+        {
+          "sha": "780a5d6a52bf192474661dee987855afcb478b3a",
+          "url": "https://github.com/apache/superset/commit/780a5d6a52bf192474661dee987855afcb478b3a",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-24T19:32:09Z",
+          "merge": true
+        },
+        {
+          "sha": "3c339df3cad16ffbbb4f9530119fbf8302a9c2d7",
+          "url": "https://github.com/apache/superset/commit/3c339df3cad16ffbbb4f9530119fbf8302a9c2d7",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-25T19:36:33Z",
+          "merge": true
+        },
+        {
+          "sha": "798b7a6129ac69e217d84f10f252b1d0864a6dc0",
+          "url": "https://github.com/apache/superset/commit/798b7a6129ac69e217d84f10f252b1d0864a6dc0",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-08-30T10:08:42Z",
+          "merge": true
+        },
+        {
+          "sha": "2db564e2af138bb7d9fe48a43f51db3874042fc9",
+          "url": "https://github.com/apache/superset/commit/2db564e2af138bb7d9fe48a43f51db3874042fc9",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-03T21:18:39Z",
+          "merge": true
+        },
+        {
+          "sha": "a58cfad27da68465179287358c647baf7f19c86b",
+          "url": "https://github.com/apache/superset/commit/a58cfad27da68465179287358c647baf7f19c86b",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-05T18:14:57Z",
+          "merge": true
+        },
+        {
+          "sha": "9ea0d2ffd81e0d2d4d5b41b62f6da07b609cece4",
+          "url": "https://github.com/apache/superset/commit/9ea0d2ffd81e0d2d4d5b41b62f6da07b609cece4",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-08T21:13:50Z",
+          "merge": true
+        },
+        {
+          "sha": "c6bbf5360cb3a1bcc1037abcd96540756d916893",
+          "url": "https://github.com/apache/superset/commit/c6bbf5360cb3a1bcc1037abcd96540756d916893",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-09T19:34:16Z",
+          "merge": true
+        },
+        {
+          "sha": "5214e7a5c10d4bb16037d492ba246eac5ac0776d",
+          "url": "https://github.com/apache/superset/commit/5214e7a5c10d4bb16037d492ba246eac5ac0776d",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-15T18:18:35Z",
+          "merge": true
+        },
+        {
+          "sha": "d98105c9271126f7b31b2c0aee735ee4f8337abf",
+          "url": "https://github.com/apache/superset/commit/d98105c9271126f7b31b2c0aee735ee4f8337abf",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-17T21:10:43Z",
+          "merge": true
+        },
+        {
+          "sha": "30b157640910273ed509d1b560051b271dd258ec",
+          "url": "https://github.com/apache/superset/commit/30b157640910273ed509d1b560051b271dd258ec",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-19T15:48:35Z",
+          "merge": true
+        },
+        {
+          "sha": "4aaa27cc34600ea914930c37feb2d23187d950cf",
+          "url": "https://github.com/apache/superset/commit/4aaa27cc34600ea914930c37feb2d23187d950cf",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-23T05:50:42Z",
+          "merge": true
+        },
+        {
+          "sha": "25c1987d1ce38f43ec413dd34714e66784f119c6",
+          "url": "https://github.com/apache/superset/commit/25c1987d1ce38f43ec413dd34714e66784f119c6",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-09-24T21:56:13Z",
+          "merge": true
+        },
+        {
+          "sha": "c3854cbc80f7ab70c0e12dcebeb9fee8a0d88014",
+          "url": "https://github.com/apache/superset/commit/c3854cbc80f7ab70c0e12dcebeb9fee8a0d88014",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-01T18:46:58Z",
+          "merge": true
+        },
+        {
+          "sha": "e1c490965a62f7fa7d4ca20d445d859060394909",
+          "url": "https://github.com/apache/superset/commit/e1c490965a62f7fa7d4ca20d445d859060394909",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-01T21:55:18Z",
+          "merge": true
+        },
+        {
+          "sha": "c60bda8e424b321e860e8962698b98545a1715ed",
+          "url": "https://github.com/apache/superset/commit/c60bda8e424b321e860e8962698b98545a1715ed",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-02T20:54:31Z",
+          "merge": true
+        },
+        {
+          "sha": "964307e34c14c895522f86cb06a7cf49f62bd344",
+          "url": "https://github.com/apache/superset/commit/964307e34c14c895522f86cb06a7cf49f62bd344",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-14T21:38:59Z",
+          "merge": true
+        },
+        {
+          "sha": "df97cb7485ac31c1599dc989ee82fad001058eb9",
+          "url": "https://github.com/apache/superset/commit/df97cb7485ac31c1599dc989ee82fad001058eb9",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-22T21:33:09Z",
+          "merge": true
+        },
+        {
+          "sha": "6ef82fae9972d52bffba63e81d386a53f3c5c93e",
+          "url": "https://github.com/apache/superset/commit/6ef82fae9972d52bffba63e81d386a53f3c5c93e",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-27T19:02:51Z",
+          "merge": true
+        },
+        {
+          "sha": "d0ae96cbb46bb8a42699140613d38503bd0c929c",
+          "url": "https://github.com/apache/superset/commit/d0ae96cbb46bb8a42699140613d38503bd0c929c",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-29T11:30:59Z",
+          "merge": true
+        },
+        {
+          "sha": "725039c018e95301d63a76da97c5a21edab0224d",
+          "url": "https://github.com/apache/superset/commit/725039c018e95301d63a76da97c5a21edab0224d",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-10-29T19:23:27Z",
+          "merge": true
+        },
+        {
+          "sha": "727c59fb92db34b03862a9f1445581b3da782d82",
+          "url": "https://github.com/apache/superset/commit/727c59fb92db34b03862a9f1445581b3da782d82",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-02T16:09:12Z",
+          "merge": true
+        },
+        {
+          "sha": "eeb04da5b628c9464531ae696b856d6e15479600",
+          "url": "https://github.com/apache/superset/commit/eeb04da5b628c9464531ae696b856d6e15479600",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-07T19:49:56Z",
+          "merge": true
+        },
+        {
+          "sha": "ca1264461bfb5a6834f31095c11511e131069a3f",
+          "url": "https://github.com/apache/superset/commit/ca1264461bfb5a6834f31095c11511e131069a3f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-10T20:10:29Z",
+          "merge": true
+        },
+        {
+          "sha": "45c1a1a85d5d7ea20ace0e65efef871b1905522f",
+          "url": "https://github.com/apache/superset/commit/45c1a1a85d5d7ea20ace0e65efef871b1905522f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-13T10:24:07Z",
+          "merge": true
+        },
+        {
+          "sha": "44708bf669e25067fcfa9eb9ee954576367acd2f",
+          "url": "https://github.com/apache/superset/commit/44708bf669e25067fcfa9eb9ee954576367acd2f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-14T23:04:05Z",
+          "merge": true
+        },
+        {
+          "sha": "59f2832452f27fad02b266f5745798cc2516289a",
+          "url": "https://github.com/apache/superset/commit/59f2832452f27fad02b266f5745798cc2516289a",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-11-29T18:41:39Z",
+          "merge": true
+        },
+        {
+          "sha": "4cf50b1b3582efbc666d92b5c68cb5ccd11fdc26",
+          "url": "https://github.com/apache/superset/commit/4cf50b1b3582efbc666d92b5c68cb5ccd11fdc26",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-12-18T19:43:38Z",
+          "merge": true
+        },
+        {
+          "sha": "e34d80e49f5e491772a6d0440155bc81cdfe907f",
+          "url": "https://github.com/apache/superset/commit/e34d80e49f5e491772a6d0440155bc81cdfe907f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2025-12-22T19:26:16Z",
+          "merge": true
+        },
+        {
+          "sha": "a48fb9c527d8421d5994c2868973ac2bd2b93a55",
+          "url": "https://github.com/apache/superset/commit/a48fb9c527d8421d5994c2868973ac2bd2b93a55",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-01-10T11:56:43Z",
+          "merge": true
+        },
+        {
+          "sha": "51001722332e413e8f08b4fa5bf29f7835cabf96",
+          "url": "https://github.com/apache/superset/commit/51001722332e413e8f08b4fa5bf29f7835cabf96",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-01-12T18:43:25Z",
+          "merge": true
+        },
+        {
+          "sha": "0bd47e920e275fd23443d123a065b651eec4f69f",
+          "url": "https://github.com/apache/superset/commit/0bd47e920e275fd23443d123a065b651eec4f69f",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-01-15T17:23:43Z",
+          "merge": true
+        },
+        {
+          "sha": "17614b2c4756bd7e13e36ca150bef17df8fe27de",
+          "url": "https://github.com/apache/superset/commit/17614b2c4756bd7e13e36ca150bef17df8fe27de",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-01-30T17:03:46Z",
+          "merge": true
+        },
+        {
+          "sha": "7143f13ad0edcd6ef2001687d47f5fc6d9f5fbd7",
+          "url": "https://github.com/apache/superset/commit/7143f13ad0edcd6ef2001687d47f5fc6d9f5fbd7",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-02T21:08:51Z",
+          "merge": true
+        },
+        {
+          "sha": "d5776e69aea8cbca49d91511414b1efaf6b4bd87",
+          "url": "https://github.com/apache/superset/commit/d5776e69aea8cbca49d91511414b1efaf6b4bd87",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-03T23:10:33Z",
+          "merge": true
+        },
+        {
+          "sha": "8a5617ef541154078cc9d1b145cf44ac2de57d0a",
+          "url": "https://github.com/apache/superset/commit/8a5617ef541154078cc9d1b145cf44ac2de57d0a",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-06T20:39:13Z",
+          "merge": true
+        },
+        {
+          "sha": "a8dd1dfe651b7c695c00ddc3ec46f2953be9938a",
+          "url": "https://github.com/apache/superset/commit/a8dd1dfe651b7c695c00ddc3ec46f2953be9938a",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-09T19:54:27Z",
+          "merge": true
+        },
+        {
+          "sha": "85a18a4dc333f9e3792b4ac1fd9a0c33723cca0d",
+          "url": "https://github.com/apache/superset/commit/85a18a4dc333f9e3792b4ac1fd9a0c33723cca0d",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-11T11:48:31Z",
+          "merge": true
+        },
+        {
+          "sha": "e15912c83cc4d5054e76d05ad6c30c9c212d7843",
+          "url": "https://github.com/apache/superset/commit/e15912c83cc4d5054e76d05ad6c30c9c212d7843",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-15T20:59:26Z",
+          "merge": true
+        },
+        {
+          "sha": "e465243f47f2aefb0b3e77c2a6d1e2f06947f8a6",
+          "url": "https://github.com/apache/superset/commit/e465243f47f2aefb0b3e77c2a6d1e2f06947f8a6",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-17T17:21:02Z",
+          "merge": true
+        },
+        {
+          "sha": "20110ebc6a1380c9a14d773f6b1de7ce4f7f6a66",
+          "url": "https://github.com/apache/superset/commit/20110ebc6a1380c9a14d773f6b1de7ce4f7f6a66",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-02-27T20:20:02Z",
+          "merge": true
+        },
+        {
+          "sha": "effbe6d6eef13531dc30793375609bfeea923eb1",
+          "url": "https://github.com/apache/superset/commit/effbe6d6eef13531dc30793375609bfeea923eb1",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-04-01T20:31:36Z",
+          "merge": true
+        },
+        {
+          "sha": "f9ed68e46d452e43646780a70b9b6aea9b66042b",
+          "url": "https://github.com/apache/superset/commit/f9ed68e46d452e43646780a70b9b6aea9b66042b",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-04-10T20:54:34Z",
+          "merge": true
+        },
+        {
+          "sha": "0374a41446d6e016cfe71d25608e40f93377f67d",
+          "url": "https://github.com/apache/superset/commit/0374a41446d6e016cfe71d25608e40f93377f67d",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-05-16T11:49:52Z",
+          "merge": true
+        },
+        {
+          "sha": "2e865898f8963fa2434803fafa2a5224ae93cd87",
+          "url": "https://github.com/apache/superset/commit/2e865898f8963fa2434803fafa2a5224ae93cd87",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-05-24T21:43:16Z",
+          "merge": true
+        },
+        {
+          "sha": "32fbbf908d14a386e03ff53f75edf31e4b4f5dbe",
+          "url": "https://github.com/apache/superset/commit/32fbbf908d14a386e03ff53f75edf31e4b4f5dbe",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-06-09T17:10:09Z",
+          "merge": true
+        },
+        {
+          "sha": "8aac5c80a93bfc89eb0c5dc1e7acefd69bcaf5a3",
+          "url": "https://github.com/apache/superset/commit/8aac5c80a93bfc89eb0c5dc1e7acefd69bcaf5a3",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-06-28T18:26:16Z",
+          "merge": true
+        },
+        {
+          "sha": "32317129f60f7cfeabd7e0eb1492c4ccd76493c1",
+          "url": "https://github.com/apache/superset/commit/32317129f60f7cfeabd7e0eb1492c4ccd76493c1",
+          "title": "Merge branch 'apache:master' into master",
+          "committed_at": "2026-07-08T19:04:24Z",
+          "merge": true
+        },
+        {
+          "sha": "7bb493514442c6b0f63cddb8e0f483795447bd35",
+          "url": "https://github.com/apache/superset/commit/7bb493514442c6b0f63cddb8e0f483795447bd35",
+          "title": "feature: add  ColorPickerControlControl to formatting",
+          "committed_at": "2026-07-14T21:00:31Z",
+          "merge": false
+        },
+        {
+          "sha": "b8bc16d1feaf9c8a565841c5b711793607cca8c5",
+          "url": "https://github.com/apache/superset/commit/b8bc16d1feaf9c8a565841c5b711793607cca8c5",
+          "title": "fix: add t to lable and pivot-table type result",
+          "committed_at": "2026-07-14T21:48:44Z",
+          "merge": false
+        },
+        {
+          "sha": "2a7eb205ba7decf636e596e694e872faef173f6e",
+          "url": "https://github.com/apache/superset/commit/2a7eb205ba7decf636e596e694e872faef173f6e",
+          "title": "fix: typos",
+          "committed_at": "2026-07-14T21:56:00Z",
+          "merge": false
+        },
+        {
+          "sha": "7fbe2372949f098dcdc25f25e69f7c7d8497405f",
+          "url": "https://github.com/apache/superset/commit/7fbe2372949f098dcdc25f25e69f7c7d8497405f",
+          "title": "Merge branch 'master' into fix/color_scheme_options",
+          "committed_at": "2026-07-15T03:11:43Z",
+          "merge": true
+        },
+        {
+          "sha": "2bf1f851d4462b869ea3b89fd805572b947cd92c",
+          "url": "https://github.com/apache/superset/commit/2bf1f851d4462b869ea3b89fd805572b947cd92c",
+          "title": "Merge branch 'master' into fix/color_scheme_options",
+          "committed_at": "2026-07-16T19:57:16Z",
+          "merge": true
+        },
+        {
+          "sha": "b8d12abacf0d2388bb33af0923a2767d3a00811c",
+          "url": "https://github.com/apache/superset/commit/b8d12abacf0d2388bb33af0923a2767d3a00811c",
+          "title": "fix test",
+          "committed_at": "2026-07-16T21:17:48Z",
+          "merge": false
+        },
+        {
+          "sha": "560425f10f275a5de293affbdb7da8863a575033",
+          "url": "https://github.com/apache/superset/commit/560425f10f275a5de293affbdb7da8863a575033",
+          "title": "add test",
+          "committed_at": "2026-07-18T21:18:03Z",
+          "merge": false
+        },
+        {
+          "sha": "3b8dbd8e9e903dccdc8c1269e496abaaefd1f4fb",
+          "url": "https://github.com/apache/superset/commit/3b8dbd8e9e903dccdc8c1269e496abaaefd1f4fb",
+          "title": "fix: Copilot comments",
+          "committed_at": "2026-07-18T21:37:51Z",
+          "merge": false
+        },
+        {
+          "sha": "beb793ddc3e54c2b9bb2e710a19738d2fc125f02",
+          "url": "https://github.com/apache/superset/commit/beb793ddc3e54c2b9bb2e710a19738d2fc125f02",
+          "title": "fix: added conversion to themeColors",
+          "committed_at": "2026-07-21T21:45:45Z",
+          "merge": false
+        },
+        {
+          "sha": "84749c9533c82287b4f022a8d37e7eabd1a13d75",
+          "url": "https://github.com/apache/superset/commit/84749c9533c82287b4f022a8d37e7eabd1a13d75",
+          "title": "fix: pre-commit",
+          "committed_at": "2026-07-21T21:55:58Z",
+          "merge": false
+        },
+        {
+          "sha": "414988db8509c1d659ca70cc258b9c7aaf87c062",
+          "url": "https://github.com/apache/superset/commit/414988db8509c1d659ca70cc258b9c7aaf87c062",
+          "title": "fix pre-commit",
+          "committed_at": "2026-07-21T22:05:43Z",
+          "merge": false
+        },
+        {
+          "sha": "440815c9e0a6ffd043f40cc741f32edea139a4d2",
+          "url": "https://github.com/apache/superset/commit/440815c9e0a6ffd043f40cc741f32edea139a4d2",
+          "title": "Merge branch 'master' into fix/color_scheme_options",
+          "committed_at": "2026-07-21T22:06:06Z",
+          "merge": true
+        },
+        {
+          "sha": "15644666a9f57a2908e31b50bebacd670e74e083",
+          "url": "https://github.com/apache/superset/commit/15644666a9f57a2908e31b50bebacd670e74e083",
+          "title": "fix: add token processing",
+          "committed_at": "2026-07-24T19:41:40Z",
+          "merge": false
+        },
+        {
+          "sha": "5d7591197ec71bebb1f67c9ab06b9eb905ed40ad",
+          "url": "https://github.com/apache/superset/commit/5d7591197ec71bebb1f67c9ab06b9eb905ed40ad",
+          "title": "Merge branch 'master' into fix/color_scheme_options",
+          "committed_at": "2026-07-24T19:42:00Z",
+          "merge": true
+        },
+        {
+          "sha": "e66925b0ea840462dad92841e49f651070267b60",
+          "url": "https://github.com/apache/superset/commit/e66925b0ea840462dad92841e49f651070267b60",
+          "title": "fix: pre-commit",
+          "committed_at": "2026-07-24T19:52:31Z",
+          "merge": false
+        },
+        {
+          "sha": "3edd7aa917e26eb59c9ff3b7e1eed7ab740f5c48",
+          "url": "https://github.com/apache/superset/commit/3edd7aa917e26eb59c9ff3b7e1eed7ab740f5c48",
+          "title": "fix: add test",
+          "committed_at": "2026-07-24T20:32:04Z",
+          "merge": false
+        },
+        {
+          "sha": "cc0ff2264b97cf8f78b57ecfa3caba5313302903",
+          "url": "https://github.com/apache/superset/commit/cc0ff2264b97cf8f78b57ecfa3caba5313302903",
+          "title": "fix: add test",
+          "committed_at": "2026-07-24T20:59:13Z",
+          "merge": false
+        },
+        {
+          "sha": "65c7507fe67e99a97326df08ae57a324e5181389",
+          "url": "https://github.com/apache/superset/commit/65c7507fe67e99a97326df08ae57a324e5181389",
+          "title": "add aria-label to ColorPicker",
+          "committed_at": "2026-07-29T21:17:07Z",
+          "merge": false
+        },
+        {
+          "sha": "1cb573b087d8affee04547c47c58b06abb47902b",
+          "url": "https://github.com/apache/superset/commit/1cb573b087d8affee04547c47c58b06abb47902b",
+          "title": "Minor inaccuracies have been fixed.",
+          "committed_at": "2026-07-30T19:36:12Z",
+          "merge": false
+        },
+        {
+          "sha": "915cdf5a70384b0ab0048198da93dc8f4cd1370e",
+          "url": "https://github.com/apache/superset/commit/915cdf5a70384b0ab0048198da93dc8f4cd1370e",
+          "title": "fix: pre-commit",
+          "committed_at": "2026-07-30T19:46:42Z",
+          "merge": false
+        },
+        {
+          "sha": "8846ebe0d8f4af1c458e66caf6aa9a52a1c69b2b",
+          "url": "https://github.com/apache/superset/commit/8846ebe0d8f4af1c458e66caf6aa9a52a1c69b2b",
+          "title": "fix : delete useTheme in  FormattingPopoverContent",
+          "committed_at": "2026-07-30T19:53:40Z",
+          "merge": false
+        },
+        {
+          "sha": "d68a9cbc3083a59a30afd62c76470177f6f1acac",
+          "url": "https://github.com/apache/superset/commit/d68a9cbc3083a59a30afd62c76470177f6f1acac",
+          "title": "fix test name",
+          "committed_at": "2026-07-31T12:59:33Z",
+          "merge": false
+        },
+        {
+          "sha": "ef288f7d2b6b352b18c6b98d04b2de017a143f50",
+          "url": "https://github.com/apache/superset/commit/ef288f7d2b6b352b18c6b98d04b2de017a143f50",
+          "title": "add flag resolveThemeTokens in ColorPickerControl and add test",
+          "committed_at": "2026-08-02T13:03:06Z",
+          "merge": false
+        },
+        {
+          "sha": "a72622c0d0a39a86ab077ec3330a7ba914ac942c",
+          "url": "https://github.com/apache/superset/commit/a72622c0d0a39a86ab077ec3330a7ba914ac942c",
+          "title": "fix pre-commit",
+          "committed_at": "2026-08-02T13:10:23Z",
+          "merge": false
+        },
+        {
+          "sha": "208b351d1a5db069d0cd9d9471f8eff8df61d81a",
+          "url": "https://github.com/apache/superset/commit/208b351d1a5db069d0cd9d9471f8eff8df61d81a",
+          "title": "Merge branch 'master' into fix/color_scheme_options",
+          "committed_at": "2026-08-02T14:05:56Z",
+          "merge": true
+        },
+        {
+          "sha": "02a069f1b2b6bc8b092b78117897eb76d5f12491",
+          "url": "https://github.com/apache/superset/commit/02a069f1b2b6bc8b092b78117897eb76d5f12491",
+          "title": "fix  bito recommended",
+          "committed_at": "2026-08-02T14:35:53Z",
+          "merge": false
+        },
+        {
+          "sha": "c7abc98d57618cd5150004b66cd0a1475623e9de",
+          "url": "https://github.com/apache/superset/commit/c7abc98d57618cd5150004b66cd0a1475623e9de",
+          "title": "fix test",
+          "committed_at": "2026-08-02T16:44:41Z",
+          "merge": false
+        },
+        {
+          "sha": "deedc4a7a1eaf0d3f1d97007b08a03874fd888e6",
+          "url": "https://github.com/apache/superset/commit/deedc4a7a1eaf0d3f1d97007b08a03874fd888e6",
+          "title": "fix delete any in colorpicker",
+          "committed_at": "2026-08-02T17:33:03Z",
+          "merge": false
+        },
+        {
+          "sha": "5953d13ba5e18454f46b55f5ee37110b45fbfb12",
+          "url": "https://github.com/apache/superset/commit/5953d13ba5e18454f46b55f5ee37110b45fbfb12",
+          "title": "fix test",
+          "committed_at": "2026-08-02T18:04:35Z",
+          "merge": false
+        },
+        {
+          "sha": "44223f12aa90ddc99be296bcbca8463a38274bee",
+          "url": "https://github.com/apache/superset/commit/44223f12aa90ddc99be296bcbca8463a38274bee",
+          "title": "add trendColorsTooltip to ColorPickerControl, fix test , add normalizeColorToHex",
+          "committed_at": "2026-08-02T20:17:39Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": true,
+      "retained_commits": 100,
+      "committed_after_open": 29,
+      "merge_commits": 69
+    },
+    {
+      "stratum": "feature",
+      "number": 35825,
+      "title": "feat(docs): add documentation for usage of minio or other s3 compatible service as a cache backend or celery results backend",
+      "url": "https://github.com/apache/superset/pull/35825",
+      "created_at": "2025-10-24T07:14:36Z",
+      "merged_at": "2026-08-07T01:36:35Z",
+      "commits": [
+        {
+          "sha": "86fed00d33f386e74ff33bd8c1023cd1a06a70bc",
+          "url": "https://github.com/apache/superset/commit/86fed00d33f386e74ff33bd8c1023cd1a06a70bc",
+          "title": "feat(docs): add documentation for usage of minio or other s3 compatible service as a cache backend or celery results backend",
+          "committed_at": "2026-06-23T21:32:02Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "feature",
+      "number": 42940,
+      "title": "feat(build): reinstate `no-restricted-imports` lint rule for `lodash`",
+      "url": "https://github.com/apache/superset/pull/42940",
+      "created_at": "2026-08-09T16:46:18Z",
+      "merged_at": "2026-08-10T02:28:42Z",
+      "commits": [
+        {
+          "sha": "4862413fa2510dba24bac2ebfd1f00b1a21cda88",
+          "url": "https://github.com/apache/superset/commit/4862413fa2510dba24bac2ebfd1f00b1a21cda88",
+          "title": "feat(build): reinstate `no-restricted-imports` lint rule for `lodash`",
+          "committed_at": "2026-08-09T16:44:57Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 42476,
+      "title": "perf(charts): reuse datasource in query context",
+      "url": "https://github.com/apache/superset/pull/42476",
+      "created_at": "2026-07-27T11:38:28Z",
+      "merged_at": "2026-08-11T21:31:48Z",
+      "commits": [
+        {
+          "sha": "c2c2a0abf7007fed63769b7c89e21ffd902d0467",
+          "url": "https://github.com/apache/superset/commit/c2c2a0abf7007fed63769b7c89e21ffd902d0467",
+          "title": "perf(charts): reuse datasource in query context",
+          "committed_at": "2026-07-27T11:38:00Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 40635,
+      "title": "chore(i18n): update french po file to match latest pot file version",
+      "url": "https://github.com/apache/superset/pull/40635",
+      "created_at": "2026-06-01T23:52:18Z",
+      "merged_at": "2026-08-08T17:43:30Z",
+      "commits": [
+        {
+          "sha": "d810ab38189199970da3c1af3445e1923f9b8a0c",
+          "url": "https://github.com/apache/superset/commit/d810ab38189199970da3c1af3445e1923f9b8a0c",
+          "title": "chore(i18n): rebase French po file onto current master",
+          "committed_at": "2026-08-08T17:14:00Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 42943,
+      "title": "docs(mcp): add update_dashboard to write-tools enumeration",
+      "url": "https://github.com/apache/superset/pull/42943",
+      "created_at": "2026-08-09T23:35:11Z",
+      "merged_at": "2026-08-10T17:25:04Z",
+      "commits": [
+        {
+          "sha": "aec79c686a7741c0c650bc026b840a936ff1e273",
+          "url": "https://github.com/apache/superset/commit/aec79c686a7741c0c650bc026b840a936ff1e273",
+          "title": "docs(mcp): add update_dashboard to write-tools enumeration",
+          "committed_at": "2026-08-09T23:34:41Z",
+          "merge": false
+        }
+      ],
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    }
+  ]
+}

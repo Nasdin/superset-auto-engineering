@@ -153,7 +153,12 @@ class Store:
                 # Preserve exact spelling because durable deduplication keys are case-sensitive.
                 for job in connection.execute("SELECT dedup FROM jobs"):
                     parts = job["dedup"].split(":")
-                    if len(parts) >= 3 and parts[0] in {"issue", "scan", "validation"}:
+                    if len(parts) >= 3 and parts[0] in {
+                        "issue",
+                        "scan",
+                        "validation",
+                        "dependency",
+                    }:
                         if parts[1] != repository:
                             raise ValueError(
                                 "Ledger execution scope changed; use a separate database"
@@ -320,5 +325,15 @@ class Store:
                 dict(r)
                 for r in c.execute(
                     "SELECT key,state,url,error,updated FROM publications ORDER BY updated DESC LIMIT 100"
+                )
+            ]
+
+    def all_publications(self):
+        """Public delivery metadata only; never expose bodies, secrets or provider receipts."""
+        with self.connect() as c:
+            return [
+                dict(row)
+                for row in c.execute(
+                    "SELECT key,state,url,error,updated FROM publications ORDER BY updated DESC"
                 )
             ]

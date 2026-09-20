@@ -25,7 +25,7 @@ def category(pr):
     if re.search(r"\brevert\b|\brollback\b", title):
         return "revert"
     if (
-        "dependabot" in pr["author"].lower()
+        pr["author"].lower() == "dependabot[bot]"
         or any(
             label in {"dependencies", ".dependency", "dependabot"}
             or label.startswith("dependencies:")
@@ -42,6 +42,8 @@ def category(pr):
         "type:bug",
     }:
         return "fix"
+    if re.match(r"(feat|feature)(\b|\()", title) or labels & {"enhancement", "feature"}:
+        return "feature"
     return "other"
 
 

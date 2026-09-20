@@ -114,3 +114,7 @@ Work signals are reproducible title/label heuristics, ordered revert → depende
 For a host-only setup, load your ignored environment and run `python -m app.analytics.sync` from `backend/` alongside FastAPI. No analytics credential reaches the browser. Local history is ignored by Git; clean clones fetch public history rather than inheriting private run records.
 
 A real, public GitHub snapshot is committed at `backend/app/seeds/github-history.sqlite3`: 11,700 upstream PRs and 3 fork PRs fetched September 20, 2026; covered event dates start September 21, 2024. New installations initialize their analytics database from this snapshot and display its actual import time, then the read-only importer updates it. The snapshot contains only allowlisted public PR metadata and import status, with no tokens, PR bodies, private session data or automation jobs. It is never changed at runtime, and existing local history is never overwritten. This makes a fresh clone immediately useful without waiting for a full historical import.
+
+## Product story and Dependabot
+
+The [docs gallery](docs/README.md) contains the editable deck, slide images, repository/commit analysis, and [Dependabot workflow](docs/DEPENDABOT.md). The dashboard now has **Dependabot runs** and **PR evidence** pages. Evidence remains tied to an exact SHA and a fresh validation session; a human merges the PR.

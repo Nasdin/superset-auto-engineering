@@ -1,0 +1,327 @@
+{
+  "repository": "apache/superset",
+  "snapshot": {
+    "state": "ready",
+    "started_at": "2026-09-20T03:49:16.042240+00:00",
+    "pages": 117,
+    "error": null,
+    "complete": true,
+    "coverage_from": "2024-09-21",
+    "last_success": "2026-09-20T03:49:16.042240+00:00",
+    "finished_at": "2026-09-20T03:51:57.658091+00:00"
+  },
+  "rules": "Retrospective signals, precedence: revert/rollback title; exact Dependabot author or dependency title/labels; fix/bug title/labels; feat/feature title or feature/enhancement label; other. Dependabot provenance is also retained separately. Commits have no PR labels.",
+  "months": [
+    {
+      "start": "2026-06-01",
+      "end": "2026-06-30",
+      "merged": 767,
+      "sample_size": 767,
+      "excluded_invalid": 0,
+      "median_hours": 45.407222222222224,
+      "p75_hours": 265.8486111111111,
+      "partial_month": false,
+      "categories": {
+        "fix": 317,
+        "feature": 55,
+        "other": 104,
+        "dependency": 289,
+        "revert": 2
+      },
+      "dependabot_authored": 248
+    },
+    {
+      "start": "2026-07-01",
+      "end": "2026-07-31",
+      "merged": 854,
+      "sample_size": 854,
+      "excluded_invalid": 0,
+      "median_hours": 21.764583333333334,
+      "p75_hours": 201.75666666666666,
+      "partial_month": false,
+      "categories": {
+        "feature": 122,
+        "fix": 331,
+        "other": 119,
+        "dependency": 281,
+        "revert": 1
+      },
+      "dependabot_authored": 251
+    },
+    {
+      "start": "2026-08-01",
+      "end": "2026-08-31",
+      "merged": 772,
+      "sample_size": 772,
+      "excluded_invalid": 0,
+      "median_hours": 22.503888888888888,
+      "p75_hours": 143.36138888888888,
+      "partial_month": false,
+      "categories": {
+        "other": 81,
+        "feature": 74,
+        "fix": 315,
+        "dependency": 301,
+        "revert": 1
+      },
+      "dependabot_authored": 267
+    },
+    {
+      "start": "2026-09-01",
+      "end": "2026-09-19",
+      "merged": 528,
+      "sample_size": 528,
+      "excluded_invalid": 0,
+      "median_hours": 27.80638888888889,
+      "p75_hours": 141.51833333333335,
+      "partial_month": true,
+      "categories": {
+        "feature": 37,
+        "fix": 250,
+        "other": 60,
+        "dependency": 181
+      },
+      "dependabot_authored": 160
+    }
+  ],
+  "commit_sample": {
+    "n": 120,
+    "head_sha": "4511c1381930ec53cd74c1e25c3ad4397768e2b4",
+    "categories": {
+      "dependency": 41,
+      "fix": 59,
+      "other": 12,
+      "feature": 8
+    },
+    "dependabot_authored": 39,
+    "merge_commits": 0
+  },
+  "comparison": {
+    "all": {
+      "recent": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged": 806,
+        "sample_size": 806,
+        "excluded_invalid": 0,
+        "median_hours": 25.283194444444447,
+        "p75_hours": 137.99805555555557
+      },
+      "six_months_earlier": {
+        "start": "2026-02-18",
+        "end": "2026-03-19",
+        "merged": 333,
+        "sample_size": 333,
+        "excluded_invalid": 0,
+        "median_hours": 25.322222222222223,
+        "p75_hours": 163.53027777777777
+      }
+    },
+    "dependency": {
+      "recent": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged": 274,
+        "sample_size": 274,
+        "excluded_invalid": 0,
+        "median_hours": 7.526388888888889,
+        "p75_hours": 12.865555555555556
+      },
+      "six_months_earlier": {
+        "start": "2026-02-18",
+        "end": "2026-03-19",
+        "merged": 121,
+        "sample_size": 121,
+        "excluded_invalid": 0,
+        "median_hours": 11.743611111111111,
+        "p75_hours": 31.31277777777778
+      }
+    },
+    "fix": {
+      "recent": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged": 371,
+        "sample_size": 371,
+        "excluded_invalid": 0,
+        "median_hours": 78.30388888888889,
+        "p75_hours": 218.05166666666668
+      },
+      "six_months_earlier": {
+        "start": "2026-02-18",
+        "end": "2026-03-19",
+        "merged": 140,
+        "sample_size": 140,
+        "excluded_invalid": 0,
+        "median_hours": 69.30291666666668,
+        "p75_hours": 236.91583333333332
+      }
+    },
+    "feature": {
+      "recent": {
+        "start": "2026-08-21",
+        "end": "2026-09-19",
+        "merged": 73,
+        "sample_size": 73,
+        "excluded_invalid": 0,
+        "median_hours": 98.31222222222222,
+        "p75_hours": 371.22555555555556
+      },
+      "six_months_earlier": {
+        "start": "2026-02-18",
+        "end": "2026-03-19",
+        "merged": 41,
+        "sample_size": 41,
+        "excluded_invalid": 0,
+        "median_hours": 151.72055555555556,
+        "p75_hours": 392.6347222222222
+      }
+    }
+  },
+  "pr_sample": [
+    {
+      "stratum": "dependabot",
+      "number": 42777,
+      "title": "chore(deps): bump selenium from 4.45.0 to 4.46.0",
+      "url": "https://github.com/apache/superset/pull/42777",
+      "created_at": "2026-08-05T03:11:06Z",
+      "merged_at": "2026-08-05T06:33:38Z",
+      "possibly_truncated": false,
+      "retained_commits": 2,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "dependabot",
+      "number": 42680,
+      "title": "chore(deps): bump the storybook group in /docs with 2 updates",
+      "url": "https://github.com/apache/superset/pull/42680",
+      "created_at": "2026-08-03T07:04:29Z",
+      "merged_at": "2026-08-03T14:44:37Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "dependabot",
+      "number": 43106,
+      "title": "chore(deps-dev): bump tsx from 4.23.7 to 4.23.9 in /superset-frontend",
+      "url": "https://github.com/apache/superset/pull/43106",
+      "created_at": "2026-08-13T07:12:01Z",
+      "merged_at": "2026-08-13T09:33:14Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "fix",
+      "number": 42596,
+      "title": "fix(filters): sort numeric filter values numerically, not lexicographically (#36775)",
+      "url": "https://github.com/apache/superset/pull/42596",
+      "created_at": "2026-07-30T00:56:01Z",
+      "merged_at": "2026-08-05T06:06:40Z",
+      "possibly_truncated": false,
+      "retained_commits": 4,
+      "committed_after_open": 4,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "fix",
+      "number": 41589,
+      "title": "fix(calendar): clean up d3-tip tooltips",
+      "url": "https://github.com/apache/superset/pull/41589",
+      "created_at": "2026-06-30T19:25:42Z",
+      "merged_at": "2026-08-10T19:28:07Z",
+      "possibly_truncated": false,
+      "retained_commits": 18,
+      "committed_after_open": 18,
+      "merge_commits": 10
+    },
+    {
+      "stratum": "fix",
+      "number": 42920,
+      "title": "fix(import): isolate per-tag import in a SAVEPOINT to avoid poisoned session (#42912)",
+      "url": "https://github.com/apache/superset/pull/42920",
+      "created_at": "2026-08-08T20:59:07Z",
+      "merged_at": "2026-08-15T04:56:44Z",
+      "possibly_truncated": false,
+      "retained_commits": 4,
+      "committed_after_open": 2,
+      "merge_commits": 1
+    },
+    {
+      "stratum": "feature",
+      "number": 42053,
+      "title": "feat: Color Picker replaces the color selection drop-down list in conditional formatting",
+      "url": "https://github.com/apache/superset/pull/42053",
+      "created_at": "2026-07-14T21:24:43Z",
+      "merged_at": "2026-08-07T23:00:56Z",
+      "possibly_truncated": true,
+      "retained_commits": 100,
+      "committed_after_open": 29,
+      "merge_commits": 69
+    },
+    {
+      "stratum": "feature",
+      "number": 35825,
+      "title": "feat(docs): add documentation for usage of minio or other s3 compatible service as a cache backend or celery results backend",
+      "url": "https://github.com/apache/superset/pull/35825",
+      "created_at": "2025-10-24T07:14:36Z",
+      "merged_at": "2026-08-07T01:36:35Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "feature",
+      "number": 42940,
+      "title": "feat(build): reinstate `no-restricted-imports` lint rule for `lodash`",
+      "url": "https://github.com/apache/superset/pull/42940",
+      "created_at": "2026-08-09T16:46:18Z",
+      "merged_at": "2026-08-10T02:28:42Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 42476,
+      "title": "perf(charts): reuse datasource in query context",
+      "url": "https://github.com/apache/superset/pull/42476",
+      "created_at": "2026-07-27T11:38:28Z",
+      "merged_at": "2026-08-11T21:31:48Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 40635,
+      "title": "chore(i18n): update french po file to match latest pot file version",
+      "url": "https://github.com/apache/superset/pull/40635",
+      "created_at": "2026-06-01T23:52:18Z",
+      "merged_at": "2026-08-08T17:43:30Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 1,
+      "merge_commits": 0
+    },
+    {
+      "stratum": "other",
+      "number": 42943,
+      "title": "docs(mcp): add update_dashboard to write-tools enumeration",
+      "url": "https://github.com/apache/superset/pull/42943",
+      "created_at": "2026-08-09T23:35:11Z",
+      "merged_at": "2026-08-10T17:25:04Z",
+      "possibly_truncated": false,
+      "retained_commits": 1,
+      "committed_after_open": 0,
+      "merge_commits": 0
+    }
+  ]
+}

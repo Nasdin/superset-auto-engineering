@@ -1,0 +1,17 @@
+# Bounded take-home rollout, installed in Nasdin/superset's default branch.
+# GitHub reads this configuration from master, but PRs target the release branch.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    target-branch: cognition-release-6.1
+    schedule:
+      interval: weekly
+      day: sunday
+    open-pull-requests-limit: 1
+    versioning-strategy: increase
+    allow:
+      - dependency-name: PyJWT
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']

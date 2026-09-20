@@ -4,6 +4,7 @@ import logging
 import time
 
 from .config import Settings
+from .dependencies import DependencyService
 from .runtime import create_runtime
 
 
@@ -20,6 +21,7 @@ def cycle(engine):
     if time.time() - db.recall("last_issue_poll", {}).get("at", 0) >= 60:
         tasks += [
             ("github_events", engine.poll_issues),
+            ("dependabot", DependencyService(s, db, engine.providers).poll),
             ("freshness", engine.refresh_readiness),
         ]
     if s.scan_interval > 0 and time.time() - db.recall("last_schedule_tick", 0) >= 60:

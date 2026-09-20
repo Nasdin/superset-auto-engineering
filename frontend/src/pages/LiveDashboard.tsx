@@ -61,7 +61,13 @@ function exportData(data: Overview) {
   a.click();
   URL.revokeObjectURL(url);
 }
-function JobDetail({ job, repository }: { job: Job; repository: string }) {
+export function JobDetail({
+  job,
+  repository,
+}: {
+  job: Job;
+  repository: string;
+}) {
   return (
     <section className="panel live-detail">
       <div className="panel-heading">

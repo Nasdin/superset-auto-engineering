@@ -288,6 +288,7 @@ export function RepositoryAnalytics() {
               <option value="">All work</option>
               <option value="fix">Fix / bug labels</option>
               <option value="dependency">Dependencies / Dependabot</option>
+              <option value="feature">Feature / enhancement signals</option>
               <option value="revert">Revert / rollback title</option>
               <option value="other">Other</option>
             </select>
@@ -299,7 +300,7 @@ export function RepositoryAnalytics() {
               onChange={(e) => change("provenance", e.target.value)}
             >
               <option value="all">All PRs</option>
-              <option value="tracked">Tracked Devin repairs</option>
+              <option value="tracked">Tracked Devin work</option>
               <option value="untracked">Not tracked by this system</option>
             </select>
           </label>
@@ -475,9 +476,9 @@ export function RepositoryAnalytics() {
                 </p>
                 <p>
                   Work signals use current titles and labels: revert first, then
-                  dependency, fix, other. These are retrospective heuristics,
-                  not measured labor allocation. Follow-up commits and review
-                  effort are not measured in this view.
+                  dependency, fix, feature, other. These are retrospective
+                  heuristics, not measured labor allocation. Follow-up commits
+                  and review effort are not measured in this view.
                 </p>
                 <p>
                   Coverage begins{" "}

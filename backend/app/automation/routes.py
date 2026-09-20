@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from .config import Settings
+from .dependencies import DependencyService
 from .engine import Engine
 from .providers import ProviderError
 
@@ -36,6 +37,7 @@ def overview(eng: Engine = Depends(get_engine)):
         "enabled": settings.enabled,
         "repository": settings.repo,
         "branch": settings.branch,
+        "dependabot_enabled": settings.dependabot_enabled,
         "connections": {
             "devin": bool(settings.devin_key),
             "github": bool(settings.github_token),
@@ -91,11 +93,21 @@ class WebhookIssue(BaseModel):
     labels: list[WebhookLabel] = Field(default_factory=list)
 
 
+class WebhookHead(BaseModel):
+    sha: str = Field(pattern=r"^[a-f0-9]{40}$")
+
+
+class WebhookPullRequest(BaseModel):
+    number: int = Field(gt=0)
+    head: WebhookHead
+
+
 class WebhookEnvelope(BaseModel):
     repository: WebhookRepository
     sender: WebhookSender
     action: str = ""
     issue: WebhookIssue | None = None
+    pull_request: WebhookPullRequest | None = None
 
 
 @router.post("/webhooks/github")
@@ -127,6 +139,22 @@ async def github_event(
         raise HTTPException(422, "Invalid webhook payload") from None
     if payload.repository.full_name.lower() != settings.repo.lower():
         raise HTTPException(403, "Repository not allowed")
+    if x_github_event == "pull_request":
+        if payload.action not in {"opened", "reopened", "ready_for_review", "synchronize"}:
+            return {"status": "ignored"}
+        if payload.pull_request is None:
+            raise HTTPException(422, "Pull request is required")
+        try:
+            return await run_in_threadpool(
+                DependencyService(settings, eng.store, eng.providers).webhook,
+                payload.pull_request.number,
+                x_github_delivery,
+                payload.pull_request.head.sha,
+            )
+        except ValueError as error:
+            return {"status": "ignored", "reason": str(error)}
+        except ProviderError as error:
+            raise HTTPException(502, str(error)) from None
     if payload.sender.login.lower() != settings.allowed_actor.lower():
         raise HTTPException(403, "Actor not allowed")
     if x_github_event != "issues" or payload.action not in [
@@ -185,3 +213,49 @@ def resume_integration(job_id: str, eng: Engine = Depends(get_engine)):
     eng.store.update(job_id, state="queued", lease_until=0, error=None)
     eng.store.audit(job_id, "operator_requested_integration_readback", {})
     return {"status": "queued_for_github_reconciliation"}
+
+
+@router.get("/pull-requests")
+def pull_requests(
+    request: Request,
+    kind: str = "",
+    bot_only: bool = False,
+    search: str = "",
+    offset: int = 0,
+    eng: Engine = Depends(get_engine),
+):
+    from .workbench import pull_request_rows
+
+    if kind not in {"", "dependency", "fix", "feature", "revert", "other"} or offset < 0:
+        raise HTTPException(422, "Invalid work filter or offset")
+    history = request.app.state.analytics
+    jobs = eng.store.operational_jobs()
+    rows = pull_request_rows(history.pulls(eng.settings.repo), jobs, eng.store.all_publications())
+    filtered = [
+        row
+        for row in rows
+        if (not kind or row["category"] == kind)
+        and (not bot_only or row["dependabot"])
+        and search.lower() in f"{row['number']} {row['title']} {row['author']}".lower()
+    ]
+    return {
+        "repository": eng.settings.repo,
+        "branch": eng.settings.branch,
+        "enabled": eng.settings.enabled and eng.settings.dependabot_enabled,
+        "queue_holds": [
+            {
+                "id": job["id"],
+                "state": job["state"],
+                "error": job["error"],
+                "pr_number": job["pr_number"],
+            }
+            for job in jobs
+            if job["state"] in {"needs_attention", "unknown_effect"}
+        ],
+        "sync": history.status(eng.settings.repo),
+        "poll": eng.store.recall("dependabot_poll", {}),
+        "total": len(filtered),
+        "rows": filtered[offset : offset + 50],
+        "offset": offset,
+        "limit": 50,
+    }

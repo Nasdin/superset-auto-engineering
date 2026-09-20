@@ -1643,3 +1643,69 @@ td small {
     padding: 0 15px 15px;
   }
 }
+
+/* The PR review trail uses the same panels and evidence details as release validation. */
+.workbench-note {
+  padding: 0 24px;
+  line-height: 1.6;
+}
+.workbench-pager {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 20px 24px;
+}
+.workbench-detail-heading {
+  margin-top: 32px;
+}
+.text-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #282d2a;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.text-button:hover {
+  text-decoration: underline;
+}
+.table-wrap td small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.workbench-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 0 24px 16px;
+}
+.workbench-filters label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 180px;
+}
+.workbench-filters input,
+.workbench-filters select {
+  font: inherit;
+  font-weight: 400;
+  color: #282d2a;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-height: 38px;
+  padding: 8px 12px;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .workbench-filters label {
+    width: 100%;
+    min-width: 0;
+  }
+}

@@ -14,6 +14,7 @@ export type Job = {
   parent_id: string | null;
   payload: {
     title?: string;
+    work_type?: string;
     issue_number?: number;
     source?: string;
     members?: { job_id: string; pr_number: number; sha: string }[];

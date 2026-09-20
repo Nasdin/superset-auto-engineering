@@ -16,12 +16,30 @@ class ValidationService:
         self.outbox = PublicationOutbox(settings, store, providers)
         self.reports = ReleaseReportBuilder()
 
-    def finish_validation(self, job, result):
+    def is_current(self, job):
         pr = self.providers.pr(job["pr_number"])
-        if pr["state"] != "open" or pr["head"]["sha"] != job["candidate_sha"]:
+        eligible = (
+            pr["state"] == "open"
+            and pr["base"]["repo"]["full_name"].lower() == self.settings.repo.lower()
+            and pr["base"]["ref"] == self.settings.branch
+        )
+        if job["payload"].get("work_type") == "dependency":
+            from .dependencies import eligible_pr
+
+            try:
+                eligible_pr(self.settings, pr)
+                eligible = eligible and pr["head"]["ref"] == job["payload"]["head_ref"]
+            except ValueError:
+                eligible = False
+        if not eligible or pr["head"]["sha"] != job["candidate_sha"]:
             self.store.supersede_validation(
-                job, pr["head"]["sha"] if pr["state"] == "open" else None, self.settings.repo
+                job, pr["head"]["sha"] if eligible else None, self.settings.repo
             )
+            return False
+        return True
+
+    def finish_validation(self, job, result):
+        if not self.is_current(job):
             return
         implementation_ids = job["payload"].get("implementation_jobs", [job["parent_id"]])
         implementations = [self.store.get(jid) for jid in implementation_ids]
@@ -44,7 +62,9 @@ class ValidationService:
             "gate": status,
         }
         report = self.reports.build(job, result, status)
-        targets = [job["pr_number"], job["payload"]["issue_number"]]
+        targets = [job["pr_number"]]
+        if job["payload"].get("issue_number"):
+            targets.append(job["payload"]["issue_number"])
         for member in job["payload"].get("members", []):
             targets += [member["pr_number"], member["issue_number"]]
         for number in dict.fromkeys(targets):
@@ -77,8 +97,4 @@ class ValidationService:
         for job in self.store.operational_jobs():
             if job["state"] != "review_ready":
                 continue
-            pr = self.providers.pr(job["pr_number"])
-            if pr["state"] != "open" or pr["head"]["sha"] != job["candidate_sha"]:
-                self.store.supersede_validation(
-                    job, pr["head"]["sha"] if pr["state"] == "open" else None, self.settings.repo
-                )
+            self.is_current(job)

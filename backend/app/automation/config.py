@@ -25,6 +25,7 @@ class Settings:
     poll_seconds: int = 30
     scan_interval: int = 86400
     batch_seconds: int = 60
+    dependabot_enabled: bool = True
     enabled: bool = False
     artifacts: Path = Path("data/artifacts")
 
@@ -69,6 +70,8 @@ class Settings:
             values["scan_interval"] = int(env["SCAN_INTERVAL_SECONDS"])
         if "BATCH_WINDOW_SECONDS" in env:
             values["batch_seconds"] = int(env["BATCH_WINDOW_SECONDS"])
+        if "DEPENDABOT_ENABLED" in env:
+            values["dependabot_enabled"] = env["DEPENDABOT_ENABLED"].lower() == "true"
         if "AUTOMATION_ENABLED" in env:
             values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
         if "ARTIFACT_DIR" in env:

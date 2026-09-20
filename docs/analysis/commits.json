@@ -1,0 +1,1448 @@
+{
+  "repository": "apache/superset",
+  "captured_at": "2026-09-20T04:15:45.897606+00:00",
+  "head_sha": "4511c1381930ec53cd74c1e25c3ad4397768e2b4",
+  "method": "First 120 records in GitHub commits API order, pinned SHA; includes merge commits; exploratory sample, not all commits in a calendar period.",
+  "commits": [
+    {
+      "sha": "4511c1381930ec53cd74c1e25c3ad4397768e2b4",
+      "url": "https://github.com/apache/superset/commit/4511c1381930ec53cd74c1e25c3ad4397768e2b4",
+      "title": "chore(deps-dev): bump psycopg2-binary from 2.9.12 to 2.9.13 (#44444)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-20T03:15:59Z",
+      "parents": [
+        "db556ec66eb9c354ea6c33b8df8c1161f49a7d9a"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "db556ec66eb9c354ea6c33b8df8c1161f49a7d9a",
+      "url": "https://github.com/apache/superset/commit/db556ec66eb9c354ea6c33b8df8c1161f49a7d9a",
+      "title": "chore(deps): bump pyjwt from 2.13.0 to 2.14.0 (#44442)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-20T01:30:25Z",
+      "parents": [
+        "253eef33d5d16a999b0acc95ab39218d3f8cb573"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "253eef33d5d16a999b0acc95ab39218d3f8cb573",
+      "url": "https://github.com/apache/superset/commit/253eef33d5d16a999b0acc95ab39218d3f8cb573",
+      "title": "fix(databricks): prefer python-connector spec over legacy Hive spec for unrecognized drivers (#44449)",
+      "author": "eschutho",
+      "date": "2026-09-19T23:44:03Z",
+      "parents": [
+        "f170d2670e55858c48c16902a0122022947431a7"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "f170d2670e55858c48c16902a0122022947431a7",
+      "url": "https://github.com/apache/superset/commit/f170d2670e55858c48c16902a0122022947431a7",
+      "title": "chore(deps): bump baseline-browser-mapping from 2.11.21 to 2.11.22 in /docs (#44418)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-19T22:16:22Z",
+      "parents": [
+        "43fee87672297d2217ad297b1e80042a4358074b"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "43fee87672297d2217ad297b1e80042a4358074b",
+      "url": "https://github.com/apache/superset/commit/43fee87672297d2217ad297b1e80042a4358074b",
+      "title": "test(versioning): mock the restore locking re-read in the #44253 LookupError tests (fixes red master) (#44445)",
+      "author": "mikebridge",
+      "date": "2026-09-19T13:48:46Z",
+      "parents": [
+        "128c0c159ab8a1157e1f0688b43ba16b0c034889"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "128c0c159ab8a1157e1f0688b43ba16b0c034889",
+      "url": "https://github.com/apache/superset/commit/128c0c159ab8a1157e1f0688b43ba16b0c034889",
+      "title": "fix(mcp): rebuild full parent chains in dashboard layouts (#44405)",
+      "author": "aminghadersohi",
+      "date": "2026-09-19T00:51:00Z",
+      "parents": [
+        "5ecb19cf92ae8dedbf5b33ec92324cc77c4ee10e"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "5ecb19cf92ae8dedbf5b33ec92324cc77c4ee10e",
+      "url": "https://github.com/apache/superset/commit/5ecb19cf92ae8dedbf5b33ec92324cc77c4ee10e",
+      "title": "fix(mcp): pre-validate metric/dimension compatibility in semantic-view get_table (#44265)",
+      "author": "mikebridge",
+      "date": "2026-09-18T22:35:47Z",
+      "parents": [
+        "2e1cf8a72c46f888b8f2c046ccce2e9e21156ee8"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "2e1cf8a72c46f888b8f2c046ccce2e9e21156ee8",
+      "url": "https://github.com/apache/superset/commit/2e1cf8a72c46f888b8f2c046ccce2e9e21156ee8",
+      "title": "fix(versioning): map the restore registry guard's LookupError to 422 instead of 500 (#44253)",
+      "author": "mikebridge",
+      "date": "2026-09-18T21:50:40Z",
+      "parents": [
+        "062bf948e59849397fe12ea9b03d255c1002eda3"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "062bf948e59849397fe12ea9b03d255c1002eda3",
+      "url": "https://github.com/apache/superset/commit/062bf948e59849397fe12ea9b03d255c1002eda3",
+      "title": "fix(semantic-layer): preserve independent source permissions (#43887)",
+      "author": "mikebridge",
+      "date": "2026-09-18T20:34:59Z",
+      "parents": [
+        "43f85576d99380bb7f7e4180041850a45b26c6e4"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "43f85576d99380bb7f7e4180041850a45b26c6e4",
+      "url": "https://github.com/apache/superset/commit/43f85576d99380bb7f7e4180041850a45b26c6e4",
+      "title": "fix(semantic-layer): mapper honors the SemanticView ABC contract (#43886)",
+      "author": "mikebridge",
+      "date": "2026-09-18T19:35:53Z",
+      "parents": [
+        "9d4db452551a65a57e353fc98bce270dd201be95"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "9d4db452551a65a57e353fc98bce270dd201be95",
+      "url": "https://github.com/apache/superset/commit/9d4db452551a65a57e353fc98bce270dd201be95",
+      "title": "fix(charts): allow saving charts on semantic views (create/update rejected non-table datasource types) (#44416)",
+      "author": "mikebridge",
+      "date": "2026-09-18T19:32:28Z",
+      "parents": [
+        "ae5d8d89a3812be752c839da83fd39864fe8aa54"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "ae5d8d89a3812be752c839da83fd39864fe8aa54",
+      "url": "https://github.com/apache/superset/commit/ae5d8d89a3812be752c839da83fd39864fe8aa54",
+      "title": "fix(datasets): return 400, not 500, for a body-less purge POST; point the database-delete refusal at the purge flow (#44264)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:16:38Z",
+      "parents": [
+        "627f32ca6256d473138370bd6fcaac69108fd83c"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "627f32ca6256d473138370bd6fcaac69108fd83c",
+      "url": "https://github.com/apache/superset/commit/627f32ca6256d473138370bd6fcaac69108fd83c",
+      "title": "fix(versioning): mount the dashboard version-history panel inside the content area, below the header (#44255)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:15:59Z",
+      "parents": [
+        "8947d3b3763528bc0858f5fa015b4469d0b322cb"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "8947d3b3763528bc0858f5fa015b4469d0b322cb",
+      "url": "https://github.com/apache/superset/commit/8947d3b3763528bc0858f5fa015b4469d0b322cb",
+      "title": "fix(semantic-layers): mask nested and union secrets in layer configuration (#43827)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:14:17Z",
+      "parents": [
+        "e4bbd3973a207ba61f84b5c0591f5231b9fd34b7"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "e4bbd3973a207ba61f84b5c0591f5231b9fd34b7",
+      "url": "https://github.com/apache/superset/commit/e4bbd3973a207ba61f84b5c0591f5231b9fd34b7",
+      "title": "fix(charts): type-aware datasource access parity for the chart list (#43848)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:13:42Z",
+      "parents": [
+        "4bb51d7669421369bc99e3923f6f0a4d1f8589d1"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "4bb51d7669421369bc99e3923f6f0a4d1f8589d1",
+      "url": "https://github.com/apache/superset/commit/4bb51d7669421369bc99e3923f6f0a4d1f8589d1",
+      "title": "test(mcp): pin distinct cache keys for semantic-view get_table across time ranges (#44263)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:13:15Z",
+      "parents": [
+        "b7f1bdd571cd37040dd0367619f1a8ce4d1d2637"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "b7f1bdd571cd37040dd0367619f1a8ce4d1d2637",
+      "url": "https://github.com/apache/superset/commit/b7f1bdd571cd37040dd0367619f1a8ce4d1d2637",
+      "title": "fix(mcp): keep the default list_metrics page under the response-token cap (#44266)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:12:26Z",
+      "parents": [
+        "0599cc2516b47ea3499f407f7e419ce0b29a3e11"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "0599cc2516b47ea3499f407f7e419ce0b29a3e11",
+      "url": "https://github.com/apache/superset/commit/0599cc2516b47ea3499f407f7e419ce0b29a3e11",
+      "title": "fix(mcp): accept a time grain in get_table on semantic views (#44270)",
+      "author": "mikebridge",
+      "date": "2026-09-18T18:11:37Z",
+      "parents": [
+        "16090803bbcc74699e73583d8fb7ef720c362ad2"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "16090803bbcc74699e73583d8fb7ef720c362ad2",
+      "url": "https://github.com/apache/superset/commit/16090803bbcc74699e73583d8fb7ef720c362ad2",
+      "title": "chore(deps): bump @googleapis/sheets from 14.0.0 to 17.0.0 in /superset-frontend (#44420)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-18T18:01:05Z",
+      "parents": [
+        "79af673bca50b4bbcb7882fe131b305abd952be0"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "79af673bca50b4bbcb7882fe131b305abd952be0",
+      "url": "https://github.com/apache/superset/commit/79af673bca50b4bbcb7882fe131b305abd952be0",
+      "title": "chore(deps-dev): bump webpack-bundle-analyzer from 5.3.2 to 5.3.3 in /superset-frontend (#44422)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-18T17:23:27Z",
+      "parents": [
+        "282bcb0edd845a31aa4010cc412886312ab3453c"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "282bcb0edd845a31aa4010cc412886312ab3453c",
+      "url": "https://github.com/apache/superset/commit/282bcb0edd845a31aa4010cc412886312ab3453c",
+      "title": "chore(deps-dev): bump baseline-browser-mapping from 2.11.21 to 2.11.22 in /superset-frontend (#44421)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-18T17:23:16Z",
+      "parents": [
+        "4f1a34446df8450fb157bbc44b60ddb985cfccf1"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "4f1a34446df8450fb157bbc44b60ddb985cfccf1",
+      "url": "https://github.com/apache/superset/commit/4f1a34446df8450fb157bbc44b60ddb985cfccf1",
+      "title": "chore(deps): bump zod from 4.6.1 to 4.6.2 in /superset-frontend (#44419)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-18T17:22:53Z",
+      "parents": [
+        "9bb5a95976a856f92792d3e933a8f5839a21345b"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "9bb5a95976a856f92792d3e933a8f5839a21345b",
+      "url": "https://github.com/apache/superset/commit/9bb5a95976a856f92792d3e933a8f5839a21345b",
+      "title": "chore(deps-dev): bump the babel group in /superset-embedded-sdk with 3 updates (#44417)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-18T17:21:01Z",
+      "parents": [
+        "b8f5b20928523b514c1a50683bd625b42001d4aa"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "b8f5b20928523b514c1a50683bd625b42001d4aa",
+      "url": "https://github.com/apache/superset/commit/b8f5b20928523b514c1a50683bd625b42001d4aa",
+      "title": "test(frontend): await userEvent calls missed by the user-event v14 migration (#44335)",
+      "author": "SEPURI-SAI-KRISHNA",
+      "date": "2026-09-18T16:54:57Z",
+      "parents": [
+        "b5ad396416565c0bbb270ca12bd07bd8460fc41a"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "b5ad396416565c0bbb270ca12bd07bd8460fc41a",
+      "url": "https://github.com/apache/superset/commit/b5ad396416565c0bbb270ca12bd07bd8460fc41a",
+      "title": "fix(query): resolve sub-day \"Last <unit>\" time_range shorthand (#44254)",
+      "author": "sadpandajoe",
+      "date": "2026-09-18T16:17:21Z",
+      "parents": [
+        "a7dab4a5519cfc1cbfd2e2e1c83622cc1110ccde"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "a7dab4a5519cfc1cbfd2e2e1c83622cc1110ccde",
+      "url": "https://github.com/apache/superset/commit/a7dab4a5519cfc1cbfd2e2e1c83622cc1110ccde",
+      "title": "fix(presto): require PyHive 0.7 for SQLAlchemy 2 (#44285)",
+      "author": "aminghadersohi",
+      "date": "2026-09-18T10:23:47Z",
+      "parents": [
+        "bd786e2bea2171d517d612babed8ca6a52c97401"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "bd786e2bea2171d517d612babed8ca6a52c97401",
+      "url": "https://github.com/apache/superset/commit/bd786e2bea2171d517d612babed8ca6a52c97401",
+      "title": "feat(versioning): render the starting version as the oldest history row for charts and dashboards (#44258)",
+      "author": "mikebridge",
+      "date": "2026-09-18T05:57:27Z",
+      "parents": [
+        "394bca55c792b7b3547e23f6e175a7cb0f0757e8"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "394bca55c792b7b3547e23f6e175a7cb0f0757e8",
+      "url": "https://github.com/apache/superset/commit/394bca55c792b7b3547e23f6e175a7cb0f0757e8",
+      "title": "fix(mcp): preserve dashboard filter values for restricted users (#44107)",
+      "author": "aminghadersohi",
+      "date": "2026-09-18T02:26:09Z",
+      "parents": [
+        "fc80a14850e69b09795c3771e9621eba79b9a070"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "fc80a14850e69b09795c3771e9621eba79b9a070",
+      "url": "https://github.com/apache/superset/commit/fc80a14850e69b09795c3771e9621eba79b9a070",
+      "title": "feat(mcp): apply native dashboard filters from an MCP client (#44096)",
+      "author": "aminghadersohi",
+      "date": "2026-09-18T02:24:57Z",
+      "parents": [
+        "560828d620ad707c7185c2e7cc64b82febc36f1a"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "560828d620ad707c7185c2e7cc64b82febc36f1a",
+      "url": "https://github.com/apache/superset/commit/560828d620ad707c7185c2e7cc64b82febc36f1a",
+      "title": "fix(dashboard): resolve display-control and drill datasources by type, not id alone (#42539)",
+      "author": "mikebridge",
+      "date": "2026-09-18T00:45:50Z",
+      "parents": [
+        "20d7a3e9aeade64893e18d79d4ea1b33ed539727"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "20d7a3e9aeade64893e18d79d4ea1b33ed539727",
+      "url": "https://github.com/apache/superset/commit/20d7a3e9aeade64893e18d79d4ea1b33ed539727",
+      "title": "fix(table): preserve semantic temporal column references (#44369)",
+      "author": "mikebridge",
+      "date": "2026-09-18T00:45:33Z",
+      "parents": [
+        "944e92dd5786d34ccd7c5c699bdb605f88fcefd6"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "944e92dd5786d34ccd7c5c699bdb605f88fcefd6",
+      "url": "https://github.com/apache/superset/commit/944e92dd5786d34ccd7c5c699bdb605f88fcefd6",
+      "title": "feat(soft-delete): translate unique collisions with soft-deleted rows into restore guidance (#44184)",
+      "author": "mikebridge",
+      "date": "2026-09-18T00:45:15Z",
+      "parents": [
+        "f1dc56607e200c3107121dee8c03746951164427"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "f1dc56607e200c3107121dee8c03746951164427",
+      "url": "https://github.com/apache/superset/commit/f1dc56607e200c3107121dee8c03746951164427",
+      "title": "fix(i18n): make module-level error constants lazy gettext (#44180)",
+      "author": "mikebridge",
+      "date": "2026-09-18T00:45:05Z",
+      "parents": [
+        "22ae4405d4eb033a3c477e898c6431cb6b488dca"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "22ae4405d4eb033a3c477e898c6431cb6b488dca",
+      "url": "https://github.com/apache/superset/commit/22ae4405d4eb033a3c477e898c6431cb6b488dca",
+      "title": "fix(explore): anchor the add column/metric/filter popovers to their trigger (#44274)",
+      "author": "mikebridge",
+      "date": "2026-09-17T22:06:02Z",
+      "parents": [
+        "795cdf2bf156edcf840ce0391853a110b64c147f"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "795cdf2bf156edcf840ce0391853a110b64c147f",
+      "url": "https://github.com/apache/superset/commit/795cdf2bf156edcf840ce0391853a110b64c147f",
+      "title": "fix(mcp): include semantic views in get_dashboard_datasets (#44269)",
+      "author": "mikebridge",
+      "date": "2026-09-17T22:05:40Z",
+      "parents": [
+        "30e5745cd7493adafe5bb468ea31f560e06bd422"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "30e5745cd7493adafe5bb468ea31f560e06bd422",
+      "url": "https://github.com/apache/superset/commit/30e5745cd7493adafe5bb468ea31f560e06bd422",
+      "title": "fix(mcp): return a structured Unsupported marker for semantic-view get_chart_sql (#44267)",
+      "author": "mikebridge",
+      "date": "2026-09-17T22:05:16Z",
+      "parents": [
+        "da1cac85f4d5cf63aa56e1e0bb187ca78f1e5611"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "da1cac85f4d5cf63aa56e1e0bb187ca78f1e5611",
+      "url": "https://github.com/apache/superset/commit/da1cac85f4d5cf63aa56e1e0bb187ca78f1e5611",
+      "title": "fix(versioning): refuse a version restore whose child history was pruned (sc-120012) (#44251)",
+      "author": "mikebridge",
+      "date": "2026-09-17T22:04:45Z",
+      "parents": [
+        "3abc3588fab09aef66dfa1138d8ab1e93ede8ad5"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "3abc3588fab09aef66dfa1138d8ab1e93ede8ad5",
+      "url": "https://github.com/apache/superset/commit/3abc3588fab09aef66dfa1138d8ab1e93ede8ad5",
+      "title": "fix(sqla): guard unprotected Jinja template rendering in ExploreMixin (#44172)",
+      "author": "eschutho",
+      "date": "2026-09-17T22:02:59Z",
+      "parents": [
+        "6b80fa7ec29cc3961b8a4eab4c2570d21126e191"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "6b80fa7ec29cc3961b8a4eab4c2570d21126e191",
+      "url": "https://github.com/apache/superset/commit/6b80fa7ec29cc3961b8a4eab4c2570d21126e191",
+      "title": "fix(mypy): narrow chart.uuid before RestoreChartVersionCommand in restore tests (#44394)",
+      "author": "sadpandajoe",
+      "date": "2026-09-17T21:51:59Z",
+      "parents": [
+        "678bfae88599a0b24b80b9482055045eb2565523"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "678bfae88599a0b24b80b9482055045eb2565523",
+      "url": "https://github.com/apache/superset/commit/678bfae88599a0b24b80b9482055045eb2565523",
+      "title": "fix(charts): align week-grain time comparison offsets to whole weeks (#43936)",
+      "author": "sadpandajoe",
+      "date": "2026-09-17T21:51:47Z",
+      "parents": [
+        "00c2f22fae2f8254b7bd69c7170c458d138ebfce"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "00c2f22fae2f8254b7bd69c7170c458d138ebfce",
+      "url": "https://github.com/apache/superset/commit/00c2f22fae2f8254b7bd69c7170c458d138ebfce",
+      "title": "fix(dashboard): make system default/dark themes assignable to a dashboard (#44361)",
+      "author": "sadpandajoe",
+      "date": "2026-09-17T21:45:16Z",
+      "parents": [
+        "4c3a890d8b61e5929c6d2936c708909f8188e68e"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "4c3a890d8b61e5929c6d2936c708909f8188e68e",
+      "url": "https://github.com/apache/superset/commit/4c3a890d8b61e5929c6d2936c708909f8188e68e",
+      "title": "chore(deps): bump flask-appbuilder from 5.2.2 to 5.2.3 (#44400)",
+      "author": "aminghadersohi",
+      "date": "2026-09-17T21:18:46Z",
+      "parents": [
+        "77dbaafc2afaedad6329f0ecec2ce8c38fb67c70"
+      ],
+      "category": "dependency",
+      "dependabot": false
+    },
+    {
+      "sha": "77dbaafc2afaedad6329f0ecec2ce8c38fb67c70",
+      "url": "https://github.com/apache/superset/commit/77dbaafc2afaedad6329f0ecec2ce8c38fb67c70",
+      "title": "chore(versioning): write-path latency metric for the capture finalizer (#44009)",
+      "author": "mikebridge",
+      "date": "2026-09-17T19:03:19Z",
+      "parents": [
+        "fc71d0f9e8177a572d52ca505eaa55174e70b324"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "fc71d0f9e8177a572d52ca505eaa55174e70b324",
+      "url": "https://github.com/apache/superset/commit/fc71d0f9e8177a572d52ca505eaa55174e70b324",
+      "title": "fix(dataset): lock the If-Match validator's transaction-id read (#44091)",
+      "author": "mikebridge",
+      "date": "2026-09-17T19:01:27Z",
+      "parents": [
+        "c426186a2e664301dfa64400bc4a9ac1ec35b784"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "c426186a2e664301dfa64400bc4a9ac1ec35b784",
+      "url": "https://github.com/apache/superset/commit/c426186a2e664301dfa64400bc4a9ac1ec35b784",
+      "title": "fix(versioning): scope stream_results to the activity SELECTs instead of mutating the session connection (#44261)",
+      "author": "mikebridge",
+      "date": "2026-09-17T18:27:47Z",
+      "parents": [
+        "e8e10fb85c01551793e10c2be21a874d0213a2dc"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "e8e10fb85c01551793e10c2be21a874d0213a2dc",
+      "url": "https://github.com/apache/superset/commit/e8e10fb85c01551793e10c2be21a874d0213a2dc",
+      "title": "fix(charts): don't auto-migrate table charts to ag-grid-table on import unless enabled (#44151)",
+      "author": "rusackas",
+      "date": "2026-09-17T18:06:19Z",
+      "parents": [
+        "2ad0053642e68953fb6e58c54a8583b9f93a781a"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "2ad0053642e68953fb6e58c54a8583b9f93a781a",
+      "url": "https://github.com/apache/superset/commit/2ad0053642e68953fb6e58c54a8583b9f93a781a",
+      "title": "chore(deps-dev): bump react-refresh from 0.18.0 to 0.19.0 in /superset-frontend (#44381)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T17:13:14Z",
+      "parents": [
+        "8f4a70cfdf4fc2f88e30ab8abfe37a35c1e0b48a"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "8f4a70cfdf4fc2f88e30ab8abfe37a35c1e0b48a",
+      "url": "https://github.com/apache/superset/commit/8f4a70cfdf4fc2f88e30ab8abfe37a35c1e0b48a",
+      "title": "chore(deps-dev): bump minimizer-webpack-plugin from 5.10.0 to 5.10.1 in /superset-frontend (#44380)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T17:12:51Z",
+      "parents": [
+        "ca0f5cfa8e67045ceb916fb5a13aee9411c3e5a4"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "ca0f5cfa8e67045ceb916fb5a13aee9411c3e5a4",
+      "url": "https://github.com/apache/superset/commit/ca0f5cfa8e67045ceb916fb5a13aee9411c3e5a4",
+      "title": "chore(deps-dev): bump @types/node from 26.5.0 to 26.5.1 in /superset-frontend (#44379)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T17:12:26Z",
+      "parents": [
+        "c28a8942b7e60b4eeed78a7cdb580aa28ebe5ac6"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "c28a8942b7e60b4eeed78a7cdb580aa28ebe5ac6",
+      "url": "https://github.com/apache/superset/commit/c28a8942b7e60b4eeed78a7cdb580aa28ebe5ac6",
+      "title": "chore(deps): bump the rjsf group in /superset-frontend with 3 updates (#44378)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T17:12:00Z",
+      "parents": [
+        "66e64cc7d895800be1a5bbee4380650c85eebce7"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "66e64cc7d895800be1a5bbee4380650c85eebce7",
+      "url": "https://github.com/apache/superset/commit/66e64cc7d895800be1a5bbee4380650c85eebce7",
+      "title": "fix(time-format): stop reading short digit-only strings as epoch offsets (#44352)",
+      "author": "sadpandajoe",
+      "date": "2026-09-17T17:05:38Z",
+      "parents": [
+        "35768da1fdb6e3e189e514b67021bece5fd0ace0"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "35768da1fdb6e3e189e514b67021bece5fd0ace0",
+      "url": "https://github.com/apache/superset/commit/35768da1fdb6e3e189e514b67021bece5fd0ace0",
+      "title": "fix(dashboard): keep Save enabled when the properties modal name is set (#44356)",
+      "author": "gabotorresruiz",
+      "date": "2026-09-17T16:15:59Z",
+      "parents": [
+        "91c917e199c40b5cfffcf793fff064343af4ce64"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "91c917e199c40b5cfffcf793fff064343af4ce64",
+      "url": "https://github.com/apache/superset/commit/91c917e199c40b5cfffcf793fff064343af4ce64",
+      "title": "feat(ci): flag chart metadata changes via labeler (#33180)",
+      "author": "geido",
+      "date": "2026-09-17T15:32:50Z",
+      "parents": [
+        "dedfe23a805151decca6deaf15b032e040e42e82"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "dedfe23a805151decca6deaf15b032e040e42e82",
+      "url": "https://github.com/apache/superset/commit/dedfe23a805151decca6deaf15b032e040e42e82",
+      "title": "chore(deps-dev): bump @types/node from 26.5.0 to 26.5.1 in /superset-embedded-sdk (#44375)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T14:55:54Z",
+      "parents": [
+        "68433b08b5ba4ee981c003d74c70280c10aebc9c"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "68433b08b5ba4ee981c003d74c70280c10aebc9c",
+      "url": "https://github.com/apache/superset/commit/68433b08b5ba4ee981c003d74c70280c10aebc9c",
+      "title": "chore(deps): bump astral-sh/setup-uv from 10.0.1 to 10.1.0 (#44377)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T14:55:44Z",
+      "parents": [
+        "bb5d138c50e60fcac7728488ebca4ce007ea3279"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "bb5d138c50e60fcac7728488ebca4ce007ea3279",
+      "url": "https://github.com/apache/superset/commit/bb5d138c50e60fcac7728488ebca4ce007ea3279",
+      "title": "chore(deps): bump apache/infrastructure-actions/allowlist-check from 1.0.2 to 1.0.3 (#44376)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T14:55:15Z",
+      "parents": [
+        "5576b73646a52d0c8c8dcb6bc989c4bfbd16ee7f"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "5576b73646a52d0c8c8dcb6bc989c4bfbd16ee7f",
+      "url": "https://github.com/apache/superset/commit/5576b73646a52d0c8c8dcb6bc989c4bfbd16ee7f",
+      "title": "chore(deps-dev): bump @types/node from 26.5.0 to 26.5.1 in /superset-websocket (#44374)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T14:43:10Z",
+      "parents": [
+        "a68503b84af58644653b794fcb06ebf03a026ea8"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "a68503b84af58644653b794fcb06ebf03a026ea8",
+      "url": "https://github.com/apache/superset/commit/a68503b84af58644653b794fcb06ebf03a026ea8",
+      "title": "chore(deps): bump zod from 4.5.4 to 4.6.1 in /superset-frontend (#44383)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-17T14:42:37Z",
+      "parents": [
+        "2ef8e0c1dee94d371d395efe71b5f1cac9ff8d1c"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "2ef8e0c1dee94d371d395efe71b5f1cac9ff8d1c",
+      "url": "https://github.com/apache/superset/commit/2ef8e0c1dee94d371d395efe71b5f1cac9ff8d1c",
+      "title": "fix(dashboard): require published for the read-gate's datasource fallback (#44093)",
+      "author": "mikebridge",
+      "date": "2026-09-17T11:47:10Z",
+      "parents": [
+        "4c77b0b924a9bd770110915eacd68f5619e8241d"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "4c77b0b924a9bd770110915eacd68f5619e8241d",
+      "url": "https://github.com/apache/superset/commit/4c77b0b924a9bd770110915eacd68f5619e8241d",
+      "title": "fix(migrations): merge theme editors and purge audit heads (#44364)",
+      "author": "aminghadersohi",
+      "date": "2026-09-17T00:00:34Z",
+      "parents": [
+        "fe7391e85ee3701cd6ba59a8fcbe53443a82bb74"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "fe7391e85ee3701cd6ba59a8fcbe53443a82bb74",
+      "url": "https://github.com/apache/superset/commit/fe7391e85ee3701cd6ba59a8fcbe53443a82bb74",
+      "title": "fix(sqla): run column metadata probe statement exactly once (#44242)",
+      "author": "kokhlo",
+      "date": "2026-09-16T23:55:57Z",
+      "parents": [
+        "82df1ffa61a8e38e67bf3d6adadbd5ebb9c5a08e"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "82df1ffa61a8e38e67bf3d6adadbd5ebb9c5a08e",
+      "url": "https://github.com/apache/superset/commit/82df1ffa61a8e38e67bf3d6adadbd5ebb9c5a08e",
+      "title": "fix(jinja): escape current_username/current_user_email like sibling macros (#44081)",
+      "author": "sha174n",
+      "date": "2026-09-16T23:53:56Z",
+      "parents": [
+        "3d17fba3624affdb0013e96bfc3e9401649cf775"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "3d17fba3624affdb0013e96bfc3e9401649cf775",
+      "url": "https://github.com/apache/superset/commit/3d17fba3624affdb0013e96bfc3e9401649cf775",
+      "title": "fix(db): honor connect_args returned by adjust_engine_params (#44078)",
+      "author": "sha174n",
+      "date": "2026-09-16T23:53:43Z",
+      "parents": [
+        "ea8aac12739a2390dcd21f34e71701f4afcd3885"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "ea8aac12739a2390dcd21f34e71701f4afcd3885",
+      "url": "https://github.com/apache/superset/commit/ea8aac12739a2390dcd21f34e71701f4afcd3885",
+      "title": "fix(mcp): bound chart_ids length in the generate-dashboard request (#44071)",
+      "author": "sha174n",
+      "date": "2026-09-16T23:53:22Z",
+      "parents": [
+        "7ee33df647386892f57385bf91631307b5ea35cc"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "7ee33df647386892f57385bf91631307b5ea35cc",
+      "url": "https://github.com/apache/superset/commit/7ee33df647386892f57385bf91631307b5ea35cc",
+      "title": "fix(rls): match the RLS predicate lookup on case-normalized table identifiers (#43993)",
+      "author": "sha174n",
+      "date": "2026-09-16T23:52:49Z",
+      "parents": [
+        "187e7d4d804555f2f7cd76ad49889a99493b91a7"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "187e7d4d804555f2f7cd76ad49889a99493b91a7",
+      "url": "https://github.com/apache/superset/commit/187e7d4d804555f2f7cd76ad49889a99493b91a7",
+      "title": "fix(security): handle self-referential catalog qualifiers (#43974)",
+      "author": "Ujjwaljain16",
+      "date": "2026-09-16T23:52:26Z",
+      "parents": [
+        "f5c710d162547e9258750714b145c911487cfcf7"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "f5c710d162547e9258750714b145c911487cfcf7",
+      "url": "https://github.com/apache/superset/commit/f5c710d162547e9258750714b145c911487cfcf7",
+      "title": "refactor(explore): move optional icons outside label element (#43584)",
+      "author": "FrancescoCastaldi",
+      "date": "2026-09-16T23:51:23Z",
+      "parents": [
+        "181e9ad3e2b0497fa3369a9a7c853633e948934a"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "181e9ad3e2b0497fa3369a9a7c853633e948934a",
+      "url": "https://github.com/apache/superset/commit/181e9ad3e2b0497fa3369a9a7c853633e948934a",
+      "title": "fix(themes): render brand spinner SVG via <img> data URI (#43504)",
+      "author": "n4uu",
+      "date": "2026-09-16T23:50:56Z",
+      "parents": [
+        "461fdaa5b95d7901a1e479226d8f36175313a556"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "461fdaa5b95d7901a1e479226d8f36175313a556",
+      "url": "https://github.com/apache/superset/commit/461fdaa5b95d7901a1e479226d8f36175313a556",
+      "title": "feat(native-filters): drive cascade dependencies from chart metadata (#43223)",
+      "author": "daviddallakyan2005",
+      "date": "2026-09-16T23:26:29Z",
+      "parents": [
+        "baccb68d3b484532bc7962d9ed30c436352f36f8"
+      ],
+      "category": "dependency",
+      "dependabot": false
+    },
+    {
+      "sha": "baccb68d3b484532bc7962d9ed30c436352f36f8",
+      "url": "https://github.com/apache/superset/commit/baccb68d3b484532bc7962d9ed30c436352f36f8",
+      "title": "fix(chart): include Decimal metrics in contribution totals (#43222)",
+      "author": "SEPURI-SAI-KRISHNA",
+      "date": "2026-09-16T23:26:08Z",
+      "parents": [
+        "175c2f1f1cbca1180334806ff3f83338cbe8794a"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "175c2f1f1cbca1180334806ff3f83338cbe8794a",
+      "url": "https://github.com/apache/superset/commit/175c2f1f1cbca1180334806ff3f83338cbe8794a",
+      "title": "fix(api): align sort and prophet option schemas with their operations (#43206)",
+      "author": "SEPURI-SAI-KRISHNA",
+      "date": "2026-09-16T23:25:40Z",
+      "parents": [
+        "f47f1ced19b3b63e92487f794744b7654b0f6efa"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "f47f1ced19b3b63e92487f794744b7654b0f6efa",
+      "url": "https://github.com/apache/superset/commit/f47f1ced19b3b63e92487f794744b7654b0f6efa",
+      "title": "feat(semantic layers): derive Explore picker modes from declared semantic view features (#42540)",
+      "author": "mikebridge",
+      "date": "2026-09-16T23:25:04Z",
+      "parents": [
+        "7b6dd7597c4af49f7f0571b7b33dd247f382218b"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "7b6dd7597c4af49f7f0571b7b33dd247f382218b",
+      "url": "https://github.com/apache/superset/commit/7b6dd7597c4af49f7f0571b7b33dd247f382218b",
+      "title": "chore(deps-dev): bump oxfmt from 0.66.0 to 0.67.0 in /superset-frontend (#44297)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T22:32:44Z",
+      "parents": [
+        "c417e3b6ccf684505407fced01d3f2e227449f20"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "c417e3b6ccf684505407fced01d3f2e227449f20",
+      "url": "https://github.com/apache/superset/commit/c417e3b6ccf684505407fced01d3f2e227449f20",
+      "title": "chore(deps-dev): bump yeoman-test from 11.8.1 to 11.8.2 in /superset-frontend (#44302)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T22:32:40Z",
+      "parents": [
+        "2884e4815bd837c2c23a89840099c7dcd9bdb925"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "2884e4815bd837c2c23a89840099c7dcd9bdb925",
+      "url": "https://github.com/apache/superset/commit/2884e4815bd837c2c23a89840099c7dcd9bdb925",
+      "title": "fix(datasets): catch MultipleResultsFound in get_or_create's schema-scoped lookup (#43725)",
+      "author": "eschutho",
+      "date": "2026-09-16T22:03:33Z",
+      "parents": [
+        "40f5ab8d0c68cb83dd88ae3a8729512f9bef144e"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "40f5ab8d0c68cb83dd88ae3a8729512f9bef144e",
+      "url": "https://github.com/apache/superset/commit/40f5ab8d0c68cb83dd88ae3a8729512f9bef144e",
+      "title": "fix(mcp): downgrade synthetic tool ToolError log level to WARNING (SC-120340) (#44171)",
+      "author": "eschutho",
+      "date": "2026-09-16T22:03:29Z",
+      "parents": [
+        "91c1135c054d76edad336d664984e886e9d3aafb"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "91c1135c054d76edad336d664984e886e9d3aafb",
+      "url": "https://github.com/apache/superset/commit/91c1135c054d76edad336d664984e886e9d3aafb",
+      "title": "fix(histogram): compare groupby membership using column labels (#43219)",
+      "author": "daviddallakyan2005",
+      "date": "2026-09-16T21:04:15Z",
+      "parents": [
+        "22cef7ef007bbf00c69fd63443c0987e8f87ba40"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "22cef7ef007bbf00c69fd63443c0987e8f87ba40",
+      "url": "https://github.com/apache/superset/commit/22cef7ef007bbf00c69fd63443c0987e8f87ba40",
+      "title": "fix(chart-data): keep non-numeric columns out of contribution post-processing (#43203)",
+      "author": "SEPURI-SAI-KRISHNA",
+      "date": "2026-09-16T21:03:43Z",
+      "parents": [
+        "dca54da2421e5b1eec018c470c9ca78d39ce7ad1"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "dca54da2421e5b1eec018c470c9ca78d39ce7ad1",
+      "url": "https://github.com/apache/superset/commit/dca54da2421e5b1eec018c470c9ca78d39ce7ad1",
+      "title": "feat(themes): add per-theme editors (Subject model) (#42404)",
+      "author": "yousoph",
+      "date": "2026-09-16T20:50:51Z",
+      "parents": [
+        "637e19f0ca384e111b55e5727e07697d39f49c1c"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "637e19f0ca384e111b55e5727e07697d39f49c1c",
+      "url": "https://github.com/apache/superset/commit/637e19f0ca384e111b55e5727e07697d39f49c1c",
+      "title": "fix(embedded): report content height independent of iframe height (#44313)",
+      "author": "gabotorresruiz",
+      "date": "2026-09-16T19:33:04Z",
+      "parents": [
+        "bd76e097a2d4e2692f9380fd5d9881cb947fd766"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "bd76e097a2d4e2692f9380fd5d9881cb947fd766",
+      "url": "https://github.com/apache/superset/commit/bd76e097a2d4e2692f9380fd5d9881cb947fd766",
+      "title": "ci: pin codeql-action init to the same version as analyze (#44354)",
+      "author": "sadpandajoe",
+      "date": "2026-09-16T18:41:03Z",
+      "parents": [
+        "a01f5076195479b641f2b4da30c6ae5d4f414cc2"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "a01f5076195479b641f2b4da30c6ae5d4f414cc2",
+      "url": "https://github.com/apache/superset/commit/a01f5076195479b641f2b4da30c6ae5d4f414cc2",
+      "title": "chore(deps-dev): bump @types/node from 26.4.1 to 26.5.0 in /superset-frontend (#44298)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:09:57Z",
+      "parents": [
+        "0db1b47de796b52b3da2c8013a7d32fb1b1e88cf"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "0db1b47de796b52b3da2c8013a7d32fb1b1e88cf",
+      "url": "https://github.com/apache/superset/commit/0db1b47de796b52b3da2c8013a7d32fb1b1e88cf",
+      "title": "test(dashboard): migrate native filter URL key E2E to Playwright (#41435)",
+      "author": "sadpandajoe",
+      "date": "2026-09-16T16:07:24Z",
+      "parents": [
+        "134263e8d46224f67c417f3eb4a9f5042ef32bb4"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "134263e8d46224f67c417f3eb4a9f5042ef32bb4",
+      "url": "https://github.com/apache/superset/commit/134263e8d46224f67c417f3eb4a9f5042ef32bb4",
+      "title": "chore(deps-dev): bump ydb-sqlalchemy from 0.1.22 to 0.1.24 (#44329)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:05:10Z",
+      "parents": [
+        "9df22ffad3559c6c49cfa838a341c4331af51ab1"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "9df22ffad3559c6c49cfa838a341c4331af51ab1",
+      "url": "https://github.com/apache/superset/commit/9df22ffad3559c6c49cfa838a341c4331af51ab1",
+      "title": "chore(deps): bump yeoman-generator from 8.3.1 to 8.4.0 in /superset-frontend (#44299)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:02:48Z",
+      "parents": [
+        "79ab1467b52637cec70491f6b234f2e371adde48"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "79ab1467b52637cec70491f6b234f2e371adde48",
+      "url": "https://github.com/apache/superset/commit/79ab1467b52637cec70491f6b234f2e371adde48",
+      "title": "chore(deps-dev): bump the typescript-eslint group across 1 directory with 2 updates (#44293)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:02:43Z",
+      "parents": [
+        "96d57a9734977d1aaf09aa4f6f36f669111bd9e2"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "96d57a9734977d1aaf09aa4f6f36f669111bd9e2",
+      "url": "https://github.com/apache/superset/commit/96d57a9734977d1aaf09aa4f6f36f669111bd9e2",
+      "title": "chore(deps-dev): bump oxlint from 1.81.0 to 1.82.0 in /superset-frontend (#44301)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:02:39Z",
+      "parents": [
+        "55ee97bb36b48a7a39837d580592c1a5ae98f31b"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "55ee97bb36b48a7a39837d580592c1a5ae98f31b",
+      "url": "https://github.com/apache/superset/commit/55ee97bb36b48a7a39837d580592c1a5ae98f31b",
+      "title": "chore(deps): bump holidays from 0.103 to 0.104 (#44325)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:02:35Z",
+      "parents": [
+        "8233b5e5ae07ff323de080825f245126463a5946"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "8233b5e5ae07ff323de080825f245126463a5946",
+      "url": "https://github.com/apache/superset/commit/8233b5e5ae07ff323de080825f245126463a5946",
+      "title": "chore(deps-dev): update teradatasql requirement from >=20.0.0.67 to >=20.0.0.68 (#44331)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T16:02:28Z",
+      "parents": [
+        "2db9d6d51c8623810a2dba5b796c5154147d7d76"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "2db9d6d51c8623810a2dba5b796c5154147d7d76",
+      "url": "https://github.com/apache/superset/commit/2db9d6d51c8623810a2dba5b796c5154147d7d76",
+      "title": "fix(theme): do not suppress a dashboard theme when the forwarded config equals the workspace default (#44173)",
+      "author": "gabotorresruiz",
+      "date": "2026-09-16T15:13:10Z",
+      "parents": [
+        "2c135a5cdced7f5bcb246f0d66e7ad01d9566bd4"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "2c135a5cdced7f5bcb246f0d66e7ad01d9566bd4",
+      "url": "https://github.com/apache/superset/commit/2c135a5cdced7f5bcb246f0d66e7ad01d9566bd4",
+      "title": "test(semantic-layers): fix mypy call_args error on values endpoint test (#44187)",
+      "author": "villebro",
+      "date": "2026-09-16T14:46:37Z",
+      "parents": [
+        "7fbcc0825caf4df2f704bd13ac5f29479da48e06"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "7fbcc0825caf4df2f704bd13ac5f29479da48e06",
+      "url": "https://github.com/apache/superset/commit/7fbcc0825caf4df2f704bd13ac5f29479da48e06",
+      "title": "chore(deps): bump zizmorcore/zizmor-action from 0.6.3 to 0.6.4 (#44327)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T14:28:14Z",
+      "parents": [
+        "2659660d90a19d3d2d9f7185b3fa2c834b85c91b"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "2659660d90a19d3d2d9f7185b3fa2c834b85c91b",
+      "url": "https://github.com/apache/superset/commit/2659660d90a19d3d2d9f7185b3fa2c834b85c91b",
+      "title": "chore(deps): bump apache/infrastructure-actions/allowlist-check from 1.0.1 to 1.0.2 (#44328)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T14:27:43Z",
+      "parents": [
+        "1432d7f0c0a4d5ae93edc819208fe303934526ad"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "1432d7f0c0a4d5ae93edc819208fe303934526ad",
+      "url": "https://github.com/apache/superset/commit/1432d7f0c0a4d5ae93edc819208fe303934526ad",
+      "title": "chore(deps): bump actions/setup-java from 6.0.0 to 6.0.1 (#44330)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T14:27:24Z",
+      "parents": [
+        "24a79c4bd38c84a2253420eaf4ed11bd55e4be36"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "24a79c4bd38c84a2253420eaf4ed11bd55e4be36",
+      "url": "https://github.com/apache/superset/commit/24a79c4bd38c84a2253420eaf4ed11bd55e4be36",
+      "title": "chore(deps): bump github/codeql-action/upload-sarif from 4.37.9 to 4.38.0 (#44332)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T14:27:03Z",
+      "parents": [
+        "d7516f1038867342e327eef89d3309aa308eb897"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "d7516f1038867342e327eef89d3309aa308eb897",
+      "url": "https://github.com/apache/superset/commit/d7516f1038867342e327eef89d3309aa308eb897",
+      "title": "chore(deps): bump github/codeql-action/analyze from 4.37.9 to 4.38.0 (#44333)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T14:26:38Z",
+      "parents": [
+        "23bc3de0ca3224101aa9f5f1f5d4f147a1161be1"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "23bc3de0ca3224101aa9f5f1f5d4f147a1161be1",
+      "url": "https://github.com/apache/superset/commit/23bc3de0ca3224101aa9f5f1f5d4f147a1161be1",
+      "title": "fix(ci): match migration conflicts on filename, not contents_url (#44318)",
+      "author": "aminghadersohi",
+      "date": "2026-09-16T11:58:57Z",
+      "parents": [
+        "0049f81407277e6065b90504181ce749637d3116"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "0049f81407277e6065b90504181ce749637d3116",
+      "url": "https://github.com/apache/superset/commit/0049f81407277e6065b90504181ce749637d3116",
+      "title": "feat(mcp): add typed Gantt chart support (#43737)",
+      "author": "aminghadersohi",
+      "date": "2026-09-16T09:44:48Z",
+      "parents": [
+        "0f021023f3d96005b27feeedde6e49fda6f95449"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "0f021023f3d96005b27feeedde6e49fda6f95449",
+      "url": "https://github.com/apache/superset/commit/0f021023f3d96005b27feeedde6e49fda6f95449",
+      "title": "fix(mcp): advertise typed tool outputs (#43828)",
+      "author": "aminghadersohi",
+      "date": "2026-09-16T09:43:55Z",
+      "parents": [
+        "5dd63ef95b2c3a2dd913371492c28598ed27930a"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "5dd63ef95b2c3a2dd913371492c28598ed27930a",
+      "url": "https://github.com/apache/superset/commit/5dd63ef95b2c3a2dd913371492c28598ed27930a",
+      "title": "chore(deps): bump antd from 6.6.2 to 6.6.3 in /superset-frontend (#44300)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-16T07:11:50Z",
+      "parents": [
+        "9976e08333c086861207afb01f8f2ea62c079931"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "9976e08333c086861207afb01f8f2ea62c079931",
+      "url": "https://github.com/apache/superset/commit/9976e08333c086861207afb01f8f2ea62c079931",
+      "title": "chore(build): remove `ts-jest` usage for TS7 preparation (#44210)",
+      "author": "hainenber",
+      "date": "2026-09-16T01:39:09Z",
+      "parents": [
+        "dd60cc27ff471432f26984b4564e9c6936417365"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "dd60cc27ff471432f26984b4564e9c6936417365",
+      "url": "https://github.com/apache/superset/commit/dd60cc27ff471432f26984b4564e9c6936417365",
+      "title": "fix(dashboard): include native filter names in filter_state GET response (#44043)",
+      "author": "rusackas",
+      "date": "2026-09-16T00:22:32Z",
+      "parents": [
+        "8da299f58c0ffc6caf1f2cb045d9fb8b01d1825c"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "8da299f58c0ffc6caf1f2cb045d9fb8b01d1825c",
+      "url": "https://github.com/apache/superset/commit/8da299f58c0ffc6caf1f2cb045d9fb8b01d1825c",
+      "title": "docs(explore): document the Line chart Percent change control (#44129)",
+      "author": "rusackas",
+      "date": "2026-09-16T00:11:33Z",
+      "parents": [
+        "8f76ff45cd482cee1b4253ebbfa65e59492d780d"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "8f76ff45cd482cee1b4253ebbfa65e59492d780d",
+      "url": "https://github.com/apache/superset/commit/8f76ff45cd482cee1b4253ebbfa65e59492d780d",
+      "title": "refactor(frontend): consolidate stray antd wrappers into superset-ui-core (#44177)",
+      "author": "rusackas",
+      "date": "2026-09-16T00:08:38Z",
+      "parents": [
+        "b1380cf43d2cabdd0f5bde362788d071455409f1"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "b1380cf43d2cabdd0f5bde362788d071455409f1",
+      "url": "https://github.com/apache/superset/commit/b1380cf43d2cabdd0f5bde362788d071455409f1",
+      "title": "fix(versioning): withhold related-record change detail from non-editors (#44319)",
+      "author": "mikebridge",
+      "date": "2026-09-15T23:13:22Z",
+      "parents": [
+        "4f5cf799a2872c7ede001f9df4b19d00dc21fd14"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "4f5cf799a2872c7ede001f9df4b19d00dc21fd14",
+      "url": "https://github.com/apache/superset/commit/4f5cf799a2872c7ede001f9df4b19d00dc21fd14",
+      "title": "fix(db): apply the configured default isolation level (set_db_default_isolation was a no-op) (#44247)",
+      "author": "mikebridge",
+      "date": "2026-09-15T23:13:05Z",
+      "parents": [
+        "6cfb33197444cbf74590c2803b6dcc06180439f4"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "6cfb33197444cbf74590c2803b6dcc06180439f4",
+      "url": "https://github.com/apache/superset/commit/6cfb33197444cbf74590c2803b6dcc06180439f4",
+      "title": "fix(api): enforce is_managed_externally on chart/dashboard/dataset update (#44025)",
+      "author": "mikebridge",
+      "date": "2026-09-15T22:13:45Z",
+      "parents": [
+        "68c8c7059e3a0852d9ee42d000c63c87669d6478"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "68c8c7059e3a0852d9ee42d000c63c87669d6478",
+      "url": "https://github.com/apache/superset/commit/68c8c7059e3a0852d9ee42d000c63c87669d6478",
+      "title": "refactor(versioning): rename charts_attached_to_dashboard to chart_attachment_windows_for_dashboard (#44185)",
+      "author": "mikebridge",
+      "date": "2026-09-15T22:13:30Z",
+      "parents": [
+        "4c27cbd007efa298c2c1101b85a1ea158ed0502a"
+      ],
+      "category": "other",
+      "dependabot": false
+    },
+    {
+      "sha": "4c27cbd007efa298c2c1101b85a1ea158ed0502a",
+      "url": "https://github.com/apache/superset/commit/4c27cbd007efa298c2c1101b85a1ea158ed0502a",
+      "title": "fix(migrations): merge purge audit and username index heads (#44288)",
+      "author": "aminghadersohi",
+      "date": "2026-09-15T20:50:43Z",
+      "parents": [
+        "ef4281d2fcb854334529d9d7c2f6e82301bb7fa8"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "ef4281d2fcb854334529d9d7c2f6e82301bb7fa8",
+      "url": "https://github.com/apache/superset/commit/ef4281d2fcb854334529d9d7c2f6e82301bb7fa8",
+      "title": "feat(mcp): add get_dashboard_data for bounded, filter-aware dashboard data (#44113)",
+      "author": "gabotorresruiz",
+      "date": "2026-09-15T20:20:12Z",
+      "parents": [
+        "a184395eca7c291d0b8b438f00690c633112f4d7"
+      ],
+      "category": "feature",
+      "dependabot": false
+    },
+    {
+      "sha": "a184395eca7c291d0b8b438f00690c633112f4d7",
+      "url": "https://github.com/apache/superset/commit/a184395eca7c291d0b8b438f00690c633112f4d7",
+      "title": "chore(deps-dev): bump oxfmt from 0.66.0 to 0.67.0 in /docs (#44294)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:55:25Z",
+      "parents": [
+        "f3e1470f1a4e41ce6118d876f8f95e83504b3e7c"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "f3e1470f1a4e41ce6118d876f8f95e83504b3e7c",
+      "url": "https://github.com/apache/superset/commit/f3e1470f1a4e41ce6118d876f8f95e83504b3e7c",
+      "title": "chore(deps-dev): bump oxlint from 1.81.0 to 1.82.0 in /superset-websocket (#44290)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:55:16Z",
+      "parents": [
+        "dbccb3bcc7ce3be5afd2ba3bb1ad752a1d90188b"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "dbccb3bcc7ce3be5afd2ba3bb1ad752a1d90188b",
+      "url": "https://github.com/apache/superset/commit/dbccb3bcc7ce3be5afd2ba3bb1ad752a1d90188b",
+      "title": "fix(table): preserve configured server page size when row count is smaller (#42243) (#42248)",
+      "author": "durgaprasadml",
+      "date": "2026-09-15T17:10:50Z",
+      "parents": [
+        "109402b8d21280afd198148ef9d9023aec254295"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "109402b8d21280afd198148ef9d9023aec254295",
+      "url": "https://github.com/apache/superset/commit/109402b8d21280afd198148ef9d9023aec254295",
+      "title": "fix: handle formatter errors gracefully in table cell rendering (#36189) (#39658)",
+      "author": "7487",
+      "date": "2026-09-15T17:10:27Z",
+      "parents": [
+        "2b5dce1246705964e6dbf14d4b236993c5e55d10"
+      ],
+      "category": "fix",
+      "dependabot": false
+    },
+    {
+      "sha": "2b5dce1246705964e6dbf14d4b236993c5e55d10",
+      "url": "https://github.com/apache/superset/commit/2b5dce1246705964e6dbf14d4b236993c5e55d10",
+      "title": "chore(deps-dev): bump @types/node from 26.4.1 to 26.5.0 in /superset-embedded-sdk (#44289)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:10:03Z",
+      "parents": [
+        "b9f75c9ed55414a1e3aebede251849af87ea7d29"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "b9f75c9ed55414a1e3aebede251849af87ea7d29",
+      "url": "https://github.com/apache/superset/commit/b9f75c9ed55414a1e3aebede251849af87ea7d29",
+      "title": "chore(deps-dev): bump oxfmt from 0.66.0 to 0.67.0 in /superset-websocket (#44291)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:09:58Z",
+      "parents": [
+        "a42a7df102196f8cfe7855c337bb46b27c9b5aff"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "a42a7df102196f8cfe7855c337bb46b27c9b5aff",
+      "url": "https://github.com/apache/superset/commit/a42a7df102196f8cfe7855c337bb46b27c9b5aff",
+      "title": "chore(deps-dev): bump @types/node from 26.4.1 to 26.5.0 in /superset-websocket (#44292)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:09:53Z",
+      "parents": [
+        "3a4aede10da6ad2f1538990c037f0d91b75a4e11"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "3a4aede10da6ad2f1538990c037f0d91b75a4e11",
+      "url": "https://github.com/apache/superset/commit/3a4aede10da6ad2f1538990c037f0d91b75a4e11",
+      "title": "chore(deps-dev): bump oxlint from 1.81.0 to 1.82.0 in /docs (#44296)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:09:48Z",
+      "parents": [
+        "7f04959614ce338329587f6bb6256dc20f052052"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "7f04959614ce338329587f6bb6256dc20f052052",
+      "url": "https://github.com/apache/superset/commit/7f04959614ce338329587f6bb6256dc20f052052",
+      "title": "chore(deps): bump antd from 6.6.2 to 6.6.3 in /docs (#44295)",
+      "author": "dependabot[bot]",
+      "date": "2026-09-15T17:08:53Z",
+      "parents": [
+        "ae240a8e6f0332acb709943d0884eae73927c9de"
+      ],
+      "category": "dependency",
+      "dependabot": true
+    },
+    {
+      "sha": "ae240a8e6f0332acb709943d0884eae73927c9de",
+      "url": "https://github.com/apache/superset/commit/ae240a8e6f0332acb709943d0884eae73927c9de",
+      "title": "fix(security): use self-repository syntax in frontend workflow (#44118)",
+      "author": "rusackas",
+      "date": "2026-09-15T05:30:41Z",
+      "parents": [
+        "b6de64fce749f9d537a32893ef957a70b0b4cb25"
+      ],
+      "category": "fix",
+      "dependabot": false
+    }
+  ]
+}

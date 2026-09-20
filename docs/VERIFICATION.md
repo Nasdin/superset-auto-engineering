@@ -53,3 +53,14 @@ Dependency warnings from Starlette/httpx and AnyIO remain; there are no backend 
 - Actual provider final handoff contained a PR and no blocker but returned `running/waiting_for_user`, so the initial worker parked it for attention. Future schemas require `task_complete`; an idle handoff is accepted only for literal boolean true and still goes through the same PR/evidence checks. Active work, approval waits, suspended sessions, missing/false/truthy substitutes and repair blockers remain excluded.
 - The initial legacy-schema handoff was manually reviewed and audited with its exact session/status/PR SHA, then processed through `finish_repair`. No completion flag was invented and no validation was bypassed.
 - Fresh verification after the correction: **57 backend tests passed**, production Docker build passed, containers restarted with the durable ledger retained. Slack bot installation still awaits confirmation.
+
+## Dependabot and product story — 2026-09-20, latest checkpoint
+
+This checkpoint supersedes older implementation counts and configuration notes above; those sections retain the historical sequence.
+
+- Backend: **135 tests passed**, 84.25% measured coverage; Ruff clean. Frontend: **11 browser/API tests passed**, one optional external Superset baseline test skipped; TypeScript/Vite production build passed. Fixture-based checks are not candidate acceptance.
+- Nine-slide deck: package/layout validation passed, four editable native charts with embedded data workbooks, all nine rendered slides visually inspected. Data totals reconcile to 772 August PRs and 120 pinned commits. The 12-PR sample explicitly identifies PR #42053 as potentially truncated at 100 commits.
+- Deployed Dependabot and PR evidence pages show actual fork PRs. The former shows bot PR #6 at SHA `5bc5e8a8bc241081fb30a992e94b96aeaf368aa8`, one queued job, zero accepted artifacts, and the current PR #4 budget hold. Component PRs also link to the integration validation containing them, labeled with the combined candidate SHA.
+- Real Dependabot version updates enabled on the fork with a one-PR PyJWT rollout. Existing signed webhook extended to `pull_request` without losing `issues` or its secret. GitHub delivery `8a394660-b4ac-11f1-980e-4b144178780c` was accepted with HTTP 200 and the existing queued job ID. No duplicate run was created.
+- The control-plane worker and analytics process were rebuilt with persisted data retained. A SQLite backup was taken before rollout. No session cap was raised; the suspended independent validator remains an explicit live acceptance blocker.
+- See [Dependabot configuration and acceptance boundary](DEPENDABOT.md) and [the live dashboard capture](screenshots/dependabot-pr-6.png). The capture shows queued work, not successful validation.

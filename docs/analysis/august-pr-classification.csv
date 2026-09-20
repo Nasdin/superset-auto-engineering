@@ -1,0 +1,773 @@
+number,author,dependabot,category,title,created_at,merged_at,url
+27779,Always-prog,False,other,chore: Fix/remove hardcode of admin role,2024-03-29T08:22:55Z,2026-08-11T17:26:51Z,https://github.com/apache/superset/pull/27779
+28171,frassinier,False,feature,feat(a11y): enable ECharts aria-label,2024-04-22T13:38:20Z,2026-08-08T22:36:24Z,https://github.com/apache/superset/pull/28171
+28627,rad-pat,False,fix,fix(engine): update databend engine spec for dialect version >=0.4.6,2024-05-21T14:19:10Z,2026-08-06T13:28:16Z,https://github.com/apache/superset/pull/28627
+32958,castodius,False,feature,feat(dashboard): expand all chart descriptions,2025-04-01T12:26:32Z,2026-08-06T21:47:31Z,https://github.com/apache/superset/pull/32958
+33924,Yash2412,False,feature,feat(security): add guest user attributes and get_guest_user_attribute() macro,2025-06-26T10:20:34Z,2026-08-08T23:56:08Z,https://github.com/apache/superset/pull/33924
+35754,gerbermichi,False,dependency,feat(embedded): Add setDataMask API method,2025-10-21T06:56:33Z,2026-08-15T05:07:25Z,https://github.com/apache/superset/pull/35754
+35825,greggailly,False,feature,feat(docs): add documentation for usage of minio or other s3 compatible service as a cache backend or celery results backend,2025-10-24T07:14:36Z,2026-08-07T01:36:35Z,https://github.com/apache/superset/pull/35825
+36856,htamakos,False,feature,feat(snowflake): Add support for OAuth 2.0 authentication,2025-12-29T15:12:11Z,2026-08-25T04:22:15Z,https://github.com/apache/superset/pull/36856
+37014,jayakarkatika,False,fix,fix: Apply timezone offset to convert local time boundaries to UTC,2026-01-09T15:48:31Z,2026-08-08T23:40:31Z,https://github.com/apache/superset/pull/37014
+37120,Milad93R,False,fix,fix: Dashboard export with charts from multiple databases,2026-01-14T07:07:06Z,2026-08-28T03:27:54Z,https://github.com/apache/superset/pull/37120
+37141,rusackas,False,feature,feat(mobile): Add mobile-friendly dashboard consumption mode,2026-01-14T21:39:17Z,2026-08-13T20:14:11Z,https://github.com/apache/superset/pull/37141
+37516,YuriyKrasilnikov,False,fix,fix(api): include query lifecycle timing in /api/v1/chart/data response,2026-01-28T08:22:59Z,2026-08-04T00:27:57Z,https://github.com/apache/superset/pull/37516
+38695,sancho11,False,feature,feat(echarts): make bar chart label position user-configurable,2026-03-17T17:04:25Z,2026-08-27T19:10:39Z,https://github.com/apache/superset/pull/38695
+38948,FrancescoCastaldi,False,other,chore(i18n): update Italian messages.po translations,2026-03-30T09:23:05Z,2026-08-08T19:40:08Z,https://github.com/apache/superset/pull/38948
+38962,itzmzn,False,fix,fix(i18n): add Tamil (ta) locale with corrected catalog path,2026-03-30T21:17:20Z,2026-08-08T19:31:29Z,https://github.com/apache/superset/pull/38962
+39506,mistercrunch,False,fix,fix(explore): skip re-fetch when navigating away from /explore,2026-04-21T05:12:39Z,2026-08-25T18:32:25Z,https://github.com/apache/superset/pull/39506
+39656,hainenber,False,feature,feat(ci): switch to `ubuntu-slim` runner image for faster startup time when running light CI workloads,2026-04-26T05:15:50Z,2026-08-03T16:31:06Z,https://github.com/apache/superset/pull/39656
+39946,mike-lmctl,False,fix,fix: hydrate JWT user before list API filters,2026-05-07T09:07:17Z,2026-08-10T21:18:29Z,https://github.com/apache/superset/pull/39946
+40048,kasiazjc,False,fix,fix(ux): use title case for button labels,2026-05-12T11:52:42Z,2026-08-21T03:14:33Z,https://github.com/apache/superset/pull/40048
+40238,rusackas,False,other,"docs(perf): add Dashboard Performance guide covering virtualization, lazy tabs, and chart-count guidance",2026-05-19T05:57:34Z,2026-08-14T06:41:00Z,https://github.com/apache/superset/pull/40238
+40587,rusackas,False,fix,fix(tasks): gate exception_type in task properties behind SHOW_STACKTRACE,2026-06-01T21:52:37Z,2026-08-05T16:31:31Z,https://github.com/apache/superset/pull/40587
+40635,ytihianine,False,other,chore(i18n): update french po file to match latest pot file version,2026-06-01T23:52:18Z,2026-08-08T17:43:30Z,https://github.com/apache/superset/pull/40635
+40882,rusackas,False,other,ci: pull CI service images from GHCR mirror (fork-safe) [depends on #40880],2026-06-09T04:16:50Z,2026-08-21T11:11:38Z,https://github.com/apache/superset/pull/40882
+41279,thedeceptio,False,feature,feat(multi-value): array-typed column filters with two-tier operators (ClickHouse MVP),2026-06-22T07:38:50Z,2026-08-19T17:56:50Z,https://github.com/apache/superset/pull/41279
+41426,sha174n,False,fix,fix(rls): match null-schema datasets in predicate lookup,2026-06-25T15:02:43Z,2026-08-11T02:58:52Z,https://github.com/apache/superset/pull/41426
+41437,sadpandajoe,False,other,test(dashboard): migrate drill-to-detail E2E from Cypress to Playwright,2026-06-25T20:32:26Z,2026-08-24T18:44:36Z,https://github.com/apache/superset/pull/41437
+41438,sadpandajoe,False,other,test(dashboard): migrate edit-mode component E2E tests to Playwright,2026-06-25T21:02:26Z,2026-08-06T22:22:19Z,https://github.com/apache/superset/pull/41438
+41492,rusackas,False,fix,fix(sqllab): use dialect-specific quote chars for autocomplete identifiers,2026-06-27T09:29:02Z,2026-08-13T21:04:39Z,https://github.com/apache/superset/pull/41492
+41509,betodealmeida,False,feature,feat(semantic layers): don't show samples tab in explore,2026-06-28T20:07:51Z,2026-08-01T20:03:20Z,https://github.com/apache/superset/pull/41509
+41536,durgaprasadml,False,fix,fix(dashboard): remeasure chart description height after markdown render,2026-06-29T17:05:09Z,2026-08-11T20:44:49Z,https://github.com/apache/superset/pull/41536
+41550,mikebridge,False,feature,feat(soft-delete): Recently Archived view with restore and permanent delete,2026-06-29T20:32:09Z,2026-08-03T19:21:48Z,https://github.com/apache/superset/pull/41550
+41551,mikebridge,False,dependency,feat(versioning): version-history UI,2026-06-29T20:32:23Z,2026-08-04T19:37:46Z,https://github.com/apache/superset/pull/41551
+41589,sadpandajoe,False,fix,fix(calendar): clean up d3-tip tooltips,2026-06-30T19:25:42Z,2026-08-10T19:28:07Z,https://github.com/apache/superset/pull/41589
+41714,rusackas,False,dependency,chore(viz): remove legacy explore_json + viz.py pipeline,2026-07-03T04:16:28Z,2026-08-06T20:22:15Z,https://github.com/apache/superset/pull/41714
+41749,jesperct,False,fix,fix(explore): honor explicit List legend selection instead of flipping to scroll,2026-07-03T14:35:51Z,2026-08-06T06:08:05Z,https://github.com/apache/superset/pull/41749
+41780,rusackas,False,feature,"feat(i18n): serve language packs as versioned, immutable-cacheable scripts",2026-07-05T21:47:05Z,2026-08-03T04:59:44Z,https://github.com/apache/superset/pull/41780
+41843,gkneighb,False,feature,"feat(security): actionable, request-access-aware data permission errors",2026-07-07T02:53:55Z,2026-08-08T18:51:15Z,https://github.com/apache/superset/pull/41843
+41921,aminghadersohi,False,feature,feat(mcp): add observability to MCP service,2026-07-10T04:08:24Z,2026-08-05T18:52:35Z,https://github.com/apache/superset/pull/41921
+41964,rusackas,False,fix,fix(sqla): drop stale main_dttm_col from dttm_cols when non-temporal (#30510),2026-07-11T18:15:36Z,2026-08-12T02:38:54Z,https://github.com/apache/superset/pull/41964
+42053,SBIN2010,False,feature,feat: Color Picker replaces the color selection drop-down list in conditional formatting,2026-07-14T21:24:43Z,2026-08-07T23:00:56Z,https://github.com/apache/superset/pull/42053
+42087,sha174n,False,fix,fix(dataset): validate stored column and metric expressions at query time,2026-07-15T18:02:21Z,2026-08-11T20:48:27Z,https://github.com/apache/superset/pull/42087
+42089,sadpandajoe,False,fix,fix(reports): preserve Slack v1 private-channel text delivery,2026-07-15T20:26:09Z,2026-08-12T21:42:57Z,https://github.com/apache/superset/pull/42089
+42097,justinpark,False,other,perf(TimeTable): skip rendering TableView while the window is resizing,2026-07-16T01:36:58Z,2026-08-05T17:41:40Z,https://github.com/apache/superset/pull/42097
+42142,rusackas,False,fix,fix(dashboard): keep refresh_frequency set via the Advanced JSON editor (#42116),2026-07-17T17:37:25Z,2026-08-03T19:00:40Z,https://github.com/apache/superset/pull/42142
+42202,rusackas,False,fix,fix(SafeMarkdown): let htmlSchemaOverrides replace matching default attribute rules,2026-07-18T15:08:12Z,2026-08-05T06:10:14Z,https://github.com/apache/superset/pull/42202
+42211,brodmart,False,fix,fix(models): purge_oauth2_tokens filters on wrong column,2026-07-18T23:17:59Z,2026-08-07T18:04:12Z,https://github.com/apache/superset/pull/42211
+42250,rusackas,False,other,test(core): pin dashboard save-error toast mapping for non-JSON 403 responses,2026-07-20T17:13:49Z,2026-08-12T18:49:12Z,https://github.com/apache/superset/pull/42250
+42283,aminghadersohi,False,fix,fix(mcp): reject unparseable time_range instead of silently matching full table,2026-07-21T19:40:55Z,2026-08-04T23:45:31Z,https://github.com/apache/superset/pull/42283
+42284,hughhhh,False,feature,feat(dashboard): handle empty chart query context in Excel export,2026-07-21T20:03:28Z,2026-08-11T01:12:08Z,https://github.com/apache/superset/pull/42284
+42296,rusackas,False,feature,feat(chart): let Drill By scope to the clicked x-axis value,2026-07-22T00:34:10Z,2026-08-14T00:02:28Z,https://github.com/apache/superset/pull/42296
+42297,aminghadersohi,False,feature,feat(mcp): per-resource token scopes with user-permission intersection,2026-07-22T03:49:17Z,2026-08-18T17:11:27Z,https://github.com/apache/superset/pull/42297
+42299,prathamesh04,False,fix,fix: last date label hidden on time series x-axis (#39899),2026-07-22T06:27:22Z,2026-08-21T16:59:07Z,https://github.com/apache/superset/pull/42299
+42300,rusackas,False,fix,fix(echarts): truncate values at Y axis bounds instead of dropping them,2026-07-22T06:33:48Z,2026-08-13T09:30:57Z,https://github.com/apache/superset/pull/42300
+42309,rusackas,False,feature,feat(maps): Add Italy regions and autonomous provinces country map,2026-07-22T15:23:13Z,2026-08-25T22:45:32Z,https://github.com/apache/superset/pull/42309
+42339,prathamesh04,False,other,refactor(tags): align ExportTagsCommand with ExportModelsCommand,2026-07-23T09:33:41Z,2026-08-13T04:44:54Z,https://github.com/apache/superset/pull/42339
+42366,eschutho,False,fix,fix(jinja): handle UndefinedError from virtual dataset templates,2026-07-23T23:31:02Z,2026-08-04T00:09:31Z,https://github.com/apache/superset/pull/42366
+42371,gkneighb,False,feature,feat(waterfall): add show/hide toggles for X and Y axes,2026-07-24T02:55:06Z,2026-08-27T03:29:26Z,https://github.com/apache/superset/pull/42371
+42390,aminghadersohi,False,fix,fix(sqllab): retry table metadata preview after OAuth2 redirect,2026-07-24T15:39:04Z,2026-08-05T01:32:14Z,https://github.com/apache/superset/pull/42390
+42392,hainenber,False,fix,fix(plugin/chart/parallel-coordinate): prevent frontend crash with empty/undefined metrics when moving between pages quickly,2026-07-24T16:11:13Z,2026-08-24T18:44:50Z,https://github.com/apache/superset/pull/42392
+42393,sadpandajoe,False,fix,fix(datasets): preserve metric/column uuids on dataset export,2026-07-24T17:22:46Z,2026-08-07T18:15:25Z,https://github.com/apache/superset/pull/42393
+42402,sadpandajoe,False,fix,fix(deckgl): hide legend when Legend Position is None,2026-07-24T22:29:09Z,2026-08-10T18:24:36Z,https://github.com/apache/superset/pull/42402
+42406,rusackas,False,other,test(playwright): pin drill-to-detail modal table height,2026-07-25T03:01:07Z,2026-08-13T05:48:50Z,https://github.com/apache/superset/pull/42406
+42409,SEPURI-SAI-KRISHNA,False,fix,fix(lru-cache): don't evict another entry when overwriting an existing key,2026-07-25T05:14:51Z,2026-08-10T19:29:20Z,https://github.com/apache/superset/pull/42409
+42410,SEPURI-SAI-KRISHNA,False,fix,fix(chart-data): validate select()'s exclude option instead of raising 500s,2026-07-25T05:25:30Z,2026-08-27T19:14:34Z,https://github.com/apache/superset/pull/42410
+42411,SEPURI-SAI-KRISHNA,False,other,chore(database): remove dead extra validation exception classes,2026-07-25T05:25:56Z,2026-08-25T22:14:17Z,https://github.com/apache/superset/pull/42411
+42429,rusackas,False,fix,fix(country-map): give Alborz its own ISO code instead of reusing Tehran's,2026-07-26T02:48:32Z,2026-08-25T23:59:49Z,https://github.com/apache/superset/pull/42429
+42430,hainenber,False,other,chore(ci): resolve shellcheck-flagged errors ,2026-07-26T04:26:42Z,2026-08-02T17:09:05Z,https://github.com/apache/superset/pull/42430
+42434,hainenber,False,dependency,feat(build): migrate from Prettier to Oxfmt for performant code formatting,2026-07-26T08:14:26Z,2026-08-03T17:27:06Z,https://github.com/apache/superset/pull/42434
+42435,anupamme,False,dependency,fix: upgrade brace-expansion to 5.0.8 (CVE-2026-14257),2026-07-26T08:23:53Z,2026-08-13T05:23:34Z,https://github.com/apache/superset/pull/42435
+42437,bmuraykhi,False,feature,feat(formatting): add network throughput number formats for bits/s and bytes/s,2026-07-26T12:38:24Z,2026-08-10T19:29:06Z,https://github.com/apache/superset/pull/42437
+42438,prathamesh04,False,fix,fix(i18n): make language pack endpoint public for embedded dashboards,2026-07-26T13:32:06Z,2026-08-29T03:46:28Z,https://github.com/apache/superset/pull/42438
+42463,Abdulrehman-PIAIC80387,False,fix,fix(dataset): make post-save column refresh best-effort for Jinja SQL,2026-07-27T07:45:14Z,2026-08-05T03:40:10Z,https://github.com/apache/superset/pull/42463
+42474,dangdtr,False,other,perf(dashboard): avoid query context N+1 queries,2026-07-27T11:15:36Z,2026-08-09T00:27:04Z,https://github.com/apache/superset/pull/42474
+42475,SkinnyPigeon,False,fix,fix(chart): dataset dropdown sorted by name,2026-07-27T11:35:39Z,2026-08-11T20:45:49Z,https://github.com/apache/superset/pull/42475
+42476,dangdtr,False,other,perf(charts): reuse datasource in query context,2026-07-27T11:38:28Z,2026-08-11T21:31:48Z,https://github.com/apache/superset/pull/42476
+42479,durgaprasadml,False,fix,fix(sqllab): allow SQL Lab query owners to create charts without all_datasource_access,2026-07-27T13:15:08Z,2026-08-24T23:51:58Z,https://github.com/apache/superset/pull/42479
+42480,SkinnyPigeon,False,fix,fix(explore): recompute currency_formats when dataset is saved from c…,2026-07-27T13:16:39Z,2026-08-05T03:41:07Z,https://github.com/apache/superset/pull/42480
+42481,alexandrusoare,False,feature,feat(reports): add retry on failure support for reports,2026-07-27T13:36:25Z,2026-08-04T15:04:32Z,https://github.com/apache/superset/pull/42481
+42482,sadpandajoe,False,fix,fix(ci): use current actions for Docker refresh,2026-07-27T13:49:22Z,2026-08-11T19:04:10Z,https://github.com/apache/superset/pull/42482
+42488,rusackas,False,fix,fix(ci): stop superseded Docs Deployment runs from showing as cancelled,2026-07-27T19:55:53Z,2026-08-14T19:14:09Z,https://github.com/apache/superset/pull/42488
+42490,aminghadersohi,False,fix,fix(mcp): bind all generated charts to dashboard time filters,2026-07-27T22:49:35Z,2026-08-14T20:07:51Z,https://github.com/apache/superset/pull/42490
+42491,yousoph,False,fix,fix(dashboard): make chart error messages expandable again,2026-07-28T00:08:09Z,2026-08-01T22:26:31Z,https://github.com/apache/superset/pull/42491
+42494,bxsx,False,feature,feat(alerts-reports): add per-schedule toggle to include/exclude the Explore in Superset link,2026-07-28T00:37:47Z,2026-08-08T04:05:17Z,https://github.com/apache/superset/pull/42494
+42495,bxsx,False,fix,fix(docker): replace stale superset_app hostname in dev WEBDRIVER_BASEURL,2026-07-28T00:47:12Z,2026-08-05T16:31:11Z,https://github.com/apache/superset/pull/42495
+42498,rusackas,False,other,ci: speed up backend CI with astral-sh/setup-uv and apt package caching,2026-07-28T04:36:44Z,2026-08-13T20:14:24Z,https://github.com/apache/superset/pull/42498
+42500,rusackas,False,other,ci: run pre-commit checks via prek,2026-07-28T04:45:16Z,2026-08-13T17:28:12Z,https://github.com/apache/superset/pull/42500
+42502,dangdtr,False,fix,fix(dashboard): preserve duplicate chart holders in filter scopes,2026-07-28T05:02:37Z,2026-08-04T19:24:26Z,https://github.com/apache/superset/pull/42502
+42503,rusackas,False,feature,feat(ci): publish Python unit test results as PR check annotations,2026-07-28T05:05:41Z,2026-08-13T17:26:43Z,https://github.com/apache/superset/pull/42503
+42504,rusackas,False,feature,feat(ci): auto-label PRs with merge conflicts using requires:rebase,2026-07-28T05:10:58Z,2026-08-01T17:38:03Z,https://github.com/apache/superset/pull/42504
+42507,rusackas,False,other,ci: add Kesin11/actions-timeline to the heavy CI workflows,2026-07-28T05:23:35Z,2026-08-02T21:53:28Z,https://github.com/apache/superset/pull/42507
+42509,rusackas,False,fix,fix(ci): stop py311/py312 docker builds from silently matching lean,2026-07-28T05:38:15Z,2026-08-14T19:07:24Z,https://github.com/apache/superset/pull/42509
+42511,rusackas,False,other,ci(frontend): track bundle size over time with benchmark-action,2026-07-28T07:07:47Z,2026-08-15T00:40:46Z,https://github.com/apache/superset/pull/42511
+42525,dependabot[bot],True,dependency,chore(deps-dev): bump @testing-library/jest-dom from 6.9.1 to 7.0.0 in /superset-frontend,2026-07-28T07:35:27Z,2026-08-03T02:00:45Z,https://github.com/apache/superset/pull/42525
+42528,dependabot[bot],True,dependency,chore(deps): bump react-window and @types/react-window in /superset-frontend,2026-07-28T07:38:37Z,2026-08-08T06:02:27Z,https://github.com/apache/superset/pull/42528
+42533,rusackas,False,fix,fix(chart): stop duplicate metrics when switching between Waterfall and other chart types,2026-07-28T10:26:11Z,2026-08-03T16:22:22Z,https://github.com/apache/superset/pull/42533
+42535,mikebridge,False,fix,fix(semantic-layers): survive large multi-metric selection in Semantic View modal,2026-07-28T14:36:54Z,2026-08-03T19:01:55Z,https://github.com/apache/superset/pull/42535
+42541,AmoghAtreya,False,fix,fix(export): truncate exported filenames to prevent Windows path extraction errors (#42531),2026-07-28T16:42:36Z,2026-08-27T15:48:58Z,https://github.com/apache/superset/pull/42541
+42542,rusackas,False,dependency,chore(sqla2): bump SQLAlchemy-dependent drivers to dual-compat versions,2026-07-28T17:13:05Z,2026-08-05T00:08:41Z,https://github.com/apache/superset/pull/42542
+42548,rusackas,False,fix,fix(core): let UnsavedChangesModal use Ant Design's automatic z-index stacking,2026-07-29T07:05:18Z,2026-08-11T16:42:50Z,https://github.com/apache/superset/pull/42548
+42559,chkang83,False,fix,fix(echarts): guard cross-filter when labelMap entry is missing,2026-07-29T08:01:07Z,2026-08-28T04:49:22Z,https://github.com/apache/superset/pull/42559
+42561,jenwitteng,False,fix,fix(dashboard): force-render virtualized charts before client-side export,2026-07-29T10:20:15Z,2026-08-10T17:57:22Z,https://github.com/apache/superset/pull/42561
+42563,ayush-sharaf,False,other,chore: add logging event for drill to detail,2026-07-29T11:14:12Z,2026-08-11T20:47:00Z,https://github.com/apache/superset/pull/42563
+42571,aminghadersohi,False,fix,fix(mcp): accept changed_on_delta_humanized as order_column in list tools,2026-07-29T15:22:01Z,2026-08-14T20:11:47Z,https://github.com/apache/superset/pull/42571
+42573,sadpandajoe,False,fix,fix(plugin-chart-table): align sticky header column dividers with table body,2026-07-29T16:03:12Z,2026-08-06T22:40:45Z,https://github.com/apache/superset/pull/42573
+42576,aminghadersohi,False,fix,fix(mcp): handle missing metrics/columns and null data in chart preview,2026-07-29T17:49:15Z,2026-08-04T23:59:47Z,https://github.com/apache/superset/pull/42576
+42577,0xdorian-sm,False,fix,fix(i18n-fr): translate the 85 remaining untranslated strings,2026-07-29T18:50:41Z,2026-08-01T17:39:59Z,https://github.com/apache/superset/pull/42577
+42581,aminghadersohi,False,fix,fix(dataset): retry metadata after OAuth2 authorization,2026-07-29T20:54:58Z,2026-08-01T00:41:43Z,https://github.com/apache/superset/pull/42581
+42588,rusackas,False,fix,fix(sql): guard FORCE_LIMIT against SHOW statements (#36939),2026-07-29T23:32:05Z,2026-08-12T06:33:16Z,https://github.com/apache/superset/pull/42588
+42591,rusackas,False,other,"test(deckgl): Polygon chart with a column literally named ""polygon"" (#33669)",2026-07-29T23:44:00Z,2026-08-06T03:27:13Z,https://github.com/apache/superset/pull/42591
+42592,rusackas,False,fix,fix(select): permission label search matches displayed label (#42041),2026-07-30T00:02:44Z,2026-08-12T15:58:23Z,https://github.com/apache/superset/pull/42592
+42594,rusackas,False,fix,fix(echarts): normalize BigInt metric values before summing/dividing in stacked charts (#36401),2026-07-30T00:45:03Z,2026-08-13T20:14:34Z,https://github.com/apache/superset/pull/42594
+42595,rusackas,False,other,test(jinja): pin filter_values() drill-to-detail native-filter fallback for virtual datasets (#35263),2026-07-30T00:54:27Z,2026-08-02T21:44:38Z,https://github.com/apache/superset/pull/42595
+42596,rusackas,False,fix,"fix(filters): sort numeric filter values numerically, not lexicographically (#36775)",2026-07-30T00:56:01Z,2026-08-05T06:06:40Z,https://github.com/apache/superset/pull/42596
+42597,rusackas,False,fix,fix(caching): sort extra_cache_keys before hashing (#34543),2026-07-30T00:56:31Z,2026-08-12T06:34:01Z,https://github.com/apache/superset/pull/42597
+42598,rusackas,False,fix,fix(metadb): apply SUPERSET_META_DB_LIMIT after join instead of per-table (#36304),2026-07-30T00:56:32Z,2026-08-26T02:31:11Z,https://github.com/apache/superset/pull/42598
+42599,rusackas,False,other,test(echarts): pin Bar chart X Axis Title flows through untouched (#42560),2026-07-30T01:01:54Z,2026-08-13T17:27:33Z,https://github.com/apache/superset/pull/42599
+42601,rusackas,False,fix,fix(pivot-table): keep D3_FORMAT-styled numbers intact in pivoted Excel export,2026-07-30T01:54:59Z,2026-08-27T19:55:58Z,https://github.com/apache/superset/pull/42601
+42602,rusackas,False,fix,fix(docs): sync live component demos to the docs site's dark mode toggle,2026-07-30T01:55:24Z,2026-08-13T17:15:55Z,https://github.com/apache/superset/pull/42602
+42603,Herestothegamers,False,fix,fix(database): resolve default schema when file upload schema is empty,2026-07-30T05:23:11Z,2026-08-10T20:56:48Z,https://github.com/apache/superset/pull/42603
+42610,rusackas,False,fix,fix(explore): pin and fix clipped segments in horizontal row-contribution stacked bar charts,2026-07-30T08:02:40Z,2026-08-12T09:42:16Z,https://github.com/apache/superset/pull/42610
+42619,aminghadersohi,False,fix,fix(core): reduce metric expression log noise,2026-07-30T17:12:32Z,2026-08-04T23:35:03Z,https://github.com/apache/superset/pull/42619
+42621,verdier,False,fix,fix(mcp): report the committed chart when its instance is detached,2026-07-30T19:45:19Z,2026-08-02T21:56:47Z,https://github.com/apache/superset/pull/42621
+42623,rusackas,False,other,docs(db_engine_specs): link upstream Pinot timestamp fix in TODO,2026-07-30T20:49:48Z,2026-08-01T17:39:14Z,https://github.com/apache/superset/pull/42623
+42624,fitzee,False,fix,fix(reports): enforce dashboard readiness and execution budget,2026-07-30T23:01:46Z,2026-08-05T21:30:35Z,https://github.com/apache/superset/pull/42624
+42629,goingforstudying-ctrl,False,fix,fix(mcp): give concurrent tool calls isolated db sessions,2026-07-31T07:13:24Z,2026-08-13T18:05:41Z,https://github.com/apache/superset/pull/42629
+42637,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.1 to 6.5.2 in /superset-frontend,2026-07-31T07:34:20Z,2026-08-03T19:30:58Z,https://github.com/apache/superset/pull/42637
+42640,endimonan,False,fix,fix(reports): use zip extension for bundled CSV attachments,2026-07-31T13:25:03Z,2026-08-05T04:09:20Z,https://github.com/apache/superset/pull/42640
+42641,mikebridge,False,feature,feat(soft-delete): warn at startup when a retention task's Celery config is incomplete,2026-07-31T14:31:46Z,2026-08-05T18:12:09Z,https://github.com/apache/superset/pull/42641
+42642,mikebridge,False,fix,fix(migrations): actually drop _customer_location_uc (list == set no-op),2026-07-31T14:38:15Z,2026-08-05T18:12:15Z,https://github.com/apache/superset/pull/42642
+42643,eschutho,False,fix,fix(errors): map uncaught SupersetException status/log-level correctly,2026-07-31T15:19:54Z,2026-08-03T22:03:01Z,https://github.com/apache/superset/pull/42643
+42644,aminghadersohi,False,fix,fix(oauth2): log database token failures,2026-07-31T15:49:19Z,2026-08-13T16:54:56Z,https://github.com/apache/superset/pull/42644
+42646,LALITH0110,False,other,docs: fix parameter name in Explorable.get_query_result docstring,2026-07-31T16:10:28Z,2026-08-04T17:15:06Z,https://github.com/apache/superset/pull/42646
+42652,yousoph,False,fix,fix(sqllab): stop OAuth2 banner from ballooning the database selector popover,2026-07-31T17:45:25Z,2026-08-05T22:40:43Z,https://github.com/apache/superset/pull/42652
+42653,sadpandajoe,False,dependency,chore(deps): require manual deck.gl upgrades,2026-07-31T17:54:42Z,2026-08-05T03:06:08Z,https://github.com/apache/superset/pull/42653
+42654,sadpandajoe,False,fix,fix(versioning): narrow UUIDs in restore tests,2026-07-31T17:54:42Z,2026-08-02T16:54:31Z,https://github.com/apache/superset/pull/42654
+42655,aminghadersohi,False,fix,fix(mcp): preserve table chart state during updates,2026-07-31T18:40:46Z,2026-08-13T16:54:05Z,https://github.com/apache/superset/pull/42655
+42656,aminghadersohi,False,feature,feat(mcp): filter asset lists by certification,2026-07-31T18:43:11Z,2026-08-12T04:12:38Z,https://github.com/apache/superset/pull/42656
+42657,eschutho,False,other,chore(reports): thread cache-key/execution-id log context through screenshot capture logs,2026-07-31T21:36:34Z,2026-08-06T16:43:12Z,https://github.com/apache/superset/pull/42657
+42658,aminghadersohi,False,fix,fix(mcp): expose table column formatting,2026-07-31T21:40:05Z,2026-08-13T19:21:44Z,https://github.com/apache/superset/pull/42658
+42660,justinpark,False,fix,fix(mcp): missing params in MCP tool call logs,2026-07-31T22:40:05Z,2026-08-03T15:38:22Z,https://github.com/apache/superset/pull/42660
+42663,dependabot[bot],True,dependency,chore(deps): bump cachetools from 7.1.4 to 7.1.6,2026-08-01T07:04:16Z,2026-08-02T10:06:14Z,https://github.com/apache/superset/pull/42663
+42664,dependabot[bot],True,dependency,chore(deps): bump croniter from 6.2.2 to 6.2.4,2026-08-01T07:04:21Z,2026-08-02T10:22:57Z,https://github.com/apache/superset/pull/42664
+42665,dependabot[bot],True,dependency,"chore(deps-dev): update pyathena requirement from <4,>=2 to >=3.35.2,<4",2026-08-01T07:04:34Z,2026-08-02T16:44:49Z,https://github.com/apache/superset/pull/42665
+42666,dependabot[bot],True,dependency,chore(deps): bump polyline from 2.0.2 to 2.0.4,2026-08-01T07:04:40Z,2026-08-02T10:22:48Z,https://github.com/apache/superset/pull/42666
+42667,dependabot[bot],True,dependency,"chore(deps-dev): update thrift requirement from <1.0.0,>=0.23.0 to >=0.24.0,<1.0.0",2026-08-01T07:04:46Z,2026-08-02T16:45:08Z,https://github.com/apache/superset/pull/42667
+42668,dependabot[bot],True,dependency,"chore(deps-dev): update databricks-sql-connector requirement from <4.4.0,>=4.2.6 to >=4.4.0,<4.5.0",2026-08-01T07:04:56Z,2026-08-02T16:36:20Z,https://github.com/apache/superset/pull/42668
+42669,dependabot[bot],True,dependency,"chore(deps-dev): update clickhouse-connect requirement from <2.0,>=1.4.2 to >=1.6.0,<2.0",2026-08-01T07:05:03Z,2026-08-02T10:05:58Z,https://github.com/apache/superset/pull/42669
+42670,dependabot[bot],True,dependency,chore(deps): bump greenlet from 3.5.3 to 3.5.4,2026-08-01T07:05:13Z,2026-08-02T10:05:34Z,https://github.com/apache/superset/pull/42670
+42672,dependabot[bot],True,dependency,chore(deps-dev): bump prophet from 1.2.0 to 1.3.0,2026-08-01T07:05:36Z,2026-08-02T10:05:20Z,https://github.com/apache/superset/pull/42672
+42675,eschutho,False,fix,fix(sqllab): roll back session before retrying get_query after a broken transaction,2026-08-01T15:16:30Z,2026-08-03T22:04:29Z,https://github.com/apache/superset/pull/42675
+42677,hainenber,False,fix,fix(ci): remove extraneous plugins build job,2026-08-02T17:07:49Z,2026-08-09T00:27:52Z,https://github.com/apache/superset/pull/42677
+42680,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-03T07:04:29Z,2026-08-03T14:44:37Z,https://github.com/apache/superset/pull/42680
+42681,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.1 to 2.11.4 in /docs,2026-08-03T07:05:25Z,2026-08-03T14:45:22Z,https://github.com/apache/superset/pull/42681
+42682,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.7.0 to 17.8.0 in /docs,2026-08-03T07:05:36Z,2026-08-03T14:45:03Z,https://github.com/apache/superset/pull/42682
+42683,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.7.0 to 10.8.0 in /superset-websocket,2026-08-03T07:05:55Z,2026-08-03T14:43:17Z,https://github.com/apache/superset/pull/42683
+42684,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.7.0 to 17.8.0 in /superset-websocket,2026-08-03T07:06:07Z,2026-08-03T14:42:49Z,https://github.com/apache/superset/pull/42684
+42685,dependabot[bot],True,dependency,chore(deps): bump hot-shots from 17.0.1 to 17.1.0 in /superset-websocket,2026-08-03T07:06:16Z,2026-08-03T14:44:25Z,https://github.com/apache/superset/pull/42685
+42686,dependabot[bot],True,dependency,chore(deps): bump the rjsf group in /superset-frontend with 2 updates,2026-08-03T07:06:35Z,2026-08-03T14:45:54Z,https://github.com/apache/superset/pull/42686
+42687,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-03T07:20:06Z,2026-08-03T14:43:51Z,https://github.com/apache/superset/pull/42687
+42688,dependabot[bot],True,dependency,chore(deps-dev): bump html-webpack-plugin from 5.6.7 to 5.6.8 in /superset-frontend,2026-08-03T07:21:02Z,2026-08-03T14:46:30Z,https://github.com/apache/superset/pull/42688
+42689,dependabot[bot],True,dependency,chore(deps): bump react-arborist from 3.15.1 to 3.16.0 in /superset-frontend,2026-08-03T07:22:17Z,2026-08-04T10:13:39Z,https://github.com/apache/superset/pull/42689
+42690,dependabot[bot],True,dependency,chore(deps): bump docker/login-action from 4.5.1 to 4.5.2,2026-08-03T07:22:25Z,2026-08-03T14:42:16Z,https://github.com/apache/superset/pull/42690
+42691,dependabot[bot],True,dependency,chore(deps-dev): bump jsdom from 29.1.1 to 30.0.0 in /superset-frontend,2026-08-03T07:23:32Z,2026-08-04T02:18:35Z,https://github.com/apache/superset/pull/42691
+42692,dependabot[bot],True,dependency,chore(deps): bump docker/setup-buildx-action from 3.12.0 to 4.2.0,2026-08-03T07:23:34Z,2026-08-04T14:57:41Z,https://github.com/apache/superset/pull/42692
+42693,dependabot[bot],True,dependency,chore(deps): bump yargs from 18.0.0 to 18.1.0 in /superset-frontend,2026-08-03T07:24:26Z,2026-08-03T19:27:20Z,https://github.com/apache/superset/pull/42693
+42694,dependabot[bot],True,dependency,chore(deps-dev): bump concurrently from 10.0.3 to 10.0.4 in /superset-frontend,2026-08-03T07:25:03Z,2026-08-03T15:04:03Z,https://github.com/apache/superset/pull/42694
+42695,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.7.0 to 10.8.0 in /superset-frontend,2026-08-03T07:26:24Z,2026-08-03T19:27:09Z,https://github.com/apache/superset/pull/42695
+42696,dependabot[bot],True,dependency,chore(deps): bump chalk from 5.6.2 to 6.0.0 in /superset-frontend,2026-08-03T07:27:05Z,2026-08-03T14:41:13Z,https://github.com/apache/superset/pull/42696
+42697,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.1 to 2.11.5 in /superset-frontend,2026-08-03T07:27:50Z,2026-08-03T19:27:01Z,https://github.com/apache/superset/pull/42697
+42698,dependabot[bot],True,dependency,chore(deps): bump ngeohash from 0.6.3 to 0.6.4 in /superset-frontend,2026-08-03T07:29:18Z,2026-08-03T14:51:33Z,https://github.com/apache/superset/pull/42698
+42699,dependabot[bot],True,dependency,chore(deps-dev): bump @playwright/test from 1.61.1 to 1.62.1 in /superset-frontend,2026-08-03T07:30:09Z,2026-08-08T04:05:56Z,https://github.com/apache/superset/pull/42699
+42700,msyavuz,False,fix,fix(themes): serve system themes with the algorithm of the slot they fill,2026-08-03T08:44:49Z,2026-08-07T11:29:49Z,https://github.com/apache/superset/pull/42700
+42706,MallikarjunaReddyN,False,fix,fix(table-chart): support where for adhoc columns with server-side pagination,2026-08-03T12:53:44Z,2026-08-29T03:37:20Z,https://github.com/apache/superset/pull/42706
+42708,mikebridge,False,fix,fix(dashboard): count extra_editors when deciding who may edit a dashboard,2026-08-03T13:24:13Z,2026-08-03T19:20:53Z,https://github.com/apache/superset/pull/42708
+42709,mikebridge,False,fix,fix(versioning): stop filing every operational failure under the migration race,2026-08-03T14:33:25Z,2026-08-03T19:09:00Z,https://github.com/apache/superset/pull/42709
+42710,mikebridge,False,other,test(versioning): un-skip the two obsolete activity-view skips,2026-08-03T14:33:28Z,2026-08-03T19:07:50Z,https://github.com/apache/superset/pull/42710
+42711,mikebridge,False,fix,fix(versioning): drop username from version-history attribution,2026-08-03T14:33:30Z,2026-08-03T19:07:02Z,https://github.com/apache/superset/pull/42711
+42712,MallikarjunaReddyN,False,fix,fix(deckgl): remove visibility condition in deckgl fill color,2026-08-03T14:36:23Z,2026-08-10T18:58:45Z,https://github.com/apache/superset/pull/42712
+42713,MallikarjunaReddyN,False,fix,fix(mixed-chart): Mixed chart secondary yaxis title position misplaced fix,2026-08-03T15:10:17Z,2026-08-11T20:13:34Z,https://github.com/apache/superset/pull/42713
+42714,eschutho,False,fix,fix(alerts): wrap Jinja rendering errors in AlertCommand._execute_query,2026-08-03T16:52:19Z,2026-08-04T22:07:11Z,https://github.com/apache/superset/pull/42714
+42715,rusackas,False,fix,fix(ci): collapse Cypress e2e matrix from 2 runners to 1,2026-08-03T16:55:06Z,2026-08-03T18:49:47Z,https://github.com/apache/superset/pull/42715
+42716,sha174n,False,fix,fix(dashboard): consistently apply the datasource-access check when serializing member charts and datasets,2026-08-03T17:05:20Z,2026-08-11T20:47:48Z,https://github.com/apache/superset/pull/42716
+42717,sha174n,False,fix,fix(sql): resolve schema/catalog-qualified table references in CTE detection,2026-08-03T17:14:31Z,2026-08-10T19:28:32Z,https://github.com/apache/superset/pull/42717
+42719,dependabot[bot],True,dependency,chore(deps-dev): bump postcss from 8.5.18 to 8.5.25 in /superset-websocket,2026-08-03T18:30:43Z,2026-08-03T19:26:32Z,https://github.com/apache/superset/pull/42719
+42720,sadpandajoe,False,dependency,fix(ci): validate frontend dependency tree,2026-08-03T18:31:45Z,2026-08-03T21:38:00Z,https://github.com/apache/superset/pull/42720
+42721,dependabot[bot],True,dependency,chore(deps): bump fast-uri from 3.1.4 to 3.1.5 in /superset-frontend/cypress-base,2026-08-03T19:40:59Z,2026-08-04T09:49:02Z,https://github.com/apache/superset/pull/42721
+42722,dependabot[bot],True,dependency,chore(deps): bump fast-uri from 3.1.4 to 3.1.5 in /superset-frontend,2026-08-03T19:41:50Z,2026-08-03T21:30:35Z,https://github.com/apache/superset/pull/42722
+42723,dependabot[bot],True,dependency,chore(deps): bump fast-uri from 3.1.4 to 3.1.5 in /docs,2026-08-03T19:42:46Z,2026-08-03T21:30:17Z,https://github.com/apache/superset/pull/42723
+42725,rebenitez1802,False,fix,fix(mcp): persist Handlebars template under camelCase key so it renders,2026-08-03T19:58:54Z,2026-08-04T20:21:57Z,https://github.com/apache/superset/pull/42725
+42727,dependabot[bot],True,dependency,chore(deps-dev): bump ip-address from 10.2.0 to 10.4.0 in /superset-frontend,2026-08-03T21:32:50Z,2026-08-04T10:11:11Z,https://github.com/apache/superset/pull/42727
+42728,glaterza,False,fix,fix(i18n-es): correct format-placeholder defects in Spanish catalog,2026-08-03T22:24:27Z,2026-08-05T02:21:27Z,https://github.com/apache/superset/pull/42728
+42730,rusackas,False,fix,fix(mcp): supply required DBEventLogger args so mcp_tool_error events are logged (#42579),2026-08-03T23:02:48Z,2026-08-05T23:22:10Z,https://github.com/apache/superset/pull/42730
+42731,rusackas,False,fix,fix(sql): preserve quoted-identifier casing for the HANA dialect (#39328),2026-08-03T23:04:36Z,2026-08-05T03:39:35Z,https://github.com/apache/superset/pull/42731
+42732,rusackas,False,fix,fix(mcp): reject unknown fields in nested chart-config models too (#42626),2026-08-03T23:04:39Z,2026-08-05T23:24:56Z,https://github.com/apache/superset/pull/42732
+42733,rusackas,False,other,test(sql): pin optimizer hint blocks survive format() round-trip (#38189),2026-08-03T23:06:13Z,2026-08-12T21:49:55Z,https://github.com/apache/superset/pull/42733
+42734,rusackas,False,other,test(deckgl): pin GeoJSON layer against multi-row payloads (#34748),2026-08-03T23:06:24Z,2026-08-08T15:06:05Z,https://github.com/apache/superset/pull/42734
+42735,rusackas,False,fix,fix(charts): decode CSV bytes payload before feeding pandas StringIO (#32370),2026-08-03T23:10:43Z,2026-08-13T18:06:10Z,https://github.com/apache/superset/pull/42735
+42736,rusackas,False,fix,fix(mcp): stop false-flagging successful responses with error_type:null as failures (#42580),2026-08-03T23:32:06Z,2026-08-05T16:27:18Z,https://github.com/apache/superset/pull/42736
+42737,rusackas,False,fix,fix(explore): hide edit-properties menu item for non-owner/non-editor users (#38884),2026-08-03T23:34:32Z,2026-08-14T18:15:11Z,https://github.com/apache/superset/pull/42737
+42738,rusackas,False,fix,fix(mcp): route FastMCP ValidationError through the validation error handler (#42578),2026-08-03T23:35:50Z,2026-08-05T16:27:29Z,https://github.com/apache/superset/pull/42738
+42739,rusackas,False,fix,fix(sql-lab): apply SQL_QUERY_MUTATOR to streaming exports (#40465),2026-08-03T23:36:14Z,2026-08-12T12:56:01Z,https://github.com/apache/superset/pull/42739
+42741,dependabot[bot],True,dependency,chore(deps-dev): bump @types/node from 26.1.1 to 26.1.2 in /superset-websocket,2026-08-04T07:04:28Z,2026-08-04T10:11:07Z,https://github.com/apache/superset/pull/42741
+42742,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-04T07:05:16Z,2026-08-04T10:11:03Z,https://github.com/apache/superset/pull/42742
+42743,dependabot[bot],True,dependency,chore(deps-dev): bump webpack from 5.109.0 to 5.109.1 in /docs,2026-08-04T07:06:00Z,2026-08-04T10:11:00Z,https://github.com/apache/superset/pull/42743
+42744,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.4 to 2.11.5 in /docs,2026-08-04T07:06:11Z,2026-08-04T10:10:57Z,https://github.com/apache/superset/pull/42744
+42745,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-04T07:16:31Z,2026-08-04T10:10:53Z,https://github.com/apache/superset/pull/42745
+42746,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.60.0 to 0.61.0 in /superset-frontend,2026-08-04T07:17:38Z,2026-08-04T13:19:37Z,https://github.com/apache/superset/pull/42746
+42747,dependabot[bot],True,dependency,chore(deps): bump acorn from 8.17.0 to 8.18.0 in /superset-frontend,2026-08-04T07:18:45Z,2026-08-04T10:10:48Z,https://github.com/apache/superset/pull/42747
+42748,dependabot[bot],True,dependency,chore(deps-dev): bump webpack from 5.109.0 to 5.109.1 in /superset-frontend,2026-08-04T07:19:24Z,2026-08-04T10:10:44Z,https://github.com/apache/superset/pull/42748
+42749,dependabot[bot],True,dependency,chore(deps): bump ol from 10.9.0 to 10.10.0 in /superset-frontend,2026-08-04T07:20:13Z,2026-08-04T10:10:40Z,https://github.com/apache/superset/pull/42749
+42750,dependabot[bot],True,dependency,chore(deps-dev): bump @types/node from 26.1.1 to 26.1.2 in /superset-frontend,2026-08-04T07:21:23Z,2026-08-04T10:10:37Z,https://github.com/apache/superset/pull/42750
+42751,dependabot[bot],True,dependency,chore(deps-dev): bump oxlint from 1.75.0 to 1.76.0 in /superset-frontend,2026-08-04T07:22:23Z,2026-08-04T10:10:33Z,https://github.com/apache/superset/pull/42751
+42752,varadendrasimha511,False,fix,fix(sqla): preserve float precision when mixing int/float values in IN filters,2026-08-04T07:39:46Z,2026-08-10T18:12:44Z,https://github.com/apache/superset/pull/42752
+42756,MannXo,False,fix,fix(plugin-chart-echarts): omit stacked value labels on zero-height segments,2026-08-04T15:04:59Z,2026-08-20T18:04:20Z,https://github.com/apache/superset/pull/42756
+42757,eschutho,False,fix,fix(sqllab): wrap process_template() in QueryEstimationCommand to prevent raw UndefinedError leak,2026-08-04T16:52:47Z,2026-08-04T22:02:48Z,https://github.com/apache/superset/pull/42757
+42761,rusackas,False,feature,feat(pivot-table): reintroduce show-values-as-fraction display option,2026-08-04T21:49:10Z,2026-08-05T21:17:32Z,https://github.com/apache/superset/pull/42761
+42762,madhushreeag,False,fix,fix(native-filters): allow X-clear on defaultToFirstItem filters with required warning,2026-08-04T23:38:17Z,2026-08-04T23:57:35Z,https://github.com/apache/superset/pull/42762
+42763,anishtilekar,False,fix,fix(datasets): preserve metric warning_markdown when extra is absent,2026-08-04T23:57:24Z,2026-08-16T07:22:24Z,https://github.com/apache/superset/pull/42763
+42764,dependabot[bot],True,dependency,chore(deps-dev): bump fast-uri from 3.1.4 to 3.1.5 in /superset-embedded-sdk,2026-08-05T00:12:15Z,2026-08-05T02:07:27Z,https://github.com/apache/superset/pull/42764
+42767,justinpark,False,fix,fix(mcp): populate user_id in MCP audit logs,2026-08-05T00:31:19Z,2026-08-14T20:28:01Z,https://github.com/apache/superset/pull/42767
+42769,dependabot[bot],True,dependency,chore(deps): bump docker/login-action from 4.5.2 to 4.6.0,2026-08-05T03:08:55Z,2026-08-05T15:24:58Z,https://github.com/apache/superset/pull/42769
+42770,dependabot[bot],True,dependency,chore(deps-dev): bump gevent from 26.4.0 to 26.7.0,2026-08-05T03:09:36Z,2026-08-05T06:33:56Z,https://github.com/apache/superset/pull/42770
+42771,dependabot[bot],True,dependency,"chore(deps): update flask-sqlalchemy requirement from <3.0,>=2.5.1 to <4.0,>=2.5.1",2026-08-05T03:09:40Z,2026-08-07T16:42:42Z,https://github.com/apache/superset/pull/42771
+42772,dependabot[bot],True,dependency,chore(deps): bump sqlglot from 30.12.0 to 30.14.0,2026-08-05T03:09:51Z,2026-08-05T16:44:05Z,https://github.com/apache/superset/pull/42772
+42773,dependabot[bot],True,dependency,chore(deps-dev): bump duckdb from 1.5.4 to 1.5.5,2026-08-05T03:10:03Z,2026-08-05T06:33:53Z,https://github.com/apache/superset/pull/42773
+42774,dependabot[bot],True,dependency,chore(deps-dev): update teradatasql requirement from >=20.0.0.62 to >=20.0.0.63,2026-08-05T03:10:13Z,2026-08-05T06:33:49Z,https://github.com/apache/superset/pull/42774
+42775,dependabot[bot],True,dependency,chore(deps-dev): update taospy requirement from >=2.8.9 to >=2.8.10,2026-08-05T03:10:38Z,2026-08-05T06:33:45Z,https://github.com/apache/superset/pull/42775
+42776,dependabot[bot],True,dependency,chore(deps-dev): bump fastmcp from 3.4.4 to 3.4.5,2026-08-05T03:10:57Z,2026-08-05T06:33:42Z,https://github.com/apache/superset/pull/42776
+42777,dependabot[bot],True,dependency,chore(deps): bump selenium from 4.45.0 to 4.46.0,2026-08-05T03:11:06Z,2026-08-05T06:33:38Z,https://github.com/apache/superset/pull/42777
+42778,dependabot[bot],True,dependency,chore(deps): bump numpy from 1.26.4 to 2.4.6,2026-08-05T03:11:26Z,2026-08-08T05:55:21Z,https://github.com/apache/superset/pull/42778
+42779,dependabot[bot],True,dependency,chore(deps-dev): bump webpack from 5.109.1 to 5.109.2 in /docs,2026-08-05T03:12:31Z,2026-08-05T06:33:34Z,https://github.com/apache/superset/pull/42779
+42780,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.5 to 2.11.6 in /docs,2026-08-05T03:12:54Z,2026-08-05T06:33:30Z,https://github.com/apache/superset/pull/42780
+42781,dependabot[bot],True,dependency,chore(deps-dev): bump eslint-plugin-jest-dom from 5.5.0 to 5.6.0 in /superset-frontend,2026-08-05T03:16:07Z,2026-08-05T06:33:27Z,https://github.com/apache/superset/pull/42781
+42782,dependabot[bot],True,dependency,chore(deps): bump react-draggable from 4.7.0 to 4.7.1 in /superset-frontend,2026-08-05T03:16:46Z,2026-08-05T06:33:24Z,https://github.com/apache/superset/pull/42782
+42783,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.5 to 2.11.6 in /superset-frontend,2026-08-05T03:17:35Z,2026-08-05T06:33:21Z,https://github.com/apache/superset/pull/42783
+42784,dependabot[bot],True,dependency,chore(deps-dev): bump webpack from 5.109.1 to 5.109.2 in /superset-frontend,2026-08-05T03:19:10Z,2026-08-05T06:33:17Z,https://github.com/apache/superset/pull/42784
+42787,rusackas,False,fix,fix(models): guard three more backref cascades for SQLAlchemy 2.0,2026-08-05T05:50:22Z,2026-08-05T16:58:46Z,https://github.com/apache/superset/pull/42787
+42791,dependabot[bot],True,dependency,chore(deps-dev): bump jsdom from 30.0.0 to 30.0.1 in /superset-frontend,2026-08-05T07:34:19Z,2026-08-05T15:25:57Z,https://github.com/apache/superset/pull/42791
+42792,reveha,False,feature,feat(chart): enable cross-filter on temporal x-axis (bar/label click),2026-08-05T07:51:29Z,2026-08-21T22:45:07Z,https://github.com/apache/superset/pull/42792
+42794,lucky-y8,False,fix,fix(i18n): improve Simplified Chinese translations,2026-08-05T09:45:38Z,2026-08-08T19:51:59Z,https://github.com/apache/superset/pull/42794
+42796,msyavuz,False,fix,fix(embedded): redact database errors in API responses to guest users,2026-08-05T14:05:05Z,2026-08-10T15:45:21Z,https://github.com/apache/superset/pull/42796
+42797,mikebridge,False,fix,"fix(versioning): pin shadow-row reads and restore to (id, uuid)",2026-08-05T14:29:12Z,2026-08-05T18:12:20Z,https://github.com/apache/superset/pull/42797
+42800,mikebridge,False,feature,feat(soft-delete): enable soft delete by default and purge for real,2026-08-05T14:50:19Z,2026-08-06T16:34:56Z,https://github.com/apache/superset/pull/42800
+42801,mikebridge,False,feature,feat(versioning): enable version history and capture by default,2026-08-05T14:54:19Z,2026-08-07T13:25:48Z,https://github.com/apache/superset/pull/42801
+42802,eschutho,False,fix,fix(datasets): catch TemplateError instead of narrower TemplateSyntaxError in render_dataset_fields,2026-08-05T16:53:38Z,2026-08-06T22:05:09Z,https://github.com/apache/superset/pull/42802
+42803,rusackas,False,dependency,feat: bump SQLAlchemy to 2.0 and flask-sqlalchemy to 3.1.1,2026-08-05T16:58:24Z,2026-08-13T02:55:14Z,https://github.com/apache/superset/pull/42803
+42804,michael-s-molina,False,revert,"fix(deps): revert simple-zstd from 2.1.0 back to 1.4.2, again",2026-08-05T17:01:53Z,2026-08-06T16:18:08Z,https://github.com/apache/superset/pull/42804
+42807,sadpandajoe,False,fix,fix(ci): restore master validation checks,2026-08-05T17:10:36Z,2026-08-06T05:58:05Z,https://github.com/apache/superset/pull/42807
+42808,glaterza,False,fix,fix(i18n-es): correct fuzzy-matcher strandings in Spanish catalog,2026-08-05T18:32:05Z,2026-08-07T18:29:15Z,https://github.com/apache/superset/pull/42808
+42810,rusackas,False,fix,fix(pivot-table): blank ambiguous cross-metric totals and null values in fraction mode,2026-08-05T18:58:52Z,2026-08-05T21:17:33Z,https://github.com/apache/superset/pull/42810
+42811,rusackas,False,fix,fix(dev): stop the webpack dev-proxy from hanging on a mid-stream backend disconnect,2026-08-05T19:13:41Z,2026-08-13T18:06:31Z,https://github.com/apache/superset/pull/42811
+42813,mikebridge,False,other,style(frontend): apply oxfmt to existing files,2026-08-05T21:01:54Z,2026-08-06T13:58:28Z,https://github.com/apache/superset/pull/42813
+42814,justinpark,False,fix,fix(mcp): make streamable-http session mode configurable via MCP_STATELESS_HTTP,2026-08-05T21:20:35Z,2026-08-06T04:31:23Z,https://github.com/apache/superset/pull/42814
+42815,gabotorresruiz,False,fix,fix(dashboard): changing a theme no longer discards unsaved edits or reloads charts,2026-08-05T21:29:58Z,2026-08-10T19:52:44Z,https://github.com/apache/superset/pull/42815
+42819,sadpandajoe,False,fix,fix(rls): return a descriptive error for duplicate rule names,2026-08-06T00:24:26Z,2026-08-11T19:41:25Z,https://github.com/apache/superset/pull/42819
+42820,sadpandajoe,False,fix,fix(reports): apply chart number and currency formatting to tables sent as text,2026-08-06T00:45:34Z,2026-08-12T04:48:38Z,https://github.com/apache/superset/pull/42820
+42821,sadpandajoe,False,fix,fix(mysql): resolve wire-protocol column types and mutate rows from immutable results,2026-08-06T01:17:59Z,2026-08-24T18:45:15Z,https://github.com/apache/superset/pull/42821
+42822,aminghadersohi,False,fix,fix(mcp): expose query context to Jinja macros,2026-08-06T02:15:13Z,2026-08-14T20:10:03Z,https://github.com/apache/superset/pull/42822
+42824,aminghadersohi,False,fix,fix(mcp): return all chart query results,2026-08-06T06:46:46Z,2026-08-14T20:10:26Z,https://github.com/apache/superset/pull/42824
+42825,dependabot[bot],True,dependency,chore(deps): bump @swc/core from 1.15.46 to 1.15.47 in /docs,2026-08-06T07:14:57Z,2026-08-06T10:14:35Z,https://github.com/apache/superset/pull/42825
+42826,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.6 to 2.11.7 in /docs,2026-08-06T07:15:15Z,2026-08-06T10:14:31Z,https://github.com/apache/superset/pull/42826
+42827,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/init from 4.37.3 to 4.37.4,2026-08-06T07:15:37Z,2026-08-06T11:12:22Z,https://github.com/apache/superset/pull/42827
+42828,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/analyze from 4.37.3 to 4.37.4,2026-08-06T07:17:09Z,2026-08-06T10:14:26Z,https://github.com/apache/superset/pull/42828
+42829,dependabot[bot],True,dependency,chore(deps-dev): bump lerna from 9.0.4 to 10.0.0 in /superset-frontend,2026-08-06T07:17:52Z,2026-08-08T03:19:24Z,https://github.com/apache/superset/pull/42829
+42830,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.6 to 2.11.7 in /superset-frontend,2026-08-06T07:18:34Z,2026-08-06T10:14:22Z,https://github.com/apache/superset/pull/42830
+42831,dependabot[bot],True,dependency,chore(deps): bump react-map-gl from 8.1.1 to 8.1.2 in /superset-frontend,2026-08-06T07:19:09Z,2026-08-06T10:14:19Z,https://github.com/apache/superset/pull/42831
+42832,dependabot[bot],True,dependency,chore(deps-dev): bump @swc/core from 1.15.46 to 1.15.47 in /superset-frontend,2026-08-06T07:19:44Z,2026-08-06T10:14:15Z,https://github.com/apache/superset/pull/42832
+42835,mikebridge,False,other,"docs: scope AI pre-commit checks to changed files, to align with ci's pre-commit checks",2026-08-06T10:32:15Z,2026-08-06T13:59:34Z,https://github.com/apache/superset/pull/42835
+42837,alexandrusoare,False,feature,feat(hooks):  add configurable post-creation hook for dashboards,2026-08-06T11:04:00Z,2026-08-06T13:11:56Z,https://github.com/apache/superset/pull/42837
+42839,mikebridge,False,fix,fix(semantic-layer): hydrate the semantic view edit modal from /structure,2026-08-06T11:31:59Z,2026-08-30T18:31:36Z,https://github.com/apache/superset/pull/42839
+42845,mikebridge,False,fix,fix(semantic-layer): warn that deleting a layer cascade-deletes its dependent views,2026-08-06T13:54:26Z,2026-08-26T03:47:45Z,https://github.com/apache/superset/pull/42845
+42852,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.7 to 2.11.8 in /docs,2026-08-06T17:05:01Z,2026-08-07T06:24:24Z,https://github.com/apache/superset/pull/42852
+42853,sadpandajoe,False,fix,fix(dashboard): redirect using sanitized slug from save response,2026-08-06T17:57:23Z,2026-08-11T19:43:25Z,https://github.com/apache/superset/pull/42853
+42856,dependabot[bot],True,dependency,"chore(deps-dev): update sqlalchemy-risingwave requirement from <2.0.0,>=1.4.1 to <3.0.0,>=1.4.1",2026-08-06T19:43:23Z,2026-08-08T02:59:53Z,https://github.com/apache/superset/pull/42856
+42857,dependabot[bot],True,dependency,chore(deps): bump redis from 8.0.1 to 8.1.0,2026-08-06T19:43:32Z,2026-08-07T16:41:04Z,https://github.com/apache/superset/pull/42857
+42858,dependabot[bot],True,dependency,chore(deps): bump shillelagh from 1.4.4 to 1.4.5,2026-08-06T19:44:02Z,2026-08-07T16:41:00Z,https://github.com/apache/superset/pull/42858
+42859,dependabot[bot],True,dependency,chore(deps): bump markdown from 3.10.2 to 3.10.3,2026-08-06T19:44:08Z,2026-08-07T16:40:57Z,https://github.com/apache/superset/pull/42859
+42860,dependabot[bot],True,dependency,chore(deps): bump holidays from 0.100 to 0.102,2026-08-06T19:44:45Z,2026-08-07T16:41:57Z,https://github.com/apache/superset/pull/42860
+42861,dependabot[bot],True,dependency,chore(deps-dev): bump google-cloud-bigquery from 3.42.2 to 3.43.0,2026-08-06T19:44:50Z,2026-08-07T16:41:27Z,https://github.com/apache/superset/pull/42861
+42862,dependabot[bot],True,dependency,"chore(deps-dev): update pyathena requirement from <4,>=3.35.2 to >=3.35.4,<4",2026-08-06T19:45:01Z,2026-08-07T13:19:47Z,https://github.com/apache/superset/pull/42862
+42863,mikebridge,False,fix,fix(deletion-retention): dedupe repeated blocked audits,2026-08-06T20:35:00Z,2026-08-07T17:11:37Z,https://github.com/apache/superset/pull/42863
+42864,luizotavio32,False,fix,fix(embedded): compare guest chart payloads against every stored control,2026-08-06T21:00:55Z,2026-08-07T14:24:42Z,https://github.com/apache/superset/pull/42864
+42865,EnxDev,False,feature,feat(dashboard-v2): introduce the dashboard editing UI and layout modes,2026-08-06T21:18:35Z,2026-08-07T17:33:08Z,https://github.com/apache/superset/pull/42865
+42867,sadpandajoe,False,other,ci(e2e): stop gunicorn worker recycling mid-run; slow-test budget for mixed-chart filter spec,2026-08-06T22:36:43Z,2026-08-11T19:43:52Z,https://github.com/apache/superset/pull/42867
+42868,dependabot[bot],True,dependency,chore(deps-dev): bump eslint-plugin-jest-dom from 5.6.0 to 5.7.0 in /superset-frontend,2026-08-06T23:02:57Z,2026-08-07T13:18:31Z,https://github.com/apache/superset/pull/42868
+42869,dependabot[bot],True,dependency,chore(deps): bump react-intersection-observer from 10.1.0 to 11.0.0 in /superset-frontend,2026-08-06T23:04:01Z,2026-08-07T17:13:32Z,https://github.com/apache/superset/pull/42869
+42870,dependabot[bot],True,dependency,chore(deps): bump google-auth-library from 10.9.1 to 11.0.0 in /superset-frontend,2026-08-06T23:05:18Z,2026-08-08T02:58:51Z,https://github.com/apache/superset/pull/42870
+42872,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.7 to 2.11.8 in /superset-frontend,2026-08-06T23:07:42Z,2026-08-07T13:17:23Z,https://github.com/apache/superset/pull/42872
+42873,dependabot[bot],True,dependency,chore(deps): bump mermaid from 11.16.0 to 11.16.1 in /docs,2026-08-06T23:08:16Z,2026-08-07T01:33:23Z,https://github.com/apache/superset/pull/42873
+42874,gabotorresruiz,False,feature,feat(theme): allow deployments to register extra theme tokens,2026-08-06T23:57:16Z,2026-08-07T17:37:46Z,https://github.com/apache/superset/pull/42874
+42875,yousoph,False,fix,fix(explore): keep x-axis label when overriding Time Column with time comparison,2026-08-07T00:12:50Z,2026-08-20T17:52:23Z,https://github.com/apache/superset/pull/42875
+42878,sadpandajoe,False,fix,fix(migrations): merge divergent Alembic heads into a single chain,2026-08-07T05:17:51Z,2026-08-07T12:27:04Z,https://github.com/apache/superset/pull/42878
+42879,sadpandajoe,False,fix,fix(dashboard): mute the Group By display control loading spinner,2026-08-07T05:25:25Z,2026-08-18T16:37:43Z,https://github.com/apache/superset/pull/42879
+42880,EvanGruhlkey,False,fix,fix(pie): apply percentage number format to labels,2026-08-07T06:23:58Z,2026-08-11T02:36:03Z,https://github.com/apache/superset/pull/42880
+42881,vjymisal0,False,fix,fix(explore): stacked Timeseries Bar total excludes the sort-only metric,2026-08-07T06:42:43Z,2026-08-10T19:40:19Z,https://github.com/apache/superset/pull/42881
+42882,vjymisal0,False,other,test(explore): zero-value stacked bar segment no longer overlaps its neighbor's label,2026-08-07T06:46:57Z,2026-08-30T18:43:02Z,https://github.com/apache/superset/pull/42882
+42883,dependabot[bot],True,dependency,chore(deps): bump the docusaurus-openapi group in /docs with 2 updates,2026-08-07T07:04:39Z,2026-08-07T09:42:40Z,https://github.com/apache/superset/pull/42883
+42884,dependabot[bot],True,dependency,chore(deps): bump actions/setup-java from 5.6.0 to 5.7.0,2026-08-07T07:06:44Z,2026-08-07T09:42:34Z,https://github.com/apache/superset/pull/42884
+42885,dependabot[bot],True,dependency,chore(deps): bump markdown-to-jsx from 9.9.0 to 9.10.1 in /superset-frontend,2026-08-07T07:08:10Z,2026-08-07T13:17:19Z,https://github.com/apache/superset/pull/42885
+42888,mikebridge,False,other,refactor(deletion-retention): add declarative purge policies,2026-08-07T15:07:56Z,2026-08-11T16:55:37Z,https://github.com/apache/superset/pull/42888
+42889,eschutho,False,fix,fix(sqla): don't mislabel DB errors as ColumnNotFoundException in adhoc_column_to_sqla,2026-08-07T15:11:47Z,2026-08-07T22:03:50Z,https://github.com/apache/superset/pull/42889
+42890,rusackas,False,fix,fix(ci): enforce a single Alembic migration head,2026-08-07T16:23:32Z,2026-08-13T12:38:46Z,https://github.com/apache/superset/pull/42890
+42891,rusackas,False,dependency,chore(deps): widen dremio/exasol/firebird/redshift/risingwave caps for SQLAlchemy 2.0,2026-08-07T16:33:28Z,2026-08-08T08:35:44Z,https://github.com/apache/superset/pull/42891
+42893,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-07T17:06:15Z,2026-08-07T18:00:19Z,https://github.com/apache/superset/pull/42893
+42894,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /docs,2026-08-07T17:06:22Z,2026-08-07T17:23:31Z,https://github.com/apache/superset/pull/42894
+42895,rusackas,False,feature,feat(metrics): add MEDIAN/STDDEV_SAMP/VAR_SAMP as system-wide aggregates,2026-08-07T17:27:16Z,2026-08-21T11:15:17Z,https://github.com/apache/superset/pull/42895
+42896,sadpandajoe,False,fix,fix(sqllab): async queries no longer stuck at Running forever,2026-08-07T17:52:45Z,2026-08-15T00:47:11Z,https://github.com/apache/superset/pull/42896
+42897,rusackas,False,fix,fix(models): enforce one OAuth2 token per user+database,2026-08-07T18:25:58Z,2026-08-15T04:50:57Z,https://github.com/apache/superset/pull/42897
+42898,eschutho,False,fix,fix(dashboard): preserve native filter keys for dataset-less filters on save,2026-08-07T20:40:59Z,2026-08-18T18:30:50Z,https://github.com/apache/superset/pull/42898
+42902,dependabot[bot],True,dependency,chore(deps): bump nanoid from 3.3.16 to 3.3.18 in /docs,2026-08-08T03:01:43Z,2026-08-08T03:08:38Z,https://github.com/apache/superset/pull/42902
+42903,dependabot[bot],True,dependency,"chore(deps-dev): update starrocks requirement from <2,>=1.3.3 to >=1.3.4,<2",2026-08-08T07:03:07Z,2026-08-08T08:54:54Z,https://github.com/apache/superset/pull/42903
+42905,dependabot[bot],True,dependency,chore(deps-dev): bump pyinstrument from 5.1.2 to 5.1.3,2026-08-08T07:03:34Z,2026-08-08T08:54:52Z,https://github.com/apache/superset/pull/42905
+42906,dependabot[bot],True,dependency,chore(deps): bump cryptography from 49.0.0 to 50.0.0,2026-08-08T07:03:54Z,2026-08-10T06:42:10Z,https://github.com/apache/superset/pull/42906
+42908,dependabot[bot],True,dependency,"chore(deps-dev): update playwright requirement from <2,>=1.61.0 to >=1.62.0,<2",2026-08-08T07:04:28Z,2026-08-08T08:54:49Z,https://github.com/apache/superset/pull/42908
+42909,dependabot[bot],True,dependency,chore(deps-dev): update teradatasql requirement from >=20.0.0.63 to >=20.0.0.64,2026-08-08T07:05:27Z,2026-08-08T08:54:46Z,https://github.com/apache/superset/pull/42909
+42911,verdier,False,fix,fix(explore): stop the viz switcher from overflowing the control panel,2026-08-08T09:45:37Z,2026-08-10T19:36:24Z,https://github.com/apache/superset/pull/42911
+42915,aminghadersohi,False,dependency,chore(deps): restore redis floor to >=5.0.0,2026-08-08T15:00:11Z,2026-08-10T00:41:55Z,https://github.com/apache/superset/pull/42915
+42916,eschutho,False,fix,fix: commit migration write in get_shared_value to stop recurring md5 deprecation warning,2026-08-08T16:12:45Z,2026-08-12T22:02:35Z,https://github.com/apache/superset/pull/42916
+42917,eschutho,False,fix,fix(sqllab): wrap process_template() in format_sql to prevent raw UndefinedError leak,2026-08-08T16:34:57Z,2026-08-10T22:02:10Z,https://github.com/apache/superset/pull/42917
+42920,waterWang,False,fix,fix(import): isolate per-tag import in a SAVEPOINT to avoid poisoned session (#42912),2026-08-08T20:59:07Z,2026-08-15T04:56:44Z,https://github.com/apache/superset/pull/42920
+42927,AryaKetanShCt,False,fix,fix: drop post-processing options the operation no longer accepts,2026-08-09T02:39:15Z,2026-08-20T01:15:16Z,https://github.com/apache/superset/pull/42927
+42928,rusackas,False,fix,fix(sql-lab): improved SQL statement parsing and validation,2026-08-09T03:00:32Z,2026-08-12T02:35:43Z,https://github.com/apache/superset/pull/42928
+42929,rusackas,False,fix,"fix(dataset): improve dataset, report, and expression validation",2026-08-09T03:00:34Z,2026-08-13T03:13:45Z,https://github.com/apache/superset/pull/42929
+42930,rusackas,False,fix,fix(api): improved request handling and embedded dashboard scoping,2026-08-09T03:00:35Z,2026-08-18T06:50:25Z,https://github.com/apache/superset/pull/42930
+42934,rusackas,False,fix,fix(security): harden account password-change and session-invalidation handling,2026-08-09T15:55:58Z,2026-08-18T16:40:09Z,https://github.com/apache/superset/pull/42934
+42935,rusackas,False,fix,"fix(mcp): require issuer-aware resolver for multi-issuer JWT, fix sanitizer input ordering",2026-08-09T15:56:04Z,2026-08-10T22:56:46Z,https://github.com/apache/superset/pull/42935
+42936,rusackas,False,fix,"fix: verify database access before dataset repointing, and tab ownership before tab-state updates",2026-08-09T15:56:10Z,2026-08-11T23:07:59Z,https://github.com/apache/superset/pull/42936
+42937,rusackas,False,other,chore(security): warn when legacy encryption engine is configured,2026-08-09T15:56:16Z,2026-08-11T16:35:47Z,https://github.com/apache/superset/pull/42937
+42938,rusackas,False,fix,"fix: bind permission-sync task to user id, use per-user RLS cache sentinel on parse failure",2026-08-09T15:56:22Z,2026-08-12T02:35:41Z,https://github.com/apache/superset/pull/42938
+42940,hainenber,False,feature,feat(build): reinstate `no-restricted-imports` lint rule for `lodash`,2026-08-09T16:46:18Z,2026-08-10T02:28:42Z,https://github.com/apache/superset/pull/42940
+42942,rusackas,False,fix,fix(deckgl): normalize legend swatch alpha channel to 0-1 for CSS rgba(),2026-08-09T23:34:10Z,2026-08-10T19:35:25Z,https://github.com/apache/superset/pull/42942
+42943,rusackas,False,other,docs(mcp): add update_dashboard to write-tools enumeration,2026-08-09T23:35:11Z,2026-08-10T17:25:04Z,https://github.com/apache/superset/pull/42943
+42944,rusackas,False,fix,fix(mcp): reject list values for ne on relationship filters,2026-08-09T23:35:38Z,2026-08-11T07:42:13Z,https://github.com/apache/superset/pull/42944
+42945,rusackas,False,fix,fix(helm): add missing task modules to default CeleryConfig imports,2026-08-09T23:44:54Z,2026-08-10T05:06:45Z,https://github.com/apache/superset/pull/42945
+42946,rusackas,False,fix,fix(export): derive chart_hashes and zip from a single chart list,2026-08-09T23:47:06Z,2026-08-11T16:35:59Z,https://github.com/apache/superset/pull/42946
+42947,rusackas,False,other,docs: document CACHE_REDIS_SOCKET_TIMEOUT/CONNECT_TIMEOUT config keys,2026-08-10T00:29:10Z,2026-08-10T17:26:18Z,https://github.com/apache/superset/pull/42947
+42948,rusackas,False,other,docs: document color picker for conditional formatting rule colors,2026-08-10T00:42:41Z,2026-08-10T17:26:37Z,https://github.com/apache/superset/pull/42948
+42949,rusackas,False,fix,fix(security_manager): stop SupersetAuthView from shadowing AUTH_REMOTE_USER,2026-08-10T01:00:55Z,2026-08-13T01:09:46Z,https://github.com/apache/superset/pull/42949
+42950,rusackas,False,other,"docs: document number format presets, including distance/length units",2026-08-10T01:54:21Z,2026-08-10T17:27:22Z,https://github.com/apache/superset/pull/42950
+42951,rusackas,False,other,docs(security): document the read-only Subject REST API,2026-08-10T01:57:15Z,2026-08-10T17:27:54Z,https://github.com/apache/superset/pull/42951
+42952,rusackas,False,other,docs(exploring-data): document CSV/XLSX download in drill modals,2026-08-10T01:57:49Z,2026-08-10T17:28:15Z,https://github.com/apache/superset/pull/42952
+42953,rusackas,False,other,docs(cache): document native filter option cache warm-up strategy,2026-08-10T01:59:03Z,2026-08-10T17:28:36Z,https://github.com/apache/superset/pull/42953
+42955,jethac,False,fix,fix(tech-debt): measure oxlint metrics against the project's ruleset,2026-08-10T02:04:29Z,2026-08-10T02:26:15Z,https://github.com/apache/superset/pull/42955
+42957,chkang83,False,fix,fix(dashboard): preserve certification fields when Certification panel is closed,2026-08-10T05:26:00Z,2026-08-14T18:19:40Z,https://github.com/apache/superset/pull/42957
+42958,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.8.0 to 17.9.0 in /superset-websocket,2026-08-10T07:03:26Z,2026-08-10T11:53:30Z,https://github.com/apache/superset/pull/42958
+42959,dependabot[bot],True,dependency,chore(deps): bump ioredis from 5.11.1 to 6.0.0 in /superset-websocket,2026-08-10T07:03:35Z,2026-08-10T19:35:57Z,https://github.com/apache/superset/pull/42959
+42960,dependabot[bot],True,dependency,chore(deps): bump zizmorcore/zizmor-action from 0.6.1 to 0.6.2,2026-08-10T07:04:25Z,2026-08-10T08:29:50Z,https://github.com/apache/superset/pull/42960
+42961,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.2 to 6.5.3 in /docs,2026-08-10T07:04:59Z,2026-08-10T11:53:14Z,https://github.com/apache/superset/pull/42961
+42962,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.8.0 to 17.9.0 in /docs,2026-08-10T07:05:22Z,2026-08-10T08:29:09Z,https://github.com/apache/superset/pull/42962
+42963,dependabot[bot],True,dependency,chore(deps): bump js-yaml from 5.2.2 to 5.2.3 in /docs,2026-08-10T07:05:57Z,2026-08-10T08:28:30Z,https://github.com/apache/superset/pull/42963
+42964,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.8 to 2.11.11 in /docs,2026-08-10T07:06:18Z,2026-08-10T08:28:26Z,https://github.com/apache/superset/pull/42964
+42965,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/analyze from 4.37.3 to 4.37.5,2026-08-10T07:06:19Z,2026-08-10T09:39:14Z,https://github.com/apache/superset/pull/42965
+42966,dependabot[bot],True,dependency,chore(deps-dev): bump @babel/types from 7.29.7 to 7.29.8 in /superset-frontend in the babel group,2026-08-10T07:06:24Z,2026-08-10T08:28:20Z,https://github.com/apache/superset/pull/42966
+42967,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/init from 4.37.3 to 4.37.5,2026-08-10T07:07:54Z,2026-08-10T08:28:17Z,https://github.com/apache/superset/pull/42967
+42968,dependabot[bot],True,dependency,chore(deps): bump actions/setup-java from 5.6.0 to 5.7.0,2026-08-10T07:08:02Z,2026-08-10T14:54:42Z,https://github.com/apache/superset/pull/42968
+42969,dependabot[bot],True,dependency,chore(deps): bump Kesin11/actions-timeline from 3.1.1 to 3.2.0,2026-08-10T07:08:08Z,2026-08-10T08:28:11Z,https://github.com/apache/superset/pull/42969
+42970,dependabot[bot],True,dependency,chore(deps-dev): bump eslint-plugin-jest-dom from 5.7.0 to 5.10.1 in /superset-frontend,2026-08-10T07:09:14Z,2026-08-10T08:28:06Z,https://github.com/apache/superset/pull/42970
+42971,dependabot[bot],True,dependency,chore(deps-dev): bump tsx from 4.23.1 to 4.23.5 in /superset-frontend,2026-08-10T07:10:27Z,2026-08-10T08:28:02Z,https://github.com/apache/superset/pull/42971
+42972,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.8 to 2.11.11 in /superset-frontend,2026-08-10T07:10:54Z,2026-08-10T08:27:59Z,https://github.com/apache/superset/pull/42972
+42973,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.2 to 6.5.3 in /superset-frontend,2026-08-10T07:11:45Z,2026-08-10T08:27:56Z,https://github.com/apache/superset/pull/42973
+42974,dependabot[bot],True,dependency,chore(deps-dev): bump @types/lodash from 4.17.24 to 4.17.25 in /superset-frontend,2026-08-10T07:12:52Z,2026-08-10T08:27:52Z,https://github.com/apache/superset/pull/42974
+42976,Abdulrehman-PIAIC80387,False,feature,feat(postprocessing): teach pivot() to compute percent-of-row/col/total (#42809),2026-08-10T07:44:42Z,2026-08-29T03:34:15Z,https://github.com/apache/superset/pull/42976
+42995,Bernedotcom2312,False,fix,fix(helm): stop shipping conflicting podDisruptionBudget defaults,2026-08-10T09:14:57Z,2026-08-13T20:02:51Z,https://github.com/apache/superset/pull/42995
+42996,Antonio-RiveroMartnez,False,feature,feat(database): identify configured database connection errors,2026-08-10T09:16:52Z,2026-08-10T12:14:42Z,https://github.com/apache/superset/pull/42996
+43005,onheap,False,fix,fix(rls): handle same-named CTEs and quoted aliases in the SQL rewrite,2026-08-10T16:30:28Z,2026-08-12T13:38:37Z,https://github.com/apache/superset/pull/43005
+43006,endimonan,False,fix,fix(explore): hide Superset annotation source for users without annotation access,2026-08-10T18:00:53Z,2026-08-13T01:51:39Z,https://github.com/apache/superset/pull/43006
+43009,rusackas,False,other,docs: document FAB_API_SWAGGER_UI_SUPERSET_APP_ROOT config flag,2026-08-10T19:52:41Z,2026-08-10T22:49:47Z,https://github.com/apache/superset/pull/43009
+43010,rusackas,False,other,docs(dashboard): document the expand_all_slices metadata flag,2026-08-10T19:54:58Z,2026-08-10T22:50:04Z,https://github.com/apache/superset/pull/43010
+43011,rusackas,False,other,docs(dashboard): document native filters on semantic views,2026-08-10T19:56:54Z,2026-08-10T22:50:34Z,https://github.com/apache/superset/pull/43011
+43012,rusackas,False,fix,fix(reports): translate execute-now success message,2026-08-10T20:03:18Z,2026-08-10T22:51:06Z,https://github.com/apache/superset/pull/43012
+43013,rusackas,False,fix,"fix(sunburst): keep SQL null and literal string ""null"" as distinct groups",2026-08-10T20:03:39Z,2026-08-13T18:07:06Z,https://github.com/apache/superset/pull/43013
+43014,rusackas,False,fix,fix(frontend): remove any type and duplicate route in routes.tsx,2026-08-10T20:04:53Z,2026-08-10T22:51:58Z,https://github.com/apache/superset/pull/43014
+43015,rusackas,False,fix,fix(sqllab): make MenuDotsDropdown trigger focusable for tab rename,2026-08-10T20:09:30Z,2026-08-13T17:26:59Z,https://github.com/apache/superset/pull/43015
+43016,rusackas,False,fix,fix(common): remove unsupported cross join mode from left_join_df,2026-08-10T20:12:40Z,2026-08-11T16:35:16Z,https://github.com/apache/superset/pull/43016
+43018,rusackas,False,fix,fix(reports): make webhook notification request timeout configurable,2026-08-10T20:30:43Z,2026-08-11T16:35:02Z,https://github.com/apache/superset/pull/43018
+43019,rusackas,False,fix,fix(theming): guard ensureStaticPrefix against null/undefined input,2026-08-10T20:31:40Z,2026-08-11T00:41:34Z,https://github.com/apache/superset/pull/43019
+43023,rusackas,False,other,test(explore): add end-to-end regression test for DatasourcePanel through the real AutoSizer + react-window List pipeline,2026-08-10T22:06:00Z,2026-08-11T16:34:07Z,https://github.com/apache/superset/pull/43023
+43027,rusackas,False,feature,"feat(table): allow choosing Sum or Average for the ""Show summary"" totals row",2026-08-10T22:45:47Z,2026-08-13T20:15:24Z,https://github.com/apache/superset/pull/43027
+43028,madhushreeag,False,feature,"feat(Reports&Alerts): remove Selenium support, require Playwright",2026-08-10T22:52:19Z,2026-08-11T23:06:27Z,https://github.com/apache/superset/pull/43028
+43029,rusackas,False,dependency,chore(deps): bump sqlglot from 30.15.0 to 30.16.0,2026-08-10T23:31:07Z,2026-08-11T17:16:45Z,https://github.com/apache/superset/pull/43029
+43031,eschutho,False,fix,fix(reports): fail closed on alert screenshot capture instead of delivering a blank,2026-08-11T01:21:52Z,2026-08-18T04:03:16Z,https://github.com/apache/superset/pull/43031
+43033,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.61.0 to 0.62.0 in /superset-websocket,2026-08-11T07:03:36Z,2026-08-11T16:48:42Z,https://github.com/apache/superset/pull/43033
+43034,dependabot[bot],True,dependency,chore(deps-dev): bump typescript-eslint from 8.65.0 to 8.66.0 in /superset-websocket,2026-08-11T07:03:46Z,2026-08-11T13:43:17Z,https://github.com/apache/superset/pull/43034
+43035,dependabot[bot],True,dependency,chore(deps-dev): bump @typescript-eslint/parser from 8.65.0 to 8.66.0 in /superset-websocket,2026-08-11T07:03:56Z,2026-08-11T13:43:13Z,https://github.com/apache/superset/pull/43035
+43036,dependabot[bot],True,dependency,chore(deps): bump ws from 8.21.1 to 8.21.2 in /superset-websocket,2026-08-11T07:04:04Z,2026-08-11T13:42:50Z,https://github.com/apache/superset/pull/43036
+43037,dependabot[bot],True,dependency,chore(deps): bump the storybook group across 1 directory with 2 updates,2026-08-11T07:04:35Z,2026-08-11T16:48:45Z,https://github.com/apache/superset/pull/43037
+43038,dependabot[bot],True,dependency,chore(deps-dev): bump the typescript-eslint group across 1 directory with 2 updates,2026-08-11T07:04:37Z,2026-08-11T23:28:52Z,https://github.com/apache/superset/pull/43038
+43039,dependabot[bot],True,dependency,chore(deps-dev): bump the typescript-eslint group across 1 directory with 3 updates,2026-08-11T07:05:24Z,2026-08-11T16:48:39Z,https://github.com/apache/superset/pull/43039
+43040,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/analyze from 4.37.5 to 4.37.6,2026-08-11T07:05:55Z,2026-08-11T16:34:49Z,https://github.com/apache/superset/pull/43040
+43041,dependabot[bot],True,dependency,chore(deps): bump swagger-ui-react from 5.32.11 to 5.32.12 in /docs,2026-08-11T07:06:05Z,2026-08-11T13:42:47Z,https://github.com/apache/superset/pull/43041
+43042,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.61.0 to 0.62.0 in /docs,2026-08-11T07:06:21Z,2026-08-11T13:43:09Z,https://github.com/apache/superset/pull/43042
+43043,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.11 to 2.11.12 in /docs,2026-08-11T07:06:29Z,2026-08-11T13:42:43Z,https://github.com/apache/superset/pull/43043
+43044,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/init from 4.37.5 to 4.37.6,2026-08-11T07:07:23Z,2026-08-11T13:42:54Z,https://github.com/apache/superset/pull/43044
+43045,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-11T07:10:06Z,2026-08-11T13:43:06Z,https://github.com/apache/superset/pull/43045
+43046,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.61.0 to 0.62.0 in /superset-frontend,2026-08-11T07:11:04Z,2026-08-11T23:28:49Z,https://github.com/apache/superset/pull/43046
+43047,dependabot[bot],True,dependency,chore(deps): bump @googleapis/sheets from 13.0.2 to 14.0.0 in /superset-frontend,2026-08-11T07:11:51Z,2026-08-15T07:23:13Z,https://github.com/apache/superset/pull/43047
+43048,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.11 to 2.11.12 in /superset-frontend,2026-08-11T07:12:46Z,2026-08-11T16:42:17Z,https://github.com/apache/superset/pull/43048
+43049,dependabot[bot],True,dependency,chore(deps-dev): bump oxlint from 1.76.0 to 1.77.0 in /superset-frontend,2026-08-11T07:13:40Z,2026-08-11T13:43:02Z,https://github.com/apache/superset/pull/43049
+43050,dependabot[bot],True,dependency,chore(deps): bump nanoid from 6.0.0 to 6.0.1 in /superset-frontend,2026-08-11T07:15:17Z,2026-08-11T13:42:40Z,https://github.com/apache/superset/pull/43050
+43052,dependabot[bot],True,dependency,chore(deps): bump markdown-to-jsx from 9.10.1 to 9.10.2 in /superset-frontend,2026-08-11T07:16:40Z,2026-08-11T13:42:35Z,https://github.com/apache/superset/pull/43052
+43056,greggailly,False,fix,fix: set maxHeight of List components to height when in AutoSizer,2026-08-11T09:15:18Z,2026-08-19T23:56:31Z,https://github.com/apache/superset/pull/43056
+43063,nrps9909,False,fix,fix(i18n): review Traditional Chinese count labels,2026-08-11T14:36:11Z,2026-08-25T17:28:13Z,https://github.com/apache/superset/pull/43063
+43065,michael-s-molina,False,feature,feat: Initial design of containers,2026-08-11T16:19:56Z,2026-08-11T17:24:21Z,https://github.com/apache/superset/pull/43065
+43066,gabotorresruiz,False,fix,fix(mcp): harden the embedded-guest chart data-read path,2026-08-11T16:59:18Z,2026-08-14T17:55:11Z,https://github.com/apache/superset/pull/43066
+43073,endimonan,False,fix,fix(cache): warm native dashboard filter defaults,2026-08-11T17:51:20Z,2026-08-13T05:30:49Z,https://github.com/apache/superset/pull/43073
+43074,rusackas,False,fix,fix(encrypt): stop naive padding from truncating secrets ending in '*',2026-08-11T20:06:59Z,2026-08-13T20:15:38Z,https://github.com/apache/superset/pull/43074
+43075,rusackas,False,fix,fix(deck.gl): dismiss custom tooltips on hover-out,2026-08-11T20:22:50Z,2026-08-12T02:32:43Z,https://github.com/apache/superset/pull/43075
+43077,eschutho,False,fix,fix(reports): wait for ECharts paint before capturing report screenshots,2026-08-11T20:46:07Z,2026-08-18T04:02:37Z,https://github.com/apache/superset/pull/43077
+43078,rebenitez1802,False,fix,fix(GridTable): remove unused rowSelection option to silence AG Grid error #200,2026-08-11T20:56:21Z,2026-08-12T21:07:41Z,https://github.com/apache/superset/pull/43078
+43079,rusackas,False,other,"chore(codeowners): trim stale ownership blocks, reword maps notice",2026-08-11T21:27:28Z,2026-08-12T06:29:47Z,https://github.com/apache/superset/pull/43079
+43080,glaterza,False,fix,fix(i18n-es): correct stranded translations in API key and semantic layer catalogs,2026-08-11T22:35:26Z,2026-08-15T00:40:24Z,https://github.com/apache/superset/pull/43080
+43082,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-12T07:08:20Z,2026-08-12T09:56:57Z,https://github.com/apache/superset/pull/43082
+43083,dependabot[bot],True,dependency,chore(deps-dev): bump tsx from 4.23.5 to 4.23.7 in /superset-frontend,2026-08-12T07:08:50Z,2026-08-12T09:56:53Z,https://github.com/apache/superset/pull/43083
+43087,vhogberg,False,fix,fix(box-plot): distribute across field not marked as required for datasets without a temporal column,2026-08-12T09:55:38Z,2026-08-13T20:15:52Z,https://github.com/apache/superset/pull/43087
+43095,rusackas,False,fix,fix(embedded): restore chart rendering for guest dashboards,2026-08-12T17:37:41Z,2026-08-13T12:38:58Z,https://github.com/apache/superset/pull/43095
+43096,michael-s-molina,False,dependency,feat: Use gridstack for the layout,2026-08-12T19:53:28Z,2026-08-13T18:57:22Z,https://github.com/apache/superset/pull/43096
+43097,nytai,False,fix,fix(sql): only force a LIMIT onto query expressions,2026-08-12T23:03:56Z,2026-08-13T17:43:45Z,https://github.com/apache/superset/pull/43097
+43099,rusackas,False,fix,fix(sql): rebase Dremio dialect on sqlglot's native dialect,2026-08-13T02:01:16Z,2026-08-13T20:16:06Z,https://github.com/apache/superset/pull/43099
+43101,rusackas,False,other,"chore(duckdb): remove cursor.description workaround, no longer reproducible",2026-08-13T05:38:31Z,2026-08-13T20:16:17Z,https://github.com/apache/superset/pull/43101
+43102,dependabot[bot],True,dependency,chore(deps): bump actions/setup-java from 5.6.0 to 5.7.0,2026-08-13T07:07:08Z,2026-08-13T09:33:26Z,https://github.com/apache/superset/pull/43102
+43103,dependabot[bot],True,dependency,chore(deps): bump the ag-grid group across 1 directory with 2 updates,2026-08-13T07:07:55Z,2026-08-13T13:50:20Z,https://github.com/apache/superset/pull/43103
+43104,dependabot[bot],True,dependency,chore(deps): bump immer from 11.1.15 to 11.1.16 in /superset-frontend,2026-08-13T07:08:49Z,2026-08-13T09:33:22Z,https://github.com/apache/superset/pull/43104
+43105,dependabot[bot],True,dependency,chore(deps): bump mapbox-gl from 3.27.0 to 3.28.0 in /superset-frontend,2026-08-13T07:09:15Z,2026-08-13T09:33:18Z,https://github.com/apache/superset/pull/43105
+43106,dependabot[bot],True,dependency,chore(deps-dev): bump tsx from 4.23.7 to 4.23.9 in /superset-frontend,2026-08-13T07:12:01Z,2026-08-13T09:33:14Z,https://github.com/apache/superset/pull/43106
+43107,dependabot[bot],True,dependency,chore(deps): bump core-js from 3.49.0 to 3.50.0 in /superset-frontend,2026-08-13T07:12:30Z,2026-08-13T09:33:09Z,https://github.com/apache/superset/pull/43107
+43109,krishn1301,False,other,docs: document the zstd prerequisite for the frontend dev server,2026-08-13T10:06:25Z,2026-08-14T13:41:13Z,https://github.com/apache/superset/pull/43109
+43110,aminghadersohi,False,fix,fix(db_engine_specs): skip malformed third-party dialect entry points,2026-08-13T12:55:14Z,2026-08-17T21:10:06Z,https://github.com/apache/superset/pull/43110
+43111,alexandrusoare,False,fix,fix(embedded): block custom SQL injection in guest user chart payloads,2026-08-13T12:55:29Z,2026-08-21T14:05:41Z,https://github.com/apache/superset/pull/43111
+43114,sadpandajoe,False,fix,fix(ci): format ErrorMessage tests,2026-08-13T14:07:28Z,2026-08-13T20:19:09Z,https://github.com/apache/superset/pull/43114
+43115,WhoamiI00,False,fix,fix(explore): show the empty state when Samples returns no result payload,2026-08-13T14:45:34Z,2026-08-20T18:00:55Z,https://github.com/apache/superset/pull/43115
+43127,I3eka,False,fix,fix(sql): handle ORDER BY in embedded MSSQL queries,2026-08-13T16:04:30Z,2026-08-14T18:07:11Z,https://github.com/apache/superset/pull/43127
+43128,I3eka,False,fix,fix(mcp): validate chart queries before persistence,2026-08-13T16:04:34Z,2026-08-15T00:48:20Z,https://github.com/apache/superset/pull/43128
+43129,I3eka,False,fix,fix(mcp): validate virtual dataset metadata and surface errors,2026-08-13T16:04:37Z,2026-08-19T17:50:38Z,https://github.com/apache/superset/pull/43129
+43130,I3eka,False,fix,fix(mcp): accept common chart input variants,2026-08-13T16:04:40Z,2026-08-25T22:22:53Z,https://github.com/apache/superset/pull/43130
+43131,I3eka,False,fix,fix(mcp): defer unknown numeric types to compile,2026-08-13T16:04:44Z,2026-08-25T22:35:00Z,https://github.com/apache/superset/pull/43131
+43139,sadpandajoe,False,fix,fix(plugin-chart-table): guard row-indexed comparison-color lookups against undefined entries,2026-08-13T19:00:22Z,2026-08-24T18:45:26Z,https://github.com/apache/superset/pull/43139
+43140,nytai,False,fix,fix(dashboard): report the real error when saving a dashboard fails,2026-08-13T19:49:41Z,2026-08-18T00:51:29Z,https://github.com/apache/superset/pull/43140
+43142,sadpandajoe,False,other,chore: update CODEOWNERS for extension and config files,2026-08-13T20:10:52Z,2026-08-13T20:33:50Z,https://github.com/apache/superset/pull/43142
+43143,DanielSwift1992,False,other,chore: fix stale developer_portal paths,2026-08-13T20:11:23Z,2026-08-14T13:12:09Z,https://github.com/apache/superset/pull/43143
+43145,eschutho,False,fix,fix(sql_lab): return 400 not 500 when raise_for_access hits malformed Jinja in results.py,2026-08-13T21:25:43Z,2026-08-14T22:02:47Z,https://github.com/apache/superset/pull/43145
+43146,sadpandajoe,False,fix,fix(explore): clear stale custom time-shift date error,2026-08-14T00:11:33Z,2026-08-24T18:46:49Z,https://github.com/apache/superset/pull/43146
+43147,sadpandajoe,False,fix,fix(sqllab): stop copying a permalink when opening a saved query,2026-08-14T00:20:17Z,2026-08-20T22:44:20Z,https://github.com/apache/superset/pull/43147
+43148,sadpandajoe,False,fix,fix(explore): samples endpoint now honors requested row limit,2026-08-14T00:36:53Z,2026-08-18T16:28:04Z,https://github.com/apache/superset/pull/43148
+43149,NoiceHax,False,fix,fix(cache): fall back to default timeout when cache_timeout is None,2026-08-14T05:07:32Z,2026-08-28T04:50:53Z,https://github.com/apache/superset/pull/43149
+43151,NoiceHax,False,fix,"fix(embedded): honor ""can view query"" permission for guest users",2026-08-14T05:08:27Z,2026-08-28T04:49:53Z,https://github.com/apache/superset/pull/43151
+43152,rusackas,False,fix,fix(examples): migrate Life Expectancy VS Rural % example off the removed legacy bubble viz_type,2026-08-14T05:53:08Z,2026-08-14T17:27:14Z,https://github.com/apache/superset/pull/43152
+43154,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-14T07:09:38Z,2026-08-14T09:34:25Z,https://github.com/apache/superset/pull/43154
+43155,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-14T07:11:10Z,2026-08-14T09:34:21Z,https://github.com/apache/superset/pull/43155
+43156,dependabot[bot],True,dependency,chore(deps): bump mapbox-gl from 3.28.0 to 3.28.1 in /superset-frontend,2026-08-14T07:12:19Z,2026-08-14T09:34:17Z,https://github.com/apache/superset/pull/43156
+43157,dependabot[bot],True,dependency,chore(deps-dev): bump tsx from 4.23.9 to 4.23.10 in /superset-frontend,2026-08-14T07:12:48Z,2026-08-14T09:34:13Z,https://github.com/apache/superset/pull/43157
+43158,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-14T07:13:19Z,2026-08-14T09:34:10Z,https://github.com/apache/superset/pull/43158
+43159,dependabot[bot],True,dependency,chore(deps): bump caniuse-lite from 1.0.30001806 to 1.0.30001807 in /docs,2026-08-14T07:13:34Z,2026-08-14T09:34:07Z,https://github.com/apache/superset/pull/43159
+43160,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.3 to 6.5.4 in /docs,2026-08-14T07:14:02Z,2026-08-14T09:34:04Z,https://github.com/apache/superset/pull/43160
+43161,dependabot[bot],True,dependency,chore(deps): bump query-string from 9.4.1 to 9.5.0 in /superset-frontend,2026-08-14T07:14:07Z,2026-08-14T09:34:00Z,https://github.com/apache/superset/pull/43161
+43162,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.3 to 6.5.4 in /superset-frontend,2026-08-14T07:16:35Z,2026-08-14T09:33:57Z,https://github.com/apache/superset/pull/43162
+43163,endimonan,False,fix,fix(calendar): localize date labels,2026-08-14T12:13:55Z,2026-08-17T12:44:14Z,https://github.com/apache/superset/pull/43163
+43164,hainenber,False,dependency,feat(ci): enforce min release age for npm dep installation,2026-08-14T13:39:24Z,2026-08-28T16:42:42Z,https://github.com/apache/superset/pull/43164
+43166,sadpandajoe,False,dependency,fix(ci): update vulnerable transitive nanoid,2026-08-14T14:12:32Z,2026-08-15T16:09:20Z,https://github.com/apache/superset/pull/43166
+43173,sadpandajoe,False,fix,fix(dataset): correct Hours Offset filter bounds and grain-truncation order,2026-08-14T17:41:46Z,2026-08-24T18:47:16Z,https://github.com/apache/superset/pull/43173
+43177,bikash-barnwal,False,fix,fix(datasets): keep a metric's warning text when editing from Explore,2026-08-14T19:05:01Z,2026-08-24T17:47:46Z,https://github.com/apache/superset/pull/43177
+43183,bikash-barnwal,False,other,test(chart): mock the event log endpoint in the drill-to-detail menu test,2026-08-14T19:47:09Z,2026-08-18T20:51:55Z,https://github.com/apache/superset/pull/43183
+43185,bikash-barnwal,False,fix,fix(api): stop export downloads inheriting the one-year Cache-Control,2026-08-14T20:16:40Z,2026-08-27T19:17:03Z,https://github.com/apache/superset/pull/43185
+43190,aminghadersohi,False,fix,fix(dataset): preserve legacy default dashboard URLs,2026-08-14T21:14:40Z,2026-08-19T18:44:55Z,https://github.com/apache/superset/pull/43190
+43191,aminghadersohi,False,fix,fix(users): show password validation errors,2026-08-14T21:16:36Z,2026-08-19T20:57:47Z,https://github.com/apache/superset/pull/43191
+43195,bikash-barnwal,False,fix,fix(deckgl): give handlebars tooltips an opaque background,2026-08-14T21:34:48Z,2026-08-27T19:17:33Z,https://github.com/apache/superset/pull/43195
+43196,bikash-barnwal,False,fix,fix(roles): let the permissions dropdown size to its content,2026-08-14T21:48:38Z,2026-08-24T17:46:03Z,https://github.com/apache/superset/pull/43196
+43197,bikash-barnwal,False,other,ci: declare top-level permissions on the remaining workflows,2026-08-14T21:52:05Z,2026-08-15T07:48:43Z,https://github.com/apache/superset/pull/43197
+43198,bikash-barnwal,False,fix,fix(lint-metrics): record oxlint plugin rules under their canonical id,2026-08-14T22:00:05Z,2026-08-15T07:21:38Z,https://github.com/apache/superset/pull/43198
+43201,rusackas,False,fix,fix(charts): fix Bubble chart crash and correct example's time_range to a year with real data,2026-08-14T22:52:40Z,2026-08-15T07:16:30Z,https://github.com/apache/superset/pull/43201
+43202,aminghadersohi,False,fix,fix(mcp): preserve user-authored result values,2026-08-14T23:07:59Z,2026-08-20T22:29:40Z,https://github.com/apache/superset/pull/43202
+43205,SEPURI-SAI-KRISHNA,False,fix,fix(chart): map the remaining time grains for Prophet forecasting,2026-08-15T04:37:58Z,2026-08-29T03:35:53Z,https://github.com/apache/superset/pull/43205
+43207,dependabot[bot],True,dependency,chore(deps): bump mako from 1.3.12 to 1.4.1,2026-08-15T07:03:07Z,2026-08-15T07:33:07Z,https://github.com/apache/superset/pull/43207
+43208,dependabot[bot],True,dependency,chore(deps): bump cachetools from 7.1.6 to 7.1.7,2026-08-15T07:03:31Z,2026-08-15T07:33:36Z,https://github.com/apache/superset/pull/43208
+43209,dependabot[bot],True,dependency,chore(deps-dev): bump sqlalchemy-bigquery from 1.17.1 to 1.17.2,2026-08-15T07:04:14Z,2026-08-15T07:59:56Z,https://github.com/apache/superset/pull/43209
+43210,dependabot[bot],True,dependency,chore(deps-dev): bump fastmcp from 3.4.5 to 3.4.7,2026-08-15T07:04:36Z,2026-08-15T07:43:04Z,https://github.com/apache/superset/pull/43210
+43211,dependabot[bot],True,dependency,"chore(deps-dev): update pyocient requirement from <4,>=1.0.15 to >=3.9.0,<4",2026-08-15T07:05:21Z,2026-08-15T07:33:21Z,https://github.com/apache/superset/pull/43211
+43212,dependabot[bot],True,dependency,chore(deps-dev): bump pandas-gbq from 0.35.0 to 0.35.1,2026-08-15T07:05:58Z,2026-08-15T07:42:20Z,https://github.com/apache/superset/pull/43212
+43213,hainenber,False,other,chore(ci): disable Git commit info capture in Playwright E2E tests to avoid timeout,2026-08-15T08:12:49Z,2026-08-19T23:54:45Z,https://github.com/apache/superset/pull/43213
+43216,bikash-barnwal,False,fix,fix(sqllab): stop a database with no extra from breaking SET_DATABASES,2026-08-15T08:48:51Z,2026-08-27T03:51:08Z,https://github.com/apache/superset/pull/43216
+43217,daviddallakyan2005,False,fix,fix(clickhouse): add PT1S time grain,2026-08-15T09:50:41Z,2026-08-18T22:49:19Z,https://github.com/apache/superset/pull/43217
+43221,Abdrihman-Hussein,False,other,docs(faq): convert flask fab freeze question to a proper heading,2026-08-15T13:56:19Z,2026-08-15T16:21:13Z,https://github.com/apache/superset/pull/43221
+43226,eschutho,False,fix,fix(sql-lab): catch TemplateError in StreamingSqlResultExportCommand.validate,2026-08-15T16:39:26Z,2026-08-17T22:02:11Z,https://github.com/apache/superset/pull/43226
+43228,rlei-odes,False,fix,fix(chart): ignore chart actions for a chart no longer in state,2026-08-15T21:48:12Z,2026-08-20T17:57:22Z,https://github.com/apache/superset/pull/43228
+43240,dependabot[bot],True,dependency,chore(deps-dev): bump @types/node from 26.1.2 to 26.2.0 in /superset-websocket,2026-08-17T07:03:22Z,2026-08-17T21:34:36Z,https://github.com/apache/superset/pull/43240
+43241,dependabot[bot],True,dependency,chore(deps): bump ws from 8.21.2 to 8.21.3 in /superset-websocket,2026-08-17T07:03:29Z,2026-08-17T21:34:32Z,https://github.com/apache/superset/pull/43241
+43242,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.8.0 to 10.8.1 in /superset-websocket,2026-08-17T07:03:38Z,2026-08-17T21:34:26Z,https://github.com/apache/superset/pull/43242
+43243,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.12 to 2.11.13 in /docs,2026-08-17T07:05:04Z,2026-08-18T00:46:24Z,https://github.com/apache/superset/pull/43243
+43244,dependabot[bot],True,dependency,chore(deps): bump caniuse-lite from 1.0.30001807 to 1.0.30001809 in /docs,2026-08-17T07:05:16Z,2026-08-17T21:34:19Z,https://github.com/apache/superset/pull/43244
+43246,dependabot[bot],True,dependency,chore(deps-dev): bump @testing-library/jest-dom from 7.0.0 to 7.0.1 in /superset-frontend,2026-08-17T07:08:59Z,2026-08-17T21:34:15Z,https://github.com/apache/superset/pull/43246
+43247,dependabot[bot],True,dependency,chore(deps-dev): bump @types/node from 26.1.2 to 26.2.0 in /superset-frontend,2026-08-17T07:09:59Z,2026-08-17T21:34:11Z,https://github.com/apache/superset/pull/43247
+43248,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.8.0 to 10.8.1 in /superset-frontend,2026-08-17T07:11:50Z,2026-08-17T21:34:07Z,https://github.com/apache/superset/pull/43248
+43249,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.12 to 2.11.13 in /superset-frontend,2026-08-17T07:12:41Z,2026-08-17T21:34:03Z,https://github.com/apache/superset/pull/43249
+43250,dependabot[bot],True,dependency,chore(deps-dev): bump tsx from 4.23.10 to 4.23.12 in /superset-frontend,2026-08-17T07:13:12Z,2026-08-17T21:33:59Z,https://github.com/apache/superset/pull/43250
+43252,msyavuz,False,fix,fix(dashboard): derive filter scope on read instead of serving a stale cache,2026-08-17T10:05:26Z,2026-08-17T16:23:19Z,https://github.com/apache/superset/pull/43252
+43255,msyavuz,False,fix,fix(datasets): keep metric certified_by when certification details are typed next,2026-08-17T11:44:38Z,2026-08-17T16:23:31Z,https://github.com/apache/superset/pull/43255
+43256,endimonan,False,fix,fix(dashboard): align list OpenAPI schema,2026-08-17T12:31:00Z,2026-08-18T17:22:51Z,https://github.com/apache/superset/pull/43256
+43262,villebro,False,feature,feat: support progressive widget schema disclosure,2026-08-17T16:54:10Z,2026-08-19T14:47:27Z,https://github.com/apache/superset/pull/43262
+43264,sadpandajoe,False,other,test(frontend): shrink flaky/misplaced recently-archived e2e coverage to Jest unit tests,2026-08-17T17:48:24Z,2026-08-20T18:48:03Z,https://github.com/apache/superset/pull/43264
+43266,sadpandajoe,False,fix,fix(ci): restore scheduled CI checks,2026-08-17T18:12:04Z,2026-08-24T19:31:50Z,https://github.com/apache/superset/pull/43266
+43267,sadpandajoe,False,fix,fix(chart): stop contextmenu propagation in BigNumberViz,2026-08-17T18:33:09Z,2026-08-19T20:57:28Z,https://github.com/apache/superset/pull/43267
+43269,betodealmeida,False,feature,feat(semantic layers): optional metadata for metrics/dimensions,2026-08-17T20:44:19Z,2026-08-18T00:34:17Z,https://github.com/apache/superset/pull/43269
+43270,DanielSwift1992,False,fix,fix: remove a labeler glob that matches no files,2026-08-17T21:18:14Z,2026-08-18T23:21:01Z,https://github.com/apache/superset/pull/43270
+43271,SBIN2010,False,feature,feat(dashboard): add a tooltip displaying chart descriptions,2026-08-17T22:00:36Z,2026-08-30T19:25:38Z,https://github.com/apache/superset/pull/43271
+43272,nytai,False,feature,feat(tooltip): add Truncate labels control to timeseries charts,2026-08-17T22:08:35Z,2026-08-18T18:05:08Z,https://github.com/apache/superset/pull/43272
+43273,hy144328,False,other,chore: Unset future flag in engines and sessions.,2026-08-17T22:21:22Z,2026-08-20T17:58:38Z,https://github.com/apache/superset/pull/43273
+43274,FrancescoCastaldi,False,other,chore(i18n): complete Italian translations with 100% placeholder validation,2026-08-18T00:00:08Z,2026-08-30T18:34:57Z,https://github.com/apache/superset/pull/43274
+43280,endimonan,False,fix,"fix(charts): resolve export filenames from the chart, not the form data",2026-08-18T07:16:56Z,2026-08-27T11:31:32Z,https://github.com/apache/superset/pull/43280
+43281,dependabot[bot],True,dependency,chore(deps-dev): bump @typescript-eslint/parser from 8.66.0 to 8.67.0 in /superset-websocket,2026-08-18T07:29:22Z,2026-08-18T10:00:46Z,https://github.com/apache/superset/pull/43281
+43282,dependabot[bot],True,dependency,chore(deps-dev): bump typescript-eslint from 8.66.0 to 8.67.0 in /superset-websocket,2026-08-18T07:29:32Z,2026-08-18T10:00:43Z,https://github.com/apache/superset/pull/43282
+43283,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.62.0 to 0.63.0 in /superset-websocket,2026-08-18T07:29:43Z,2026-08-18T10:00:40Z,https://github.com/apache/superset/pull/43283
+43284,dependabot[bot],True,dependency,chore(deps-dev): bump @typescript-eslint/eslint-plugin from 8.65.0 to 8.67.0 in /superset-websocket,2026-08-18T07:29:54Z,2026-08-18T17:34:40Z,https://github.com/apache/superset/pull/43284
+43285,dependabot[bot],True,dependency,chore(deps-dev): bump @typescript-eslint/eslint-plugin from 8.66.0 to 8.67.0 in /superset-frontend in the typescript-eslint group,2026-08-18T07:30:08Z,2026-08-18T10:00:33Z,https://github.com/apache/superset/pull/43285
+43286,dependabot[bot],True,dependency,chore(deps-dev): bump the typescript-eslint group in /docs with 3 updates,2026-08-18T07:31:16Z,2026-08-18T10:00:30Z,https://github.com/apache/superset/pull/43286
+43287,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.62.0 to 0.63.0 in /docs,2026-08-18T07:34:34Z,2026-08-18T10:00:25Z,https://github.com/apache/superset/pull/43287
+43288,dependabot[bot],True,dependency,chore(deps-dev): bump oxlint from 1.77.0 to 1.78.0 in /superset-frontend,2026-08-18T07:34:46Z,2026-08-18T10:00:21Z,https://github.com/apache/superset/pull/43288
+43289,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.4 to 6.6.0 in /docs,2026-08-18T07:35:13Z,2026-08-18T10:00:18Z,https://github.com/apache/superset/pull/43289
+43290,dependabot[bot],True,dependency,chore(deps): bump supercluster from 8.0.1 to 9.0.0 in /superset-frontend,2026-08-18T07:35:38Z,2026-08-18T17:35:17Z,https://github.com/apache/superset/pull/43290
+43291,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-18T07:36:13Z,2026-08-18T10:00:00Z,https://github.com/apache/superset/pull/43291
+43292,dependabot[bot],True,dependency,chore(deps): bump google-auth-library from 11.0.0 to 11.0.1 in /superset-frontend,2026-08-18T07:37:22Z,2026-08-18T09:59:56Z,https://github.com/apache/superset/pull/43292
+43293,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.62.0 to 0.63.0 in /superset-frontend,2026-08-18T07:38:08Z,2026-08-18T13:15:09Z,https://github.com/apache/superset/pull/43293
+43294,dependabot[bot],True,dependency,chore(deps): bump antd from 6.5.4 to 6.6.0 in /superset-frontend,2026-08-18T07:39:16Z,2026-08-18T13:15:04Z,https://github.com/apache/superset/pull/43294
+43296,EnxDev,False,fix,fix(explore): keep the row count label visible when the row limit is reached,2026-08-18T08:49:32Z,2026-08-28T08:51:27Z,https://github.com/apache/superset/pull/43296
+43301,vhogberg,False,fix,fix(uploads): set catalog on datasets created by file upload,2026-08-18T13:04:19Z,2026-08-28T04:46:51Z,https://github.com/apache/superset/pull/43301
+43304,ASolarers-Rodriguez,False,dependency,fix(plugin-chart-chord): declare react as a peerDependency,2026-08-18T15:32:16Z,2026-08-19T21:35:39Z,https://github.com/apache/superset/pull/43304
+43306,sadpandajoe,False,fix,fix(frontend): ignore stale list responses,2026-08-18T18:15:48Z,2026-08-24T19:13:34Z,https://github.com/apache/superset/pull/43306
+43307,aminghadersohi,False,fix,fix(reports): humanize day-of-month + day-of-week crontabs as OR,2026-08-18T20:50:33Z,2026-08-20T20:46:08Z,https://github.com/apache/superset/pull/43307
+43310,aminghadersohi,False,fix,fix(listview): stop card clicks creating a duplicate history entry,2026-08-18T20:57:24Z,2026-08-21T03:23:46Z,https://github.com/apache/superset/pull/43310
+43311,glaterza,False,fix,fix(i18n-es): correct case/number collapse in the semantic-layer labels,2026-08-18T21:27:50Z,2026-08-21T03:03:58Z,https://github.com/apache/superset/pull/43311
+43315,sadpandajoe,False,fix,fix(charts): align grain-less time comparisons safely,2026-08-18T23:41:40Z,2026-08-20T21:55:01Z,https://github.com/apache/superset/pull/43315
+43316,villebro,False,other,refactor(coordination): centralize distributed coordination in a single service,2026-08-18T23:46:48Z,2026-08-21T22:53:17Z,https://github.com/apache/superset/pull/43316
+43317,sadpandajoe,False,fix,fix(explore): require a value for adhoc filters before save,2026-08-19T00:18:03Z,2026-08-27T19:17:46Z,https://github.com/apache/superset/pull/43317
+43319,s1ny1998,False,fix,fix(explore): keep certification badges after saving or swapping a dataset,2026-08-19T06:00:18Z,2026-08-28T15:47:36Z,https://github.com/apache/superset/pull/43319
+43321,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.9.0 to 17.10.0 in /superset-websocket,2026-08-19T07:06:14Z,2026-08-19T18:36:49Z,https://github.com/apache/superset/pull/43321
+43322,dependabot[bot],True,dependency,chore(deps): bump astral-sh/setup-uv from 9.0.0 to 10.0.0,2026-08-19T07:06:32Z,2026-08-19T21:40:02Z,https://github.com/apache/superset/pull/43322
+43323,dependabot[bot],True,dependency,chore(deps): bump the docusaurus-openapi group in /docs with 2 updates,2026-08-19T07:07:05Z,2026-08-19T18:36:44Z,https://github.com/apache/superset/pull/43323
+43324,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.9.0 to 17.10.0 in /docs,2026-08-19T07:07:19Z,2026-08-19T18:36:38Z,https://github.com/apache/superset/pull/43324
+43325,dependabot[bot],True,dependency,chore(deps): bump swagger-ui-react from 5.32.12 to 5.32.13 in /docs,2026-08-19T07:07:37Z,2026-08-19T18:36:35Z,https://github.com/apache/superset/pull/43325
+43326,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-19T07:11:11Z,2026-08-19T18:36:31Z,https://github.com/apache/superset/pull/43326
+43328,dependabot[bot],True,dependency,chore(deps-dev): bump @swc/plugin-emotion from 14.15.0 to 14.19.0 in /superset-frontend,2026-08-19T07:13:44Z,2026-08-19T18:36:26Z,https://github.com/apache/superset/pull/43328
+43329,AurimasNav,False,fix,fix(mcp): fail closed when MCP_AUTH_FACTORY raises,2026-08-19T07:43:39Z,2026-08-21T22:43:52Z,https://github.com/apache/superset/pull/43329
+43330,msyavuz,False,fix,fix(sqllab): disable Save dataset until the query runs successfully,2026-08-19T09:46:26Z,2026-08-21T09:56:42Z,https://github.com/apache/superset/pull/43330
+43337,madhushreeag,False,feature,feat(config): add EXTRA_PANDAS_POSTPROCESSING_OPS extension point,2026-08-19T16:30:03Z,2026-08-20T20:15:42Z,https://github.com/apache/superset/pull/43337
+43341,nytai,False,fix,fix(explore): legacy boolean filters and limit available operators based on calculated column type,2026-08-19T19:24:05Z,2026-08-19T22:37:10Z,https://github.com/apache/superset/pull/43341
+43346,SBIN2010,False,feature,feat(plugin-chart-echarts): add Butterfly Chart,2026-08-19T22:14:54Z,2026-08-29T14:40:02Z,https://github.com/apache/superset/pull/43346
+43348,fitzee,False,fix,fix(reports): prevent blank/partial report PDFs from virtualized charts,2026-08-19T23:03:31Z,2026-08-20T13:10:31Z,https://github.com/apache/superset/pull/43348
+43349,justinpark,False,fix,fix(mcp): honor use_cache and cache_timeout in get_chart_data,2026-08-19T23:09:49Z,2026-08-20T20:01:41Z,https://github.com/apache/superset/pull/43349
+43350,mikebridge,False,fix,fix(versioning): suppress automatic chart normalization changes,2026-08-19T23:33:39Z,2026-08-24T16:09:21Z,https://github.com/apache/superset/pull/43350
+43351,sadpandajoe,False,fix,fix(sqllab): default PostgreSQL port to 5432 in the dynamic connection form,2026-08-20T00:43:02Z,2026-08-21T22:59:34Z,https://github.com/apache/superset/pull/43351
+43353,sadpandajoe,False,fix,fix(query-object): reject malformed ad-hoc metrics,2026-08-20T05:01:14Z,2026-08-24T19:12:26Z,https://github.com/apache/superset/pull/43353
+43354,sadpandajoe,False,fix,fix(explore): exclude permalink_key from chart URL params,2026-08-20T05:09:32Z,2026-08-21T18:43:18Z,https://github.com/apache/superset/pull/43354
+43355,sadpandajoe,False,fix,fix(gsheets): correctly format Date-column filter literals,2026-08-20T05:17:33Z,2026-08-24T19:12:05Z,https://github.com/apache/superset/pull/43355
+43357,SEPURI-SAI-KRISHNA,False,fix,fix(github): point the issue templates at labels that exist,2026-08-20T06:38:49Z,2026-08-20T17:13:36Z,https://github.com/apache/superset/pull/43357
+43360,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.10.0 to 17.11.0 in /superset-websocket,2026-08-20T07:03:05Z,2026-08-20T07:41:49Z,https://github.com/apache/superset/pull/43360
+43361,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/analyze from 4.37.6 to 4.37.7,2026-08-20T07:05:13Z,2026-08-20T10:58:31Z,https://github.com/apache/superset/pull/43361
+43362,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/init from 4.37.6 to 4.37.7,2026-08-20T07:06:46Z,2026-08-20T07:41:43Z,https://github.com/apache/superset/pull/43362
+43363,dependabot[bot],True,dependency,chore(deps-dev): bump globals from 17.10.0 to 17.11.0 in /docs,2026-08-20T07:08:09Z,2026-08-20T07:41:38Z,https://github.com/apache/superset/pull/43363
+43364,dependabot[bot],True,dependency,chore(deps): bump google-auth-library from 11.0.1 to 11.0.2 in /superset-frontend,2026-08-20T07:10:06Z,2026-08-20T07:41:26Z,https://github.com/apache/superset/pull/43364
+43366,sadpandajoe,False,fix,fix(ci): repair nightly pre-commit failures,2026-08-20T16:54:49Z,2026-08-30T18:35:19Z,https://github.com/apache/superset/pull/43366
+43368,sadpandajoe,False,fix,fix(sql-lab): fix transparent background in ag-grid native menus,2026-08-20T20:35:26Z,2026-08-27T23:56:37Z,https://github.com/apache/superset/pull/43368
+43369,nytai,False,fix,fix(plugin-chart-echarts): restore tooltips for metrics labelled like…,2026-08-20T20:40:48Z,2026-08-20T21:58:11Z,https://github.com/apache/superset/pull/43369
+43371,justinpark,False,fix,fix(sqllab): release DB connection before fetching query results from backend,2026-08-20T22:53:13Z,2026-08-26T17:37:43Z,https://github.com/apache/superset/pull/43371
+43373,yousoph,False,fix,fix(explore): align viz type gallery thumbnails and Featured tag,2026-08-21T03:55:09Z,2026-08-21T17:40:38Z,https://github.com/apache/superset/pull/43373
+43374,AurimasNav,False,fix,fix(mcp): flag failed tool calls with isError,2026-08-21T06:09:59Z,2026-08-27T21:59:19Z,https://github.com/apache/superset/pull/43374
+43377,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-21T07:04:33Z,2026-08-21T08:10:42Z,https://github.com/apache/superset/pull/43377
+43378,dependabot[bot],True,dependency,chore(deps): bump astral-sh/setup-uv from 10.0.0 to 10.0.1,2026-08-21T07:07:31Z,2026-08-21T08:10:38Z,https://github.com/apache/superset/pull/43378
+43379,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-21T07:09:20Z,2026-08-21T08:10:34Z,https://github.com/apache/superset/pull/43379
+43380,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-21T07:10:06Z,2026-08-21T08:10:30Z,https://github.com/apache/superset/pull/43380
+43381,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.13 to 2.11.14 in /superset-frontend,2026-08-21T07:11:07Z,2026-08-21T08:10:26Z,https://github.com/apache/superset/pull/43381
+43382,dependabot[bot],True,dependency,chore(deps): bump content-disposition from 2.0.1 to 3.0.0 in /superset-frontend,2026-08-21T07:13:07Z,2026-08-28T17:53:43Z,https://github.com/apache/superset/pull/43382
+43384,msyavuz,False,fix,fix(plugin-chart-echarts): apply contribution before rename with time comparison,2026-08-21T10:07:03Z,2026-08-24T16:08:08Z,https://github.com/apache/superset/pull/43384
+43387,luizotavio32,False,fix,fix(embedded-sdk): grant fullscreen and clipboard-write by default (#39943),2026-08-21T14:06:45Z,2026-08-21T17:17:29Z,https://github.com/apache/superset/pull/43387
+43388,rusackas,False,fix,fix(mcp): tighten auth and request validation edge cases,2026-08-21T16:09:33Z,2026-08-24T17:59:00Z,https://github.com/apache/superset/pull/43388
+43389,rusackas,False,fix,fix: add missing access checks to semantic-layer and theme endpoints,2026-08-21T16:09:53Z,2026-08-24T15:52:46Z,https://github.com/apache/superset/pull/43389
+43390,rusackas,False,fix,"fix: add missing ownership checks to tag, report-log, and dataset-schema endpoints",2026-08-21T16:10:12Z,2026-08-24T15:44:23Z,https://github.com/apache/superset/pull/43390
+43392,EnxDev,False,fix,fix(security): surface extra_editors in dashboard/chart lists,2026-08-21T16:10:47Z,2026-08-24T09:49:29Z,https://github.com/apache/superset/pull/43392
+43393,rusackas,False,fix,fix(import): tighten ownership and validation checks across asset importers,2026-08-21T16:10:49Z,2026-08-21T19:35:34Z,https://github.com/apache/superset/pull/43393
+43394,rusackas,False,fix,fix(sqllab): re-validate access against rendered SQL and tighten cache/permalink scoping,2026-08-21T16:11:11Z,2026-08-21T19:35:07Z,https://github.com/apache/superset/pull/43394
+43395,rusackas,False,fix,"fix: tighten SSRF validation, executor resolution, and cache scoping across reports/thumbnails",2026-08-21T16:11:35Z,2026-08-21T19:34:38Z,https://github.com/apache/superset/pull/43395
+43396,rusackas,False,fix,fix(export): escape formula-triggering values consistently and bound post-processing inputs,2026-08-21T16:11:54Z,2026-08-21T19:37:33Z,https://github.com/apache/superset/pull/43396
+43397,rusackas,False,fix,fix(charts): escape untrusted strings before rendering into chart tooltips and popups,2026-08-21T16:12:14Z,2026-08-21T19:31:31Z,https://github.com/apache/superset/pull/43397
+43398,rusackas,False,fix,fix(frontend): tighten SQL Lab autorun scoping and HTML-rendering defaults,2026-08-21T16:12:33Z,2026-08-21T19:31:08Z,https://github.com/apache/superset/pull/43398
+43400,michael-s-molina,False,feature,feat: Add support for filters,2026-08-21T17:45:21Z,2026-08-21T17:55:12Z,https://github.com/apache/superset/pull/43400
+43401,mikebridge,False,fix,fix(soft-delete): name the recovery location in the archive confirmation,2026-08-21T18:22:38Z,2026-08-24T22:56:21Z,https://github.com/apache/superset/pull/43401
+43402,mikebridge,False,fix,fix(charts): surface blocking alerts/reports when archiving a chart,2026-08-21T18:58:56Z,2026-08-21T22:33:33Z,https://github.com/apache/superset/pull/43402
+43403,sadpandajoe,False,fix,fix: update in the wild link on community page,2026-08-21T19:06:42Z,2026-08-24T15:28:20Z,https://github.com/apache/superset/pull/43403
+43404,sadpandajoe,False,fix,fix(explore): honor column Label in filter search and pill,2026-08-21T19:33:59Z,2026-08-24T19:11:52Z,https://github.com/apache/superset/pull/43404
+43405,msyavuz,False,fix,"fix(native-filters): allow clearing an optional ""select first value"" filter",2026-08-21T19:34:10Z,2026-08-28T12:46:46Z,https://github.com/apache/superset/pull/43405
+43408,villebro,False,dependency,feat(gtf): add task dependencies (DAG) with chain-icon Task List display,2026-08-22T00:00:04Z,2026-08-22T01:43:17Z,https://github.com/apache/superset/pull/43408
+43409,villebro,False,other,refactor(coordination): reliable Redis Streams await/notify (replace at-most-once pub/sub),2026-08-22T02:21:19Z,2026-08-22T03:28:38Z,https://github.com/apache/superset/pull/43409
+43410,villebro,False,feature,feat(common): canonical single-query serialization for async chart data,2026-08-22T04:00:53Z,2026-08-22T05:08:55Z,https://github.com/apache/superset/pull/43410
+43411,dependabot[bot],True,dependency,chore(deps-dev): bump gevent from 26.7.0 to 26.8.0,2026-08-22T07:03:04Z,2026-08-24T17:21:07Z,https://github.com/apache/superset/pull/43411
+43412,dependabot[bot],True,dependency,chore(deps-dev): bump prophet from 1.3.0 to 1.4.0,2026-08-22T07:03:08Z,2026-08-24T17:21:03Z,https://github.com/apache/superset/pull/43412
+43413,dependabot[bot],True,dependency,chore(deps): bump setuptools to 84.0.0 and pip to 26.2.1,2026-08-22T07:04:05Z,2026-08-29T01:34:10Z,https://github.com/apache/superset/pull/43413
+43414,dependabot[bot],True,dependency,chore(deps): bump pyarrow from 25.0.0 to 25.0.1,2026-08-22T07:04:20Z,2026-08-24T17:20:59Z,https://github.com/apache/superset/pull/43414
+43415,dependabot[bot],True,dependency,chore(deps): bump sqlalchemy from 2.0.51 to 2.0.52,2026-08-22T07:04:30Z,2026-08-24T17:20:55Z,https://github.com/apache/superset/pull/43415
+43416,dependabot[bot],True,dependency,chore(deps-dev): update teradatasql requirement from >=20.0.0.64 to >=20.0.0.65,2026-08-22T07:04:44Z,2026-08-24T17:20:52Z,https://github.com/apache/superset/pull/43416
+43417,dependabot[bot],True,dependency,chore(deps): bump marshmallow from 4.3.0 to 4.3.1,2026-08-22T07:04:56Z,2026-08-24T17:20:49Z,https://github.com/apache/superset/pull/43417
+43418,dependabot[bot],True,dependency,chore(deps): bump sqlglot from 30.16.0 to 30.17.0,2026-08-22T07:05:22Z,2026-08-24T17:20:45Z,https://github.com/apache/superset/pull/43418
+43419,dependabot[bot],True,dependency,"chore(deps-dev): update clickhouse-connect requirement from <2.0,>=1.6.0 to >=1.7.1,<2.0",2026-08-22T07:05:29Z,2026-08-24T20:54:24Z,https://github.com/apache/superset/pull/43419
+43421,Dmitry-Kucher,False,fix,fix(table): keep each metric's own aggregate in the summary row by default,2026-08-22T07:59:52Z,2026-08-25T17:10:02Z,https://github.com/apache/superset/pull/43421
+43422,eschutho,False,fix,fix(examples): replace deprecated timeseries_limit_metric with series_limit_metric,2026-08-22T16:16:34Z,2026-08-22T22:02:20Z,https://github.com/apache/superset/pull/43422
+43423,eschutho,False,fix,fix(tags): catch TemplateError when validating access for tagged SQL Lab queries,2026-08-22T16:47:14Z,2026-08-27T22:06:47Z,https://github.com/apache/superset/pull/43423
+43424,villebro,False,feature,feat(gaq): chart-data cutover — per-QueryObject GTF tasks + task-status polling,2026-08-22T17:10:01Z,2026-08-22T20:07:48Z,https://github.com/apache/superset/pull/43424
+43425,ayush-singh-0601,False,fix,fix(explore): prevent duplicate Date Range tooltips,2026-08-22T17:10:37Z,2026-08-28T04:02:57Z,https://github.com/apache/superset/pull/43425
+43427,rlei-odes,False,feature,feat(plugin-chart-echarts): allow decal patterns in custom ECharts options,2026-08-22T18:23:24Z,2026-08-27T01:01:53Z,https://github.com/apache/superset/pull/43427
+43428,rlei-odes,False,feature,feat(plugin-chart-echarts): add gridline and axis tick controls,2026-08-22T19:58:43Z,2026-08-28T16:44:40Z,https://github.com/apache/superset/pull/43428
+43429,villebro,False,feature,feat(gaq): async chart data opt-in per request (async_mode) + auto-enable GTF,2026-08-22T20:30:05Z,2026-08-23T13:14:28Z,https://github.com/apache/superset/pull/43429
+43431,villebro,False,feature,feat(websocket): realtime transport backend — entity-change nudges + channel tokens,2026-08-23T15:46:49Z,2026-08-23T16:18:21Z,https://github.com/apache/superset/pull/43431
+43432,eschutho,False,fix,fix(examples): replace deprecated granularity_sqla with granularity,2026-08-23T16:08:47Z,2026-08-27T22:06:43Z,https://github.com/apache/superset/pull/43432
+43433,eschutho,False,fix,fix(tags): catch TemplateError when validating access for tagged SQL Lab queries on delete,2026-08-23T16:43:39Z,2026-08-31T22:02:23Z,https://github.com/apache/superset/pull/43433
+43434,villebro,False,feature,feat(websocket): generic task push transport — per-principal chart-data + guest face pile,2026-08-23T17:26:33Z,2026-08-23T17:56:00Z,https://github.com/apache/superset/pull/43434
+43435,villebro,False,feature,feat(coordination): accept a callable key generator in the KV API,2026-08-23T17:57:31Z,2026-08-23T18:04:29Z,https://github.com/apache/superset/pull/43435
+43436,villebro,False,feature,feat(listview): realtime list updates baked into useListViewResource,2026-08-23T18:24:15Z,2026-08-23T22:47:02Z,https://github.com/apache/superset/pull/43436
+43437,villebro,False,dependency,feat(docker): ship the websocket server in the official image,2026-08-23T19:02:48Z,2026-08-23T22:46:40Z,https://github.com/apache/superset/pull/43437
+43438,DanielSwift1992,False,other,chore: remove two stale codecov ignore paths,2026-08-23T20:24:17Z,2026-08-24T15:15:58Z,https://github.com/apache/superset/pull/43438
+43439,russlan23,False,fix,fix(number-format): preserve custom smart formatter id,2026-08-24T05:26:29Z,2026-08-25T17:11:53Z,https://github.com/apache/superset/pull/43439
+43440,dependabot[bot],True,dependency,chore(deps): bump the rjsf group in /superset-frontend with 3 updates,2026-08-24T07:04:15Z,2026-08-24T20:54:20Z,https://github.com/apache/superset/pull/43440
+43441,dependabot[bot],True,dependency,chore(deps): bump dawidd6/action-download-artifact from 21 to 24,2026-08-24T07:04:30Z,2026-08-27T17:24:38Z,https://github.com/apache/superset/pull/43441
+43442,dependabot[bot],True,dependency,chore(deps): bump js-yaml from 5.2.3 to 5.3.0 in /docs,2026-08-24T07:04:51Z,2026-08-24T15:17:40Z,https://github.com/apache/superset/pull/43442
+43443,dependabot[bot],True,dependency,chore(deps): bump @swc/core from 1.15.47 to 1.16.0 in /docs,2026-08-24T07:05:39Z,2026-08-24T17:20:38Z,https://github.com/apache/superset/pull/43443
+43444,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.13 to 2.11.15 in /docs,2026-08-24T07:06:12Z,2026-08-24T16:52:03Z,https://github.com/apache/superset/pull/43444
+43445,dependabot[bot],True,dependency,chore(deps): bump docker/setup-buildx-action from 4.2.0 to 4.3.0,2026-08-24T07:08:25Z,2026-08-24T15:16:58Z,https://github.com/apache/superset/pull/43445
+43446,dependabot[bot],True,dependency,chore(deps-dev): bump @swc/core from 1.15.47 to 1.16.0 in /superset-frontend,2026-08-24T07:08:51Z,2026-08-24T23:52:01Z,https://github.com/apache/superset/pull/43446
+43447,dependabot[bot],True,dependency,chore(deps-dev): bump the swc group in /superset-frontend with 3 updates,2026-08-24T07:09:24Z,2026-08-29T03:30:12Z,https://github.com/apache/superset/pull/43447
+43448,dependabot[bot],True,dependency,chore(deps): bump immer from 11.1.16 to 11.1.17 in /superset-frontend,2026-08-24T07:10:28Z,2026-08-24T15:16:27Z,https://github.com/apache/superset/pull/43448
+43449,dependabot[bot],True,dependency,chore(deps-dev): bump concurrently from 10.0.4 to 10.0.5 in /superset-frontend,2026-08-24T07:11:54Z,2026-08-24T15:04:39Z,https://github.com/apache/superset/pull/43449
+43450,dependabot[bot],True,dependency,chore(deps): bump dayjs from 1.11.21 to 1.11.22 in /superset-frontend,2026-08-24T07:12:21Z,2026-08-24T15:04:10Z,https://github.com/apache/superset/pull/43450
+43451,dependabot[bot],True,dependency,chore(deps): bump react-error-boundary from 6.1.2 to 6.1.3 in /superset-frontend,2026-08-24T07:13:32Z,2026-08-24T15:03:05Z,https://github.com/apache/superset/pull/43451
+43455,vhogberg,False,fix,fix: remove redundant 'tooltip' tooltip in scoping modal,2026-08-24T11:52:12Z,2026-08-27T18:10:26Z,https://github.com/apache/superset/pull/43455
+43456,rebenitez1802,False,fix,fix(chart): render ECharts charts at full resolution in download-as-image,2026-08-24T12:05:27Z,2026-08-26T10:22:24Z,https://github.com/apache/superset/pull/43456
+43459,EnxDev,False,fix,fix(dataset): surface real validation message in save-error dialog,2026-08-24T13:14:40Z,2026-08-28T11:35:09Z,https://github.com/apache/superset/pull/43459
+43461,villebro,False,fix,fix(gtf): close async-chart-data waiter race + widen guest_key column,2026-08-24T14:23:57Z,2026-08-24T15:39:16Z,https://github.com/apache/superset/pull/43461
+43462,villebro,False,fix,fix(distributed-lock): ownership-checked release (compare-and-delete),2026-08-24T14:31:34Z,2026-08-24T15:52:58Z,https://github.com/apache/superset/pull/43462
+43463,villebro,False,feature,feat(gaq): minimum result-cache TTL for async chart-data queries,2026-08-24T14:57:57Z,2026-08-24T15:53:19Z,https://github.com/apache/superset/pull/43463
+43465,mikebridge,False,fix,fix(archived-list): use the semantic-layers-aware label for the dataset type,2026-08-24T16:06:49Z,2026-08-25T00:38:29Z,https://github.com/apache/superset/pull/43465
+43466,rusackas,False,fix,fix(tags): fix broken import in daos/tag.py,2026-08-24T16:11:39Z,2026-08-24T17:15:09Z,https://github.com/apache/superset/pull/43466
+43469,mikebridge,False,fix,fix(soft-delete): card-view chart delete shows the archive dialog,2026-08-24T16:23:05Z,2026-08-25T00:37:53Z,https://github.com/apache/superset/pull/43469
+43470,eschutho,False,fix,fix(explore): catch TemplateError when validating access for query-backed form_data,2026-08-24T16:42:13Z,2026-08-28T22:03:09Z,https://github.com/apache/superset/pull/43470
+43473,villebro,False,fix,fix(gtf): async chart-data robustness + accurate DB errors; retire async_events,2026-08-24T17:16:18Z,2026-08-24T19:27:15Z,https://github.com/apache/superset/pull/43473
+43476,aminghadersohi,False,fix,fix(mcp): reject unsafe dashboard layout replacements,2026-08-24T17:33:20Z,2026-08-26T18:28:27Z,https://github.com/apache/superset/pull/43476
+43478,aminghadersohi,False,fix,fix(mcp): honor and validate chart filters,2026-08-24T18:11:45Z,2026-08-26T03:54:10Z,https://github.com/apache/superset/pull/43478
+43479,aminghadersohi,False,fix,"fix(dao): don't mask transient OperationalError as a ""not found"" result",2026-08-24T18:14:51Z,2026-08-27T21:34:54Z,https://github.com/apache/superset/pull/43479
+43480,aminghadersohi,False,feature,feat(mcp): add feature-gated interactive pivot support,2026-08-24T18:15:05Z,2026-08-30T18:36:18Z,https://github.com/apache/superset/pull/43480
+43481,aminghadersohi,False,fix,fix(pivot-table): exclude rollup totals from conditional formatting scale,2026-08-24T18:15:19Z,2026-08-26T19:08:08Z,https://github.com/apache/superset/pull/43481
+43482,aminghadersohi,False,fix,fix(mcp): resolve dashboard permalinks,2026-08-24T18:16:18Z,2026-08-27T15:35:37Z,https://github.com/apache/superset/pull/43482
+43485,mikebridge,False,feature,feat(deletion-retention): persist purge block reason codes on the audit log,2026-08-24T19:21:53Z,2026-08-25T19:46:56Z,https://github.com/apache/superset/pull/43485
+43486,villebro,False,fix,fix(gtf): stop async poll when idle + back off; second-granularity durations,2026-08-24T20:02:19Z,2026-08-24T22:22:41Z,https://github.com/apache/superset/pull/43486
+43489,Vitor-Avila,False,fix,fix(OAuth2): Support creating OAuth2 connections via SQLAlchemy URI,2026-08-24T21:14:46Z,2026-08-26T03:07:19Z,https://github.com/apache/superset/pull/43489
+43491,gabotorresruiz,False,fix,fix(db_engine_specs): always mask OAuth2 client secret in encrypted extra,2026-08-24T21:35:58Z,2026-08-27T21:42:52Z,https://github.com/apache/superset/pull/43491
+43492,villebro,False,fix,fix(gtf): wait for the task lock instead of failing concurrent submits,2026-08-24T22:27:21Z,2026-08-24T23:12:58Z,https://github.com/apache/superset/pull/43492
+43493,mikebridge,False,other,docs(versioning): fix post-flip doc and comment drift,2026-08-24T22:46:48Z,2026-08-25T20:00:25Z,https://github.com/apache/superset/pull/43493
+43494,rusackas,False,fix,fix(plugin-chart-table): preserve comparison arrow when a column-specific formatter entry is missing,2026-08-24T23:23:20Z,2026-08-27T10:30:18Z,https://github.com/apache/superset/pull/43494
+43495,rusackas,False,other,chore(ci): drop inert SQLALCHEMY_WARN_20 flag from unit-test CI,2026-08-25T00:21:43Z,2026-08-25T17:19:38Z,https://github.com/apache/superset/pull/43495
+43496,rusackas,False,fix,fix(ocient): update GIS test fixtures for pyocient's relocated geo types,2026-08-25T00:58:56Z,2026-08-26T00:18:03Z,https://github.com/apache/superset/pull/43496
+43497,rusackas,False,other,chore: remove obsolete pandas/SQLAlchemy version compat shim,2026-08-25T01:01:31Z,2026-08-25T03:11:53Z,https://github.com/apache/superset/pull/43497
+43498,rusackas,False,fix,fix(Modal): stop the draggable modal from hijacking text selection,2026-08-25T04:29:16Z,2026-08-27T10:30:24Z,https://github.com/apache/superset/pull/43498
+43501,rusackas,False,dependency,fix(cockroachdb): replace abandoned cockroachdb package with sqlalchemy-cockroachdb,2026-08-25T05:21:46Z,2026-08-28T02:48:13Z,https://github.com/apache/superset/pull/43501
+43505,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-25T07:05:04Z,2026-08-25T09:46:31Z,https://github.com/apache/superset/pull/43505
+43506,dependabot[bot],True,dependency,chore(deps): bump antd from 6.6.0 to 6.6.1 in /docs,2026-08-25T07:06:20Z,2026-08-25T09:46:27Z,https://github.com/apache/superset/pull/43506
+43507,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group across 1 directory with 5 updates,2026-08-25T07:08:36Z,2026-08-25T12:52:46Z,https://github.com/apache/superset/pull/43507
+43508,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.14 to 2.11.15 in /superset-frontend,2026-08-25T07:09:27Z,2026-08-25T09:46:23Z,https://github.com/apache/superset/pull/43508
+43509,dependabot[bot],True,dependency,chore(deps): bump antd from 6.6.0 to 6.6.1 in /superset-frontend,2026-08-25T07:09:55Z,2026-08-25T12:56:19Z,https://github.com/apache/superset/pull/43509
+43510,dependabot[bot],True,dependency,chore(deps): bump dayjs from 1.11.22 to 1.11.23 in /superset-frontend,2026-08-25T07:10:44Z,2026-08-25T09:46:18Z,https://github.com/apache/superset/pull/43510
+43511,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.12 to 3.4.13 in /superset-frontend,2026-08-25T07:11:34Z,2026-08-25T09:46:12Z,https://github.com/apache/superset/pull/43511
+43516,villebro,False,feature,feat(websocket): gate realtime notifications by permission,2026-08-25T14:38:14Z,2026-08-25T18:02:47Z,https://github.com/apache/superset/pull/43516
+43518,msyavuz,False,feature,feat(filters): search filter values server-side in Explore,2026-08-25T15:34:01Z,2026-08-28T13:46:09Z,https://github.com/apache/superset/pull/43518
+43519,ASolarers-Rodriguez,False,dependency,chore(deps): raise Pillow/PyJWT floors to match resolved pins,2026-08-25T16:00:06Z,2026-08-26T22:55:14Z,https://github.com/apache/superset/pull/43519
+43521,aminghadersohi,False,dependency,"chore(deps): restore permissive marshmallow lower bound (>=3.0, <5)",2026-08-25T16:25:27Z,2026-08-25T18:38:45Z,https://github.com/apache/superset/pull/43521
+43524,villebro,False,dependency,feat(websocket): support JWT secret rotation,2026-08-25T18:59:40Z,2026-08-25T23:24:39Z,https://github.com/apache/superset/pull/43524
+43528,shivamgoel,False,other,chore(superset-core): add __init__.py to semantic_layers,2026-08-25T22:34:16Z,2026-08-26T01:07:29Z,https://github.com/apache/superset/pull/43528
+43529,aminghadersohi,False,fix,fix(mcp): add open-world tool annotations,2026-08-25T23:07:27Z,2026-08-27T21:36:31Z,https://github.com/apache/superset/pull/43529
+43530,aminghadersohi,False,dependency,fix(mcp): raise SDK floor,2026-08-26T00:04:54Z,2026-08-26T19:05:00Z,https://github.com/apache/superset/pull/43530
+43532,villebro,False,fix,fix(gtf): address GAQ→GTF interim-review findings,2026-08-26T00:25:22Z,2026-08-26T04:26:23Z,https://github.com/apache/superset/pull/43532
+43534,Vitor-Avila,False,fix,fix(trino): honor the verify arg for the user impersonation flow,2026-08-26T04:03:29Z,2026-08-26T22:44:31Z,https://github.com/apache/superset/pull/43534
+43535,sadpandajoe,False,fix,fix(sqllab): prefer concluded live query state over a stale history snapshot,2026-08-26T05:23:25Z,2026-08-30T18:39:34Z,https://github.com/apache/superset/pull/43535
+43537,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.63.0 to 0.64.0 in /superset-websocket,2026-08-26T07:08:43Z,2026-08-26T09:17:01Z,https://github.com/apache/superset/pull/43537
+43538,dependabot[bot],True,dependency,chore(deps-dev): bump vitest from 4.1.10 to 4.1.11 in /superset-websocket,2026-08-26T07:09:03Z,2026-08-26T09:16:57Z,https://github.com/apache/superset/pull/43538
+43539,dependabot[bot],True,dependency,chore(deps): bump @swc/core from 1.16.0 to 1.16.1 in /docs,2026-08-26T07:10:39Z,2026-08-26T09:16:54Z,https://github.com/apache/superset/pull/43539
+43540,dependabot[bot],True,dependency,chore(deps): bump swagger-ui-react from 5.32.13 to 5.32.14 in /docs,2026-08-26T07:11:09Z,2026-08-26T09:16:50Z,https://github.com/apache/superset/pull/43540
+43541,dependabot[bot],True,dependency,chore(deps-dev): bump @swc/core from 1.16.0 to 1.16.1 in /superset-frontend,2026-08-26T07:12:09Z,2026-08-26T09:16:45Z,https://github.com/apache/superset/pull/43541
+43542,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.63.0 to 0.64.0 in /superset-frontend,2026-08-26T07:12:40Z,2026-08-26T09:16:41Z,https://github.com/apache/superset/pull/43542
+43543,dependabot[bot],True,dependency,chore(deps-dev): bump oxlint from 1.78.0 to 1.79.0 in /superset-frontend,2026-08-26T07:13:27Z,2026-08-26T15:20:39Z,https://github.com/apache/superset/pull/43543
+43544,dependabot[bot],True,dependency,chore(deps-dev): bump oxfmt from 0.63.0 to 0.64.0 in /docs,2026-08-26T07:13:38Z,2026-08-26T09:16:36Z,https://github.com/apache/superset/pull/43544
+43545,dependabot[bot],True,dependency,chore(deps): bump uuid from 14.0.1 to 14.0.2 in /superset-frontend,2026-08-26T07:14:11Z,2026-08-26T09:16:32Z,https://github.com/apache/superset/pull/43545
+43546,no-hup,False,other,docs: update frontend Node/npm prerequisites to match engines,2026-08-26T09:11:52Z,2026-08-28T16:16:34Z,https://github.com/apache/superset/pull/43546
+43549,no-hup,False,fix,fix(number-format): handle sub-byte values and unit rollover in memory formatter,2026-08-26T09:33:35Z,2026-08-28T16:44:19Z,https://github.com/apache/superset/pull/43549
+43553,alexandrusoare,False,feature,feat(reports): gate retry functionality behind ALERT_REPORTS_RETRY flag,2026-08-26T11:59:55Z,2026-08-26T16:18:12Z,https://github.com/apache/superset/pull/43553
+43555,msyavuz,False,fix,fix(dashboard): keep the chart menu usable in fullscreen on production builds,2026-08-26T14:59:01Z,2026-08-28T12:47:49Z,https://github.com/apache/superset/pull/43555
+43557,villebro,False,fix,fix(gtf): Task List duration TZ + realtime responsiveness + async submit dedup-race,2026-08-26T15:32:42Z,2026-08-26T16:32:58Z,https://github.com/apache/superset/pull/43557
+43560,luizotavio32,False,fix,fix(excel): handle duplicate column labels in xlsx export,2026-08-26T17:47:13Z,2026-08-26T20:37:44Z,https://github.com/apache/superset/pull/43560
+43561,luizotavio32,False,fix,fix(excel): handle duplicate column labels in xlsx export,2026-08-26T18:00:13Z,2026-08-26T19:39:04Z,https://github.com/apache/superset/pull/43561
+43563,villebro,False,fix,fix(gtf): hold task submit lock across commit to close dedup race,2026-08-26T21:47:33Z,2026-08-26T22:12:42Z,https://github.com/apache/superset/pull/43563
+43564,FrancescoCastaldi,False,fix,fix(dashboard): remove @has_access_api from filter state REST API,2026-08-26T21:50:43Z,2026-08-29T00:06:06Z,https://github.com/apache/superset/pull/43564
+43579,dependabot[bot],True,dependency,chore(deps): bump dompurify from 3.4.13 to 3.4.14 in /superset-frontend,2026-08-27T07:07:34Z,2026-08-27T10:43:02Z,https://github.com/apache/superset/pull/43579
+43580,dependabot[bot],True,dependency,chore(deps-dev): bump lerna from 10.0.0 to 10.0.1 in /superset-frontend,2026-08-27T07:09:27Z,2026-08-27T10:33:15Z,https://github.com/apache/superset/pull/43580
+43581,dependabot[bot],True,dependency,chore(deps): bump immer from 11.1.17 to 11.1.18 in /superset-frontend,2026-08-27T07:11:10Z,2026-08-27T10:42:58Z,https://github.com/apache/superset/pull/43581
+43583,msyavuz,False,fix,fix(dataset): stop a stale edit modal from silently reverting a saved change,2026-08-27T08:36:17Z,2026-08-28T18:07:36Z,https://github.com/apache/superset/pull/43583
+43587,msyavuz,False,dependency,fix(ci): unblock lint-frontend after the oxlint 1.79.0 bump,2026-08-27T10:04:28Z,2026-08-27T14:32:05Z,https://github.com/apache/superset/pull/43587
+43591,rusackas,False,other,docs(security): document the RLS indicator badge on dataset list/Explore,2026-08-27T15:51:40Z,2026-08-27T19:54:21Z,https://github.com/apache/superset/pull/43591
+43592,rusackas,False,other,docs(cache): document NATIVE_FILTER_OPTIONS_CACHE_TIMEOUT,2026-08-27T15:51:41Z,2026-08-27T19:53:28Z,https://github.com/apache/superset/pull/43592
+43593,rusackas,False,other,docs: document PNG/PDF chart export options,2026-08-27T15:52:03Z,2026-08-27T19:53:09Z,https://github.com/apache/superset/pull/43593
+43594,rusackas,False,other,docs(alerts-reports): document report/alert content format options,2026-08-27T15:52:20Z,2026-08-27T19:53:32Z,https://github.com/apache/superset/pull/43594
+43595,rusackas,False,other,docs(security): document EXTRA_EDITORS_RESOLVER,2026-08-27T15:52:48Z,2026-08-27T19:52:56Z,https://github.com/apache/superset/pull/43595
+43596,rusackas,False,other,docs(mcp): document the update_dataset_metric tool,2026-08-27T15:53:17Z,2026-08-27T19:53:20Z,https://github.com/apache/superset/pull/43596
+43597,rusackas,False,other,docs(mcp): document chart type plugin filtering config,2026-08-27T15:55:07Z,2026-08-28T02:47:07Z,https://github.com/apache/superset/pull/43597
+43598,aminghadersohi,False,fix,fix(mcp): surface rejected filter columns in get_chart_data,2026-08-27T15:55:27Z,2026-08-27T21:36:51Z,https://github.com/apache/superset/pull/43598
+43599,aminghadersohi,False,fix,fix(mcp): apply time grain overrides from extra_form_data,2026-08-27T15:55:54Z,2026-08-27T21:35:24Z,https://github.com/apache/superset/pull/43599
+43600,rusackas,False,other,docs(embedding): document EMBEDDED_DISABLE_PERMALINK_ORIGIN_REWRITE,2026-08-27T16:09:29Z,2026-08-27T20:15:09Z,https://github.com/apache/superset/pull/43600
+43601,rusackas,False,other,docs(theming): document THEME_DEFAULT_MODE config setting,2026-08-27T16:10:03Z,2026-08-27T23:19:40Z,https://github.com/apache/superset/pull/43601
+43602,rusackas,False,other,docs(cli): document import_directory --username option,2026-08-27T16:10:16Z,2026-08-27T23:19:25Z,https://github.com/apache/superset/pull/43602
+43603,sadpandajoe,False,fix,fix(ci): repair scheduled pre-commit drift,2026-08-27T16:33:21Z,2026-08-28T15:56:19Z,https://github.com/apache/superset/pull/43603
+43604,rusackas,False,dependency,chore(deps): group Dependabot security-update PRs per directory,2026-08-27T16:36:33Z,2026-08-27T18:08:22Z,https://github.com/apache/superset/pull/43604
+43605,eschutho,False,fix,fix(explore): catch TemplateError when validating access for permalinked query datasources,2026-08-27T16:49:10Z,2026-08-27T22:06:39Z,https://github.com/apache/superset/pull/43605
+43607,drivaspreset,False,feature,feat: test(presto) close db_engine_spec unit test gaps,2026-08-27T18:14:46Z,2026-08-31T20:33:30Z,https://github.com/apache/superset/pull/43607
+43608,dependabot[bot],True,dependency,"chore(deps-dev): update clickhouse-connect requirement from <2.0,>=1.7.1 to >=1.7.2,<2.0",2026-08-27T18:22:41Z,2026-08-27T19:06:41Z,https://github.com/apache/superset/pull/43608
+43609,dependabot[bot],True,dependency,chore(deps): bump gunicorn from 26.0.0 to 26.2.0,2026-08-27T18:22:54Z,2026-08-27T20:08:37Z,https://github.com/apache/superset/pull/43609
+43610,dependabot[bot],True,dependency,chore(deps): bump the storybook group in /docs with 2 updates,2026-08-27T18:22:54Z,2026-08-27T20:08:33Z,https://github.com/apache/superset/pull/43610
+43611,dependabot[bot],True,dependency,chore(deps-dev): bump mcp from 1.29.1 to 2.0.0,2026-08-27T18:23:16Z,2026-08-28T04:49:51Z,https://github.com/apache/superset/pull/43611
+43612,dependabot[bot],True,dependency,chore(deps-dev): bump syntaqlite from 0.7.1 to 0.9.0,2026-08-27T18:23:25Z,2026-08-27T20:08:29Z,https://github.com/apache/superset/pull/43612
+43613,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.15 to 2.11.16 in /docs,2026-08-27T18:23:38Z,2026-08-27T19:11:33Z,https://github.com/apache/superset/pull/43613
+43614,dependabot[bot],True,dependency,chore(deps): bump holidays from 0.102 to 0.103,2026-08-27T18:23:40Z,2026-08-27T20:08:25Z,https://github.com/apache/superset/pull/43614
+43615,dependabot[bot],True,dependency,chore(deps-dev): update teradatasql requirement from >=20.0.0.65 to >=20.0.0.66,2026-08-27T18:24:02Z,2026-08-27T20:08:19Z,https://github.com/apache/superset/pull/43615
+43616,dependabot[bot],True,dependency,chore(deps-dev): bump trino from 0.338.0 to 0.339.0,2026-08-27T18:24:32Z,2026-08-27T20:08:15Z,https://github.com/apache/superset/pull/43616
+43617,dependabot[bot],True,dependency,chore(deps-dev): bump tiktoken from 0.13.0 to 0.14.0,2026-08-27T18:24:45Z,2026-08-27T20:08:10Z,https://github.com/apache/superset/pull/43617
+43618,dependabot[bot],True,dependency,chore(deps-dev): bump the storybook group in /superset-frontend with 5 updates,2026-08-27T18:26:41Z,2026-08-27T20:08:06Z,https://github.com/apache/superset/pull/43618
+43619,dependabot[bot],True,dependency,chore(deps): bump mapbox-gl from 3.28.1 to 3.29.0 in /superset-frontend,2026-08-27T18:28:03Z,2026-08-28T02:58:55Z,https://github.com/apache/superset/pull/43619
+43621,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.15 to 2.11.16 in /superset-frontend,2026-08-27T18:30:16Z,2026-08-27T20:08:01Z,https://github.com/apache/superset/pull/43621
+43622,alexandrusoare,False,feature,feat(modals): add renderExtraFields prop to chart and dashboard properties modals,2026-08-27T20:49:16Z,2026-08-28T10:18:51Z,https://github.com/apache/superset/pull/43622
+43624,gabotorresruiz,False,feature,feat(dashboard): add dashboard.slice.header.menu extension slot,2026-08-27T20:55:13Z,2026-08-28T17:52:19Z,https://github.com/apache/superset/pull/43624
+43625,villebro,False,other,"chore(gtf): address GAQ→GTF cleanup review (DRY, dead code, tests, latent fixes)",2026-08-27T21:00:37Z,2026-08-27T22:10:34Z,https://github.com/apache/superset/pull/43625
+43626,villebro,False,other,chore(superset-core): drop unused `__all__` lists,2026-08-27T21:11:02Z,2026-08-28T16:46:57Z,https://github.com/apache/superset/pull/43626
+43627,villebro,False,feature,feat(gtf): heartbeat orphan reaping + cancellable chart-data queries,2026-08-28T00:41:41Z,2026-08-28T20:51:39Z,https://github.com/apache/superset/pull/43627
+43630,LALITH0110,False,other,docs: fix docstring parameter names that do not match signatures,2026-08-28T02:55:36Z,2026-08-28T15:57:43Z,https://github.com/apache/superset/pull/43630
+43631,fitzee,False,fix,fix(dataset): preserve validation error messages,2026-08-28T03:22:59Z,2026-08-28T05:01:17Z,https://github.com/apache/superset/pull/43631
+43640,rusackas,False,dependency,"feat(ci): expand testcontainers coverage to mariadb, timescaledb, yugabytedb, monetdb, mongodb",2026-08-28T05:45:15Z,2026-08-30T18:23:08Z,https://github.com/apache/superset/pull/43640
+43643,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/analyze from 4.37.7 to 4.37.8,2026-08-28T07:04:50Z,2026-08-28T12:26:18Z,https://github.com/apache/superset/pull/43643
+43644,dependabot[bot],True,dependency,chore(deps): bump github/codeql-action/init from 4.37.7 to 4.37.8,2026-08-28T07:06:42Z,2026-08-28T09:39:12Z,https://github.com/apache/superset/pull/43644
+43645,dependabot[bot],True,dependency,chore(deps-dev): bump eslint-plugin-react-you-might-not-need-an-effect from 1.0.1 to 1.0.2 in /superset-frontend,2026-08-28T07:07:35Z,2026-08-28T09:39:07Z,https://github.com/apache/superset/pull/43645
+43652,rusackas,False,dependency,"feat(ci): expand testcontainers coverage to postgres, mysql, clickhouse, starrocks",2026-08-28T16:56:17Z,2026-08-30T18:21:37Z,https://github.com/apache/superset/pull/43652
+43653,hainenber,False,other,chore(ci): skip Jest test HTML report generation to save up time,2026-08-28T17:39:18Z,2026-08-30T18:52:48Z,https://github.com/apache/superset/pull/43653
+43654,nytai,False,fix,fix(trino): coerce string-typed values results back to source type,2026-08-28T18:34:09Z,2026-08-28T21:25:43Z,https://github.com/apache/superset/pull/43654
+43657,mikebridge,False,dependency,chore(deps-dev): bump nwsapi from 2.2.23 to 2.2.24 to fix the SqlEditor jest flake,2026-08-28T20:29:44Z,2026-08-28T21:59:36Z,https://github.com/apache/superset/pull/43657
+43658,villebro,False,feature,feat(gtf): cancel orphaned warehouse queries + dedicated reaper beat job,2026-08-28T21:24:16Z,2026-08-28T22:25:46Z,https://github.com/apache/superset/pull/43658
+43659,villebro,False,feature,feat(gtf): Task List type/name filters + worker self-fencing on lost metastore contact,2026-08-28T22:13:55Z,2026-08-28T23:08:36Z,https://github.com/apache/superset/pull/43659
+43661,rlei-odes,False,fix,fix(plugin-chart-echarts): misplaced first date label on horizontal bar charts,2026-08-28T23:11:10Z,2026-08-29T14:16:59Z,https://github.com/apache/superset/pull/43661
+43662,rusackas,False,dependency,feat(ci): add nightly-only opt-out for heavy testcontainers dialects,2026-08-28T23:20:17Z,2026-08-30T19:47:18Z,https://github.com/apache/superset/pull/43662
+43663,rusackas,False,dependency,chore(deps): bump js-yaml to patch quadratic-CPU DoS (superset-frontend),2026-08-28T23:23:14Z,2026-08-29T06:44:32Z,https://github.com/apache/superset/pull/43663
+43664,rusackas,False,dependency,"chore(deps): bump js-yaml, brace-expansion, d3-color to patch DoS/ReDoS in cypress-base",2026-08-28T23:23:20Z,2026-08-29T07:02:57Z,https://github.com/apache/superset/pull/43664
+43665,rusackas,False,dependency,chore(deps): bump brace-expansion to patch DoS in docs,2026-08-28T23:34:02Z,2026-08-29T07:02:18Z,https://github.com/apache/superset/pull/43665
+43668,rusackas,False,dependency,"feat(ci): expand testcontainers coverage to databend, risingwave, firebird, ydb, oceanbase, vertica",2026-08-29T01:28:53Z,2026-08-30T18:20:58Z,https://github.com/apache/superset/pull/43668
+43670,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.8.1 to 10.9.0 in /superset-websocket,2026-08-29T03:31:29Z,2026-08-29T06:42:05Z,https://github.com/apache/superset/pull/43670
+43671,dependabot[bot],True,dependency,chore(deps): bump greenlet from 3.5.4 to 3.5.5,2026-08-29T03:31:46Z,2026-08-29T07:01:35Z,https://github.com/apache/superset/pull/43671
+43673,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.16 to 2.11.17 in /docs,2026-08-29T03:33:40Z,2026-08-29T06:41:17Z,https://github.com/apache/superset/pull/43673
+43674,dependabot[bot],True,dependency,chore(deps): bump reselect from 5.2.0 to 5.3.0 in /docs,2026-08-29T03:34:00Z,2026-08-29T06:41:06Z,https://github.com/apache/superset/pull/43674
+43675,dependabot[bot],True,dependency,chore(deps): bump reselect from 5.2.0 to 5.3.0 in /superset-frontend,2026-08-29T03:36:37Z,2026-08-29T06:40:48Z,https://github.com/apache/superset/pull/43675
+43676,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.16 to 2.11.17 in /superset-frontend,2026-08-29T03:37:06Z,2026-08-29T06:38:38Z,https://github.com/apache/superset/pull/43676
+43677,dependabot[bot],True,dependency,chore(deps-dev): bump eslint from 10.8.1 to 10.9.0 in /superset-frontend,2026-08-29T03:38:51Z,2026-08-29T06:38:11Z,https://github.com/apache/superset/pull/43677
+43678,villebro,False,dependency,"fix(gtf): async chart-data hardening (abort teardown, private properties, review follow-ups)",2026-08-29T03:56:44Z,2026-08-29T15:06:00Z,https://github.com/apache/superset/pull/43678
+43684,SBIN2010,False,feature,feat(butterfly): added cross-filtering and drill-to-detail for the butterfly chart,2026-08-29T14:47:29Z,2026-08-30T20:12:51Z,https://github.com/apache/superset/pull/43684
+43685,villebro,False,feature,feat(gtf): per-tab task subscriptions for cross-tab cancel + async/ws follow-ups,2026-08-29T15:26:44Z,2026-08-29T16:51:36Z,https://github.com/apache/superset/pull/43685
+43688,gabotorresruiz,False,feature,feat(mcp): let get_dashboard_info accept filter_state directly,2026-08-29T19:12:23Z,2026-08-31T18:46:54Z,https://github.com/apache/superset/pull/43688
+43689,villebro,False,feature,feat(gtf): per-tab websocket task-status fanout,2026-08-29T19:34:27Z,2026-08-30T17:31:01Z,https://github.com/apache/superset/pull/43689
+43690,no-hup,False,other,docs: fix superset-core component source links after src/ui removal,2026-08-29T22:25:56Z,2026-08-30T19:23:38Z,https://github.com/apache/superset/pull/43690
+43691,hainenber,False,feature,feat(build): migrate to TS7 and TS7-oriented `oxlint-tsgolint`,2026-08-30T05:06:16Z,2026-08-31T02:57:13Z,https://github.com/apache/superset/pull/43691
+43696,villebro,False,fix,fix(gtf): harden realtime transport per external review,2026-08-30T20:30:42Z,2026-08-31T03:19:01Z,https://github.com/apache/superset/pull/43696
+43700,liang-wenjie,False,fix,fix(db_engine_specs): support SQLAlchemy 2 DBAPI discovery,2026-08-31T03:48:09Z,2026-08-31T16:51:51Z,https://github.com/apache/superset/pull/43700
+43701,villebro,False,fix,fix(gtf): address findings from the full-migration review,2026-08-31T03:56:42Z,2026-08-31T14:44:19Z,https://github.com/apache/superset/pull/43701
+43704,dependabot[bot],True,dependency,chore(deps): bump baseline-browser-mapping from 2.11.17 to 2.11.18 in /docs,2026-08-31T07:05:41Z,2026-08-31T07:14:13Z,https://github.com/apache/superset/pull/43704
+43706,dependabot[bot],True,dependency,chore(deps-dev): bump webpack-bundle-analyzer from 5.3.1 to 5.3.2 in /superset-frontend,2026-08-31T07:08:27Z,2026-08-31T07:48:06Z,https://github.com/apache/superset/pull/43706
+43707,dependabot[bot],True,dependency,chore(deps): bump actions/setup-java from 5.7.0 to 6.0.0,2026-08-31T07:08:42Z,2026-08-31T08:04:48Z,https://github.com/apache/superset/pull/43707
+43708,dependabot[bot],True,dependency,chore(deps-dev): bump baseline-browser-mapping from 2.11.17 to 2.11.18 in /superset-frontend,2026-08-31T07:10:08Z,2026-08-31T08:38:46Z,https://github.com/apache/superset/pull/43708
+43709,dependabot[bot],True,dependency,chore(deps): bump yeoman-generator from 8.2.2 to 8.3.0 in /superset-frontend,2026-08-31T07:11:33Z,2026-08-31T12:59:32Z,https://github.com/apache/superset/pull/43709

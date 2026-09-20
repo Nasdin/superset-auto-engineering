@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState } from "react";
 import {
   Activity,
+  Bot,
+  FileCheck,
   Box,
   ChevronRight,
   GitBranch,
@@ -12,6 +14,7 @@ import {
 import LiveWorkspace from "./LiveWorkspace";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { RepositoryAnalytics } from "./pages/RepositoryAnalytics";
+import { PullRequestWorkbench } from "./pages/PullRequestWorkbench";
 const DemoApp = lazy(() => import("./DemoApp"));
 const pages = [
   "Release validation",
@@ -19,6 +22,8 @@ const pages = [
   "Devin runs",
   "Repository graph",
   "Analytics",
+  "Dependabot runs",
+  "PR evidence",
   "Live operations",
 ] as const;
 export type Page = (typeof pages)[number];
@@ -28,6 +33,8 @@ const icons = [
   Terminal,
   GitBranch,
   Activity,
+  Bot,
+  FileCheck,
   LayoutDashboard,
 ];
 export default function App() {
@@ -106,6 +113,11 @@ export default function App() {
         </header>
         {page === "Analytics" ? (
           <RepositoryAnalytics />
+        ) : page === "Dependabot runs" || page === "PR evidence" ? (
+          <PullRequestWorkbench
+            key={page}
+            botOnly={page === "Dependabot runs"}
+          />
         ) : page === "Live operations" ? (
           <LiveWorkspace />
         ) : (

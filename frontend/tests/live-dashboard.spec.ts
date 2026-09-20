@@ -98,3 +98,147 @@ test("real API cohorts drive filters, comparison, chart and linked PR rows", asy
     page.getByText("Nasdin/superset", { exact: true }),
   ).toBeVisible();
 });
+
+test("PR evidence filters and independent run artifacts are inspectable", async ({
+  page,
+}) => {
+  const job = {
+    id: "validator-test",
+    kind: "validation",
+    state: "review_ready",
+    session_url: "https://app.devin.ai/sessions/validator-test",
+    candidate_sha: "a".repeat(40),
+    pr_number: 7,
+    error: null,
+    acu: 1,
+    created: 1,
+    updated: 1,
+    started: 1,
+    parent_id: "preparer-test",
+    payload: { title: "chore: bump PyJWT", work_type: "dependency" },
+    result: {
+      summary: "Test fixture: independent validation",
+      checks: [
+        {
+          name: "browser",
+          passed: true,
+          command: "test",
+          detail: "Fixture check",
+        },
+      ],
+      artifacts: [
+        {
+          kind: "screenshot",
+          name: "Fixture screenshot",
+          url: "https://attachments.devin.ai/test.png",
+        },
+      ],
+    },
+  };
+  const rows = [
+    {
+      number: 7,
+      title: "chore: bump PyJWT",
+      author: "dependabot[bot]",
+      category: "dependency",
+      dependabot: true,
+      state: "open",
+      runs: [job],
+      publications: [
+        {
+          key: "github:validator-test:7",
+          state: "sent",
+          url: "https://github.com/Nasdin/superset/pull/7#issuecomment-1",
+        },
+      ],
+    },
+    {
+      number: 8,
+      title: "feat: chart export",
+      author: "test-engineer",
+      category: "feature",
+      dependabot: false,
+      state: "open",
+      runs: [],
+      publications: [],
+    },
+    {
+      number: 9,
+      title: "fix: SQL rendering",
+      author: "test-engineer",
+      category: "fix",
+      dependabot: false,
+      state: "open",
+      runs: [],
+      publications: [],
+    },
+  ];
+  await page.route("**/api/live/pull-requests?*", async (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    const filtered = rows.filter(
+      (r) =>
+        (!q.get("kind") || r.category === q.get("kind")) &&
+        (q.get("bot_only") !== "true" || r.dependabot) &&
+        `${r.number} ${r.title} ${r.author}`
+          .toLowerCase()
+          .includes((q.get("search") || "").toLowerCase()),
+    );
+    await route.fulfill({
+      json: {
+        repository: "Nasdin/superset",
+        branch: "cognition-release-6.1",
+        enabled: true,
+        sync: { last_success: "2026-09-20T00:00:00Z" },
+        poll: {},
+        total: filtered.length,
+        rows: filtered,
+        offset: 0,
+        limit: 50,
+      },
+    });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Dependabot runs", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "#7 chore: bump PyJWT" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "#8 feat: chart export" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "#7 chore: bump PyJWT" }).click();
+  await expect(
+    page.getByRole("link", { name: "Open evidence" }),
+  ).toHaveAttribute("href", "https://attachments.devin.ai/test.png");
+  await expect(
+    page.getByRole("link", { name: "Published report" }),
+  ).toHaveAttribute("href", /issuecomment-1$/);
+  await expect(page.getByText("a".repeat(40), { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "PR evidence", exact: true }).click();
+  await page.getByLabel("Change type").selectOption("feature");
+  await expect(
+    page.getByRole("button", { name: "#8 feat: chart export" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "#7 chore: bump PyJWT" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "#8 feat: chart export" }).click();
+  await expect(
+    page.getByText(
+      "No Devin run or validation evidence has been recorded for this PR.",
+    ),
+  ).toBeVisible();
+  await page.getByLabel("Change type").selectOption("fix");
+  await expect(
+    page.getByRole("button", { name: "#9 fix: SQL rendering" }),
+  ).toBeVisible();
+  await page.getByLabel("Find a PR").fill("not found");
+  await expect(page.getByText("No PRs match these filters.")).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+});
