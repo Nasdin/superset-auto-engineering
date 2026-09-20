@@ -73,6 +73,16 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   await expect(
     page.getByRole("combobox", { name: "Repository", exact: true }),
   ).toBeVisible();
+  await page.getByRole("link", { name: "Skip to content" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#analytics$/);
+  await expect(page.locator("main")).toBeFocused();
+  await primary.getByRole("button", { name: "Workflows", exact: true }).click();
+  await page.goBack();
+  await expect(page).toHaveURL(/#analytics$/);
+  await expect(
+    page.getByRole("combobox", { name: "Repository", exact: true }),
+  ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await primary.getByRole("button", { name: "Workflows", exact: true }).click();
   const learning = page.getByRole("button", {

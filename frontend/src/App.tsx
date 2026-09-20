@@ -40,7 +40,19 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
   }
   return (
     <div className="app consolidated-workspace">
-      <a className="skip" href="#main">
+      <a
+        className="skip"
+        href="#main"
+        onClick={(event) => {
+          event.preventDefault();
+          const main = document.getElementById("main");
+          if (main) {
+            main.tabIndex = -1;
+            main.focus();
+            main.scrollIntoView();
+          }
+        }}
+      >
         Skip to content
       </a>
       <aside>

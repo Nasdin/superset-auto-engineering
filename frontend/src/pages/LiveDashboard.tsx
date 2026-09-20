@@ -299,7 +299,7 @@ export function LiveDashboard({ page }: { page: Page }) {
                         <strong>Candidate</strong>
                         <small>
                           {candidate.candidate_sha
-                            ? "Evidence is tied to this exact SHA."
+                            ? "Validation targets this exact SHA."
                             : "Waiting for a recorded revision."}
                         </small>
                       </div>
