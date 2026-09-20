@@ -1,49 +1,31 @@
-import { lazy, Suspense, useState } from "react";
-import {
-  Activity,
-  BrainCircuit,
-  Bot,
-  FileCheck,
-  Box,
-  ChevronRight,
-  GitBranch,
-  GitPullRequest,
-  LayoutDashboard,
-  ShieldCheck,
-  Terminal,
-} from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Box, ChevronRight, ShieldCheck } from "lucide-react";
 import { Learning } from "./pages/Learning";
 import LiveWorkspace from "./LiveWorkspace";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { RepositoryAnalytics } from "./pages/RepositoryAnalytics";
 import { PullRequestWorkbench } from "./pages/PullRequestWorkbench";
+import { sections, views, pageFromHash, type Page } from "./navigation";
+export type { Page } from "./navigation";
 const DemoApp = lazy(() => import("./DemoApp"));
-const pages = [
-  "Release validation",
-  "Workflows",
-  "Devin runs",
-  "Repository graph",
-  "Analytics",
-  "Dependabot runs",
-  "PR evidence",
-  "Learning & memory",
-  "Live operations",
-] as const;
-export type Page = (typeof pages)[number];
-const icons = [
-  ShieldCheck,
-  GitPullRequest,
-  Terminal,
-  GitBranch,
-  Activity,
-  BrainCircuit,
-  Bot,
-  FileCheck,
-  BrainCircuit,
-  LayoutDashboard,
-];
+
 export default function App({ onLogout }: { onLogout?: () => void }) {
-  const [page, setPage] = useState<Page>("Release validation");
+  const [page, setPage] = useState<Page>(pageFromHash);
+  useEffect(() => {
+    const change = () => {
+      if (window.location.hash !== "#main") setPage(pageFromHash());
+    };
+    window.addEventListener("hashchange", change);
+    return () => window.removeEventListener("hashchange", change);
+  }, []);
+  const navigate = (next: Page) => {
+    const view = views.find((item) => item.page === next)!;
+    window.location.hash = view.slug;
+    setPage(next);
+  };
+  const section =
+    sections.find((item) => item.views.some((view) => view.page === page)) ||
+    sections[0];
   if (new URLSearchParams(window.location.search).get("demo") === "1") {
     return (
       <Suspense fallback={<p>Loading example workspace…</p>}>
@@ -57,7 +39,7 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
     );
   }
   return (
-    <div className="app">
+    <div className="app consolidated-workspace">
       <a className="skip" href="#main">
         Skip to content
       </a>
@@ -70,22 +52,27 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
           <Box size={19} />
           <div>
             <strong>Superset engineering</strong>
-            <small>Evidence & delivery intelligence</small>
+            <small>Issue → change → evidence</small>
           </div>
         </div>
         <div className="nav-label">WORKSPACE</div>
         <nav aria-label="Workspace">
-          {pages.map((name, i) => {
-            const Icon = icons[i];
+          {sections.map((item) => {
+            const Icon = item.icon;
             return (
               <button
-                key={name}
-                className={page === name ? "active" : ""}
-                aria-current={page === name ? "page" : undefined}
-                onClick={() => setPage(name)}
+                key={item.name}
+                aria-label={item.name}
+                className={section.name === item.name ? "active" : ""}
+                aria-current={section.name === item.name ? "page" : undefined}
+                onClick={() => navigate(item.views[0].page)}
               >
-                <Icon size={18} />
-                {name}
+                <Icon size={19} />
+                <span>
+                  <strong>{item.name}</strong>
+                  <small>{item.description}</small>
+                </span>
+                <ChevronRight className="nav-chevron" size={14} />
               </button>
             );
           })}
@@ -96,28 +83,34 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
           </div>
           <strong>Built to earn trust.</strong>
           <p>
-            Observed work. Traceable evidence.
-            <br />A human makes the release decision.
+            Every verdict has a revision.
+            <br />
+            Every revision needs proof.
           </p>
         </div>
         <div className="workspace-bottom">
           <span className="avatar">N</span>
           <div>
             <strong>Nasrudin’s workspace</strong>
-            <small>Local environment</small>
+            <small>
+              {window.location.hostname === "127.0.0.1" ||
+              window.location.hostname === "localhost"
+                ? "Local workspace"
+                : window.location.hostname}
+            </small>
           </div>
         </div>
       </aside>
       <div className="shell">
         <header>
           <div>
-            <span>Workspace</span>
+            <span>Superset engineering</span>
             <ChevronRight size={14} />
-            <strong>{page}</strong>
+            <strong>{section.name}</strong>
           </div>
           <div>
             <span className="badge green">
-              {page === "Analytics" ? "GitHub history" : "Live ledger"}
+              {page === "Analytics" ? "Powered by Superset" : "Live ledger"}
             </span>
             {onLogout && (
               <button className="signout-button" onClick={onLogout}>
@@ -126,6 +119,23 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
             )}
           </div>
         </header>
+        {section.views.length > 1 && (
+          <div
+            className="feature-navigation"
+            role="group"
+            aria-label={`${section.name} views`}
+          >
+            {section.views.map((view) => (
+              <button
+                key={view.page}
+                aria-pressed={page === view.page}
+                onClick={() => navigate(view.page)}
+              >
+                {view.label}
+              </button>
+            ))}
+          </div>
+        )}
         {page === "Analytics" ? (
           <RepositoryAnalytics />
         ) : page === "Dependabot runs" || page === "PR evidence" ? (
@@ -138,7 +148,7 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
         ) : page === "Live operations" ? (
           <LiveWorkspace />
         ) : (
-          <LiveDashboard page={page} />
+          <LiveDashboard key={page} page={page} />
         )}
       </div>
     </div>

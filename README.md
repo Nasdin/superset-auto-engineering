@@ -179,6 +179,19 @@ Expose **only port 8001** through a development tunnel. In the fork's GitHub Set
 
 For Slack, install a bot in the intended workspace, grant the posting/readback permissions required by your channel type, invite it to the channel, and set `SLACK_BOT_TOKEN` plus `SLACK_CHANNEL_ID`. The take-home destination is Nasrudin's **Tech** channel `C0C2NTYCPTR`; use that only with credentials for that workspace. Recreate API/worker after configuring. Reports persist an outbox receipt and confirm delivery before claiming success. Leaving Slack unconfigured does not prevent GitHub evidence delivery.
 
+## Workspace navigation
+
+Four sections keep related features together:
+
+| Section | Features |
+|---|---|
+| Evidence | Release validation, PR evidence, repository lineage |
+| Workflows | Workflow lanes, Devin sessions, Dependabot, learning and memory |
+| Analytics | Superset charts, repository selection, rolling-window comparisons |
+| Operations | Provider status, worker health, limits and delivery receipts |
+
+View links can be bookmarked, such as `/#learning` and `/#pull-requests`. The original [design mockup](docs/dashboard-mockup.png) informs the revision-first evidence layout.
+
 ## Workspace login
 
 ![Workspace login](docs/screenshots/login-desktop.png)
@@ -197,7 +210,7 @@ The public Compose overlay always enables authentication and Secure cookies, and
 
 Use [the Lightsail template](infra/cloudformation/lightsail.yaml) for a low-traffic installation on one VM: FastAPI/React, Postgres, Superset and Redis. The 2 GiB Linux bundle includes 60 GB disk and public IPv4 at **US$12/month**, before taxes, excess transfer and Devin usage. Scheduled snapshots and backups are disabled for this demo; no free-tier credits are assumed. A 4 GiB bundle costs US$24/month if measured load needs more headroom. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
 
-Target region: **us-east-1 (Northern Virginia)** for US reviewers. Verify account access first: AWS's simplified project experience may restrict all projects to a single region. Creating another project does not remove that organization policy. Do not silently deploy in another region or activate irreversible account features to bypass the restriction.
+Target region: **ap-southeast-2 (Sydney)**, approved for this demo. The current AWS project permits only Sydney; a standard AWS account is needed to choose a US region. The template defaults to the Sydney `small_3_2` bundle.
 
 The template installs Docker/Compose, 4 GiB swap and a pinned source revision. [compose.small.yaml](compose.small.yaml) bounds memory and logs; [the host scripts](infra/host/) provide startup and local health checks. Automated backups are intentionally disabled; losing the host can lose its data. This is a single-server deployment, with downtime during host failure/recovery, not high availability. Public deployment remains pending until the account/region and live acceptance checks are complete.
 

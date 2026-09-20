@@ -3,7 +3,7 @@ Description: Low-traffic Cognition host with bundled Lightsail storage, static I
 Parameters:
   BundleId:
     Type: String
-    Default: small_3_0
+    Default: small_3_2
     AllowedValues: [small_3_0, medium_3_0, small_3_2, medium_3_2]
     Description: Verify regional pricing. small is 2 GiB; medium is 4 GiB. Changing bundle requires a replacement migration.
   BlueprintId:
@@ -49,8 +49,9 @@ Resources:
           Value: superset-auto-engineering
       UserData:
         Fn::Sub: |
-          #!/bin/bash
-          set -euo pipefail
+          #!/bin/sh
+          # Lightsail prepends its own POSIX-shell initialization to user data.
+          set -eu
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
           apt-get install -y ca-certificates curl git python3 unattended-upgrades

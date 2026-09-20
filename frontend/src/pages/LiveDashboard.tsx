@@ -226,20 +226,34 @@ export function LiveDashboard({ page }: { page: Page }) {
               enable the configured worker to start sessions.
             </div>
           )}
-          <div className="stats">
-            {[
-              [data.metrics.sessions, "Real Devin sessions"],
-              [data.metrics.acu.toFixed(2), "Reported ACUs"],
-              [data.metrics.review_ready, "Ready for human review"],
-              [data.metrics.attention, "Need attention"],
-            ].map(([v, l]) => (
-              <div className="stat" key={l}>
-                <div>{l}</div>
-                <strong>{v}</strong>
-                <small>From the complete live ledger</small>
-              </div>
-            ))}
-          </div>
+          {page === "Release validation" ? (
+            <div className="release-summary" aria-label="Release overview">
+              <span>
+                <strong>{candidates.length}</strong>validation candidates
+              </span>
+              <span>
+                <strong>{data.metrics.review_ready}</strong>ready for review
+              </span>
+              <span>
+                <strong>{data.metrics.attention}</strong>need attention
+              </span>
+            </div>
+          ) : (
+            <div className="stats">
+              {[
+                [data.metrics.sessions, "Real Devin sessions"],
+                [data.metrics.acu.toFixed(2), "Reported ACUs"],
+                [data.metrics.review_ready, "Ready for human review"],
+                [data.metrics.attention, "Need attention"],
+              ].map(([v, l]) => (
+                <div className="stat" key={l}>
+                  <div>{l}</div>
+                  <strong>{v}</strong>
+                  <small>From the complete live ledger</small>
+                </div>
+              ))}
+            </div>
+          )}
           {page === "Release validation" ? (
             <>
               <section className="candidate">
@@ -268,6 +282,54 @@ export function LiveDashboard({ page }: { page: Page }) {
                     </select>
                   </label>
                 </div>
+                {candidate && (
+                  <>
+                    <div className="candidate-revision">
+                      <State value={candidate.state} />
+                      <code>
+                        {candidate.candidate_sha || "Revision not recorded"}
+                      </code>
+                    </div>
+                    <div
+                      className="proof-steps"
+                      aria-label="Candidate proof stages"
+                    >
+                      <div className="proof-step">
+                        <span>01 / REVISION</span>
+                        <strong>Candidate</strong>
+                        <small>
+                          {candidate.candidate_sha
+                            ? "Evidence is tied to this exact SHA."
+                            : "Waiting for a recorded revision."}
+                        </small>
+                      </div>
+                      <div className="proof-step">
+                        <span>02 / VALIDATION</span>
+                        <strong>Independent check</strong>
+                        <small>{candidate.state.replaceAll("_", " ")}</small>
+                      </div>
+                      <div className="proof-step">
+                        <span>03 / EVIDENCE</span>
+                        <strong>
+                          {candidate.result?.artifacts?.length || 0} recorded
+                          artifacts
+                        </strong>
+                        <small>
+                          Screenshots, commands and test results below.
+                        </small>
+                      </div>
+                      <div className="proof-step">
+                        <span>04 / REVIEW</span>
+                        <strong>
+                          {candidate.state === "review_ready"
+                            ? "Ready for an engineer"
+                            : "Gate not accepted"}
+                        </strong>
+                        <small>A human makes the merge decision.</small>
+                      </div>
+                    </div>
+                  </>
+                )}
                 {!candidate && (
                   <p className="empty">
                     No validation candidate yet. An integrated repair will queue

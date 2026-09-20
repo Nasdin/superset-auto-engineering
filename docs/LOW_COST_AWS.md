@@ -1,10 +1,10 @@
 # Low-cost AWS deployment
 
-Target: `https://superset-devin.nasrudinsalim.com`, region **us-east-1**. Deployment is pending AWS account access in that region. A created project or a completed CloudFormation stack is not evidence of a live application.
+Target: `https://superset-devin.nasrudinsalim.com`, region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. Deployment acceptance is in progress. A created project or a completed CloudFormation stack is not evidence of a live application.
 
 ## Capacity and cost
 
-The preferred starting point is Lightsail `small_3_0`: 2 GiB RAM, 2 burstable CPUs, 60 GB SSD and public IPv4, US$12/month before taxes and transfer overages. Scheduled backups and snapshots are disabled for this demo. The 4 GiB `medium_3_0` option is US$24/month. Verify the available bundle and price in the target account/region before execution. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
+The preferred starting point is Lightsail `small_3_2`: 2 GiB RAM, 2 burstable CPUs, 60 GB SSD and public IPv4, US$12/month before taxes and transfer overages. Scheduled backups and snapshots are disabled for this demo. The 4 GiB `medium_3_2` option is US$24/month. Verify the available bundle and price in the target account/region before execution. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
 
 One VM avoids a load balancer, NAT gateway, managed database and a serverless rewrite. The running Compose memory ceilings total 1,536 MiB; host swap is 4 GiB. The initial BI migration has a separate 768 MiB limit and image builds must run serially. These are a starting capacity budget, not a throughput guarantee. Real charts, concurrent requests, swap pressure and OOM events must be checked on the deployed VM. A bundle upgrade requires a replacement instance and data migration; CloudFormation cannot change the bundle in place.
 
@@ -15,10 +15,10 @@ No automatic snapshots or database backup timers are enabled. Host failure can l
 Use a dedicated AWS profile with temporary console sign-in. Never use an unrelated profile or create a permanent root access key.
 
 ```sh
-aws login --profile cognition-production --region us-east-1
-export AWS_PROFILE=cognition-production AWS_REGION=us-east-1
+aws login --profile cognition-production --region ap-southeast-2
+export AWS_PROFILE=cognition-production AWS_REGION=ap-southeast-2
 aws sts get-caller-identity
-aws lightsail get-bundles --query 'bundles[?bundleId==`small_3_0`].[bundleId,price,ramSizeInGb,diskSizeInGb]'
+aws lightsail get-bundles --query 'bundles[?bundleId==`small_3_2`].[bundleId,price,ramSizeInGb,diskSizeInGb]'
 aws cloudformation validate-template --template-body file://infra/cloudformation/lightsail.yaml
 aws cloudformation deploy \
   --stack-name superset-devin \

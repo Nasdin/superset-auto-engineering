@@ -15,6 +15,8 @@ test("default workspace only loads live records, with honest empty states", asyn
   await expect(page.getByText("Demo data", { exact: true })).toHaveCount(0);
   await expect(page.getByText("WF-041")).toHaveCount(0);
   for (const name of ["Workflows", "Devin runs", "Repository graph"]) {
+    if (name === "Repository graph")
+      await page.getByRole("button", { name: "Evidence", exact: true }).click();
     await page.getByRole("button", { name, exact: true }).click();
     await expect(
       page.getByText("No live records match these filters."),
@@ -212,6 +214,7 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     });
   });
   await page.goto("/");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page
     .getByRole("button", { name: "Dependabot runs", exact: true })
     .click();
@@ -253,6 +256,7 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     path: "test-results/pr-execution-evidence-fixture.png",
     fullPage: true,
   });
+  await page.getByRole("button", { name: "Evidence", exact: true }).click();
   await page.getByRole("button", { name: "PR evidence", exact: true }).click();
   await page.getByLabel("Change type").selectOption("feature");
   await expect(
@@ -285,6 +289,7 @@ test("learning page honestly reports empty history and workflow lanes", async ({
   page,
 }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page
     .getByRole("button", { name: "Learning & memory", exact: true })
     .click();
@@ -376,6 +381,7 @@ test("learning source, memory snapshot and evidence remain linked", async ({
     }),
   );
   await page.goto("/");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page
     .getByRole("button", { name: "Learning & memory", exact: true })
     .click();
