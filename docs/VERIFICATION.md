@@ -4,7 +4,7 @@ Verified locally on 2026-09-20. This record distinguishes implementation checks,
 
 ## Application and orchestration
 
-- Production TypeScript/Vite build and Docker image build passed. API container is healthy on loopback port 8000; durable worker is running with dispatch disabled.
+- Production TypeScript/Vite build and Docker image build passed. API container is healthy on loopback port 8000; durable worker is running with bounded dispatch enabled after take-home authentication.
 - Backend pytest: **47 passed**. Coverage includes duplicate intake, atomic single-flight claiming, uncertain creation, polling outages, budget reservation, fresh-validator identity, exact SHA, contradictory or missing evidence, durable report outbox and stale evidence.
 - Lost-response simulations after GitHub branch, merge and PR creation resume with exactly one of each mutation and preserve validation capacity. These are provider-contract simulations, not real PRs.
 - Playwright dashboard: **3 passed**. Evidence and demo-review flows, navigation/search/mobile width, API failure and actual Live operations configuration/ledger are exercised.
@@ -22,9 +22,9 @@ Verified locally on 2026-09-20. This record distinguishes implementation checks,
 
 ## External state and outstanding proof
 
-Real fork issue: https://github.com/Nasdin/superset/issues/1. Target branch `cognition-release-6.1` is present. One durable repair job is queued; zero Devin sessions and zero reported ACU through this app.
+Real fork issue: https://github.com/Nasdin/superset/issues/1. Target branch `cognition-release-6.1` is present. The durable repair job started Devin session `e9b26529705f4aa3bdcded5fa85e5a43` in Asmar DE Takehome. The API and browser both confirmed it was working on issue #1 at the pinned baseline. Final cost and repair acceptance remain pending.
 
-Not yet proved: take-home organization API authentication, paid Devin repair, a real repair/integration PR, fresh independent validation of a repaired candidate, provider artifact ingestion for a repaired candidate, Slack delivery, or a real scheduled discovery run. A temporary signed webhook tunnel is active; it does not expose the dashboard or Superset. The goal remains active.
+Organization-scoped API authentication returned HTTP 200. Not yet proved: completed Devin repair, a real repair/integration PR, fresh independent validation of a repaired candidate, provider artifact ingestion for a repaired candidate, Slack delivery, or a real scheduled discovery run. A temporary signed webhook tunnel is active; it does not expose the dashboard or Superset. The goal remains active.
 
 The five original dashboard pages use labeled fixtures. The generated mockup is a design reference. Neither those fixtures nor the locally recorded baseline video qualifies a repaired release for approval. No approval, release merge or deployment has occurred.
 
@@ -38,3 +38,10 @@ Dependency warnings from Starlette/httpx and AnyIO remain; there are no backend 
 - A real `issues/labeled` delivery was acknowledged with 200 and the existing repair job ID; its GUID is persisted in SQLite. GitHub redelivery returned `duplicate` with 200. The original issue label set was restored after testing.
 - Evidence records: `evidence/github-baseline-publication.json` and `evidence/github-webhook-live.json`. No paid Devin session started during these checks.
 - Receipt fault tests include process restart, readback outage, frozen Slack destination, malformed mutation responses and Slack's explicitly ambiguous internal errors. Acknowledged posts are never resent by readback recovery.
+
+## Public repository and authorized Slack destination
+
+- Created https://github.com/Nasdin/superset-auto-engineering as PUBLIC and pushed `main`; remote visibility and commit `e335f4773cd0d9b3761d24ed665b1177058d3638` were read back through GitHub.
+- Scanned 89 historical Git blobs before publication against locally configured secret values and common credential patterns; no matches. Original private remote remains available; `public` is the new delivery remote.
+- Fresh application checks after configuration: 47 backend tests passed and production frontend build passed.
+- Nasrudin workspace `T0C2NTV3Z39`, #tech `C0C2NTYCPTR` was verified in the browser. The dedicated bot manifest requests only `chat:write`; installation awaits the browser tool's required action-time confirmation. No Slack report has been sent yet.

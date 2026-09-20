@@ -9,7 +9,7 @@ Checkpoint: 2026-09-20. The end-to-end goal is active and unfinished. Do not sub
 - Baseline worktree: `/Users/nasdin/code/personal/superset-baseline`, detached at `c37118edd0146019ab0ae4ae1a97a597cb56c88e`, Apache Superset `6.1`.
 - Fork target branch: `cognition-release-6.1`. Default branch is unchanged. Issue: https://github.com/Nasdin/superset/issues/1.
 - Local control plane: http://127.0.0.1:8000. Actual live job ledger: `/api/live/overview`; automation enabled after take-home API authentication.
-- Queued repair job: `15fb900e-d51d-4b0a-8313-bf27f5ba3585`. No session ID, no ACU spent through this application.
+- Queued repair job: `15fb900e-d51d-4b0a-8313-bf27f5ba3585`. Running session `e9b26529705f4aa3bdcded5fa85e5a43` in Asmar DE Takehome; check actual provider cost before claims.
 - Local baseline Superset: http://127.0.0.1:8188. Compose project `cognition-validation`; app and Celery worker health checks passed.
 
 ## Credentials and authorization boundary
@@ -57,4 +57,4 @@ The Cloudflare Quick Tunnel was started with `cloudflared tunnel --no-autoupdate
 
 GitHub hook ID: `681964250`. Its current public callback is recorded in `evidence/github-webhook-live.json`. A restarted Quick Tunnel gets a new hostname: update this same hook's URL, retain the local ignored HMAC secret, and verify delivery before claiming it is connected. Never expose port 8000 or 8188. If intentionally shutting down the demo, deactivate this hook before stopping its tunnel. Do not delete unrelated hooks or tunnel processes.
 
-Baseline report: https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328. Evidence branch: `cognition/evidence/baseline-c37118ed`, separate from the release branch. The actual repair job is still queued, zero Devin sessions, and live repair execution is the next step.
+Baseline report: https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328. Evidence branch: `cognition/evidence/baseline-c37118ed`, separate from the release branch. The actual repair job is running in the session recorded above. Do not create a duplicate.
