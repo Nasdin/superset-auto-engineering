@@ -185,3 +185,55 @@ test("missing worker heartbeat and unavailable reliability data cannot look heal
   );
   await expect(panel).toContainText("Status unavailable");
 });
+
+test("recovery has one status announcement while its ledger refresh is delayed", async ({
+  page,
+}) => {
+  let releaseRefresh!: () => void;
+  const refreshBarrier = new Promise<void>((resolve) => {
+    releaseRefresh = resolve;
+  });
+  let initialLoad = true;
+  let refreshStarted = false;
+  await page.route("**/api/live/resilience", async (route) => {
+    if (initialLoad) {
+      initialLoad = false;
+    } else {
+      refreshStarted = true;
+      await refreshBarrier;
+    }
+    await route.fulfill({ json: snapshot });
+  });
+  await page.route("**/api/live/operator", (route) =>
+    route.fulfill({ json: { authenticated: true } }),
+  );
+  await page.route("**/api/live/recovery/jobs/retained-session", (route) =>
+    route.fulfill({ json: { status: "requeued", job_id: "retained-session" } }),
+  );
+  try {
+    await page.goto("/#workflows");
+    const panel = page.getByRole("region", { name: "Workflow reliability" });
+    await panel.getByText("Recovery & durability", { exact: true }).click();
+    await panel.getByText("Execution access", { exact: true }).click();
+    await panel.getByLabel("Operator key").fill("test-operator");
+    await panel
+      .getByRole("button", { name: "Unlock execution controls" })
+      .click();
+    const retry = panel.getByRole("button", { name: "Retry observation" });
+    await retry.click();
+    await expect.poll(() => refreshStarted).toBe(true);
+    await expect(panel.getByRole("status")).toHaveCount(1);
+    await expect(panel.getByRole("status")).toContainText(
+      "Recovery request recorded",
+    );
+    await expect(retry).toBeDisabled();
+    releaseRefresh();
+    await expect(retry).toBeEnabled();
+    await expect(panel.getByRole("status")).toHaveCount(1);
+    await expect(panel.getByRole("status")).toContainText(
+      "Recovery request recorded",
+    );
+  } finally {
+    releaseRefresh();
+  }
+});

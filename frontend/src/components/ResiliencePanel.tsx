@@ -401,14 +401,9 @@ export function ResiliencePanel({ release = false }: { release?: boolean }) {
                 </article>
               ))}
             </div>
-            {busy && (
-              <p role="status" className="quiet">
-                Recording recovery request…
-              </p>
-            )}
-            {message && (
-              <p role="status" className="notice">
-                {message}
+            {(busy || message) && (
+              <p role="status" className={message ? "notice" : "quiet"}>
+                {message || "Recording recovery request…"}
               </p>
             )}
             {failure && (

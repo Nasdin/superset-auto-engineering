@@ -63,7 +63,7 @@ The shared reviewer password permits inspection. Expand **Execution access** wit
 5. A provider-suspended session may separately require **Resume same session** in **Workflows → Schedules & triggers**, after the provider limit is resolved. Keep its session ID and existing evidence history.
 6. Verify the next heartbeat, provider readback and eventual job/evidence state. A recovery acknowledgment only means the request was recorded.
 
-The deployed app limits are now **20 sessions across the ledger's lifetime and 20 ACU for each newly created session**. Fresh-install defaults remain 6 sessions and 10 ACU. These are application limits, not purchased credits or changes to Devin organization/per-message limits. Existing session budgets are not automatically increased. Pending work can consume available capacity when dispatch is enabled; never replace the ledger to reset the counter.
+The deployed app limits are now **20 sessions across the ledger's lifetime and 20 ACU for each newly created session**. Fresh-install defaults remain 6 sessions and 10 ACU. Separately, Devin's default **Message usage** limit was changed from **$20 to $40**, and the existing dependency session's provider cap from **$10 to $20**. These provider dollar limits are independent of the application ACU/session limits; neither setting purchases credits. Other existing session budgets are not automatically increased. Pending work can consume available capacity when dispatch is enabled; never replace the ledger to reset the counter.
 
 ## Recover an evidence publication
 
