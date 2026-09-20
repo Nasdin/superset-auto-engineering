@@ -5,10 +5,11 @@ import re
 import time
 
 from .config import Settings
-from .dependencies import DependencyService
 from .integration import IntegrationService
+from .learning import LearningService
 from .links import safe_link
 from .outbox import PublicationOutbox
+from .patches import preparation_service
 from .ports import ProviderGateway
 from .prompts import session_payload
 from .providers import ProviderError, UnknownEffect
@@ -128,20 +129,28 @@ class Engine:
         if job["kind"] == "integration":
             self.assemble_candidate(job)
             return
-        if job["kind"] == "dependency" and not DependencyService(
-            self.settings, self.store, self.providers
+        if job["kind"] in {"dependency", "patch"} and not preparation_service(
+            self.settings, self.store, self.providers, job["kind"]
         ).preflight(job):
             return
-        if job["kind"] == "validation" and job["payload"].get("work_type") == "dependency":
+        if job["kind"] == "validation" and job["payload"].get("work_type") in {
+            "dependency",
+            "patch",
+        }:
             if not ValidationService(self.settings, self.store, self.providers).is_current(job):
                 return
-            if not self.settings.dependabot_enabled:
+            if (
+                job["payload"].get("work_type") == "dependency"
+                and not self.settings.dependabot_enabled
+            ):
                 self.store.update(
                     job["id"], state="blocked", error="Dependabot automation is disabled"
                 )
                 return
         used = self.store.session_count(excluding=job["id"])
-        required_slots = {"repair": 2, "dependency": 2, "scan": 3, "validation": 1}[job["kind"]]
+        required_slots = {"repair": 2, "dependency": 2, "patch": 2, "scan": 3, "validation": 1}[
+            job["kind"]
+        ]
         if used + required_slots > self.settings.max_sessions:
             self.store.update(
                 job["id"],
@@ -149,7 +158,24 @@ class Engine:
                 error="Configured total session limit reached",
             )
             return
-        payload = session_payload(self.settings, job, self.store.recall("repository_lessons", []))
+        try:
+            context = LearningService(self.settings, self.store, self.providers).context(job)
+        except (ProviderError, UnknownEffect) as error:
+            # Knowledge reconciliation happens before session creation: no paid effect exists.
+            self.store.remember(
+                "learning_sync", {"state": "attention", "error": str(error), "at": time.time()}
+            )
+            self.store.update(
+                job["id"],
+                state="queued",
+                error="Waiting for Knowledge reconciliation: " + str(error),
+                next_poll=time.time() + self.settings.poll_seconds,
+            )
+            return
+        payload = session_payload(self.settings, job, context)
+        knowledge_ids = [x["knowledge_id"] for x in context if x["knowledge_id"]]
+        if knowledge_ids:
+            payload["knowledge_ids"] = knowledge_ids
         self.store.update(job["id"], state="dispatching", started=time.time())
         self.store.audit(
             job["id"],
@@ -198,8 +224,10 @@ class Engine:
                 raise ValueError("Finished session has no structured output")
             if job["kind"] == "repair":
                 self.finish_repair(job, result)
-            elif job["kind"] == "dependency":
-                DependencyService(self.settings, self.store, self.providers).finish(job, result)
+            elif job["kind"] in {"dependency", "patch"}:
+                preparation_service(self.settings, self.store, self.providers, job["kind"]).finish(
+                    job, result
+                )
             elif job["kind"] == "scan":
                 self.finish_scan(job, result)
             else:
@@ -274,7 +302,10 @@ class Engine:
                 (self.settings.repo + finding["title"]).encode()
             ).hexdigest()[:20]
             key = "finding:" + fingerprint
-            if self.store.recall(key):
+            if previous := self.store.recall(key):
+                child = self.accept_issue(previous["issue"], "scheduled_scan")
+                if not child["parent_id"]:
+                    self.store.update(child["id"], parent_id=job["id"])
                 continue
             marker = f"<!-- cognition-finding:{fingerprint} -->"
             body = f"{marker}\n\n{finding['description']}\n\n## Reproduction at `{finding['base_sha']}`\n{finding['reproduction']}\n\n## Acceptance criteria\n{finding['acceptance']}\n\nDiscovered by {job['session_url']}. This is a reported finding; independent validation is required."
@@ -296,8 +327,9 @@ class Engine:
                     },
                 )
             self.store.remember(key, {"issue": issue["number"], "sha": finding["base_sha"]})
-            self.accept_issue(issue["number"], "scheduled_scan")
-        self.store.update(job["id"], state="completed")
+            child = self.accept_issue(issue["number"], "scheduled_scan")
+            self.store.update(child["id"], parent_id=job["id"])
+        self.store.update(job["id"], state="completed", result=result)
         self.store.remember(
             "last_scan",
             {"job": job["id"], "findings": len(findings), "at": time.time()},

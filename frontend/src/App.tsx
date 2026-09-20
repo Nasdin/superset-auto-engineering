@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import {
   Activity,
+  BrainCircuit,
   Bot,
   FileCheck,
   Box,
@@ -11,6 +12,7 @@ import {
   ShieldCheck,
   Terminal,
 } from "lucide-react";
+import { Learning } from "./pages/Learning";
 import LiveWorkspace from "./LiveWorkspace";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { RepositoryAnalytics } from "./pages/RepositoryAnalytics";
@@ -24,6 +26,7 @@ const pages = [
   "Analytics",
   "Dependabot runs",
   "PR evidence",
+  "Learning & memory",
   "Live operations",
 ] as const;
 export type Page = (typeof pages)[number];
@@ -33,8 +36,10 @@ const icons = [
   Terminal,
   GitBranch,
   Activity,
+  BrainCircuit,
   Bot,
   FileCheck,
+  BrainCircuit,
   LayoutDashboard,
 ];
 export default function App() {
@@ -118,6 +123,8 @@ export default function App() {
             key={page}
             botOnly={page === "Dependabot runs"}
           />
+        ) : page === "Learning & memory" ? (
+          <Learning />
         ) : page === "Live operations" ? (
           <LiveWorkspace />
         ) : (

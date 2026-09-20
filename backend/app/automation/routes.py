@@ -8,6 +8,8 @@ from starlette.concurrency import run_in_threadpool
 from .config import Settings
 from .dependencies import DependencyService
 from .engine import Engine
+from .learning import LearningService, workflow_lane
+from .patches import PatchService
 from .providers import ProviderError
 
 router = APIRouter(prefix="/api/live", tags=["automation"])
@@ -49,7 +51,7 @@ def overview(eng: Engine = Depends(get_engine)):
             "scan_interval_seconds": settings.scan_interval,
         },
         "worker": db.recall("worker_status", {}),
-        "jobs": jobs,
+        "jobs": [{**job, "lane": workflow_lane(job, db)} for job in jobs],
         "publications": db.publications(),
         "memory": db.recall("repository_lessons", []),
         "last_scan": db.recall("last_scan", {}),
@@ -140,13 +142,25 @@ async def github_event(
     if payload.repository.full_name.lower() != settings.repo.lower():
         raise HTTPException(403, "Repository not allowed")
     if x_github_event == "pull_request":
-        if payload.action not in {"opened", "reopened", "ready_for_review", "synchronize"}:
+        if payload.action not in {
+            "opened",
+            "reopened",
+            "ready_for_review",
+            "synchronize",
+            "labeled",
+        }:
             return {"status": "ignored"}
         if payload.pull_request is None:
             raise HTTPException(422, "Pull request is required")
         try:
+            pr = await run_in_threadpool(eng.providers.pr, payload.pull_request.number)
+            service = (
+                PatchService
+                if pr.get("user", {}).get("login", "").lower() == settings.allowed_actor.lower()
+                else DependencyService
+            )(settings, eng.store, eng.providers)
             return await run_in_threadpool(
-                DependencyService(settings, eng.store, eng.providers).webhook,
+                service.webhook,
                 payload.pull_request.number,
                 x_github_delivery,
                 payload.pull_request.head.sha,
@@ -259,3 +273,8 @@ def pull_requests(
         "offset": offset,
         "limit": 50,
     }
+
+
+@router.get("/learning")
+def learning(eng: Engine = Depends(get_engine)):
+    return LearningService(eng.settings, eng.store, eng.providers).overview()

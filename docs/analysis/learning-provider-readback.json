@@ -1,0 +1,33 @@
+{
+  "checked_at": 1789880944.777492,
+  "repository": "Nasdin/superset",
+  "notes": [
+    {
+      "lesson_id": "bb8e8d94672b749d2d66c803",
+      "note_id": "note-1d92faf85acc48ad8cce65c2461ba092",
+      "scope_and_content_match": true,
+      "source_job": "40b0ad97-6ced-4f60-84e5-c9b4c4be8903",
+      "observation_status": "reported"
+    },
+    {
+      "lesson_id": "20abed1194ba708ec2247633",
+      "note_id": "note-51b604c74da7428dbce9b80302b02943",
+      "scope_and_content_match": true,
+      "source_job": "34534502-0895-49c7-a0c6-f277a4ffe377",
+      "observation_status": "reported"
+    },
+    {
+      "lesson_id": "3c05d796805a8270885061a3",
+      "note_id": "note-65793972d8404bc48f679ad036137778",
+      "scope_and_content_match": true,
+      "source_job": "15fb900e-d51d-4b0a-8313-bf27f5ba3585",
+      "observation_status": "reported"
+    }
+  ],
+  "sessions": 4,
+  "tracked_memory_dispatches": 0,
+  "limits": {
+    "max_acu": 10,
+    "max_sessions": 6
+  }
+}

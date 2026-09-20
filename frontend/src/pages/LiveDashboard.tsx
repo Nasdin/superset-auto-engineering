@@ -1,3 +1,4 @@
+import { WorkflowLanes } from "./WorkflowLanes";
 import { useState } from "react";
 import {
   ArrowDownToLine,
@@ -13,6 +14,8 @@ import { safeUrl } from "../links";
 const load = (signal: AbortSignal) =>
   api<Overview>("live/overview", undefined, signal);
 const goodStates = new Set([
+  "connected",
+  "validated",
   "review_ready",
   "implemented",
   "completed",
@@ -356,6 +359,8 @@ export function LiveDashboard({ page }: { page: Page }) {
                     ))}
                   </div>
                 </section>
+              ) : page === "Workflows" ? (
+                <WorkflowLanes jobs={visible} select={setSelected} />
               ) : (
                 <section className="panel">
                   <div className="table-wrap">

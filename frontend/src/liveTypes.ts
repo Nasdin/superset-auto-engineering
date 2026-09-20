@@ -2,6 +2,7 @@ export type Artifact = { kind: string; name: string; url: string };
 export type Job = {
   id: string;
   kind: string;
+  lane?: string;
   state: string;
   session_url: string | null;
   candidate_sha: string | null;

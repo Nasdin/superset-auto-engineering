@@ -26,6 +26,7 @@ class Settings:
     scan_interval: int = 86400
     batch_seconds: int = 60
     dependabot_enabled: bool = True
+    learning_enabled: bool = True
     enabled: bool = False
     artifacts: Path = Path("data/artifacts")
 
@@ -70,6 +71,8 @@ class Settings:
             values["scan_interval"] = int(env["SCAN_INTERVAL_SECONDS"])
         if "BATCH_WINDOW_SECONDS" in env:
             values["batch_seconds"] = int(env["BATCH_WINDOW_SECONDS"])
+        if "LEARNING_ENABLED" in env:
+            values["learning_enabled"] = env["LEARNING_ENABLED"].lower() == "true"
         if "DEPENDABOT_ENABLED" in env:
             values["dependabot_enabled"] = env["DEPENDABOT_ENABLED"].lower() == "true"
         if "AUTOMATION_ENABLED" in env:

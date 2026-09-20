@@ -242,3 +242,120 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     ),
   ).toBeTruthy();
 });
+
+test("learning page honestly reports empty history and workflow lanes", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Learning & memory", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Learning & memory", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("No completed observations yet.", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Not enough completed history", { exact: false }),
+  ).toBeVisible();
+  await page.getByLabel("Outcome", { exact: true }).selectOption("validated");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
+  for (const name of [
+    "Requested fixes",
+    "Autonomous patches and fixes",
+    "Dependency updates",
+    "Integration & validation",
+  ]) {
+    await expect(
+      page.getByRole("heading", { name, exact: true }),
+    ).toBeVisible();
+  }
+});
+
+test("learning source, memory snapshot and evidence remain linked", async ({
+  page,
+}) => {
+  const job = {
+    id: "learning-job",
+    kind: "validation",
+    state: "validation_failed",
+    session_url: "https://app.devin.ai/sessions/test",
+    candidate_sha: "a".repeat(40),
+    pr_number: 8,
+    error: "Missing browser evidence",
+    acu: 1,
+    created: 1789862400,
+    updated: 1789862400,
+    started: 1789862400,
+    parent_id: null,
+    payload: { title: "Fix date grain" },
+    result: {
+      summary: "Regression passed; browser was unavailable",
+      checks: [],
+      artifacts: [],
+    },
+  };
+  await page.route("**/api/live/learning", (route) =>
+    route.fulfill({
+      json: {
+        repository: "Nasdin/superset",
+        branch: "cognition-release-6.1",
+        sync: { state: "connected" },
+        jobs: [job],
+        lessons: [
+          {
+            id: "lesson-1",
+            created: job.created,
+            native_state: "confirmed",
+            note_id: "note-1",
+            observation: {
+              job_id: job.id,
+              kind: job.kind,
+              status: job.state,
+              title: job.payload.title,
+              summary: job.result.summary,
+              candidate_sha: job.candidate_sha,
+              pr_number: 8,
+            },
+          },
+        ],
+        contexts: [
+          {
+            job_id: job.id,
+            created: job.created,
+            memories: [
+              {
+                lesson_id: "prior-lesson",
+                knowledge_id: "note-previous",
+                observation: { title: "Prior issue", status: "reported" },
+              },
+            ],
+          },
+        ],
+        cohorts: [{ month: "2026-09", passed: 0, failed: 1 }],
+      },
+    }),
+  );
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Learning & memory", exact: true })
+    .click();
+  await expect(page.getByText("0% (n=1)")).toBeVisible();
+  await page.getByText("Inspect supplied memories").click();
+  await expect(page.getByText("prior-lesson", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Inspect source & evidence" }).click();
+  await expect(
+    page.getByText("Missing browser evidence", { exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Outcome", { exact: true }).selectOption("validated");
+  await expect(
+    page.getByRole("button", { name: "Inspect source & evidence" }),
+  ).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});

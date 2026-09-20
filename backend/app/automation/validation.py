@@ -23,11 +23,13 @@ class ValidationService:
             and pr["base"]["repo"]["full_name"].lower() == self.settings.repo.lower()
             and pr["base"]["ref"] == self.settings.branch
         )
-        if job["payload"].get("work_type") == "dependency":
-            from .dependencies import eligible_pr
+        if job["payload"].get("work_type") in {"dependency", "patch"}:
+            from .patches import preparation_service
 
             try:
-                eligible_pr(self.settings, pr)
+                preparation_service(
+                    self.settings, self.store, self.providers, job["payload"]["work_type"]
+                ).eligible(pr)
                 eligible = eligible and pr["head"]["ref"] == job["payload"]["head_ref"]
             except ValueError:
                 eligible = False

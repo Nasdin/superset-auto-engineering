@@ -64,3 +64,13 @@ This checkpoint supersedes older implementation counts and configuration notes a
 - Real Dependabot version updates enabled on the fork with a one-PR PyJWT rollout. Existing signed webhook extended to `pull_request` without losing `issues` or its secret. GitHub delivery `8a394660-b4ac-11f1-980e-4b144178780c` was accepted with HTTP 200 and the existing queued job ID. No duplicate run was created.
 - The control-plane worker and analytics process were rebuilt with persisted data retained. A SQLite backup was taken before rollout. No session cap was raised; the suspended independent validator remains an explicit live acceptance blocker.
 - See [Dependabot configuration and acceptance boundary](DEPENDABOT.md) and [the live dashboard capture](screenshots/dependabot-pr-6.png). The capture shows queued work, not successful validation.
+
+## Learning and autonomous patches — 2026-09-20
+
+- Added native organization Knowledge publication/readback and explicit per-dispatch memory snapshots, a Learning & memory page, and four workflow lanes.
+- Restored the existing completed discovery's structured result from its original Devin session and linked its existing repair job; no issue, PR or session was created by recovery.
+- Live provider readback confirmed three project-owned Knowledge notes (one discovery, two reported implementations). All remain explicitly unverified observations. Zero sessions have yet been dispatched using tracked memory; four existing paid sessions remain in the ledger.
+- The independent validator for PR #4 remains `needs_attention` / `usage_limit_exceeded`. This holds new scans, PR fixes and dependency work. Limits remain 10 ACU per session and six sessions total. No memory-assisted end-to-end validation or improvement claim is made.
+- Backend: 154 tests passed, 84.75% coverage. Includes uncertain create/readback recovery, stale note retirement, ambiguous retirement without phantom session usage, scope changes, immutable context, scan/webhook race recovery and duplicate PR pipeline prevention.
+- Frontend: production build passed; 13 browser tests passed, one optional external Superset test skipped. Learning filters, evidence links, empty history, mobile layout and workflow lanes were exercised.
+- Real browser inspection showed three native notes, the existing usage blocker, and scan → repair PR #5 lineage in the autonomous lane. Screenshots are in `docs/screenshots/learning-memory.png` and `docs/screenshots/workflow-lanes.png`.

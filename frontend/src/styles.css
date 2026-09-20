@@ -1709,3 +1709,126 @@ td small {
     min-width: 0;
   }
 }
+
+/* Evidence-backed memory and parallel workflow presentation. */
+.learning-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.learning-metrics .metric {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e0e7e4;
+  border-radius: 12px;
+}
+.learning-metrics strong {
+  font-size: 30px;
+}
+.learning-intro {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  padding: 24px;
+  gap: 28px;
+  margin-bottom: 20px;
+}
+.learning-intro p,
+.learning-entry p {
+  line-height: 1.65;
+}
+.learning-hold {
+  padding: 16px;
+  background: #fff6df;
+  border: 1px solid #ead6a2;
+  border-radius: 10px;
+}
+.learning-journal {
+  padding: 0 24px;
+}
+.learning-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 0;
+  border-top: 1px solid #e5ebe8;
+}
+.learning-entry > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.learning-entry > div:last-child {
+  max-width: 220px;
+}
+.learning-entry:has(> div:only-child) > div {
+  max-width: none;
+}
+.memory-id {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.learning-entry .live-links {
+  margin-top: 14px;
+}
+.workflow-lanes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.workflow-lane .panel-heading {
+  padding: 18px;
+  min-height: 108px;
+}
+.workflow-lane h2 {
+  font-size: 17px;
+}
+.lane-cards {
+  display: grid;
+  padding: 12px;
+  gap: 12px;
+}
+.lane-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #f8faf9;
+  border: 1px solid #dfe7e3;
+  border-radius: 10px;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.lane-card:hover {
+  border-color: #458774;
+  background: #f0f7f3;
+}
+.lane-card strong {
+  line-height: 1.5;
+}
+.lane-card small {
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+@media (max-width: 1150px) {
+  .workflow-lanes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .workflow-lanes,
+  .learning-intro {
+    grid-template-columns: 1fr;
+  }
+  .learning-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .learning-entry {
+    flex-direction: column;
+  }
+}

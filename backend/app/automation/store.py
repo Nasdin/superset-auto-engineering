@@ -13,6 +13,8 @@ class Store:
         with self.connect() as c:
             c.executescript("""
             PRAGMA journal_mode=WAL;
+            CREATE TABLE IF NOT EXISTS lessons (id TEXT PRIMARY KEY, job_id TEXT NOT NULL, body TEXT NOT NULL, created REAL NOT NULL, native_state TEXT NOT NULL DEFAULT 'pending', note_id TEXT);
+            CREATE TABLE IF NOT EXISTS learning_contexts (job_id TEXT PRIMARY KEY, body TEXT NOT NULL, created REAL NOT NULL);
             CREATE TABLE IF NOT EXISTS jobs (
               id TEXT PRIMARY KEY, dedup TEXT UNIQUE NOT NULL, kind TEXT NOT NULL,
               state TEXT NOT NULL, payload TEXT NOT NULL, session_id TEXT, session_url TEXT,
@@ -118,6 +120,7 @@ class Store:
             "pr_number",
             "candidate_sha",
             "started",
+            "parent_id",
         }
         if not set(values) <= allowed:
             raise ValueError("Invalid update fields")

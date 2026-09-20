@@ -28,21 +28,33 @@ def eligible_pr(settings, pr):
 
 
 class DependencyService:
+    kind = "dependency"
+    intake_name = "dependabot"
+
+    def enabled(self):
+        return self.settings.dependabot_enabled
+
+    def eligible(self, pr):
+        eligible_pr(self.settings, pr)
+
+    def accepts_author(self, pr):
+        return pr.get("user", {}).get("login") == "dependabot[bot]"
+
     def __init__(self, settings, store, providers):
         self.settings, self.store, self.providers = settings, store, providers
 
     def accept(self, number, source, event_sha=None):
-        if not self.settings.dependabot_enabled:
+        if not self.enabled():
             raise ValueError("Dependabot automation is disabled")
         pr = self.providers.pr(number)
-        eligible_pr(self.settings, pr)
+        self.eligible(pr)
         sha = pr["head"]["sha"]
         if event_sha is not None and event_sha != sha:
             return {"status": "ignored", "reason": "Superseded PR event"}
         related = [
             j
             for j in self.store.operational_jobs()
-            if j["pr_number"] == number and j["payload"].get("work_type") == "dependency"
+            if j["pr_number"] == number and j["payload"].get("work_type") == self.kind
         ]
         # Coalesce our own pushes and uncertain in-flight work. No second paid session.
         active = next((j for j in related if j["state"] in ACTIVE), None)
@@ -77,19 +89,19 @@ class DependencyService:
         )
         if same:
             return same
-        key = f"dependency:{self.settings.repo}:{number}:{sha}"
+        key = f"{self.kind}:{self.settings.repo}:{number}:{sha}"
         return self.store.enqueue(
             self.fresh_key(key),
-            "dependency",
+            self.kind,
             {
                 "title": pr["title"],
                 "pr_url": pr["html_url"],
                 "source": source,
-                "work_type": "dependency",
+                "work_type": self.kind,
                 "original_head": sha,
                 "head_ref": pr["head"]["ref"],
                 "base_sha": pr["base"]["sha"],
-                "author": "dependabot[bot]",
+                "author": pr["user"]["login"],
             },
             candidate_sha=sha,
             pr_number=number,
@@ -103,7 +115,7 @@ class DependencyService:
     def webhook(self, number, delivery, sha):
         if self.store.has_delivery(delivery):
             return {"status": "duplicate"}
-        job = self.accept(number, "dependabot_webhook", sha)
+        job = self.accept(number, self.intake_name + "_webhook", sha)
         self.store.record_delivery(delivery)
         return {
             "status": job.get("status", "accepted"),
@@ -112,10 +124,10 @@ class DependencyService:
         }
 
     def poll(self):
-        if not self.settings.dependabot_enabled:
+        if not self.enabled():
             return
         # Rotate through bounded pages so missed events on older PRs can recover.
-        page = self.store.recall("dependabot_next_page", 1)
+        page = self.store.recall(self.intake_name + "_next_page", 1)
         prs = self.providers.gh(
             "GET",
             f"repos/{self.settings.repo}/pulls",
@@ -123,25 +135,25 @@ class DependencyService:
         )
         accepted = 0
         for pr in prs:
-            if pr.get("user", {}).get("login") != "dependabot[bot]":
+            if not self.accepts_author(pr):
                 continue
             try:
-                self.accept(pr["number"], "dependabot_poll")
+                self.accept(pr["number"], self.intake_name + "_poll")
                 accepted += 1
             except ValueError:
                 continue
-        self.store.remember("dependabot_next_page", page + 1 if len(prs) == 100 else 1)
+        self.store.remember(self.intake_name + "_next_page", page + 1 if len(prs) == 100 else 1)
         self.store.remember(
-            "dependabot_poll", {"at": time.time(), "eligible": accepted, "bounded_at": 100}
+            self.intake_name + "_poll", {"at": time.time(), "eligible": accepted, "bounded_at": 100}
         )
 
     def preflight(self, job):
-        if not self.settings.dependabot_enabled:
+        if not self.enabled():
             self.store.update(job["id"], state="blocked", error="Dependabot automation is disabled")
             return False
         pr = self.providers.pr(job["pr_number"])
         try:
-            eligible_pr(self.settings, pr)
+            self.eligible(pr)
         except ValueError as error:
             self.store.update(job["id"], state="stale", error=str(error))
             return False
@@ -162,12 +174,12 @@ class DependencyService:
             self.store.update(
                 job["id"],
                 state="needs_attention",
-                error="Dependency blocker: " + str(result["blocker"])[:250],
+                error="PR preparation blocker: " + str(result["blocker"])[:250],
                 result=result,
             )
             return
         pr = self.providers.pr(job["pr_number"])
-        eligible_pr(self.settings, pr)
+        self.eligible(pr)
         expected_url = f"https://github.com/{self.settings.repo}/pull/{job['pr_number']}"
         sha = pr["head"]["sha"]
         if (
@@ -190,6 +202,6 @@ class DependencyService:
         PublicationOutbox(self.settings, self.store, self.providers).publish(
             job["id"],
             job["pr_number"],
-            f"Dependabot update prepared at `{sha}`.\n\nDevin: {job['session_url']}\n\nFresh independent validation is queued. This is not release approval. Evidence will be posted to this PR.",
+            f"{self.kind.title()} update prepared at `{sha}`.\n\nDevin: {job['session_url']}\n\nFresh independent validation is queued. This is not release approval. Evidence will be posted to this PR.",
         )
         self.store.update(job["id"], state="prepared", candidate_sha=sha, result=result)

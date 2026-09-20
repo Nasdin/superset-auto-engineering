@@ -53,3 +53,11 @@ The [slide source](slides/build.mjs) uses `@oai/artifact-tool` and the supplied 
 Captured on 20 September 2026 after GitHub created Dependabot PR #6 and its signed event was accepted. The queue hold and absent artifacts are real; this is UI verification, not a passing release report.
 
 ![Live Dependabot PR and visible budget hold](screenshots/dependabot-pr-6.png)
+
+## Learning and autonomous patches
+
+[Learning loop, native Devin Knowledge and workflow lanes](LEARNING.md) explains evidence-backed observations, memory supply snapshots, provider retirement of stale notes and autonomous issue/PR repair boundaries.
+
+![Live learning journal](screenshots/learning-memory.png)
+
+![Workflow lanes with autonomous discovery and repair](screenshots/workflow-lanes.png)
