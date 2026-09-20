@@ -238,3 +238,23 @@ def test_superset_native_label_signals():
         category(record(title="Refresh connector", labels=["dependencies:python"])) == "dependency"
     )
     assert category(record(title="Library compatibility", labels=[".dependency"])) == "dependency"
+
+
+def test_analytics_switch_is_read_only_and_keeps_workflows_on_fork(tmp_path):
+    app = create_app(
+        Settings(database=str(tmp_path / "live.db")), demo_database=tmp_path / "demo.db"
+    )
+    with TestClient(app) as client:
+        app.state.analytics.upsert("apache/superset", [provider_record(10), provider_record(11)])
+        app.state.analytics.upsert("Nasdin/superset", [provider_record(1)])
+        for repository, expected in [("apache/superset", 2), ("Nasdin/superset", 1)]:
+            response = client.get(
+                "/api/analytics/pull-requests",
+                params={"repository": repository, "end": "2026-09-19"},
+            ).json()
+            assert response["repository"] == repository
+            assert response["workflow_repository"] == "Nasdin/superset"
+            assert response["current"]["merged"] == expected
+            overview = client.get("/api/live/overview").json()
+            assert overview["repository"] == "Nasdin/superset"
+            assert overview["jobs"] == []

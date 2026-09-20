@@ -23,6 +23,7 @@ export type PRRow = {
 export type Analytics = {
   repository: string;
   repositories: string[];
+  workflow_repository: string;
   provenance: string;
   current: Cohort;
   baseline: Cohort;

@@ -50,6 +50,7 @@ def pull_requests(
     return {
         "repository": repository,
         "repositories": repositories,
+        "workflow_repository": engine.settings.repo,
         "provenance": "GitHub REST API / persisted public PR metadata",
         **analyze(
             store.pulls(repository),

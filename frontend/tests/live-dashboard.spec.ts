@@ -74,9 +74,27 @@ test("real API cohorts drive filters, comparison, chart and linked PR rows", asy
     path: "test-results/real-analytics-mobile.png",
     fullPage: true,
   });
-  await page.getByLabel("Repository").selectOption("Nasdin/superset");
+  await page
+    .getByRole("combobox", { name: "Repository", exact: true })
+    .selectOption("Nasdin/superset");
   await expect(
     page.getByText("GitHub history has not been imported.", { exact: false }),
   ).toBeVisible();
   await expect(page.getByText("50.0%", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Repository scope")).toContainText(
+    "Workflows always create issues, PRs and reports in Nasdin/superset",
+  );
+  await expect(
+    page.getByRole("link", { name: "Open selected repository" }),
+  ).toHaveAttribute("href", "https://github.com/Nasdin/superset");
+  await page
+    .getByRole("combobox", { name: "Repository", exact: true })
+    .selectOption("apache/superset");
+  await expect(
+    page.getByRole("link", { name: "Open selected repository" }),
+  ).toHaveAttribute("href", "https://github.com/apache/superset");
+  await page.getByRole("button", { name: "Workflows", exact: true }).click();
+  await expect(
+    page.getByText("Nasdin/superset", { exact: true }),
+  ).toBeVisible();
 });

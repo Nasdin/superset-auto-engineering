@@ -228,7 +228,12 @@ export function RepositoryAnalytics() {
             >
               {(response?.value.repositories || ["apache/superset"]).map(
                 (repo) => (
-                  <option key={repo}>{repo}</option>
+                  <option key={repo} value={repo}>
+                    {repo === "apache/superset"
+                      ? "Original repository"
+                      : "Workflow fork"}{" "}
+                    · {repo}
+                  </option>
                 ),
               )}
             </select>
@@ -320,6 +325,17 @@ export function RepositoryAnalytics() {
           ))}
         </div>
       </section>
+      {response && (
+        <div className="source-strip" aria-label="Repository scope">
+          <span>
+            Analytics is read-only. Workflows always create issues, PRs and
+            reports in <strong>{response.value.workflow_repository}</strong>.
+          </span>
+          <External url={`https://github.com/${filters.repository}`}>
+            Open selected repository
+          </External>
+        </div>
+      )}
       {error && (
         <div role="alert" className="notice">
           {error} <button onClick={() => refresh()}>Retry connection</button>
