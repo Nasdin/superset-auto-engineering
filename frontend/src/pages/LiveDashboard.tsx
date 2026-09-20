@@ -1,3 +1,4 @@
+import { Disclosure, Inspection } from "../components/Disclosure";
 import { ExecutionEvidence } from "../components/ExecutionEvidence";
 import { WorkflowLanes } from "./WorkflowLanes";
 import { useState } from "react";
@@ -175,20 +176,20 @@ export function LiveDashboard({ page }: { page: Page }) {
           </div>
           <h1>
             {page === "Release validation"
-              ? "Confidence, backed by evidence."
+              ? "Release validation"
               : page === "Repository graph"
-                ? "Follow the change to its proof."
+                ? "Repository lineage"
                 : page === "Devin runs"
-                  ? "Autonomy, with a paper trail."
-                  : "From issue to integrated change."}
+                  ? "Devin runs"
+                  : "Workflow lanes"}
           </h1>
           <p>
             {page === "Release validation"
               ? "Actual candidates, independent validation and evidence for the exact revision."
-              : "Persisted workflow records, refreshed every five seconds."}
+              : "Follow each change from request to independent review."}
           </p>
         </div>
-        <div className="live-links">
+        <Disclosure title="Page tools" className="page-tools">
           <button className="button" onClick={() => refresh()}>
             <RefreshCw size={15} />
             Refresh
@@ -201,7 +202,7 @@ export function LiveDashboard({ page }: { page: Page }) {
             <ArrowDownToLine size={15} />
             Export evidence
           </button>
-        </div>
+        </Disclosure>
       </div>
       {error && (
         <div role="alert" className="notice">
@@ -239,7 +240,7 @@ export function LiveDashboard({ page }: { page: Page }) {
               </span>
             </div>
           ) : (
-            <div className="stats">
+            <div className="stats compact-stats">
               {[
                 [data.metrics.sessions, "Real Devin sessions"],
                 [data.metrics.acu.toFixed(2), "Reported ACUs"],
@@ -249,7 +250,6 @@ export function LiveDashboard({ page }: { page: Page }) {
                 <div className="stat" key={l}>
                   <div>{l}</div>
                   <strong>{v}</strong>
-                  <small>From the complete live ledger</small>
                 </div>
               ))}
             </div>
@@ -264,23 +264,33 @@ export function LiveDashboard({ page }: { page: Page }) {
                       Review the validation tied to each integration candidate.
                     </p>
                   </div>
-                  <label className="compact-field">
-                    Candidate
-                    <select
-                      value={candidate?.id || ""}
-                      onChange={(e) => setSelected(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select a validation
-                      </option>
-                      {candidates.map((j) => (
-                        <option key={j.id} value={j.id}>
-                          PR #{j.pr_number} · {j.candidate_sha?.slice(0, 8)} ·{" "}
-                          {j.state.replaceAll("_", " ")}
+                  <Disclosure
+                    title="Change candidate"
+                    summary={
+                      candidate
+                        ? `PR #${candidate.pr_number} · ${candidate.candidate_sha?.slice(0, 8) || "Awaiting revision"}`
+                        : "No candidates"
+                    }
+                    className="candidate-controls"
+                  >
+                    <label className="compact-field">
+                      Candidate
+                      <select
+                        value={candidate?.id || ""}
+                        onChange={(e) => setSelected(e.target.value)}
+                      >
+                        <option value="" disabled>
+                          Select a validation
                         </option>
-                      ))}
-                    </select>
-                  </label>
+                        {candidates.map((j) => (
+                          <option key={j.id} value={j.id}>
+                            PR #{j.pr_number} · {j.candidate_sha?.slice(0, 8)} ·{" "}
+                            {j.state.replaceAll("_", " ")}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </Disclosure>
                 </div>
                 {candidate && (
                   <>
@@ -343,32 +353,46 @@ export function LiveDashboard({ page }: { page: Page }) {
             </>
           ) : (
             <>
-              <div className="analytics-filters">
-                <label className="compact-field">
-                  Search workflows
-                  <input
-                    value={search}
-                    placeholder="Title, PR number or job ID"
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </label>
-                <label className="compact-field">
-                  State
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    <option value="">All states</option>
-                    {Array.from(new Set(jobs.map((j) => j.state)))
-                      .sort()
-                      .map((s) => (
-                        <option key={s} value={s}>
-                          {s.replaceAll("_", " ")}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              </div>
+              <Disclosure
+                title="Filter records"
+                summary={`${visible.length} records · ${status.replaceAll("_", " ") || "All states"}${search ? ` · “${search}”` : ""}`}
+              >
+                <div className="analytics-filters">
+                  <label className="compact-field">
+                    Search workflows
+                    <input
+                      value={search}
+                      placeholder="Title, PR number or job ID"
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </label>
+                  <label className="compact-field">
+                    State
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="">All states</option>
+                      {Array.from(new Set(jobs.map((j) => j.state)))
+                        .sort()
+                        .map((s) => (
+                          <option key={s} value={s}>
+                            {s.replaceAll("_", " ")}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </div>
+                <button
+                  className="text-button reset-controls"
+                  onClick={() => {
+                    setSearch("");
+                    setStatus("");
+                  }}
+                >
+                  Reset filters
+                </button>
+              </Disclosure>
               {page === "Repository graph" ? (
                 <section className="panel">
                   <div className="panel-heading">
@@ -486,7 +510,13 @@ export function LiveDashboard({ page }: { page: Page }) {
                 <p className="empty">No live records match these filters.</p>
               )}
               {picked && (
-                <JobDetail job={picked} repository={data.repository} />
+                <Inspection
+                  key={picked.id}
+                  title="Selected run"
+                  onClose={() => setSelected("")}
+                >
+                  <JobDetail job={picked} repository={data.repository} />
+                </Inspection>
               )}
             </>
           )}

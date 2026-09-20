@@ -18,6 +18,9 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
     window.addEventListener("hashchange", change);
     return () => window.removeEventListener("hashchange", change);
   }, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [page]);
   const navigate = (next: Page) => {
     const view = views.find((item) => item.page === next)!;
     window.location.hash = view.slug;

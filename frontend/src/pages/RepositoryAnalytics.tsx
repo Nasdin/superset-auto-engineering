@@ -3,6 +3,7 @@ import { ArrowDownToLine, RefreshCw } from "lucide-react";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Analytics } from "../analyticsTypes";
+import { Disclosure } from "../components/Disclosure";
 import { SupersetAnalytics } from "../components/SupersetAnalytics";
 import {
   MonthlyCoverage,
@@ -88,7 +89,7 @@ export function RepositoryAnalytics() {
             time.
           </p>
         </div>
-        <div className="live-links">
+        <Disclosure title="Page tools" className="page-tools">
           <button
             className="button"
             onClick={() => {
@@ -103,9 +104,22 @@ export function RepositoryAnalytics() {
             <ArrowDownToLine size={15} />
             Export analysis
           </button>
-        </div>
+        </Disclosure>
       </div>
-      <section className="panel filter-panel impact-filters">
+      <Disclosure
+        title="Analysis controls"
+        summary={`${filters.repository} · ${filters.days} days to ${filters.end} · ${filters.comparison === "six_months" ? "vs six months earlier" : filters.comparison === "previous" ? "vs previous window" : `vs ${filters.baseline_end || "custom baseline"}`}${[
+          filters.kind,
+          filters.author,
+          filters.label,
+          filters.base,
+          filters.provenance === "all" ? "" : filters.provenance,
+        ]
+          .filter(Boolean)
+          .map((value) => ` · ${value}`)
+          .join("")}`}
+        className="analysis-controls"
+      >
         <div className="analytics-filters">
           <label className="compact-field">
             Repository
@@ -218,18 +232,27 @@ export function RepositoryAnalytics() {
             </div>
           </details>
         </div>
-      </section>
-      {response && (
-        <div className="source-strip" aria-label="Repository scope">
-          <span>
-            Analytics is read-only. Workflows always create issues, PRs and
-            reports in <strong>{response.value.workflow_repository}</strong>.
-          </span>
-          <External url={`https://github.com/${filters.repository}`}>
-            Open selected repository
-          </External>
-        </div>
-      )}
+        <button
+          className="text-button reset-controls"
+          onClick={() =>
+            setFilters({
+              repository: filters.repository,
+              end: yesterday,
+              days: "30",
+              comparison: "six_months",
+              baseline_end: "",
+              author: "",
+              label: "",
+              base: "",
+              kind: "",
+              provenance: "all",
+              cadence: filters.cadence,
+            })
+          }
+        >
+          Reset filters
+        </button>
+      </Disclosure>
       {error && (
         <div role="alert" className="notice">
           {error}{" "}
@@ -250,27 +273,6 @@ export function RepositoryAnalytics() {
       )}
       {data && (
         <>
-          <div className="source-strip">
-            <span
-              className={`badge ${data.sync.state === "ready" ? "green" : "amber"}`}
-            >
-              {data.sync.state.replaceAll("_", " ")}
-            </span>
-            <span>
-              {data.stored_prs.toLocaleString()} PRs stored ·{" "}
-              {data.sync.pages || 0} pages in latest sync
-            </span>
-            <span>
-              Measured details: {data.impact.current.commits_samples} /{" "}
-              {data.impact.current.merged_prs} current PRs
-            </span>
-            <span>
-              Last successful sync:{" "}
-              {data.sync.last_success
-                ? new Date(data.sync.last_success).toLocaleString()
-                : "not yet"}
-            </span>
-          </div>
           {data.sync.error && (
             <div className="notice">
               Import: {data.sync.error}. Previously imported records remain
@@ -308,6 +310,44 @@ export function RepositoryAnalytics() {
             </div>
           </div>
           <SupersetAnalytics key={chartRevision} query={query} />
+          <Disclosure
+            title="Data source & freshness"
+            summary={`${data.stored_prs.toLocaleString()} PRs imported · ${data.sync.state.replaceAll("_", " ")}`}
+          >
+            <div className="source-strip">
+              <span
+                className={`badge ${data.sync.state === "ready" ? "green" : "amber"}`}
+              >
+                {data.sync.state.replaceAll("_", " ")}
+              </span>
+              <span>
+                {data.stored_prs.toLocaleString()} PRs stored ·{" "}
+                {data.sync.pages || 0} pages in latest sync
+              </span>
+              <span>
+                Measured details: {data.impact.current.commits_samples} /{" "}
+                {data.impact.current.merged_prs} current PRs
+              </span>
+              <span>
+                Last successful sync:{" "}
+                {data.sync.last_success
+                  ? new Date(data.sync.last_success).toLocaleString()
+                  : "not yet"}
+              </span>
+            </div>
+            {response && (
+              <div className="source-strip" aria-label="Repository scope">
+                <span>
+                  Analytics is read-only. Workflows always create issues, PRs
+                  and reports in{" "}
+                  <strong>{response.value.workflow_repository}</strong>.
+                </span>
+                <External url={`https://github.com/${filters.repository}`}>
+                  Open selected repository
+                </External>
+              </div>
+            )}
+          </Disclosure>
           <MonthlyCoverage impact={data.impact} />
           <CategoryComparison impact={data.impact} />
           <ImpactEstimate impact={data.impact} />

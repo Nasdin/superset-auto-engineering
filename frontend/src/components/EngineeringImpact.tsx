@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Disclosure } from "./Disclosure";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -234,30 +235,39 @@ export function ImpactEstimate({ impact }: { impact: Impact }) {
           </small>
         </div>
         <div className="model-assumptions">
-          <label>
-            Manual implementation + review / PR
-            <input
-              type="number"
-              min="0"
-              max="1000"
-              step="0.25"
-              value={manual}
-              onChange={(e) => setManual(e.target.value)}
-            />
-            <span>hours assumed</span>
-          </label>
-          <label>
-            Human oversight with Devin / PR
-            <input
-              type="number"
-              min="0"
-              max="1000"
-              step="0.25"
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-            />
-            <span>hours assumed</span>
-          </label>
+          <Disclosure
+            title="Estimate assumptions"
+            summary={
+              valid
+                ? `${manual}h manual · ${review}h oversight`
+                : "Enter valid hours"
+            }
+          >
+            <label>
+              Manual implementation + review / PR
+              <input
+                type="number"
+                min="0"
+                max="1000"
+                step="0.25"
+                value={manual}
+                onChange={(e) => setManual(e.target.value)}
+              />
+              <span>hours assumed</span>
+            </label>
+            <label>
+              Human oversight with Devin / PR
+              <input
+                type="number"
+                min="0"
+                max="1000"
+                step="0.25"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+              <span>hours assumed</span>
+            </label>
+          </Disclosure>
           <code>
             {eligible} PRs × ({manual || "?"} − {review || "?"}) hours
           </code>

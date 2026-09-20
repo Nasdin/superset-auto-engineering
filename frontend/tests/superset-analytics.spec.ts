@@ -118,6 +118,7 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
     .click();
   await checkCharts("repository=apache%2Fsuperset&cadence=rolling");
   responses = [];
+  await page.getByText("Analysis controls", { exact: true }).click();
   await page.getByRole("slider").fill("60");
   await checkCharts("repository=apache%2Fsuperset&days=60&cadence=rolling");
   responses = [];

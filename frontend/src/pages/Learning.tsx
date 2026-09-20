@@ -5,6 +5,7 @@ import {
   GitPullRequest,
   ShieldCheck,
 } from "lucide-react";
+import { Disclosure, Inspection } from "../components/Disclosure";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job } from "../liveTypes";
@@ -64,6 +65,9 @@ export function Learning() {
         c.memories.length &&
         data.jobs.some((j) => j.id === c.job_id && j.session_url),
     ) || [];
+  const filteredLessons = latest.filter(
+    (l) => !filter || l.observation.status === filter,
+  );
   return (
     <main id="main">
       <div className="heading">
@@ -120,33 +124,40 @@ export function Learning() {
               </article>
             ))}
           </div>
-          <section className="panel learning-intro">
-            <div>
-              <h2>A traceable learning loop</h2>
-              <p>
-                Discover one reproducible defect → create an issue in{" "}
-                {data.repository} → prepare a fix → independently validate the
-                exact revision → publish evidence for human review.
-              </p>
-              <p>
-                Each new run receives up to ten recent observations. Native
-                notes and explicitly supplied context are recorded separately
-                from the agent’s claims. Memories never authorize a merge.
-              </p>
+          <div className="learning-sync-line">
+            <span>Devin Knowledge</span>
+            <State value={data.sync.state} />
+            <small>
+              {data.sync.at
+                ? `Last sync ${new Date(data.sync.at * 1000).toLocaleString()}`
+                : "Awaiting worker sync"}
+            </small>
+          </div>
+          {data.sync.error && (
+            <p className="notice" role="status">
+              {data.sync.error}
+            </p>
+          )}
+          <Disclosure
+            title="How learning works"
+            summary="Observe · remember · apply · verify"
+          >
+            <div className="learning-intro">
+              <div>
+                <h2>A traceable learning loop</h2>
+                <p>
+                  Discover one reproducible defect → create an issue in{" "}
+                  {data.repository} → prepare a fix → independently validate the
+                  exact revision → publish evidence for human review.
+                </p>
+                <p>
+                  Each new run receives up to ten recent observations. Native
+                  notes and explicitly supplied context are recorded separately
+                  from the agent’s claims. Memories never authorize a merge.
+                </p>
+              </div>
             </div>
-            <div>
-              <span className="eyebrow">DEVIN KNOWLEDGE</span>
-              <p>
-                <State value={data.sync.state} />
-              </p>
-              {data.sync.error && <p role="status">{data.sync.error}</p>}
-              <small>
-                {data.sync.at
-                  ? `Last sync ${new Date(data.sync.at * 1000).toLocaleString()}`
-                  : "Awaiting worker sync"}
-              </small>
-            </div>
-          </section>
+          </Disclosure>
           {data.jobs
             .filter(
               (j) =>
@@ -172,67 +183,74 @@ export function Learning() {
                   unverified; validation is tied to its recorded SHA.
                 </p>
               </div>
-              <label className="compact-field">
-                Outcome
-                <select
-                  aria-label="Outcome"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                >
-                  <option value="">All observations</option>
-                  <option value="reported">Reported</option>
-                  <option value="validated">Validated</option>
-                  <option value="validation_failed">Validation failed</option>
-                  <option value="stale">Stale</option>
-                </select>
-              </label>
+              <Disclosure
+                title="Filter observations"
+                summary={filter.replaceAll("_", " ") || "All outcomes"}
+                className="journal-controls"
+              >
+                <label className="compact-field">
+                  Outcome
+                  <select
+                    aria-label="Outcome"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                  >
+                    <option value="">All observations</option>
+                    <option value="reported">Reported</option>
+                    <option value="validated">Validated</option>
+                    <option value="validation_failed">Validation failed</option>
+                    <option value="stale">Stale</option>
+                  </select>
+                </label>
+              </Disclosure>
             </div>
             <div className="learning-journal">
-              {latest
-                .filter((l) => !filter || l.observation.status === filter)
-                .map((lesson) => (
-                  <article key={lesson.id} className="learning-entry">
-                    <div>
-                      <span className="eyebrow">
-                        {new Date(lesson.created * 1000).toLocaleDateString()} ·{" "}
-                        {lesson.observation.kind}
-                      </span>
-                      <h3>{lesson.observation.title}</h3>
-                      <p>
-                        {lesson.observation.summary ||
-                          "Recorded result; inspect the source run for details."}
-                      </p>
-                      <code>
-                        {lesson.observation.candidate_sha?.slice(0, 12) ||
-                          "No revision recorded"}
-                      </code>
-                      <div className="live-links">
-                        <button
-                          className="button"
-                          onClick={() => setSelected(lesson.observation.job_id)}
+              {filteredLessons.map((lesson) => (
+                <article key={lesson.id} className="learning-entry">
+                  <div>
+                    <span className="eyebrow">
+                      {new Date(lesson.created * 1000).toLocaleDateString()} ·{" "}
+                      {lesson.observation.kind}
+                    </span>
+                    <h3>{lesson.observation.title}</h3>
+                    <p>
+                      {lesson.observation.summary ||
+                        "Recorded result; inspect the source run for details."}
+                    </p>
+                    <code>
+                      {lesson.observation.candidate_sha?.slice(0, 12) ||
+                        "No revision recorded"}
+                    </code>
+                    <div className="live-links">
+                      <button
+                        className="button"
+                        onClick={() => setSelected(lesson.observation.job_id)}
+                      >
+                        Inspect source & evidence
+                      </button>
+                      {lesson.observation.pr_number && (
+                        <External
+                          url={`https://github.com/${data.repository}/pull/${lesson.observation.pr_number}`}
                         >
-                          Inspect source & evidence
-                        </button>
-                        {lesson.observation.pr_number && (
-                          <External
-                            url={`https://github.com/${data.repository}/pull/${lesson.observation.pr_number}`}
-                          >
-                            PR #{lesson.observation.pr_number}
-                          </External>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <State value={lesson.observation.status} />
-                      <p>
-                        <small>Knowledge: {lesson.native_state}</small>
-                      </p>
-                      {lesson.note_id && (
-                        <small className="memory-id">{lesson.note_id}</small>
+                          PR #{lesson.observation.pr_number}
+                        </External>
                       )}
                     </div>
-                  </article>
-                ))}
+                  </div>
+                  <div>
+                    <State value={lesson.observation.status} />
+                    <p>
+                      <small>Knowledge: {lesson.native_state}</small>
+                    </p>
+                    {lesson.note_id && (
+                      <small className="memory-id">{lesson.note_id}</small>
+                    )}
+                  </div>
+                </article>
+              ))}
+              {latest.length > 0 && !filteredLessons.length && (
+                <p className="empty">No observations match this outcome.</p>
+              )}
               {!latest.length && (
                 <p className="empty">
                   No completed observations yet. Real run results will populate
@@ -241,10 +259,13 @@ export function Learning() {
               )}
             </div>
           </section>
-          <section className="panel">
+          <Disclosure
+            title="Memory supplied to runs"
+            summary={`${data.contexts.length} recorded dispatch snapshots`}
+          >
             <div className="panel-heading">
               <div>
-                <h2>Memory supplied to runs</h2>
+                <h2>Dispatch history</h2>
                 <p>
                   A saved dispatch snapshot records what this application
                   supplied, not that the agent used or benefited from it. Other
@@ -293,7 +314,7 @@ export function Learning() {
                 </p>
               )}
             </div>
-          </section>
+          </Disclosure>
           <section className="panel">
             <div className="panel-heading">
               <div>
@@ -337,7 +358,15 @@ export function Learning() {
               </p>
             )}
           </section>
-          {job && <JobDetail job={job} repository={data.repository} />}
+          {job && (
+            <Inspection
+              key={job.id}
+              title="Source run & evidence"
+              onClose={() => setSelected("")}
+            >
+              <JobDetail job={job} repository={data.repository} />
+            </Inspection>
+          )}
         </>
       )}
     </main>

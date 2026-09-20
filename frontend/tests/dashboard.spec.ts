@@ -92,11 +92,13 @@ test("live operations shows real ledger and configuration state", async ({
     .click();
   await expect(
     page.getByRole("heading", {
-      name: "From a real issue to reviewable proof.",
+      name: "Workspace health",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/^github: (configured|not connected)$/),
+    page
+      .getByLabel("Integration configuration")
+      .getByRole("heading", { name: "GitHub" }),
   ).toBeVisible();
   await expect(page.getByText("WF-041", { exact: true })).toHaveCount(0);
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -155,12 +157,10 @@ test("live polling skips overlaps and refresh keeps the latest response", async 
   expect(requests).toBe(1);
   await page.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "latest-response" }),
+    page.locator("summary").filter({ hasText: "latest-response" }),
   ).toBeVisible();
   releaseFirst();
-  await expect(page.getByRole("heading", { name: "old-response" })).toHaveCount(
-    0,
-  );
+  await expect(page.getByText("old-response", { exact: false })).toHaveCount(0);
   await page.getByRole("button", { name: "Analytics", exact: true }).click();
   const countOnLeave = requests;
   await page.clock.fastForward(15_000);

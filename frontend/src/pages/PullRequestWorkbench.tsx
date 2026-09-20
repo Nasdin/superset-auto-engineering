@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { ExternalLink, RefreshCw } from "lucide-react";
+import { Disclosure, Inspection } from "../components/Disclosure";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job, Overview } from "../liveTypes";
@@ -60,11 +61,7 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
       <div className="heading">
         <div>
           <div className="eyebrow">SUPERSET ENGINEERING / PR EVIDENCE</div>
-          <h1>
-            {botOnly
-              ? "Dependency updates, with proof."
-              : "Every change has a story."}
-          </h1>
+          <h1>{botOnly ? "Dependency updates" : "Pull request evidence"}</h1>
           <p>
             {botOnly
               ? "Dependabot opens the PR. Devin prepares it. A fresh validator gathers the evidence. You decide whether to merge."
@@ -94,20 +91,25 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
               {data.enabled ? "enabled" : "disabled"}
             </span>
           </div>
-          <div className="notice">
-            Runs share the existing session and spending limits. A paused or
-            uncertain run can hold the queue. Only independent validation marked
-            “review ready” has passed the evidence gate; merge remains a human
-            action.
-          </div>
-          {!botOnly && (
-            <p className="notice">
-              To validate an engineer’s or Devin’s existing fork PR, add the{" "}
-              <code>cognition:validate</code> label. New commits get a new
-              validation run. Tracked repairs also follow subsequent changes
-              automatically.
+          <Disclosure
+            title="How validation works"
+            summary="Independent evidence · human approval"
+          >
+            <p className="quiet">
+              Runs share the existing session and spending limits. A paused or
+              uncertain run can hold the queue. Only independent validation
+              marked “review ready” has passed the evidence gate; merge remains
+              a human action.
             </p>
-          )}
+            {!botOnly && (
+              <p className="quiet">
+                To validate an engineer’s or Devin’s existing fork PR, add the{" "}
+                <code>cognition:validate</code> label. New commits get a new
+                validation run. Tracked repairs also follow subsequent changes
+                automatically.
+              </p>
+            )}
+          </Disclosure>
           {data.queue_holds?.map((hold) => (
             <div className="notice" key={hold.id} role="status">
               <strong>
@@ -132,43 +134,60 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                 </p>
               </div>
             </div>
-            <div className="workbench-filters">
-              <label>
-                Change type
-                <select
-                  value={kind}
-                  onChange={(e) => {
-                    setKind(e.target.value);
-                    setOffset(0);
-                    setSelected(undefined);
-                  }}
-                >
-                  <option value="">All changes</option>
-                  <option value="dependency">Dependencies</option>
-                  <option value="fix">Fixes</option>
-                  <option value="feature">Features</option>
-                  <option value="revert">Reverts</option>
-                  <option value="other">Other</option>
-                </select>
-              </label>
-              <label>
-                Find a PR
-                <input
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setOffset(0);
-                    setSelected(undefined);
-                  }}
-                  placeholder="Title, author or number"
-                />
-              </label>
-            </div>
-            <p className="quiet workbench-note">
-              Change types are title/label signals. Dependabot identity is a
-              separate author attribute. A PR with no recorded run has no
-              evidence from this system.
-            </p>
+            <Disclosure
+              title="Filter pull requests"
+              summary={`${kind || "All changes"}${search ? ` · “${search}”` : ""}`}
+              className="inset-disclosure"
+            >
+              <div className="workbench-filters">
+                <label>
+                  Change type
+                  <select
+                    value={kind}
+                    onChange={(e) => {
+                      setKind(e.target.value);
+                      setOffset(0);
+                      setSelected(undefined);
+                    }}
+                  >
+                    <option value="">All changes</option>
+                    <option value="dependency">Dependencies</option>
+                    <option value="fix">Fixes</option>
+                    <option value="feature">Features</option>
+                    <option value="revert">Reverts</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label>
+                  Find a PR
+                  <input
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setOffset(0);
+                      setSelected(undefined);
+                    }}
+                    placeholder="Title, author or number"
+                  />
+                </label>
+              </div>
+              <button
+                className="text-button reset-controls"
+                onClick={() => {
+                  setKind("");
+                  setSearch("");
+                  setOffset(0);
+                  setSelected(undefined);
+                }}
+              >
+                Reset filters
+              </button>
+              <p className="quiet workbench-note">
+                Change types are title/label signals. Dependabot identity is a
+                separate author attribute. A PR with no recorded run has no
+                evidence from this system.
+              </p>
+            </Disclosure>
             <div className="table-wrap">
               <table>
                 <thead>
@@ -249,7 +268,11 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
             </div>
           </section>
           {picked && (
-            <section aria-label={`Evidence for PR ${picked.number}`}>
+            <Inspection
+              key={picked.number}
+              title={`Evidence for PR ${picked.number}`}
+              onClose={() => setSelected(undefined)}
+            >
               <div className="heading workbench-detail-heading">
                 <div>
                   <h2>PR #{picked.number} · review trail</h2>
@@ -294,7 +317,7 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                   <JobDetail job={job} repository={data.repository} />
                 </div>
               ))}
-            </section>
+            </Inspection>
           )}
           <p className="quiet workbench-note">
             <a

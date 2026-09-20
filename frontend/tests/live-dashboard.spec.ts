@@ -42,6 +42,7 @@ test("analytics passes repository and cohort filters to Superset and reports una
     "Superset analytics is not configured",
   );
   await expect(page.locator("iframe")).toHaveCount(0);
+  await page.getByText("Analysis controls", { exact: true }).click();
   await page.getByText("Refine cohort", { exact: true }).click();
   await page.getByLabel("Work signal").selectOption("dependency");
   await expect.poll(() => selections.at(-1)?.get("kind")).toBe("dependency");
@@ -71,6 +72,7 @@ test("analytics passes repository and cohort filters to Superset and reports una
   await expect
     .poll(() => selections.at(-1)?.get("repository"))
     .toBe("Nasdin/superset");
+  await page.getByText("Data source & freshness", { exact: true }).click();
   await expect(
     page.getByRole("link", { name: "Open selected repository" }),
   ).toHaveAttribute("href", "https://github.com/Nasdin/superset");
@@ -259,6 +261,7 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
   });
   await page.getByRole("button", { name: "Evidence", exact: true }).click();
   await page.getByRole("button", { name: "PR evidence", exact: true }).click();
+  await page.getByText("Filter pull requests", { exact: true }).click();
   await page.getByLabel("Change type").selectOption("feature");
   await expect(
     page.getByRole("button", { name: "#8 feat: chart export" }),
@@ -303,6 +306,7 @@ test("learning page honestly reports empty history and workflow lanes", async ({
   await expect(
     page.getByText("Not enough completed history", { exact: false }),
   ).toBeVisible();
+  await page.getByText("Filter observations", { exact: true }).click();
   await page.getByLabel("Outcome", { exact: true }).selectOption("validated");
   await page.getByRole("button", { name: "Workflows", exact: true }).click();
   for (const name of [
@@ -387,12 +391,14 @@ test("learning source, memory snapshot and evidence remain linked", async ({
     .getByRole("button", { name: "Learning & memory", exact: true })
     .click();
   await expect(page.getByText("0% (n=1)")).toBeVisible();
+  await page.getByText("Memory supplied to runs", { exact: true }).click();
   await page.getByText("Inspect supplied memories").click();
   await expect(page.getByText("prior-lesson", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Inspect source & evidence" }).click();
   await expect(
     page.getByText("Missing browser evidence", { exact: true }),
   ).toBeVisible();
+  await page.getByText("Filter observations", { exact: true }).click();
   await page.getByLabel("Outcome", { exact: true }).selectOption("validated");
   await expect(
     page.getByRole("button", { name: "Inspect source & evidence" }),

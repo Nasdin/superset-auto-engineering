@@ -25,6 +25,7 @@ test("impact shows measurement gaps and an explicit adjustable effort scenario",
   ).toBeVisible();
   const model = page.getByLabel("Estimated time saved", { exact: true });
   await expect(model).toContainText("6 engineering hours");
+  await model.getByText("Estimate assumptions", { exact: true }).click();
   await model.getByLabel("Manual implementation + review / PR").fill("1");
   await expect(model).toContainText("2 engineering hours");
   await model.getByLabel("Human oversight with Devin / PR").fill("2");

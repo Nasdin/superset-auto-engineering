@@ -27,7 +27,7 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
     ).toBeVisible();
   await page.getByRole("button", { name: "PR evidence", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Every change has a story." }),
+    page.getByRole("heading", { name: "Pull request evidence" }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Repository graph", exact: true })
@@ -40,14 +40,12 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
     page.getByRole("region", { name: "Workflow lanes" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Devin runs", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Autonomy, with a paper trail." }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Devin runs" })).toBeVisible();
   await page
     .getByRole("button", { name: "Dependabot runs", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Dependency updates, with proof." }),
+    page.getByRole("heading", { name: "Dependency updates" }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Learning & memory", exact: true })
@@ -59,19 +57,19 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   ).toBeVisible();
   await page.goBack();
   await expect(
-    page.getByRole("heading", { name: "Dependency updates, with proof." }),
+    page.getByRole("heading", { name: "Dependency updates" }),
   ).toBeVisible();
   await primary
     .getByRole("button", { name: "Operations", exact: true })
     .click();
   await expect(
     page.getByRole("heading", {
-      name: "From a real issue to reviewable proof.",
+      name: "Workspace health",
     }),
   ).toBeVisible();
   await primary.getByRole("button", { name: "Analytics", exact: true }).click();
   await expect(
-    page.getByRole("combobox", { name: "Repository", exact: true }),
+    page.getByText("Analysis controls", { exact: true }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Skip to content" }).focus();
   await page.keyboard.press("Enter");
@@ -81,7 +79,7 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   await page.goBack();
   await expect(page).toHaveURL(/#analytics$/);
   await expect(
-    page.getByRole("combobox", { name: "Repository", exact: true }),
+    page.getByText("Analysis controls", { exact: true }),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await primary.getByRole("button", { name: "Workflows", exact: true }).click();

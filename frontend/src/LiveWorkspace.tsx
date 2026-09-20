@@ -1,15 +1,10 @@
 import type { Overview } from "./liveTypes";
-import { safeUrl } from "./links";
 import { api } from "./api";
 import { usePollingResource } from "./hooks/usePollingResource";
 import { useState } from "react";
-import {
-  Activity,
-  ExternalLink,
-  RefreshCw,
-  ShieldCheck,
-  Terminal,
-} from "lucide-react";
+import { Activity, RefreshCw, Plug, ShieldCheck } from "lucide-react";
+import { Disclosure, Inspection } from "./components/Disclosure";
+import { External, JobDetail, State } from "./pages/LiveDashboard";
 const loadOverview = (signal: AbortSignal) =>
   api<Overview>("live/overview", undefined, signal);
 
@@ -17,15 +12,23 @@ export default function LiveWorkspace() {
   const { data, error, refresh } = usePollingResource(loadOverview, 5000);
   const [selected, setSelected] = useState<string | null>(null);
   const job = data?.jobs.find((j) => j.id === selected);
+  const attention =
+    data?.jobs.filter((j) =>
+      [
+        "needs_attention",
+        "unknown_effect",
+        "validation_failed",
+        "blocked",
+      ].includes(j.state),
+    ) || [];
   return (
     <main id="main">
       <div className="heading">
         <div>
-          <div className="eyebrow">LIVE OPERATIONS / EVIDENCE LEDGER</div>
-          <h1>From a real issue to reviewable proof.</h1>
+          <div className="eyebrow">WORKSPACE / OPERATIONS</div>
+          <h1>Workspace health</h1>
           <p>
-            Provider sessions, exact revisions and delivery receipts. No fixture
-            data.
+            Connections, execution limits and the records behind each delivery.
           </p>
         </div>
         <button className="button" onClick={() => refresh()}>
@@ -38,82 +41,131 @@ export default function LiveWorkspace() {
           {error}
         </div>
       )}
+      {!data && !error && (
+        <p className="empty" role="status">
+          Loading workspace health…
+        </p>
+      )}
       {data && (
         <>
-          <div className="connection-strip">
-            {Object.entries(data.connections).map(([name, ready]) => (
-              <span className={`badge ${ready ? "green" : "amber"}`} key={name}>
-                <i />
-                {name}: {ready ? "configured" : "not connected"}
-              </span>
-            ))}
-            <span className="quiet">
-              Worker: {data.worker.state || "not observed"}
-              {data.worker.at
-                ? ` · ${Math.round(Date.now() / 1000 - data.worker.at)}s ago`
-                : ""}
+          <div className="operations-status">
+            <Activity size={18} />
+            <div>
+              <strong>Worker · {data.worker.state || "not observed"}</strong>
+              <small>
+                {data.worker.at
+                  ? `Last heartbeat ${new Date(data.worker.at * 1000).toLocaleTimeString()}`
+                  : "No heartbeat recorded"}
+              </small>
+            </div>
+            <span className={`badge ${data.enabled ? "green" : "amber"}`}>
+              Dispatch {data.enabled ? "enabled" : "disabled"}
             </span>
           </div>
           {!data.enabled && (
             <div className="notice">
-              Live dispatch is disabled. Configure credentials and enable the
-              worker to start real sessions.
+              Live dispatch is disabled. Existing records remain available.
             </div>
           )}
-          <div className="stats">
-            {[
-              [data.metrics.sessions, "Real sessions"],
-              [data.metrics.acu.toFixed(2), "Reported ACUs"],
-              [data.metrics.review_ready, "Ready for human review"],
-              [data.metrics.attention, "Need attention"],
-            ].map(([v, l]) => (
-              <div className="stat" key={String(l)}>
-                <div>
-                  {l}
-                  <Activity size={16} />
+          <div
+            className="connection-cards"
+            aria-label="Integration configuration"
+          >
+            {Object.entries(data.connections).map(([name, ready]) => (
+              <article key={name}>
+                <div className="connection-card-icon">
+                  <Plug size={18} />
                 </div>
-                <strong>{v}</strong>
-              </div>
+                <div>
+                  <h2>
+                    {name === "github"
+                      ? "GitHub"
+                      : name === "devin"
+                        ? "Devin"
+                        : name === "slack"
+                          ? "Slack"
+                          : name}
+                  </h2>
+                  <p>{ready ? "Credentials configured" : "Not connected"}</p>
+                </div>
+                <span
+                  className={`connection-indicator ${ready ? "configured" : "missing"}`}
+                  aria-hidden="true"
+                />
+              </article>
             ))}
           </div>
-          <section className="candidate">
-            <div className="candidate-top">
-              <div>
-                <h2>{data.repository}</h2>
-                <p className="quiet">
-                  Target branch: {data.branch} ·{" "}
-                  {data.limits.max_acu_per_session} ACU/session ·{" "}
-                  {data.limits.max_sessions_total} total sessions maximum
-                </p>
-              </div>
-              <span className="badge amber">Human merge gate</span>
-            </div>
-            <div className="pipeline">
-              {[
-                "Issue / schedule",
-                "Devin repair",
-                "Exact PR revision",
-                "Fresh validator",
-                "GitHub + Slack",
-              ].map((s, i) => (
-                <div key={s} className="pending">
-                  <span>{i + 1}</span>
-                  <strong>{s}</strong>
-                </div>
-              ))}
-            </div>
-          </section>
-          <section className="panel">
+          <section
+            className="panel attention-panel"
+            aria-label="Queue attention"
+          >
             <div className="panel-heading">
               <div>
-                <h2>Autonomous workflow ledger</h2>
+                <h2>Needs attention</h2>
                 <p>
-                  Events are deduplicated; ambiguous side effects require
-                  reconciliation.
+                  Execution holds and validation failures in the latest records.
                 </p>
               </div>
-              <Terminal size={18} />
+              <span className="badge amber">{attention.length} records</span>
             </div>
+            {attention.length ? (
+              attention.map((j) => (
+                <div className="attention-row" key={j.id}>
+                  <div>
+                    <strong>{j.payload.title || j.kind}</strong>
+                    <p>{j.error || j.state.replaceAll("_", " ")}</p>
+                  </div>
+                  <button className="button" onClick={() => setSelected(j.id)}>
+                    Inspect run
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="empty">
+                No attention records in the latest ledger.
+              </p>
+            )}
+          </section>
+          <Disclosure
+            title="Operating configuration"
+            summary={`${data.repository} · ${data.limits.max_acu_per_session} ACU per session`}
+          >
+            <dl className="configuration-grid">
+              <div>
+                <dt>Workflow repository</dt>
+                <dd>{data.repository}</dd>
+              </div>
+              <div>
+                <dt>Target branch</dt>
+                <dd>{data.branch}</dd>
+              </div>
+              <div>
+                <dt>Session limit</dt>
+                <dd>{data.limits.max_sessions_total} sessions maximum</dd>
+              </div>
+              <div>
+                <dt>Per-session budget</dt>
+                <dd>{data.limits.max_acu_per_session} ACU</dd>
+              </div>
+              <div>
+                <dt>Recorded sessions</dt>
+                <dd>{data.metrics.sessions}</dd>
+              </div>
+              <div>
+                <dt>Reported usage</dt>
+                <dd>{data.metrics.acu.toFixed(2)} ACU</dd>
+              </div>
+            </dl>
+            <p className="quiet">
+              <ShieldCheck size={14} /> Human approval is required to merge.
+              Configured credentials do not by themselves verify a provider
+              connection.
+            </p>
+          </Disclosure>
+          <Disclosure
+            title="Workflow ledger"
+            summary={`${data.jobs.length} recent records · ${data.metrics.review_ready} ready for review`}
+          >
             {data.jobs.length ? (
               <div className="table-wrap">
                 <table>
@@ -135,17 +187,13 @@ export default function LiveWorkspace() {
                               `Issue #${j.payload.issue_number || "—"}`}
                           </strong>
                           <small>
-                            {j.id.slice(0, 8)} · {j.payload.source} ·{" "}
+                            {j.id.slice(0, 8)} ·{" "}
                             {new Date(j.created * 1000).toLocaleString()}
                           </small>
                         </td>
                         <td>{j.kind}</td>
                         <td>
-                          <span
-                            className={`badge ${["review_ready", "completed", "implemented"].includes(j.state) ? "green" : "amber"}`}
-                          >
-                            {j.state.replaceAll("_", " ")}
-                          </span>
+                          <State value={j.state} />
                         </td>
                         <td>{j.acu.toFixed(2)} ACU</td>
                         <td>
@@ -162,137 +210,69 @@ export default function LiveWorkspace() {
                 </table>
               </div>
             ) : (
-              <div className="empty">
-                No live jobs yet. A labeled issue, signed webhook or scheduled
-                discovery will appear here.
-              </div>
+              <p className="empty">No live jobs yet.</p>
             )}
-          </section>
-          {job && (
-            <section className="panel live-detail">
-              <div className="panel-heading">
-                <div>
-                  <h2>
-                    {job.kind} · {job.id.slice(0, 8)}
-                  </h2>
-                  <p>{job.result?.summary || "Waiting for provider output."}</p>
-                </div>
-                <button className="button" onClick={() => setSelected(null)}>
-                  Close details
-                </button>
-              </div>
-              <div className="live-links">
-                {job.session_url && (
-                  <a
-                    className="button"
-                    href={safeUrl(job.session_url)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Devin session <ExternalLink size={12} />
-                  </a>
-                )}
-                {job.pr_number && (
-                  <a
-                    className="button"
-                    href={`https://github.com/${data.repository}/pull/${job.pr_number}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Pull request #{job.pr_number} <ExternalLink size={12} />
-                  </a>
-                )}
-                {job.payload.issue_number && (
-                  <a
-                    className="button"
-                    href={`https://github.com/${data.repository}/issues/${job.payload.issue_number}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Issue #{job.payload.issue_number}
-                  </a>
-                )}
-              </div>
-              {job.candidate_sha && (
-                <pre className="sha-block">{job.candidate_sha}</pre>
-              )}
-              {job.error && <div className="notice">{job.error}</div>}
-              {job.result?.checks?.map((c) => (
-                <div className="check-row" key={c.name}>
-                  <ShieldCheck size={17} />
+          </Disclosure>
+          <Disclosure
+            title="Delivery receipts"
+            summary={`${data.publications.length} recorded publications`}
+          >
+            <p className="quiet">
+              Sending, failed and uncertain remain distinct from delivered.
+            </p>
+            {data.publications.length ? (
+              data.publications.map((p) => (
+                <div className="publication" key={p.key}>
                   <strong>
-                    {c.name}: {c.passed ? "reported pass" : "FAIL"}
+                    {p.key.split(":")[0]} · {p.state}
                   </strong>
-                  <span>{c.detail}</span>
+                  {p.url && (
+                    <External url={p.url}>Open published report</External>
+                  )}
+                  {p.error && <p>{p.error}</p>}
                 </div>
-              ))}
-              <div className="live-links">
-                {job.result?.artifacts?.map((a) => (
-                  <a
-                    className="button"
-                    key={a.url}
-                    href={safeUrl(a.url)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {a.kind}: {a.name}
-                    <ExternalLink size={12} />
-                  </a>
-                ))}
-              </div>
-            </section>
+              ))
+            ) : (
+              <p className="empty">No reports published yet.</p>
+            )}
+          </Disclosure>
+          {data.publications
+            .filter(
+              (p) => p.error || ["failed", "unknown_effect"].includes(p.state),
+            )
+            .map((p) => (
+              <p className="notice" role="status" key={p.key}>
+                <strong>Delivery needs attention:</strong> {p.error || p.state}
+              </p>
+            ))}
+          <Disclosure
+            title="Repository observations"
+            summary={`${data.memory.length} retained observations`}
+          >
+            {data.memory.length ? (
+              data.memory.map((m, i) => (
+                <div className="publication" key={i}>
+                  <strong>{m.status}</strong>
+                  <p>{m.summary}</p>
+                </div>
+              ))
+            ) : (
+              <p className="empty">
+                Validation lessons will appear after real runs.
+              </p>
+            )}
+          </Disclosure>
+          {job && (
+            <Inspection
+              key={job.id}
+              title="Operation details"
+              onClose={() => setSelected(null)}
+            >
+              <JobDetail job={job} repository={data.repository} />
+            </Inspection>
           )}
-          <div className="analytics-grid live-detail">
-            <section className="panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>Delivery receipts</h2>
-                  <p>
-                    Sending, failed and uncertain are distinct from delivered.
-                  </p>
-                </div>
-              </div>
-              {data.publications.length ? (
-                data.publications.map((p) => (
-                  <div className="publication" key={p.key}>
-                    <strong>
-                      {p.key.split(":")[0]} · {p.state}
-                    </strong>
-                    {p.url && (
-                      <a href={safeUrl(p.url)} target="_blank" rel="noreferrer">
-                        Open published report ↗
-                      </a>
-                    )}
-                    {p.error && <p>{p.error}</p>}
-                  </div>
-                ))
-              ) : (
-                <p className="empty">No reports published yet.</p>
-              )}
-            </section>
-            <section className="panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>Persistent repository memory</h2>
-                  <p>Observations retained across worker restarts</p>
-                </div>
-              </div>
-              {data.memory.length ? (
-                data.memory.map((m, i) => (
-                  <div className="publication" key={i}>
-                    <strong>{m.status}</strong>
-                    <p>{m.summary}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="empty">
-                  Validation lessons will appear after real runs.
-                </p>
-              )}
-            </section>
-          </div>
           <footer>
-            <span>COGNITION / LIVE OPERATIONS</span>
+            <span>COGNITION / OPERATIONS</span>
             <span>Evidence ready ≠ approved ≠ merged</span>
           </footer>
         </>
