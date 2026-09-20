@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-09-20T02:16:26.373687+00:00",
+  "application_repository": "https://github.com/Nasdin/superset-auto-engineering",
+  "visibility": "PUBLIC",
+  "target_repository": "Nasdin/superset",
+  "takehome_organization": "Asmar DE Takehome",
+  "job_id": "15fb900e-d51d-4b0a-8313-bf27f5ba3585",
+  "session_id": "e9b26529705f4aa3bdcded5fa85e5a43",
+  "session_url": "https://app.devin.ai/sessions/e9b26529705f4aa3bdcded5fa85e5a43",
+  "state": "running",
+  "baseline_sha": "c37118edd0146019ab0ae4ae1a97a597cb56c88e",
+  "configured_limits": {
+    "max_acu_per_session": 10,
+    "max_sessions_total": 6,
+    "scan_interval_seconds": 86400
+  },
+  "scope": "Dispatch proof only; no repaired-candidate acceptance yet.",
+  "slack": {
+    "workspace": "Nasrudin",
+    "channel_id": "C0C2NTYCPTR",
+    "status": "installation_confirmation_pending"
+  }
+}
