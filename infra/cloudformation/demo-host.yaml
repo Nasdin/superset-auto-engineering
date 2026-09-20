@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cognition single-host Docker demo foundation. Application and DNS setup are separate.
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Existing VPC with Internet access and DNS enabled.
+  PublicSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet in that VPC with a route to an Internet gateway.
+  InstanceType:
+    Type: String
+    Default: t3.large
+    AllowedValues: [t3.large, t3.xlarge]
+    Description: x86 host for application, Postgres and Superset. Review region pricing before deployment.
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+  DiskGiB:
+    Type: Number
+    Default: 80
+    MinValue: 40
+    MaxValue: 500
+  DomainName:
+    Type: String
+    Default: superset-devin.nasrudinsalim.com
+    AllowedPattern: '[a-z0-9][a-z0-9.-]+[a-z0-9]'
+Resources:
+  HostRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+  HostProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref HostRole]
+  WebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTPS reviewers and certificate validation; administration uses SSM, no SSH.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
+  DemoHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref HostProfile
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          SubnetId: !Ref PublicSubnetId
+          GroupSet: [!Ref WebSecurityGroup]
+          AssociatePublicIpAddress: true
+      MetadataOptions:
+        HttpTokens: required
+        HttpEndpoint: enabled
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp3
+            VolumeSize: !Ref DiskGiB
+            Encrypted: true
+            DeleteOnTermination: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-demo
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euo pipefail
+          dnf install -y docker git python3
+          systemctl enable --now docker amazon-ssm-agent
+          # No provider credentials, repository code, or paid automation in user data.
+          # Install Compose and configure the application over SSM per README.md.
+  PublicAddress:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  AddressAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt PublicAddress.AllocationId
+      InstanceId: !Ref DemoHost
+Outputs:
+  InstanceId:
+    Value: !Ref DemoHost
+  PublicIPv4:
+    Value: !Ref PublicAddress
+    Description: Create a DNS-only A record in Cloudflare after configuring the host.
+  PlannedURL:
+    Value: !Sub https://${DomainName}
+    Description: Planned address, not an application readiness check.
+  RetentionNotice:
+    Value: Root disk survives instance termination. Replacement does not migrate data; back up and clean up retained disks explicitly.

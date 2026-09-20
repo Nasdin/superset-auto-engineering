@@ -2,6 +2,12 @@
 
 Target: **https://superset-devin.nasrudinsalim.com**, with Superset under `/bi`. Local Postgres and embedded Superset are implemented. AWS provisioning, public DNS, certificates and public browser acceptance have **not** been performed. The intended AWS account/profile, region and monthly budget must be selected first; the existing `nextvestment` profile is not assumed to be the intended account.
 
+## CloudFormation host template
+
+Use [infra/cloudformation/demo-host.yaml](../infra/cloudformation/demo-host.yaml) and the [README deployment walkthrough](../README.md#5-aws-with-cloudformation-and-the-custom-domain). The template provisions a host in an existing public subnet, with encrypted disk, Elastic IP, SSM role and ports 80/443. It does not deploy application code, RDS, DNS or backups. CloudFormation completion is not application readiness. Local linting is the current validation boundary; no stack has been deployed.
+
+Instance termination retains its root disk; replacement does not migrate volumes or secrets to the new host. Review replacements and backups before executing a change set. Retained disks need deliberate cleanup to stop storage charges.
+
 ## Four-day demo topology
 
 Use one EC2 host with Docker Compose, an encrypted persistent EBS volume, a stable public address and the optional Caddy ingress. Postgres is containerized on that durable disk. This keeps the take-home small; it is a single-host demo without high availability. For an enduring deployment, move both databases to private RDS Postgres with managed backups, introduce versioned application migrations, and use managed application hosting. Postgres database separation already avoids an SQLite redesign at that point.

@@ -1,0 +1,55 @@
+# Optional lightweight runtime; embedded Superset requires the default Postgres stack.
+x-runtime: &sqlite-runtime
+  build: .
+  environment: &sqlite-environment
+    DATABASE_URL: ""
+    AUTOMATION_DATABASE: /app/data/automation.db
+    ARTIFACT_DIR: /app/data/artifacts
+    AUTOMATION_ENABLED: ${AUTOMATION_ENABLED:-false}
+    GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
+    TARGET_BRANCH: ${TARGET_BRANCH:-cognition-release-6.1}
+    DEVIN_ORG_ID: ${DEVIN_ORG_ID:-org-f456da0f2e0940808b5c8b3a20312d8c}
+    GITHUB_ALLOWED_ACTOR: ${GITHUB_ALLOWED_ACTOR:-Nasdin}
+    TRIGGER_LABEL: ${TRIGGER_LABEL:-cognition:repair}
+    DEVIN_MAX_ACU: ${DEVIN_MAX_ACU:-10}
+    DEVIN_MAX_SESSIONS: ${DEVIN_MAX_SESSIONS:-6}
+    SESSION_TIMEOUT_SECONDS: ${SESSION_TIMEOUT_SECONDS:-7200}
+    POLL_SECONDS: ${POLL_SECONDS:-30}
+    SCAN_INTERVAL_SECONDS: ${SCAN_INTERVAL_SECONDS:-86400}
+    BATCH_WINDOW_SECONDS: ${BATCH_WINDOW_SECONDS:-60}
+    LEARNING_ENABLED: ${LEARNING_ENABLED:-true}
+    DEPENDABOT_ENABLED: ${DEPENDABOT_ENABLED:-true}
+    DEVIN_API_KEY: ${DEVIN_API_KEY:-}
+    GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+    OPERATOR_TOKEN: ${OPERATOR_TOKEN:-}
+    SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+    SLACK_CHANNEL_ID: ${SLACK_CHANNEL_ID:-}
+    ENABLE_DEMO: ${ENABLE_DEMO:-false}
+  volumes:
+    - cognition-sqlite-data:/app/data
+services:
+  cognition:
+    <<: *sqlite-runtime
+    ports:
+      - "127.0.0.1:${COGNITION_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+  worker:
+    <<: *sqlite-runtime
+    command: ["python", "-m", "app.automation.worker"]
+    restart: unless-stopped
+  analytics:
+    <<: *sqlite-runtime
+    environment:
+      DATABASE_URL: ""
+      AUTOMATION_DATABASE: /app/data/automation.db
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
+    command: ["python", "-m", "app.analytics.sync"]
+    restart: unless-stopped
+volumes:
+  cognition-sqlite-data:
