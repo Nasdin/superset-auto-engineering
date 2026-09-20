@@ -1877,3 +1877,21 @@ td small {
   font-size: 20px;
   margin-top: 8px;
 }
+
+.superset-panel {
+  margin-top: 20px;
+  min-width: 0;
+}
+.superset-panel .panel-heading {
+  flex-wrap: wrap;
+}
+.superset-embed {
+  width: 100%;
+  min-width: 0;
+}
+.superset-embed iframe {
+  border: 0;
+  width: 100%;
+  height: 1000px;
+  display: block;
+}

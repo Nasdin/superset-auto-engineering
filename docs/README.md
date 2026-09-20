@@ -62,3 +62,9 @@ Captured on 20 September 2026 after GitHub created Dependabot PR #6 and its sign
 ![Live learning journal](screenshots/learning-memory.png)
 
 ![Workflow lanes with autonomous discovery and repair](screenshots/workflow-lanes.png)
+
+## Superset analyzing Superset
+
+The analytics page now embeds actual Superset charts backed by Postgres. [Architecture and migration](POSTGRES_SUPERSET.md), [AWS preparation](AWS_DEPLOYMENT.md), and [local verification receipt](analysis/superset-postgres-verification.json).
+
+![Live Superset analytics](images/superset-analytics-live.png)

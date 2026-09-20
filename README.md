@@ -1,19 +1,22 @@
 # Superset Auto Engineering · Cognition
 
-A small control plane for autonomous Superset engineering: issue → bounded Devin repair → integration candidate → fresh validator → evidence on GitHub and Slack → human review. Python FastAPI, React/TypeScript/Vite and SQLite, packaged as an API, a durable automation worker and a read-only history importer from one image.
+A small control plane for autonomous Superset engineering: issue → bounded Devin repair → integration candidate → fresh validator → evidence on GitHub and Slack → human review. Python FastAPI, React/TypeScript/Vite, Postgres 17 and embedded Apache Superset 6.1. Superset analyzes its own engineering history. The API, durable worker and history importer share one application image.
 
 ## Run the dashboard
 
 ```sh
 cp .env.example .env
+python3 scripts/configure_local_postgres.py
 docker compose up --build -d
 ```
 
-Open [the dashboard](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/docs). Automation defaults to **disabled**. The shared `cognition-data` volume survives container recreation; `docker compose down` keeps it. The dashboard is deliberately bound to loopback: it has no multi-user authentication.
+Open [the dashboard](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/docs). Automation defaults to **disabled**. The `cognition-postgres` and artifact `cognition-data` volumes survive container recreation; `docker compose down` keeps it. The dashboard is deliberately bound to loopback: it has no multi-user authentication.
 
-The repository includes a synthetic SQLite seed at `backend/app/seeds/demo.sqlite3`. Startup loads its dashboard fixtures into the local writable demo database; it never changes the committed seed. The separate live execution database starts empty on a new machine. `.env.example` is committed; `.env`, local databases and credentials are ignored. No credentials are needed to run the explicit example workspace at `/?demo=1`.
+The live execution ledger starts empty on a new machine. A committed, read-only public GitHub snapshot initializes Postgres history once; the importer then refreshes it. `.env.example` is committed; `.env`, writable databases and credentials are ignored. Legacy SQLite fixtures are used only by isolated tests or an explicitly enabled example workspace (`ENABLE_DEMO=true`). The normal Postgres runtime does not mount the demo API.
 
-The default pages read the real execution ledger: Release validation, Workflows, Devin runs, workflow lineage and Live operations. Empty or unfinished work remains visibly empty or unfinished. Analytics reads imported GitHub PR history in a separate SQLite database; it never fills gaps with fixtures. The old illustrative workspace is available only at `/?demo=1`. The generated design reference is [docs/dashboard-mockup.png](docs/dashboard-mockup.png).
+The default pages read the real execution ledger: Release validation, Workflows, Devin runs, workflow lineage and Live operations. Empty or unfinished work remains visibly empty or unfinished. Analytics embeds real Superset charts over Postgres reporting views; it never fills gaps with fixtures. The generated design reference is [docs/dashboard-mockup.png](docs/dashboard-mockup.png).
+
+See [Postgres and embedded Superset](docs/POSTGRES_SUPERSET.md) for analytics, migration and testing. [AWS deployment preparation](docs/AWS_DEPLOYMENT.md) covers HTTPS at `superset-devin.nasrudinsalim.com`; AWS and DNS have not yet been deployed.
 
 ## Current verification boundary
 
@@ -38,7 +41,7 @@ python3 scripts/cognition_operator.py overview
 python3 scripts/cognition_operator.py scan
 ```
 
-GitHub issue intake requires the configured author and `cognition:repair` label. Webhooks additionally require the configured repository, actor and valid HMAC signature. The worker polls labeled issues every minute as a fallback and coalesces implemented workstreams after a quiet period. Duplicate issues and deliveries are deduplicated in SQLite.
+GitHub issue intake requires the configured author and `cognition:repair` label. Webhooks additionally require the configured repository, actor and valid HMAC signature. The worker polls labeled issues every minute as a fallback and coalesces implemented workstreams after a quiet period. Duplicate issues and deliveries are deduplicated in Postgres.
 
 For public GitHub ingress, start the restricted gateway with `docker compose -f compose.yaml -f compose.webhook.yaml up -d`. Tunnel **only port 8001** and configure the GitHub webhook to `/api/live/webhooks/github` with the same secret and `issues` events. The gateway rejects all other paths. A temporary Cloudflare Quick Tunnel and GitHub issue webhook are now installed and verified. The exact hook and delivery receipts are in `evidence/github-webhook-live.json`; the temporary tunnel requires this machine and its tunnel process to remain running. Never tunnel dashboard port 8000.
 
@@ -50,23 +53,23 @@ For public GitHub ingress, start the restricted gateway with `docker compose -f 
 - Review readiness requires passing mandatory checks, no blocker, distinct provider-confirmed screenshot/video/log/test attachments, and a validator distinct from the implementers. Every later integration PR head change invalidates old evidence. Readiness is agent evidence for human review; it is not automatic approval, merge or deployment.
 - GitHub issue/PR reports and optional Slack notifications use a persistent outbox. The UI distinguishes pending, delivered-but-awaiting-readback, sent, failed and uncertain delivery. Acknowledged writes persist a provider receipt before readback; retries confirm that receipt without posting again. GitHub comments must match the queued body and issue, and Slack links come from `chat.getPermalink`. Queued destinations are retained across configuration changes. Provider-confirmed attachment metadata establishes origin; it does not independently prove the content of a video or log. A human still inspects the evidence, and provider URLs may require access or expire.
 - A timeout during session creation or external writes becomes `unknown_effect`; it is not blindly retried. Session reconciliation requires the matching job tag. Integration recovery reads the actual branch, merge parents and existing PR before resuming. A lost readback retries using the saved receipt. Unknown writes without a receipt still require operator inspection; no automatic resend follows an uncertain outcome.
-- SQLite retains jobs, audit events, delivery IDs, actual reported ACU, publication receipts and the last 20 repository lessons. Lessons are supplied as observations, never trusted instructions.
+- Postgres retains jobs, audit events, delivery IDs, actual reported ACU, publication receipts and the last 20 repository lessons. Lessons are supplied as observations, never trusted instructions.
 
 ## Architecture
 
 ```text
-React dashboard → FastAPI → shared SQLite ledger ← single durable worker
+React dashboard → FastAPI → Postgres ledger ← single durable worker
                      ↑                           ↙       ↓        ↘
               signed issue event           GitHub     Devin v3    Slack
                                               ↓
                                exact integration SHA → fresh validator
 ```
 
-The API and automation worker share the execution ledger. A separate read-only analytics process imports GitHub history hourly into `analytics.db`, so a long historical import cannot delay paid Devin sessions. All three use the same image and Docker volume. Superset's database/cache containers belong to its validation environment. The repository graph shows actual workflow lineage, not a parsed code dependency graph.
+The API and automation worker share a Postgres execution ledger. A separate analytics process imports GitHub history hourly into Postgres. The BI Superset instance has its own metadata database and Redis cache; its read-only datasource sees only reporting views. Superset instances used for candidate validation are separate. The repository graph shows actual workflow lineage, not a parsed code dependency graph.
 
 ## Local development and verification
 
-Python 3.12 and Node 22 are recommended. Start FastAPI and Vite separately:
+Python 3.12 and Node 22 are recommended. Docker Compose is the full Postgres/BI setup. A standalone development process must receive `DATABASE_URL`, `SUPERSET_INTERNAL_URL`, `SUPERSET_PUBLIC_URL` and `ANALYTICS_SUPERSET_SERVICE_PASSWORD` securely in its environment (use host-mapped ports 55432 and 8189). Without those variables it uses the lightweight legacy SQLite development adapter and reports BI as unavailable. Start FastAPI and Vite separately:
 
 ```sh
 cd backend
@@ -109,11 +112,11 @@ The analytics API is `GET /api/analytics/pull-requests`. Filters: repository, co
 
 Time to merge is elapsed calendar hours between `created_at` and `merged_at`. Cohorts are selected by merge date using inclusive dates / half-open UTC timestamps. Closed-unmerged and still-open PRs do not enter duration statistics. The median and nearest-rank P75 show sample sizes; percent change requires covered windows and at least five measured PRs in each. This threshold is a display guard, not a significance test. There is no claim of engineering hours saved or causal Devin improvement. The fork's tracked repair PR numbers come from the complete live ledger and never label an upstream PR with the same number.
 
-Work signals are reproducible title/label heuristics, ordered revert → dependency → fix → other. Current labels and base branches are applied retrospectively. Imported open records are a partial current snapshot, not historical backlog. Follow-up commit counts, review effort, complete issue and commit exploration from the original EDA are not measured by this PR delivery-time view. PR drill-down links and JSON exports (summary, weekly series, selected filters and the displayed 50-row page) make the current analysis inspectable.
+Work signals are reproducible title/label heuristics, ordered revert → dependency → fix → feature → other. Current labels and base branches are applied retrospectively. Imported open records are a partial current snapshot, not historical backlog. Follow-up commit counts, review effort, complete issue and commit exploration from the original EDA are not measured by this PR delivery-time view. PR drill-down links and JSON exports (summary, weekly series, selected filters and the displayed 50-row page) make the current analysis inspectable.
 
 For a host-only setup, load your ignored environment and run `python -m app.analytics.sync` from `backend/` alongside FastAPI. No analytics credential reaches the browser. Local history is ignored by Git; clean clones fetch public history rather than inheriting private run records.
 
-A real, public GitHub snapshot is committed at `backend/app/seeds/github-history.sqlite3`: 11,700 upstream PRs and 3 fork PRs fetched September 20, 2026; covered event dates start September 21, 2024. New installations initialize their analytics database from this snapshot and display its actual import time, then the read-only importer updates it. The snapshot contains only allowlisted public PR metadata and import status, with no tokens, PR bodies, private session data or automation jobs. It is never changed at runtime, and existing local history is never overwritten. This makes a fresh clone immediately useful without waiting for a full historical import.
+A real, public GitHub snapshot is committed at `backend/app/seeds/github-history.sqlite3`: 11,700 upstream PRs and 3 fork PRs fetched September 20, 2026; covered event dates start September 21, 2024. New installations initialize Postgres history from this snapshot and display its actual import time, then the read-only importer updates it. The snapshot contains only allowlisted public PR metadata and import status, with no tokens, PR bodies, private session data or automation jobs. It is never changed at runtime, and existing local history is never overwritten. This makes a fresh clone immediately useful without waiting for a full historical import.
 
 ## Product story and Dependabot
 

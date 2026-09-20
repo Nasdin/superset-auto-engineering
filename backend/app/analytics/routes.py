@@ -41,7 +41,7 @@ def pull_requests(
         {
             job["pr_number"]
             for job in engine.store.operational_jobs()
-            if job["kind"] in {"repair", "dependency"} and job.get("pr_number")
+            if job["kind"] in {"repair", "patch", "dependency"} and job.get("pr_number")
         }
         if repository == engine.settings.repo
         else set()

@@ -1,0 +1,32 @@
+# Optional AWS single-host demo ingress. No cloud resources are provisioned here.
+services:
+  ingress:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-superset-devin.nasrudinsalim.com}
+      REVIEWER_USER: ${REVIEWER_USER:?Set a reviewer username}
+      REVIEWER_PASSWORD_HASH: ${REVIEWER_PASSWORD_HASH:?Set a Caddy password hash}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - cognition-tls:/data
+      - cognition-caddy-config:/config
+    depends_on:
+      cognition:
+        condition: service_healthy
+      analytics-superset:
+        condition: service_healthy
+  cognition:
+    restart: unless-stopped
+  postgres:
+    restart: unless-stopped
+  analytics-superset:
+    restart: unless-stopped
+  analytics-redis:
+    restart: unless-stopped
+volumes:
+  cognition-tls:
+  cognition-caddy-config:

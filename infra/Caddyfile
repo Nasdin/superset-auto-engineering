@@ -1,0 +1,18 @@
+{$PUBLIC_HOST} {
+    # GitHub signs this exact endpoint; every other route requires reviewer login.
+    @webhook {
+        path /api/live/webhooks/github
+        method POST
+    }
+    handle @webhook {
+        reverse_proxy cognition:8000
+    }
+    handle {
+        basic_auth {
+            {$REVIEWER_USER} {$REVIEWER_PASSWORD_HASH}
+        }
+        @bi path /bi /bi/*
+        reverse_proxy @bi analytics-superset:8088
+        reverse_proxy cognition:8000
+    }
+}

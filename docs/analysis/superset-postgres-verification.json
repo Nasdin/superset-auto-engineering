@@ -1,0 +1,51 @@
+{
+  "date": "2026-09-20",
+  "scope": "Local Docker Postgres 17 and Apache Superset 6.1.0; not AWS or Devin candidate validation",
+  "backend": {
+    "passed": 193,
+    "branch_aware_coverage_percent": 85.26,
+    "real_postgres_tests": 7
+  },
+  "isolated_browser_tests": {
+    "passed": 13,
+    "external_tests_skipped": 2
+  },
+  "live_superset_browser_test": {
+    "passed": 1,
+    "cohorts": [
+      "upstream 30 days",
+      "upstream 60 days",
+      "upstream dependency 30 days",
+      "fork dependency 30 days"
+    ],
+    "assertions": [
+      "All six guest chart requests return successful results",
+      "Medians, percentage change and current sample count match independent API calculation",
+      "Changing repository does not retain upstream values",
+      "Mobile outer page does not overflow"
+    ]
+  },
+  "public_https_config_smoke": {
+    "internal_guest_token_status": 200,
+    "cookie_only_guest_request_status": 401,
+    "secure_session_cookie": true,
+    "public_tls_dns_verified": false
+  },
+  "ingress_local_smoke": {
+    "anonymous_dashboard_status": 401,
+    "anonymous_bi_status": 401,
+    "authenticated_dashboard_status": 200,
+    "authenticated_bi_health_status": 200,
+    "unsigned_webhook_status": 401
+  },
+  "artifacts": [
+    {
+      "path": "docs/images/superset-analytics-live.png",
+      "sha256": "15317c7c1605cce438ec54f89ef2f87bfbbd6733bff1456fbe8878b8d11f06fa"
+    },
+    {
+      "path": "docs/images/superset-analytics-fork.png",
+      "sha256": "8fae33d2d0586b5e69afe287e924fa6019a02d9d1ca185f7dc1e1741282667fd"
+    }
+  ]
+}

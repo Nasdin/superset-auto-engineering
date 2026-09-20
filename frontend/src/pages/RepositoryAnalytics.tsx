@@ -2,137 +2,10 @@ import { useCallback, useState } from "react";
 import { ArrowDownToLine, RefreshCw } from "lucide-react";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
-import type { Analytics, Cohort } from "../analyticsTypes";
+import type { Analytics } from "../analyticsTypes";
+import { SupersetAnalytics } from "../components/SupersetAnalytics";
 import { External } from "./LiveDashboard";
-function duration(hours: number | null) {
-  return hours === null
-    ? "—"
-    : hours >= 24
-      ? `${(hours / 24).toFixed(1)}d`
-      : `${hours.toFixed(1)}h`;
-}
 const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-function WindowCard({ title, cohort }: { title: string; cohort: Cohort }) {
-  return (
-    <section className="window-card">
-      <div className="eyebrow">{title}</div>
-      <p>
-        {cohort.start} → {cohort.end}
-      </p>
-      <strong>{duration(cohort.median_hours)}</strong>
-      <span>median time to merge</span>
-      <div className="window-meta">
-        <span>{cohort.sample_size} measured PRs</span>
-        <span>P75 {duration(cohort.p75_hours)}</span>
-      </div>
-      <small>
-        {cohort.covered
-          ? "Window covered by imported GitHub history"
-          : "Incomplete coverage — interpret observed records only"}
-        {cohort.excluded_invalid > 0 &&
-          ` · ${cohort.excluded_invalid} invalid timestamps excluded`}
-      </small>
-    </section>
-  );
-}
-function Trend({ points }: { points: Cohort[] }) {
-  const values = points.filter((p) => p.covered && p.median_hours !== null);
-  const max = Math.max(1, ...values.map((p) => p.median_hours!));
-  return (
-    <div className="trend-chart">
-      <div className="chart-axis">
-        Median elapsed days · each point uses the selected rolling window
-      </div>
-      <svg
-        viewBox="0 0 1000 230"
-        role="img"
-        aria-label="Rolling median PR time to merge, sampled weekly"
-      >
-        <title>
-          Rolling median merge time; gaps mean missing data or incomplete
-          coverage
-        </title>
-        {[0, 0.5, 1].map((f) => (
-          <g key={f}>
-            <line
-              x1="50"
-              y1={190 - f * 150}
-              x2="975"
-              y2={190 - f * 150}
-              stroke="#e3e5dd"
-            />
-            <text x="0" y={195 - f * 150} fill="#767c75" fontSize="12">
-              {((max * f) / 24).toFixed(1)}d
-            </text>
-          </g>
-        ))}
-        {points.map((p, i) => {
-          if (!p.covered || p.median_hours === null) return null;
-          const x = 60 + (i / Math.max(1, points.length - 1)) * 905,
-            y = 190 - (p.median_hours / max) * 150;
-          const prev = points[i - 1];
-          return (
-            <g key={p.end}>
-              {prev?.covered && prev.median_hours !== null && (
-                <line
-                  x1={60 + ((i - 1) / (points.length - 1)) * 905}
-                  y1={190 - (prev.median_hours / max) * 150}
-                  x2={x}
-                  y2={y}
-                  stroke="#387459"
-                  strokeWidth="2.5"
-                />
-              )}
-              <circle cx={x} cy={y} r="4" fill="#387459">
-                <title>
-                  {p.start} to {p.end}: {duration(p.median_hours)}, n=
-                  {p.sample_size}
-                </title>
-              </circle>
-            </g>
-          );
-        })}
-        <text x="50" y="222" fontSize="12" fill="#767c75">
-          {points[0]?.end}
-        </text>
-        <text x="885" y="222" fontSize="12" fill="#767c75">
-          {points.at(-1)?.end}
-        </text>
-      </svg>
-      {!values.length && (
-        <p className="empty">
-          No covered merge cohorts for these filters. The chart will not
-          substitute sample values.
-        </p>
-      )}
-      <details>
-        <summary>View chart data</summary>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Window end</th>
-                <th>PRs</th>
-                <th>Median</th>
-                <th>Coverage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((p) => (
-                <tr key={p.end}>
-                  <td>{p.end}</td>
-                  <td>{p.sample_size}</td>
-                  <td>{duration(p.median_hours)}</td>
-                  <td>{p.covered ? "Covered" : "Incomplete"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
-    </div>
-  );
-}
 export function RepositoryAnalytics() {
   const [filters, setFilters] = useState({
     repository: "apache/superset",
@@ -146,7 +19,7 @@ export function RepositoryAnalytics() {
     kind: "",
     provenance: "all",
   });
-  const [offset, setOffset] = useState(0);
+  const offset = 0;
   const params = new URLSearchParams({ ...filters, offset: String(offset) });
   if (!filters.baseline_end) params.delete("baseline_end");
   const query = params.toString();
@@ -170,7 +43,6 @@ export function RepositoryAnalytics() {
       ...(name === "repository" ? { author: "", label: "", base: "" } : {}),
       [name]: value,
     }));
-    setOffset(0);
   }
   function download() {
     if (!data) return;
@@ -203,8 +75,8 @@ export function RepositoryAnalytics() {
           <div className="eyebrow">REPOSITORY INTELLIGENCE / DELIVERY TIME</div>
           <h1>Is the work getting faster?</h1>
           <p>
-            Compare real pull requests across equal windows. Follow every number
-            back to GitHub.
+            Apache Superset analyzes its own engineering history, directly from
+            Postgres.
           </p>
         </div>
         <div className="live-links">
@@ -379,184 +251,33 @@ export function RepositoryAnalytics() {
               required.
             </div>
           )}
-          <div className="comparison-grid">
-            <WindowCard title="Selected window" cohort={data.current} />
-            <div className="comparison-change">
-              <span className="eyebrow">MEDIAN CHANGE</span>
-              <strong>
-                {data.change_percent === null
-                  ? "—"
-                  : `${Math.abs(data.change_percent).toFixed(1)}%`}
-              </strong>
-              <span>
-                {data.change_percent === null
-                  ? "Not enough comparable data"
-                  : data.change_percent < 0
-                    ? "shorter time to merge"
-                    : data.change_percent > 0
-                      ? "longer time to merge"
-                      : "unchanged"}
-              </span>
-              <small>
-                Requires covered windows and ≥5 measured PRs in each.
-              </small>
-            </div>
-            <WindowCard title="Baseline window" cohort={data.baseline} />
-          </div>
-          <div className="stats">
-            {[
-              [data.current.merged, "PRs merged"],
-              [data.opened, "PRs opened"],
-              [data.closed_unmerged, "Closed without merge"],
-              [data.observed_open, "Open PRs in imported records"],
-            ].map(([v, l]) => (
-              <div className="stat" key={l}>
-                <div>{l}</div>
-                <strong>{v}</strong>
-                <small>
-                  {l === "Open PRs in imported records"
-                    ? "Current snapshot; not historical backlog"
-                    : "Selected window · selected filters"}
-                </small>
-              </div>
-            ))}
-          </div>
-          <section className="panel">
-            <div className="panel-heading">
-              <div>
-                <h2>Time to merge over six months</h2>
-                <p>
-                  {filters.days}-day rolling median · sampled every seven days ·
-                  merged-date cohorts
-                </p>
-              </div>
-            </div>
-            <Trend points={data.trend} />
-          </section>
-          <div className="analytics-grid live-detail">
-            <section className="panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>What is being merged?</h2>
-                  <p>Observable work signals in this window</p>
-                </div>
-              </div>
-              <div className="detail-body">
-                {Object.entries(data.categories).map(([name, n]) => (
-                  <div className="category-bar" key={name}>
-                    <span>{name}</span>
-                    <progress
-                      value={n}
-                      max={Math.max(1, data.current.merged)}
-                    />
-                    <strong>{n}</strong>
-                  </div>
-                ))}
-                {!data.current.merged && (
-                  <p>No merged PRs match this window.</p>
-                )}
-              </div>
-            </section>
-            <section className="panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>Read the result honestly</h2>
-                </div>
-              </div>
-              <div className="detail-body method-notes">
-                <p>
-                  Time to merge = merged_at − created_at, in elapsed calendar
-                  hours. PRs enter a cohort on their merge date. Open PRs and
-                  closed, unmerged PRs do not enter the duration calculation.
-                </p>
-                <p>
-                  Differences are descriptive, not proof of hours saved or a
-                  Devin effect. Upstream and fork history stay separate.
-                  Untracked does not mean human-authored.
-                </p>
-                <p>
-                  Work signals use current titles and labels: revert first, then
-                  dependency, fix, feature, other. These are retrospective
-                  heuristics, not measured labor allocation. Follow-up commits
-                  and review effort are not measured in this view.
-                </p>
-                <p>
-                  Coverage begins{" "}
-                  {data.sync.coverage_from || "after a complete import"}. GitHub
-                  labels and base branches reflect the latest snapshot. P75 uses
-                  nearest rank.
-                </p>
-              </div>
-            </section>
-          </div>
+          <SupersetAnalytics query={query} />
           <section className="panel live-detail">
-            <div className="panel-heading">
-              <div>
-                <h2>The PRs behind the number</h2>
-                <p>
-                  {data.total_rows} merged PRs in the selected window ·{" "}
-                  {filters.repository}
-                </p>
-              </div>
-            </div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Pull request</th>
-                    <th>Author / signal</th>
-                    <th>Opened → merged (UTC)</th>
-                    <th>Time to merge</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.rows.map((pr) => (
-                    <tr key={pr.number}>
-                      <td>
-                        <External url={pr.url}>
-                          #{pr.number} {pr.title}
-                        </External>
-                        {pr.tracked && <small>Tracked Devin repair</small>}
-                      </td>
-                      <td>
-                        {pr.author}
-                        <small>{pr.category}</small>
-                      </td>
-                      <td>
-                        {pr.created_at.slice(0, 10)} →{" "}
-                        {pr.merged_at.slice(0, 10)}
-                      </td>
-                      <td>{duration(pr.hours_to_merge)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {!data.rows.length && (
-              <p className="empty">
-                No merged PRs in this window. Try another date, repository or
-                filter.
+            <div className="detail-body method-notes">
+              <h2>Superset analyzing Superset</h2>
+              <p>
+                The charts above are rendered by Apache Superset 6.1, querying
+                read-only Postgres views of real GitHub history. The workflow
+                ledger and BI metadata use separate database access.
               </p>
-            )}
-            <div className="pagination">
-              <button
-                className="button"
-                disabled={offset === 0}
-                onClick={() => setOffset(Math.max(0, offset - 50))}
-              >
-                Previous
-              </button>
-              <span>
-                {data.total_rows ? offset + 1 : 0}–
-                {Math.min(offset + 50, data.total_rows)} of {data.total_rows}
-              </span>
-              <button
-                className="button"
-                disabled={offset + 50 >= data.total_rows}
-                onClick={() => setOffset(offset + 50)}
-              >
-                Next
-              </button>
+              <p>
+                Time to merge is elapsed calendar hours from PR creation to
+                merge, grouped by UTC merge date. Rolling medians use the
+                selected window, sampled every seven days. The comparison needs
+                complete history and at least five measured PRs in both windows.
+              </p>
+              <p>
+                Negative median change means faster merging. Differences
+                describe observed PRs; they do not prove a Devin effect. Work
+                categories are title/label signals. Untracked does not mean
+                human-authored.
+              </p>
+              <p>
+                History coverage begins{" "}
+                {data.sync.coverage_from || "after a complete import"}. Empty or
+                incomplete cohorts remain visible; no example values are
+                substituted.
+              </p>
             </div>
           </section>
           <footer>

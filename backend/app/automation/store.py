@@ -1,52 +1,19 @@
 import json
-import sqlite3
 import time
 import uuid
-from contextlib import contextmanager
-from pathlib import Path
+
+from ..database import Database
+from ..schema import automation
 
 
 class Store:
     def __init__(self, path):
         self.path = str(path)
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with self.connect() as c:
-            c.executescript("""
-            PRAGMA journal_mode=WAL;
-            CREATE TABLE IF NOT EXISTS lessons (id TEXT PRIMARY KEY, job_id TEXT NOT NULL, body TEXT NOT NULL, created REAL NOT NULL, native_state TEXT NOT NULL DEFAULT 'pending', note_id TEXT);
-            CREATE TABLE IF NOT EXISTS learning_contexts (job_id TEXT PRIMARY KEY, body TEXT NOT NULL, created REAL NOT NULL);
-            CREATE TABLE IF NOT EXISTS jobs (
-              id TEXT PRIMARY KEY, dedup TEXT UNIQUE NOT NULL, kind TEXT NOT NULL,
-              state TEXT NOT NULL, payload TEXT NOT NULL, session_id TEXT, session_url TEXT,
-              parent_id TEXT, candidate_sha TEXT, pr_number INTEGER, result TEXT,
-              error TEXT, created REAL NOT NULL, updated REAL NOT NULL,
-              next_poll REAL NOT NULL DEFAULT 0, lease_until REAL NOT NULL DEFAULT 0,
-              acu REAL NOT NULL DEFAULT 0, started REAL);
-            CREATE TABLE IF NOT EXISTS deliveries (id TEXT PRIMARY KEY, received REAL NOT NULL);
-            CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY, job_id TEXT, kind TEXT, detail TEXT, created REAL);
-            CREATE TABLE IF NOT EXISTS memory (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated REAL NOT NULL);
-            CREATE TABLE IF NOT EXISTS publications (key TEXT PRIMARY KEY, state TEXT NOT NULL, url TEXT, error TEXT, updated REAL NOT NULL, payload TEXT);
-            CREATE TABLE IF NOT EXISTS decisions (id TEXT PRIMARY KEY, job_id TEXT NOT NULL, sha TEXT NOT NULL, decision TEXT NOT NULL, note TEXT NOT NULL, created REAL NOT NULL);
-            """)
-            # Serialize schema upgrades across the API and worker processes.
-            c.execute("BEGIN IMMEDIATE")
-            for table, column, declaration in [
-                ("jobs", "started", "REAL"),
-                ("publications", "payload", "TEXT"),
-                ("publications", "receipt", "TEXT"),
-            ]:
-                if column not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
-                    c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {declaration}")
+        self.database = Database(path)
+        self.database.initialize(automation)
 
-    @contextmanager
     def connect(self):
-        c = sqlite3.connect(self.path, timeout=20)
-        c.row_factory = sqlite3.Row
-        try:
-            with c:
-                yield c
-        finally:
-            c.close()
+        return self.database.connect()
 
     @staticmethod
     def decode(row):
@@ -62,34 +29,36 @@ class Store:
         now = time.time()
         with self.connect() as c:
             c.execute(
-                "INSERT OR IGNORE INTO jobs(id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?)",
-                (
-                    str(uuid.uuid4()),
-                    key,
-                    kind,
-                    "queued",
-                    json.dumps(payload),
-                    parent_id,
-                    candidate_sha,
-                    pr_number,
-                    now,
-                    now,
-                ),
+                "INSERT INTO jobs(id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated) VALUES(:p0,:p1,:p2,:p3,:p4,:p5,:p6,:p7,:p8,:p9) ON CONFLICT DO NOTHING",
+                {
+                    "p0": str(uuid.uuid4()),
+                    "p1": key,
+                    "p2": kind,
+                    "p3": "queued",
+                    "p4": json.dumps(payload),
+                    "p5": parent_id,
+                    "p6": candidate_sha,
+                    "p7": pr_number,
+                    "p8": now,
+                    "p9": now,
+                },
             )
-            return self.decode(c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone())
+            return self.decode(
+                c.execute("SELECT * FROM jobs WHERE dedup=:p0", {"p0": key}).fetchone()
+            )
 
     def claim(self):
         now = time.time()
         with self.connect() as c:
-            c.execute("BEGIN IMMEDIATE")
+            c.lock()
             # One worker holds one job; expired dispatch cannot be retried blindly.
             c.execute(
-                "UPDATE jobs SET state='unknown_effect', error='Worker stopped during provider creation; reconcile session before retrying', lease_until=0 WHERE state='dispatching' AND lease_until<?",
-                (now,),
+                "UPDATE jobs SET state='unknown_effect', error='Worker stopped during provider creation; reconcile session before retrying', lease_until=0 WHERE state='dispatching' AND lease_until<:p0",
+                {"p0": now},
             )
             row = c.execute(
-                "SELECT * FROM jobs WHERE state IN ('queued','running') AND next_poll<=? AND lease_until<? ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,created LIMIT 1",
-                (now, now),
+                "SELECT * FROM jobs WHERE state IN ('queued','running') AND next_poll<=:p0 AND lease_until<:p1 ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,created LIMIT 1",
+                {"p0": now, "p1": now},
             ).fetchone()
             if not row:
                 return None
@@ -102,8 +71,8 @@ class Store:
             ):
                 return None
             c.execute(
-                "UPDATE jobs SET lease_until=?,state=CASE WHEN state='queued' THEN 'dispatching' ELSE state END WHERE id=?",
-                (now + 180, row["id"]),
+                "UPDATE jobs SET lease_until=:p0,state=CASE WHEN state='queued' THEN 'dispatching' ELSE state END WHERE id=:p1",
+                {"p0": now + 180, "p1": row["id"]},
             )
             return self.decode(row)
 
@@ -129,23 +98,25 @@ class Store:
         values["updated"] = time.time()
         with self.connect() as c:
             c.execute(
-                "UPDATE jobs SET " + ",".join(k + "=?" for k in values) + " WHERE id=?",
-                (*values.values(), jid),
+                "UPDATE jobs SET " + ",".join(k + "=:" + k for k in values) + " WHERE id=:id",
+                {**values, "id": jid},
             )
 
     def by_key(self, key):
         with self.connect() as c:
-            return self.decode(c.execute("SELECT * FROM jobs WHERE dedup=?", (key,)).fetchone())
+            return self.decode(
+                c.execute("SELECT * FROM jobs WHERE dedup=:p0", {"p0": key}).fetchone()
+            )
 
     def get(self, jid):
         with self.connect() as c:
-            return self.decode(c.execute("SELECT * FROM jobs WHERE id=?", (jid,)).fetchone())
+            return self.decode(c.execute("SELECT * FROM jobs WHERE id=:p0", {"p0": jid}).fetchone())
 
     def bind_scope(self, repository: str, branch: str, organization: str) -> None:
         """A durable ledger must never be repurposed for a different execution scope."""
         scope = {"repository": repository, "branch": branch, "organization": organization}
         with self.connect() as connection:
-            connection.execute("BEGIN IMMEDIATE")
+            connection.lock()
             row = connection.execute(
                 "SELECT value FROM memory WHERE key='execution_scope'"
             ).fetchone()
@@ -171,28 +142,31 @@ class Store:
                                 "Ledger execution scope changed; use a separate database"
                             )
                 connection.execute(
-                    "INSERT INTO memory VALUES('execution_scope',?,?)",
-                    (json.dumps(scope), time.time()),
+                    "INSERT INTO memory VALUES('execution_scope',:p0,:p1)",
+                    {"p0": json.dumps(scope), "p1": time.time()},
                 )
 
     def session_count(self, excluding: str) -> int:
         with self.connect() as connection:
             return connection.execute(
-                "SELECT COUNT(*) FROM jobs WHERE id!=? AND kind!='integration' AND (session_id IS NOT NULL OR state IN ('dispatching','unknown_effect'))",
-                (excluding,),
-            ).fetchone()[0]
+                "SELECT COUNT(*) AS count FROM jobs WHERE id!=:p0 AND kind!='integration' AND (session_id IS NOT NULL OR state IN ('dispatching','unknown_effect'))",
+                {"p0": excluding},
+            ).fetchone()["count"]
 
     def has_delivery(self, delivery: str) -> bool:
         with self.connect() as connection:
             return (
-                connection.execute("SELECT 1 FROM deliveries WHERE id=?", (delivery,)).fetchone()
+                connection.execute(
+                    "SELECT 1 FROM deliveries WHERE id=:p0", {"p0": delivery}
+                ).fetchone()
                 is not None
             )
 
     def record_delivery(self, delivery: str) -> None:
         with self.connect() as connection:
             connection.execute(
-                "INSERT OR IGNORE INTO deliveries VALUES(?,?)", (delivery, time.time())
+                "INSERT INTO deliveries VALUES(:p0,:p1) ON CONFLICT DO NOTHING",
+                {"p0": delivery, "p1": time.time()},
             )
 
     def operational_jobs(self):
@@ -207,8 +181,8 @@ class Store:
         with self.connect() as connection:
             row = connection.execute("""SELECT
                 COUNT(session_id) AS sessions, COALESCE(SUM(acu),0) AS acu,
-                COALESCE(SUM(state='review_ready'),0) AS review_ready,
-                COALESCE(SUM(state IN ('blocked','needs_attention','unknown_effect','validation_failed')),0) AS attention
+                COALESCE(SUM(CASE WHEN state='review_ready' THEN 1 ELSE 0 END),0) AS review_ready,
+                COALESCE(SUM(CASE WHEN state IN ('blocked','needs_attention','unknown_effect','validation_failed') THEN 1 ELSE 0 END),0) AS attention
                 FROM jobs""").fetchone()
             return dict(row)
 
@@ -223,51 +197,50 @@ class Store:
         """Invalidate old evidence and schedule its replacement in one transaction."""
         now = time.time()
         with self.connect() as connection:
-            connection.execute("BEGIN IMMEDIATE")
+            connection.lock()
             current = connection.execute(
-                "SELECT state FROM jobs WHERE id=?", (job["id"],)
+                "SELECT state FROM jobs WHERE id=:p0", {"p0": job["id"]}
             ).fetchone()
             if current is None or current["state"] == "stale":
                 return  # The atomic transition already happened; delayed observations cannot revive it.
             if replacement_sha:
                 key = f"validation:{repository}:{job['pr_number']}:{replacement_sha}"
                 previous = connection.execute(
-                    "SELECT state FROM jobs WHERE dedup=?", (key,)
+                    "SELECT state FROM jobs WHERE dedup=:p0", {"p0": key}
                 ).fetchone()
                 if previous and previous["state"] == "stale":
                     # A -> B -> A needs a fresh session; preserve the original A evidence.
                     # The superseded job makes retries deterministic without reusing old evidence.
                     key += f":after:{job['id']}"
                 connection.execute(
-                    """INSERT OR IGNORE INTO jobs
-                    (id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated)
-                    SELECT ?,?,'validation','queued',payload,parent_id,?,pr_number,?,? FROM jobs WHERE id=?""",
-                    (
-                        str(uuid.uuid4()),
-                        key,
-                        replacement_sha,
-                        now,
-                        now,
-                        job["id"],
-                    ),
+                    "INSERT INTO jobs\n                    (id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated)\n                    SELECT :p0,:p1,'validation','queued',payload,parent_id,:p2,pr_number,:p3,:p4 FROM jobs WHERE id=:p5 ON CONFLICT DO NOTHING",
+                    {
+                        "p0": str(uuid.uuid4()),
+                        "p1": key,
+                        "p2": replacement_sha,
+                        "p3": now,
+                        "p4": now,
+                        "p5": job["id"],
+                    },
                 )
             connection.execute(
-                "UPDATE jobs SET state='stale',error=?,updated=? WHERE id=?",
-                ("PR changed; previous evidence is stale", now, job["id"]),
+                "UPDATE jobs SET state='stale',error=:p0,updated=:p1 WHERE id=:p2",
+                {"p0": "PR changed; previous evidence is stale", "p1": now, "p2": job["id"]},
             )
 
     def audit(self, jid, kind, detail):
         with self.connect() as c:
             c.execute(
-                "INSERT INTO audit(job_id,kind,detail,created) VALUES(?,?,?,?)",
-                (jid, kind, json.dumps(detail), time.time()),
+                "INSERT INTO audit(job_id,kind,detail,created) VALUES(:p0,:p1,:p2,:p3)",
+                {"p0": jid, "p1": kind, "p2": json.dumps(detail), "p3": time.time()},
             )
 
     def has_audit(self, job_id, kind):
         with self.connect() as connection:
             return (
                 connection.execute(
-                    "SELECT 1 FROM audit WHERE job_id=? AND kind=? LIMIT 1", (job_id, kind)
+                    "SELECT 1 FROM audit WHERE job_id=:p0 AND kind=:p1 LIMIT 1",
+                    {"p0": job_id, "p1": kind},
                 ).fetchone()
                 is not None
             )
@@ -275,32 +248,32 @@ class Store:
     def remember(self, key, value):
         with self.connect() as c:
             c.execute(
-                "INSERT INTO memory VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated",
-                (key, json.dumps(value), time.time()),
+                "INSERT INTO memory VALUES(:p0,:p1,:p2) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated=excluded.updated",
+                {"p0": key, "p1": json.dumps(value), "p2": time.time()},
             )
 
     def recall(self, key, default=None):
         with self.connect() as c:
-            row = c.execute("SELECT value FROM memory WHERE key=?", (key,)).fetchone()
+            row = c.execute("SELECT value FROM memory WHERE key=:p0", {"p0": key}).fetchone()
             return json.loads(row["value"]) if row else default
 
     def queue_publication(self, key, payload):
         with self.connect() as c:
             c.execute(
-                "INSERT OR IGNORE INTO publications(key,state,updated,payload) VALUES(?,'pending',?,?)",
-                (key, time.time(), json.dumps(payload)),
+                "INSERT INTO publications(key,state,updated,payload) VALUES(:p0,'pending',:p1,:p2) ON CONFLICT DO NOTHING",
+                {"p0": key, "p1": time.time(), "p2": json.dumps(payload)},
             )
 
     def claim_publication(self):
         with self.connect() as c:
-            c.execute("BEGIN IMMEDIATE")
+            c.lock()
             c.execute(
-                "UPDATE publications SET state='unknown_effect',error='Worker stopped during send; reconcile provider receipt' WHERE state='sending' AND updated<?",
-                (time.time() - 180,),
+                "UPDATE publications SET state='unknown_effect',error='Worker stopped during send; reconcile provider receipt' WHERE state='sending' AND updated<:p0",
+                {"p0": time.time() - 180},
             )
             c.execute(
-                "UPDATE publications SET state='delivered' WHERE state='confirming' AND receipt IS NOT NULL AND updated<?",
-                (time.time() - 180,),
+                "UPDATE publications SET state='delivered' WHERE state='confirming' AND receipt IS NOT NULL AND updated<:p0",
+                {"p0": time.time() - 180},
             )
             row = c.execute(
                 "SELECT * FROM publications WHERE state IN ('pending','delivered') ORDER BY updated LIMIT 1"
@@ -308,27 +281,27 @@ class Store:
             if not row:
                 return None
             c.execute(
-                "UPDATE publications SET state=?,updated=? WHERE key=?",
-                (
-                    "confirming" if row["receipt"] else "sending",
-                    time.time(),
-                    row["key"],
-                ),
+                "UPDATE publications SET state=:p0,updated=:p1 WHERE key=:p2",
+                {
+                    "p0": "confirming" if row["receipt"] else "sending",
+                    "p1": time.time(),
+                    "p2": row["key"],
+                },
             )
             return self.decode(row)
 
     def finish_publication(self, key, state, url=None, error=None, receipt=None):
         with self.connect() as c:
             c.execute(
-                "UPDATE publications SET state=?,url=?,error=?,receipt=COALESCE(?,receipt),updated=? WHERE key=?",
-                (
-                    state,
-                    url,
-                    error,
-                    json.dumps(receipt) if receipt else None,
-                    time.time(),
-                    key,
-                ),
+                "UPDATE publications SET state=:p0,url=:p1,error=:p2,receipt=COALESCE(:p3,receipt),updated=:p4 WHERE key=:p5",
+                {
+                    "p0": state,
+                    "p1": url,
+                    "p2": error,
+                    "p3": json.dumps(receipt) if receipt else None,
+                    "p4": time.time(),
+                    "p5": key,
+                },
             )
 
     def publications(self):

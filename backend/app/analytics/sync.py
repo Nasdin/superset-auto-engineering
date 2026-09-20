@@ -95,7 +95,7 @@ def sync_repository(store, repository, client, *, now=None, max_pages=300):
 def main():
     settings = Settings.from_env()
     store = AnalyticsStore(
-        Path(settings.database).with_name("analytics.db"),
+        settings.analytics_database,
         seed=Path(__file__).resolve().parents[1] / "seeds" / "github-history.sqlite3",
     )
     headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}

@@ -399,7 +399,10 @@ def test_queue_age_does_not_consume_session_timeout(setup):
     db, p, e = setup
     job = repair(db)
     with db.connect() as c:
-        c.execute("UPDATE jobs SET created=? WHERE id=?", (time.time() - 999999, job["id"]))
+        c.execute(
+            "UPDATE jobs SET created=:p0 WHERE id=:p1",
+            {"p0": time.time() - 999999, "p1": job["id"]},
+        )
     e.tick()
     db.update(job["id"], next_poll=0)
     p.response = {"status": "running", "status_detail": "working"}
@@ -588,7 +591,7 @@ def test_crash_during_confirmation_recovers_without_resend(setup):
     item = db.claim_publication()
     db.finish_publication(item["key"], "confirming", receipt={"id": 123})
     with db.connect() as connection:
-        connection.execute("UPDATE publications SET updated=?", (time.time() - 181,))
+        connection.execute("UPDATE publications SET updated=:p0", {"p0": time.time() - 181})
     engine.flush_publication()
     assert db.publications()[0]["state"] == "sent"
     assert provider.comments == []
@@ -600,7 +603,7 @@ def test_crash_before_receipt_is_not_automatically_resent(setup):
     engine.publish(job["id"], 1, "Report")
     db.claim_publication()
     with db.connect() as connection:
-        connection.execute("UPDATE publications SET updated=?", (time.time() - 181,))
+        connection.execute("UPDATE publications SET updated=:p0", {"p0": time.time() - 181})
     engine.flush_publication()
     assert db.publications()[0]["state"] == "unknown_effect"
     assert provider.comments == []
@@ -677,7 +680,7 @@ def test_scope_cannot_redirect_queued_jobs_on_restart(setup):
 
 
 def test_replacement_and_invalidation_roll_back_together(setup):
-    import sqlite3
+    from sqlalchemy.exc import IntegrityError
 
     db, p, e = setup
     job = validation(db)
@@ -686,7 +689,7 @@ def test_replacement_and_invalidation_roll_back_together(setup):
         connection.execute(
             "CREATE TRIGGER reject_stale BEFORE UPDATE ON jobs WHEN NEW.state='stale' BEGIN SELECT RAISE(ABORT,'injected failure'); END"
         )
-    with pytest.raises(sqlite3.IntegrityError):
+    with pytest.raises(IntegrityError):
         db.supersede_validation(job, "b" * 40, e.settings.repo)
     assert len(db.jobs()) == before
     assert db.get(job["id"])["state"] == "running"

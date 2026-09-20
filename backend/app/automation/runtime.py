@@ -18,6 +18,10 @@ def create_runtime(
     """Own one connection pool; close it even if startup or execution fails."""
     providers = provider_factory(settings)
     try:
-        yield Engine(settings, Store(settings.database), providers)
+        store = Store(settings.database)
+        try:
+            yield Engine(settings, store, providers)
+        finally:
+            store.database.close()
     finally:
         providers.close()

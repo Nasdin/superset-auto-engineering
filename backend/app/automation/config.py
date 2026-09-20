@@ -7,7 +7,7 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class Settings:
-    database: str = "data/automation.db"
+    database: str = field(default="data/automation.db", repr=False)
     repo: str = "Nasdin/superset"
     branch: str = "cognition-release-6.1"
     org: str = "org-f456da0f2e0940808b5c8b3a20312d8c"
@@ -29,6 +29,14 @@ class Settings:
     learning_enabled: bool = True
     enabled: bool = False
     artifacts: Path = Path("data/artifacts")
+
+    @property
+    def analytics_database(self):
+        return (
+            self.database
+            if self.database.startswith("postgresql")
+            else str(Path(self.database).with_name("analytics.db"))
+        )
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> "Settings":
@@ -79,6 +87,8 @@ class Settings:
             values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
         if "ARTIFACT_DIR" in env:
             values["artifacts"] = Path(env["ARTIFACT_DIR"])
+        if env.get("DATABASE_URL"):
+            values["database"] = env["DATABASE_URL"]
         settings = cls(**values)
         settings.check_repo()
         return settings

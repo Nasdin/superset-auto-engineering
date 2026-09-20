@@ -1,0 +1,17 @@
+{
+  "source": "Frozen local SQLite snapshots",
+  "target": "Local Postgres 17",
+  "verified_rows": {
+    "audit": 164,
+    "decisions": 0,
+    "deliveries": 6,
+    "jobs": 7,
+    "learning_contexts": 0,
+    "lessons": 3,
+    "memory": 13,
+    "publications": 5,
+    "pull_requests": 11706,
+    "sync_status": 2
+  },
+  "verification": "Every source column compared to transactional target readback before commit"
+}

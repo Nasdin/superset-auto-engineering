@@ -1,0 +1,49 @@
+x-bi: &bi
+  build:
+    context: .
+    dockerfile: infra/AnalyticsSuperset.Dockerfile
+  image: cognition-analytics-superset:6.1.0
+  environment: &bi-environment
+    POSTGRES_SUPERSET_PASSWORD: ${POSTGRES_SUPERSET_PASSWORD:?required}
+    ANALYTICS_SUPERSET_SECRET_KEY: ${ANALYTICS_SUPERSET_SECRET_KEY:?required}
+    SUPERSET_PUBLIC_URL: ${SUPERSET_PUBLIC_URL:?required}
+    SUPERSET_ALLOWED_ORIGINS: ${SUPERSET_ALLOWED_ORIGINS:?required}
+    SUPERSET_APP_ROOT: /bi
+    SUPERSET_CONFIG_PATH: /app/cognition/superset_config.py
+  depends_on:
+    postgres:
+      condition: service_healthy
+    analytics-redis:
+      condition: service_started
+services:
+  analytics-redis:
+    image: redis:7-alpine
+  analytics-superset-init:
+    <<: *bi
+    environment:
+      <<: *bi-environment
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?required}
+      POSTGRES_READER_PASSWORD: ${POSTGRES_READER_PASSWORD:?required}
+      ANALYTICS_SUPERSET_ADMIN_PASSWORD: ${ANALYTICS_SUPERSET_ADMIN_PASSWORD:?required}
+      ANALYTICS_SUPERSET_SERVICE_PASSWORD: ${ANALYTICS_SUPERSET_SERVICE_PASSWORD:?required}
+    depends_on:
+      cognition:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      analytics-redis:
+        condition: service_started
+    command: ['/bin/sh','-c','superset db upgrade && superset init && /app/.venv/bin/python /app/cognition/bootstrap_analytics.py']
+  analytics-superset:
+    <<: *bi
+    command: ['/usr/bin/run-server.sh']
+    ports:
+      - '127.0.0.1:8189:8088'
+    depends_on:
+      analytics-superset-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD','curl','-fsS','http://localhost:8088/bi/health']
+      interval: 15s
+      timeout: 5s
+      retries: 10

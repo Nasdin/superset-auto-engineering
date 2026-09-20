@@ -47,8 +47,8 @@ class LearningService:
             identity = hashlib.sha256(body.encode()).hexdigest()[:24]
             with self.store.connect() as c:
                 c.execute(
-                    "INSERT OR IGNORE INTO lessons(id,job_id,body,created) VALUES(?,?,?,?)",
-                    (identity, job["id"], body, job["updated"]),
+                    "INSERT INTO lessons(id,job_id,body,created) VALUES(:p0,:p1,:p2,:p3) ON CONFLICT DO NOTHING",
+                    {"p0": identity, "p1": job["id"], "p2": body, "p3": job["updated"]},
                 )
 
     def lessons(self):
@@ -138,8 +138,8 @@ class LearningService:
                     continue
                 with self.store.connect() as c:
                     changed = c.execute(
-                        "UPDATE lessons SET native_state='writing' WHERE id=? AND native_state='pending'",
-                        (lesson["id"],),
+                        "UPDATE lessons SET native_state='writing' WHERE id=:p0 AND native_state='pending'",
+                        {"p0": lesson["id"]},
                     ).rowcount
                 if not changed:
                     continue
@@ -190,7 +190,8 @@ class LearningService:
     def _native(self, identity, state, note_id):
         with self.store.connect() as c:
             c.execute(
-                "UPDATE lessons SET native_state=?,note_id=? WHERE id=?", (state, note_id, identity)
+                "UPDATE lessons SET native_state=:p0,note_id=:p1 WHERE id=:p2",
+                {"p0": state, "p1": note_id, "p2": identity},
             )
 
     def retire_before_dispatch(self):
@@ -223,7 +224,7 @@ class LearningService:
         self.retire_before_dispatch()
         with self.store.connect() as c:
             prior = c.execute(
-                "SELECT body FROM learning_contexts WHERE job_id=?", (job["id"],)
+                "SELECT body FROM learning_contexts WHERE job_id=:p0", {"p0": job["id"]}
             ).fetchone()
             if prior:
                 return json.loads(prior["body"])
@@ -256,13 +257,13 @@ class LearningService:
                 break
         with self.store.connect() as c:
             c.execute(
-                "INSERT OR IGNORE INTO learning_contexts(job_id,body,created) VALUES(?,?,?)",
-                (job["id"], json.dumps(selected), time.time()),
+                "INSERT INTO learning_contexts(job_id,body,created) VALUES(:p0,:p1,:p2) ON CONFLICT DO NOTHING",
+                {"p0": job["id"], "p1": json.dumps(selected), "p2": time.time()},
             )
             return json.loads(
                 c.execute(
-                    "SELECT body FROM learning_contexts WHERE job_id=?", (job["id"],)
-                ).fetchone()[0]
+                    "SELECT body FROM learning_contexts WHERE job_id=:p0", {"p0": job["id"]}
+                ).fetchone()["body"]
             )
 
     def overview(self):

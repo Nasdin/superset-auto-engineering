@@ -1,49 +1,48 @@
-"""Public PR metadata, isolated from the credential-bearing automation ledger."""
+"""Persist only public PR metadata; Superset reads a curated Postgres view."""
 
 import json
 import sqlite3
-from contextlib import contextmanager
 from pathlib import Path
+
+from ..database import Database
+from ..schema import analytics
 
 
 class AnalyticsStore:
     def __init__(self, path, *, seed: Path | None = None):
         self.path = str(path)
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with self.connect() as db:
-            db.executescript("""
-                PRAGMA journal_mode=WAL;
-                CREATE TABLE IF NOT EXISTS pull_requests (
-                    repository TEXT NOT NULL, number INTEGER NOT NULL,
-                    data TEXT NOT NULL, PRIMARY KEY(repository, number));
-                CREATE TABLE IF NOT EXISTS sync_status (
-                    repository TEXT PRIMARY KEY, data TEXT NOT NULL);
-            """)
-
+        self.database = Database(path)
+        self.database.initialize(analytics)
         if seed is not None and seed.is_file():
+            # Historic, read-only public snapshot. Runtime writes use DATABASE_URL.
             with self.connect() as db:
-                db.execute("BEGIN IMMEDIATE")
+                db.lock()
                 if (
                     not db.execute("SELECT 1 FROM pull_requests LIMIT 1").fetchone()
                     and not db.execute("SELECT 1 FROM sync_status LIMIT 1").fetchone()
                 ):
-                    db.execute(
-                        "ATTACH DATABASE ? AS snapshot", (seed.resolve().as_uri() + "?mode=ro",)
-                    )
-                    db.execute("INSERT INTO pull_requests SELECT * FROM snapshot.pull_requests")
-                    db.execute("INSERT INTO sync_status SELECT * FROM snapshot.sync_status")
+                    with sqlite3.connect(
+                        seed.resolve().as_uri() + "?mode=ro", uri=True
+                    ) as snapshot:
+                        db.executemany(
+                            "INSERT INTO pull_requests(repository,number,data) VALUES(:repository,:number,:data)",
+                            [
+                                {"repository": r, "number": n, "data": d}
+                                for r, n, d in snapshot.execute("SELECT * FROM pull_requests")
+                            ],
+                        )
+                        db.executemany(
+                            "INSERT INTO sync_status(repository,data) VALUES(:repository,:data)",
+                            [
+                                {"repository": r, "data": d}
+                                for r, d in snapshot.execute("SELECT * FROM sync_status")
+                            ],
+                        )
 
-    @contextmanager
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=20, uri=True)
-        try:
-            with db:
-                yield db
-        finally:
-            db.close()
+        return self.database.connect()
 
     def upsert(self, repository, pulls):
-        # Deliberate allowlist: no bodies, credentials, or provider response blobs.
         records = [
             {
                 "number": pr["number"],
@@ -62,29 +61,34 @@ class AnalyticsStore:
         ]
         with self.connect() as db:
             db.executemany(
-                "INSERT INTO pull_requests VALUES(?,?,?) ON CONFLICT(repository,number) DO UPDATE SET data=excluded.data",
-                [(repository, pr["number"], json.dumps(pr)) for pr in records],
+                "INSERT INTO pull_requests(repository,number,data) VALUES(:repository,:number,:data) ON CONFLICT(repository,number) DO UPDATE SET data=excluded.data",
+                [
+                    {"repository": repository, "number": pr["number"], "data": json.dumps(pr)}
+                    for pr in records
+                ],
             )
 
     def pulls(self, repository):
         with self.connect() as db:
             return [
-                json.loads(row[0])
+                json.loads(row["data"])
                 for row in db.execute(
-                    "SELECT data FROM pull_requests WHERE repository=?", (repository,)
+                    "SELECT data FROM pull_requests WHERE repository=:repository",
+                    {"repository": repository},
                 )
             ]
 
     def status(self, repository):
         with self.connect() as db:
             row = db.execute(
-                "SELECT data FROM sync_status WHERE repository=?", (repository,)
+                "SELECT data FROM sync_status WHERE repository=:repository",
+                {"repository": repository},
             ).fetchone()
-            return json.loads(row[0]) if row else {"state": "not_synced"}
+            return json.loads(row["data"]) if row else {"state": "not_synced"}
 
     def set_status(self, repository, value):
         with self.connect() as db:
             db.execute(
-                "INSERT INTO sync_status VALUES(?,?) ON CONFLICT(repository) DO UPDATE SET data=excluded.data",
-                (repository, json.dumps(value)),
+                "INSERT INTO sync_status(repository,data) VALUES(:repository,:data) ON CONFLICT(repository) DO UPDATE SET data=excluded.data",
+                {"repository": repository, "data": json.dumps(value)},
             )

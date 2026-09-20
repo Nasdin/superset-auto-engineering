@@ -8,7 +8,7 @@ The original implementation had useful safety mechanisms (durable jobs, bounded 
 | --- | --- | --- |
 | Application/runtime factories | Construct dependencies, own one HTTP pool, close it on shutdown or failed startup | `backend/app/main.py`, `automation/runtime.py` |
 | Provider port and adapter | Describe the external operations workflows need; implement them with HTTPX; allow fake providers in tests | `automation/ports.py`, `providers.py` |
-| Repository | SQLite transactions, durable identity, job claims, metrics and publication receipts | `automation/store.py` |
+| Repository | SQLAlchemy/Postgres transactions, durable identity, job claims, metrics and publication receipts | `automation/store.py` |
 | Application services | Coordinate issue intake, bounded sessions, integration and validation | `engine.py`, `integration.py`, `validation.py` |
 | Evidence policy | Pure acceptance rules for candidate SHA, independent sessions, checks and provider-confirmed artifacts | `evidence.py` |
 | Report builder | Convert accepted/failed evidence into escaped, readable Markdown without external calls | `reports.py` |
@@ -22,7 +22,7 @@ Use patterns where they provide a useful boundary. The runtime factory and repor
 
 - A ledger is bound to its repository, target branch and Devin organization. Changing any of these—including repository spelling—is rejected before dispatch. Use a different database for a different execution scope. Exact spelling is intentional because existing durable job keys are case-sensitive.
 - On first opening a legacy ledger, available issue, scan and validation keys are checked before binding. Historical keys cannot establish the original Devin organization, and only scan keys establish a branch; verify the existing configuration when upgrading. New ledgers retain the entire scope.
-- Dashboard pagination must never drive workflow decisions or lifetime budgets. Operational history is uncapped; aggregate metrics are calculated in SQLite.
+- Dashboard pagination must never drive workflow decisions or lifetime budgets. Operational history is uncapped; aggregate metrics are calculated in Postgres.
 - A changed PR invalidates old evidence and queues a replacement in one transaction. Returning to an earlier SHA creates a new validation attempt and preserves the previous session/evidence record.
 - Validation fails closed on missing independence, mismatched SHA, missing/duplicate/failing checks or invalid provider attachment metadata. Provider provenance is not proof of artifact contents; humans still review the evidence.
 - Blocking webhook intake runs outside the ASGI event loop. Payload size and nested fields are checked before intake.
@@ -57,4 +57,4 @@ The optional Superset test remains separately gated by `SUPERSET_E2E=1`. Dashboa
 
 Add a failing behavioral test for workflow bugs, then change the narrowest responsible service. Keep networking out of evidence policy/report construction and SQL out of routes/services. Keep mutable provider responses at the boundary and expose only the fields each UI page needs. Add a database migration when durable records change. Run local checks before opening a PR; do not rebuild a live worker mid-session to test a refactor.
 
-This remains a single-machine take-home system: SQLite history is read in memory for batching, the dashboard is loopback-only, and there is one worker. Multi-user authorization, large-history pagination and multi-worker execution would require a separate design. Avoid introducing that infrastructure into the four-day demo.
+The runtime now uses Postgres with short advisory-lock transactions for single-flight job claims across processes. Real Postgres tests cover concurrency, atomic supersession, receipt persistence and SQL analytics parity. Superset owns the embedded charts using a read-only reporting role. The prepared AWS topology remains a single-host demo; managed availability, user accounts and large-history optimizations remain separate follow-ups. See [Postgres/Superset](POSTGRES_SUPERSET.md) and [deployment](AWS_DEPLOYMENT.md).

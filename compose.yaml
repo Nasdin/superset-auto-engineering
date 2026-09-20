@@ -1,11 +1,41 @@
+include:
+  - path: compose.postgres.yaml
+    project_directory: .
+  - path: infra/analytics.compose.yaml
+    project_directory: .
+
 x-runtime: &runtime
   build: .
-  env_file:
-    - path: .env
-      required: false
-  environment:
-    AUTOMATION_DATABASE: /app/data/automation.db
+  environment: &runtime-environment
+    DATABASE_URL: postgresql+psycopg://cognition_app:${POSTGRES_APP_PASSWORD:?Run scripts/configure_local_postgres.py}@postgres:5432/cognition
     ARTIFACT_DIR: /app/data/artifacts
+    AUTOMATION_ENABLED: ${AUTOMATION_ENABLED:-false}
+    GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
+    TARGET_BRANCH: ${TARGET_BRANCH:-cognition-release-6.1}
+    DEVIN_ORG_ID: ${DEVIN_ORG_ID:-org-f456da0f2e0940808b5c8b3a20312d8c}
+    GITHUB_ALLOWED_ACTOR: ${GITHUB_ALLOWED_ACTOR:-Nasdin}
+    TRIGGER_LABEL: ${TRIGGER_LABEL:-cognition:repair}
+    DEVIN_MAX_ACU: ${DEVIN_MAX_ACU:-10}
+    DEVIN_MAX_SESSIONS: ${DEVIN_MAX_SESSIONS:-6}
+    SESSION_TIMEOUT_SECONDS: ${SESSION_TIMEOUT_SECONDS:-7200}
+    POLL_SECONDS: ${POLL_SECONDS:-30}
+    SCAN_INTERVAL_SECONDS: ${SCAN_INTERVAL_SECONDS:-86400}
+    BATCH_WINDOW_SECONDS: ${BATCH_WINDOW_SECONDS:-60}
+    LEARNING_ENABLED: ${LEARNING_ENABLED:-true}
+    DEPENDABOT_ENABLED: ${DEPENDABOT_ENABLED:-true}
+    DEVIN_API_KEY: ${DEVIN_API_KEY:-}
+    GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+    OPERATOR_TOKEN: ${OPERATOR_TOKEN:-}
+    SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+    SLACK_CHANNEL_ID: ${SLACK_CHANNEL_ID:-}
+    SUPERSET_INTERNAL_URL: ${SUPERSET_INTERNAL_URL:-http://analytics-superset:8088/bi}
+    SUPERSET_PUBLIC_URL: ${SUPERSET_PUBLIC_URL:-http://127.0.0.1:8189/bi}
+    ANALYTICS_SUPERSET_SERVICE_PASSWORD: ${ANALYTICS_SUPERSET_SERVICE_PASSWORD:-}
+    ENABLE_DEMO: ${ENABLE_DEMO:-false}
+  depends_on:
+    postgres:
+      condition: service_healthy
   volumes:
     - cognition-data:/app/data
 services:
@@ -24,6 +54,10 @@ services:
     restart: unless-stopped
   analytics:
     <<: *runtime
+    environment:
+      DATABASE_URL: postgresql+psycopg://cognition_app:${POSTGRES_APP_PASSWORD:?Run scripts/configure_local_postgres.py}@postgres:5432/cognition
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
     command: ["python", "-m", "app.analytics.sync"]
     restart: unless-stopped
 volumes:

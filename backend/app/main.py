@@ -8,6 +8,8 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
+from .analytics.embedding import SupersetClient
+from .analytics.embedding import router as superset_router
 from .analytics.routes import router as analytics_router
 from .analytics.store import AnalyticsStore
 from .automation.config import Settings
@@ -32,9 +34,23 @@ def create_app(
         with create_runtime(configured, provider_factory=provider_factory) as engine:
             application.state.engine = engine
             application.state.analytics = AnalyticsStore(
-                Path(configured.database).with_name("analytics.db"), seed=analytics_seed
+                configured.analytics_database, seed=analytics_seed
             )
-            yield
+            application.state.superset = (
+                SupersetClient(
+                    os.environ["SUPERSET_INTERNAL_URL"],
+                    os.environ["ANALYTICS_SUPERSET_SERVICE_PASSWORD"],
+                )
+                if os.getenv("SUPERSET_INTERNAL_URL")
+                and os.getenv("ANALYTICS_SUPERSET_SERVICE_PASSWORD")
+                else None
+            )
+            try:
+                yield
+            finally:
+                application.state.analytics.database.close()
+                if application.state.superset:
+                    application.state.superset.close()
 
     application = FastAPI(title="Cognition Evidence API", version="0.1.0", lifespan=lifespan)
 
@@ -44,11 +60,15 @@ def create_app(
             connection.execute("SELECT 1 FROM jobs LIMIT 1")
         return {"status": "ok", "mode": "live", "automation_enabled": configured.enabled}
 
-    application.include_router(
-        create_demo_router(demo_database or Path(os.getenv("DATABASE_PATH", "data/cognition.db")))
-    )
+    if not configured.database.startswith("postgresql") or os.getenv("ENABLE_DEMO") == "true":
+        application.include_router(
+            create_demo_router(
+                demo_database or Path(os.getenv("DATABASE_PATH", "data/cognition.db"))
+            )
+        )
     application.include_router(live_router)
     application.include_router(analytics_router)
+    application.include_router(superset_router)
     if static_directory.is_dir():
         application.mount("/", StaticFiles(directory=static_directory, html=True), name="frontend")
     return application

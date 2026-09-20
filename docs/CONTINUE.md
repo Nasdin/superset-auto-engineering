@@ -2,6 +2,12 @@
 
 Checkpoint: 2026-09-20. The end-to-end goal is active and unfinished. Do not substitute the fixture dashboard or a healthy Superset baseline for a successful autonomous fix.
 
+## Latest analytics/storage change
+
+The local application now runs on Postgres 17. Superset BI at `http://127.0.0.1:8189/bi` renders actual analytics in the dashboard, separate from candidate-validation Superset at 8188. Migration preserved the existing ledger and 11,706 PR records with cell-by-cell readback. [Migration and BI guide](POSTGRES_SUPERSET.md). AWS target is `superset-devin.nasrudinsalim.com`, but no AWS resources or DNS records have been created: account/profile, region and budget are pending (only `nextvestment` is configured locally). [Deployment preparation](AWS_DEPLOYMENT.md).
+
+The paid Devin usage hold and existing blocked validation remain in effect. Do not mistake a passing BI dashboard for a completed repair-validation run. Older checkpoints below describe historical progress.
+
 ## Repositories and runtime
 
 - Application: `/Users/nasdin/code/personal/cognition` (the `code` directory resolves to `/Volumes/CORSAIR/code`). Public delivery repository: https://github.com/Nasdin/superset-auto-engineering. Original private remote retained: https://github.com/Nasdin/cognition.
