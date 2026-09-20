@@ -71,6 +71,8 @@ This checkpoint supersedes older implementation counts and configuration notes a
 - Restored the existing completed discovery's structured result from its original Devin session and linked its existing repair job; no issue, PR or session was created by recovery.
 - Live provider readback confirmed three project-owned Knowledge notes (one discovery, two reported implementations). All remain explicitly unverified observations. Zero sessions have yet been dispatched using tracked memory; four existing paid sessions remain in the ledger.
 - The independent validator for PR #4 remains `needs_attention` / `usage_limit_exceeded`. This holds new scans, PR fixes and dependency work. Limits remain 10 ACU per session and six sessions total. No memory-assisted end-to-end validation or improvement claim is made.
-- Backend: 154 tests passed, 84.75% coverage. Includes uncertain create/readback recovery, stale note retirement, ambiguous retirement without phantom session usage, scope changes, immutable context, scan/webhook race recovery and duplicate PR pipeline prevention.
+- Backend: 155 tests passed, 84.79% coverage. Includes uncertain create/readback recovery, stale note retirement, ambiguous retirement without phantom session usage, scope changes, immutable context, scan/webhook race recovery and duplicate PR pipeline prevention.
 - Frontend: production build passed; 13 browser tests passed, one optional external Superset test skipped. Learning filters, evidence links, empty history, mobile layout and workflow lanes were exercised.
 - Real browser inspection showed three native notes, the existing usage blocker, and scan → repair PR #5 lineage in the autonomous lane. Screenshots are in `docs/screenshots/learning-memory.png` and `docs/screenshots/workflow-lanes.png`.
+
+- Corrected the legacy health endpoint: `/api/health` checks the live ledger and reports live mode plus the automation switch; demo health remains explicitly under `/api/demo/health`.

@@ -24,6 +24,15 @@ def test_dashboard_marks_fixtures(client):
     assert len(data["workflows"]) == 5
 
 
+def test_health_checks_live_store_without_claiming_automation_is_enabled(client):
+    assert client.get("/api/health").json() == {
+        "status": "ok",
+        "mode": "live",
+        "automation_enabled": False,
+    }
+    assert client.get("/api/demo/health").json()["mode"] == "demo"
+
+
 def test_stale_sha_rejected_without_decision(client):
     result = client.post(
         "/api/demo/decisions", json={"sha": "stale", "decision": "approved", "note": "reviewed"}

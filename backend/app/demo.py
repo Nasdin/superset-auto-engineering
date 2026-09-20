@@ -49,7 +49,7 @@ def create_demo_router(database: Path) -> APIRouter:
         finally:
             con.close()
 
-    @router.get("/api/health")
+    @router.get("/api/demo/health")
     def health():
         with connect() as con:
             con.execute("SELECT 1")

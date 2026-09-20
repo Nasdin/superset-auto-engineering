@@ -5,7 +5,7 @@ from collections.abc import Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
 from .analytics.routes import router as analytics_router
@@ -37,6 +37,13 @@ def create_app(
             yield
 
     application = FastAPI(title="Cognition Evidence API", version="0.1.0", lifespan=lifespan)
+
+    @application.get("/api/health")
+    def health(request: Request):
+        with request.app.state.engine.store.connect() as connection:
+            connection.execute("SELECT 1 FROM jobs LIMIT 1")
+        return {"status": "ok", "mode": "live", "automation_enabled": configured.enabled}
+
     application.include_router(
         create_demo_router(demo_database or Path(os.getenv("DATABASE_PATH", "data/cognition.db")))
     )
