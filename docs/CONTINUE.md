@@ -20,7 +20,7 @@ Verified signed-in Devin organization: Asmar DE Takehome, `org-f456da0f2e0940808
 
 The installed official Devin CLI reports a personal Devin Pro account. Do not spend personal credits as a fallback; use the configured take-home API organization.
 
-The user explicitly authorized the Nasrudin Slack workspace (`T0C2NTV3Z39`), Tech channel `C0C2NTYCPTR`. The browser is logged in to this workspace. The existing Slack connector only exposes a different workspace; do not use it for this project. Bot-token setup and verified report delivery remain pending.
+The user explicitly authorized the Nasrudin Slack workspace (`T0C2NTV3Z39`), Tech channel `C0C2NTYCPTR`. The browser is logged in to this workspace. The existing Slack connector only exposes a different workspace; do not use it for this project. The Superset Evidence app (`A0C3YS07V16`, only `chat:write`) is installed and added to #tech. Its bot token is in ignored `.env` (0600). The API/worker were rebuilt from merged main `5a65980` and report Slack connected. A queued message was delivered and visibly verified: https://nasrudingroup.slack.com/archives/C0C2NTYCPTR/p1789875265091599. Receipt: `evidence/slack-live.json`. The webhook gateway was restarted after the API IP changed; unsigned requests return 401 again.
 
 ## Start/rebuild local Superset baseline
 
@@ -42,7 +42,7 @@ Run the optional browser check with `cd frontend && SUPERSET_E2E=1 npx playwrigh
 2. Rebuild/recreate the application with automation enabled and observe the existing issue's **single** real repair session. Inspect provider status/cost and actual fork PR. Attach every created PR to the Codex task.
 3. Let integration form a draft PR from exact component SHAs, followed by a fresh validation session. The validator must start actual Superset from the integrated SHA, run the changed behavior through DB/browser/regression tests, and attach screenshot, video, logs and tests.
 4. Inspect the artifact contents and provenance. Observe repaired-candidate report comments on the integration PR, component PR and issue; verify URLs and receipts. The baseline issue report already proves outbox delivery and public artifact access, but does not validate a fix. An agent saying finished is insufficient.
-5. Configure the confirmed Slack destination, send the report through the outbox and verify the receipt and visible message. Missing Slack remains an explicit gap.
+5. Slack connection and outbox delivery are verified. Confirm the eventual candidate-validation report separately; the connection-check message is not release evidence.
 6. Demonstrate the bounded scheduled scan as a separate real run, a discovered issue and its repair loop if a defect is found. Do not fabricate a discovery. The six-session total cap reserves validation capacity.
 7. Recheck the existing temporary tunnel and GitHub webhook before live execution. Real issue delivery and redelivery deduplication are verified in `evidence/github-webhook-live.json`. Port 8001 gateway only, never port 8000.
 8. Record actual costs/durations/evidence and durable lessons, final checks and known limitations. Keep the goal active until all requested end-to-end proof is present.

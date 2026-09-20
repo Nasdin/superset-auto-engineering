@@ -2,14 +2,15 @@
 
 import json
 import sqlite3
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from .demo_fixtures import CHECKS, SHA, WORKFLOWS
+from .demo_fixtures import SHA
+from .demo_seed import SCHEMA, SEED_PATH
 
 
 class Decision(BaseModel):
@@ -31,12 +32,19 @@ def create_demo_router(database: Path) -> APIRouter:
         database.parent.mkdir(parents=True, exist_ok=True)
         con = sqlite3.connect(database)
         con.row_factory = sqlite3.Row
-        con.execute(
-            "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, delivery TEXT UNIQUE, kind TEXT, payload TEXT, created TEXT)"
-        )
-        con.commit()
         try:
+            con.executescript(SCHEMA)
             with con:
+                if not con.execute("SELECT 1 FROM fixtures WHERE key='dashboard'").fetchone():
+                    with closing(
+                        sqlite3.connect(SEED_PATH.resolve().as_uri() + "?mode=ro", uri=True)
+                    ) as seed:
+                        fixture = seed.execute(
+                            "SELECT value FROM fixtures WHERE key='dashboard'"
+                        ).fetchone()
+                    if fixture is None:
+                        raise RuntimeError("Demo seed is missing its dashboard fixture")
+                    con.execute("INSERT OR IGNORE INTO fixtures VALUES ('dashboard', ?)", fixture)
                 yield con
         finally:
             con.close()
@@ -53,6 +61,9 @@ def create_demo_router(database: Path) -> APIRouter:
             events = [
                 dict(r) for r in con.execute("SELECT * FROM events ORDER BY id DESC LIMIT 50")
             ]
+            fixture = json.loads(
+                con.execute("SELECT value FROM fixtures WHERE key='dashboard'").fetchone()[0]
+            )
         for event in events:
             event["payload"] = json.loads(event["payload"])
         latest = next(
@@ -63,20 +74,8 @@ def create_demo_router(database: Path) -> APIRouter:
             ),
             None,
         )
-        return dict(
-            mode="demo",
-            repository="apache/superset",
-            candidate=dict(
-                id="RC-014",
-                sha=SHA,
-                branch="integration/rc-014",
-                validator="DV-086",
-                status="demo_" + latest if latest else "needs_review",
-            ),
-            checks=CHECKS,
-            workflows=WORKFLOWS,
-            events=events,
-        )
+        fixture["candidate"]["status"] = "demo_" + latest if latest else "needs_review"
+        return {**fixture, "events": events}
 
     @router.post("/api/demo/decisions")
     def decide(body: Decision):

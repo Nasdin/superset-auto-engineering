@@ -1,0 +1,22 @@
+{
+  "verified_at": "2026-09-20T03:38:23.847679+00:00",
+  "workspace": "Nasrudin",
+  "workspace_id": "T0C2NTV3Z39",
+  "channel": "tech",
+  "channel_id": "C0C2NTYCPTR",
+  "app_id": "A0C3YS07V16",
+  "bot_id": "B0C385HK1SQ",
+  "scopes": [
+    "chat:write"
+  ],
+  "publication": {
+    "key": "slack:connection-verified-20260920",
+    "state": "sent",
+    "url": "https://nasrudingroup.slack.com/archives/C0C2NTYCPTR/p1789875265091599",
+    "error": null,
+    "updated": 1789875265.3689904
+  },
+  "visible_message_verified": true,
+  "verification": "Posted by the worker through the durable outbox; Slack permalink confirmed and matching message read in the Tech channel UI.",
+  "boundary": "Connection and report-delivery verification only; independent Superset candidate validation remains separate."
+}

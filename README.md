@@ -11,6 +11,8 @@ docker compose up --build -d
 
 Open [the dashboard](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/docs). Automation defaults to **disabled**. The shared `cognition-data` volume survives container recreation; `docker compose down` keeps it. The dashboard is deliberately bound to loopback: it has no multi-user authentication.
 
+The repository includes a synthetic SQLite seed at `backend/app/seeds/demo.sqlite3`. Startup loads its dashboard fixtures into the local writable demo database; it never changes the committed seed. The separate live execution database starts empty on a new machine. `.env.example` is committed; `.env`, local databases and credentials are ignored. No credentials are needed to run the demo.
+
 The initial pages are Release validation, Workflows, Devin runs, Repository graph and Analytics. These use clearly labeled fixtures for offline demonstration. **Live operations** reads the real persistent execution ledger; it never fills gaps with fixtures. The generated design reference is [docs/dashboard-mockup.png](docs/dashboard-mockup.png).
 
 ## Current verification boundary
@@ -18,7 +20,7 @@ The initial pages are Release validation, Workflows, Devin runs, Repository grap
 - The dashboard, durable workflow engine, signed GitHub webhook, scheduled scan, provider adapters, integration batching and report outbox are implemented and covered by local tests.
 - A real fork issue exists: [MySQL time buckets on Superset 6.1](https://github.com/Nasdin/superset/issues/1). Its reproduction at `c37118edd0146019ab0ae4ae1a97a597cb56c88e` fails 6 of 9 cases against MySQL 8.0; [raw results](evidence/mysql-baseline.json) are retained.
 - Superset was built from that exact baseline source. An isolated PostgreSQL/Redis/MySQL/Superset/Celery stack is running locally. A browser test signed in and queried the seeded MySQL fixture, checking three rows totaling six. Screenshot, video and content hashes are recorded in [the baseline manifest](evidence/baseline-manifest.json). This is **baseline qualification, not a repaired candidate**.
-- A seven-day Devin token was created on September 20 and verified against Asmar DE Takehome. Live execution is enabled, and Devin opened [repair PR #2](https://github.com/Nasdin/superset/pull/2). Slack reporting is targeted at the authorized Nasrudin workspace, Tech channel. Independent candidate validation and delivered Slack reporting are still pending; the workflow goal remains unfinished.
+- A seven-day Devin token was created on September 20 and verified against Asmar DE Takehome. Live execution is enabled, and Devin opened [repair PR #2](https://github.com/Nasdin/superset/pull/2). Slack reporting is targeted at the authorized Nasrudin workspace, Tech channel. Slack bot reporting is connected and its first message was delivered through the persistent outbox and verified in #tech; [delivery receipt](evidence/slack-live.json). Independent candidate validation remains in progress.
 
 The real [baseline evidence report](https://github.com/Nasdin/superset/issues/1#issuecomment-5744078328) was posted through the durable outbox and read back successfully. Its public screenshot/video/reproduction files match the locally recorded bytes. Repeating the publication request left exactly one comment. This qualifies reporting only; the independent release validation is still pending.
 
