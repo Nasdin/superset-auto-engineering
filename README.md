@@ -30,10 +30,10 @@ Required: `DEVIN_API_KEY`, `GITHUB_TOKEN`, random `OPERATOR_TOKEN`, random `GITH
 
 ```sh
 # Queue an explicitly labeled, authorized fork issue; the worker still needs enabling.
-python3 scripts/operator.py issue --number 1
-python3 scripts/operator.py overview
+python3 scripts/cognition_operator.py issue --number 1
+python3 scripts/cognition_operator.py overview
 # Queue one scan for the current schedule window.
-python3 scripts/operator.py scan
+python3 scripts/cognition_operator.py scan
 ```
 
 GitHub issue intake requires the configured author and `cognition:repair` label. Webhooks additionally require the configured repository, actor and valid HMAC signature. The worker polls labeled issues every minute as a fallback and coalesces implemented workstreams after a quiet period. Duplicate issues and deliveries are deduplicated in SQLite.
@@ -79,14 +79,21 @@ npm ci
 npm run dev
 ```
 
+From the repository root:
+
 ```sh
-cd backend
-.venv/bin/python -m pytest -q
-cd ../frontend
-npm run build
+backend/.venv/bin/ruff check backend
+backend/.venv/bin/ruff format --check backend
+backend/.venv/bin/pytest --cov --cov-fail-under=80 -q
+npm --prefix frontend run typecheck
+npm --prefix frontend run format:check
+npm --prefix frontend run build
+cd frontend
 npx playwright install chromium
-E2E_BASE_URL=http://127.0.0.1:8000 npm run test:e2e
+npm run test:e2e
 ```
+
+The default browser suite creates temporary databases and starts an isolated server on port 8010. It needs no running dashboard or provider credentials. See [architecture and code quality](docs/CODE_QUALITY.md) for module responsibilities, regression coverage, CI and migration notes.
 
 The optional Superset browser test requires the isolated runtime described in [docs/CONTINUE.md](docs/CONTINUE.md) and `SUPERSET_E2E=1`. The default browser suite tests this dashboard, not Superset or Devin.
 

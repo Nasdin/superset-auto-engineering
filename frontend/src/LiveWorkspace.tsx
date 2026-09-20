@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import type { Overview } from "./liveTypes";
+import { safeUrl } from "./links";
+import { api } from "./api";
+import { usePollingResource } from "./hooks/usePollingResource";
+import { useState } from "react";
 import {
   Activity,
   ExternalLink,
@@ -6,83 +10,12 @@ import {
   ShieldCheck,
   Terminal,
 } from "lucide-react";
-type Artifact = { kind: string; name: string; url: string };
-type Job = {
-  id: string;
-  kind: string;
-  state: string;
-  session_url: string | null;
-  candidate_sha: string | null;
-  pr_number: number | null;
-  error: string | null;
-  acu: number;
-  created: number;
-  payload: { title?: string; issue_number?: number; source?: string };
-  result?: {
-    summary?: string;
-    artifacts?: Artifact[];
-    checks?: {
-      name: string;
-      passed: boolean;
-      detail: string;
-      command: string;
-    }[];
-  };
-};
-type Overview = {
-  repository: string;
-  branch: string;
-  enabled: boolean;
-  connections: Record<string, boolean>;
-  limits: {
-    max_acu_per_session: number;
-    max_sessions_total: number;
-    scan_interval_seconds: number;
-  };
-  worker: { state?: string; at?: number };
-  jobs: Job[];
-  publications: { key: string; state: string; url?: string; error?: string }[];
-  metrics: {
-    sessions: number;
-    acu: number;
-    review_ready: number;
-    attention: number;
-  };
-  memory: { summary: string; status: string }[];
-};
-function safeUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" && !url.username && !url.password
-      ? value
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
+const loadOverview = (signal: AbortSignal) =>
+  api<Overview>("live/overview", undefined, signal);
+
 export default function LiveWorkspace() {
-  const [data, setData] = useState<Overview | null>(null);
-  const [error, setError] = useState("");
+  const { data, error, refresh } = usePollingResource(loadOverview, 5000);
   const [selected, setSelected] = useState<string | null>(null);
-  async function refresh(signal?: AbortSignal) {
-    try {
-      const res = await fetch("/api/live/overview", { signal });
-      if (!res.ok) throw Error("Live API unavailable");
-      setData(await res.json());
-      setError("");
-    } catch (e) {
-      if ((e as Error).name !== "AbortError") setError((e as Error).message);
-    }
-  }
-  useEffect(() => {
-    const controller = new AbortController();
-    void refresh(controller.signal);
-    const t = setInterval(() => void refresh(controller.signal), 5000);
-    return () => {
-      controller.abort();
-      clearInterval(t);
-    };
-  }, []);
   const job = data?.jobs.find((j) => j.id === selected);
   return (
     <main id="main">
@@ -130,7 +63,7 @@ export default function LiveWorkspace() {
           <div className="stats">
             {[
               [data.metrics.sessions, "Real sessions"],
-              [data.metrics.acu.toFixed(2), "ACUs consumed"],
+              [data.metrics.acu.toFixed(2), "Reported ACUs"],
               [data.metrics.review_ready, "Ready for human review"],
               [data.metrics.attention, "Need attention"],
             ].map(([v, l]) => (

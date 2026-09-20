@@ -1,8 +1,9 @@
 from dataclasses import replace
+
 import httpx
 import pytest
 from app.automation.config import Settings
-from app.automation.providers import Providers, ProviderError, UnknownEffect
+from app.automation.providers import ProviderError, Providers, UnknownEffect
 
 
 def provider(handler):

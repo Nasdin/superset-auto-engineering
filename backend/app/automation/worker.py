@@ -2,18 +2,15 @@
 
 import logging
 import time
+
 from .config import Settings
-from .store import Store
-from .providers import Providers, ProviderError, UnknownEffect
-from .engine import Engine
+from .runtime import create_runtime
 
 
 def cycle(engine):
-    s, db = engine.s, engine.db
+    s, db = engine.settings, engine.store
     if not (s.enabled and s.github_token and s.devin_key):
-        db.remember(
-            "worker_status", {"state": "configuration_required", "at": time.time()}
-        )
+        db.remember("worker_status", {"state": "configuration_required", "at": time.time()})
         return
     tasks = [
         ("jobs", engine.tick),
@@ -48,14 +45,11 @@ def cycle(engine):
 
 
 def main():
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
-    )
-    s = Settings()
-    engine = Engine(s, Store(s.database), Providers(s))
-    while True:
-        cycle(engine)
-        time.sleep(s.poll_seconds)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    with create_runtime(Settings.from_env()) as engine:
+        while True:
+            cycle(engine)
+            time.sleep(engine.settings.poll_seconds)
 
 
 if __name__ == "__main__":

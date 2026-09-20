@@ -49,7 +49,7 @@ Run the optional browser check with `cd frontend && SUPERSET_E2E=1 npx playwrigh
 
 ## Failure handling
 
-Unknown session creation blocks further paid dispatch. Reconcile with `python3 scripts/operator.py reconcile --job JOB --session SESSION` only after reading provider tags. For integration writes, POST the authenticated `/api/live/jobs/JOB/resume-integration` endpoint; it performs GitHub readback before writes. Acknowledged reports persist a receipt and retry readback without resending. Unknown publication writes without a receipt must be inspected at the provider before any manual resend. No code auto-merges the release branch.
+Unknown session creation blocks further paid dispatch. Reconcile with `python3 scripts/cognition_operator.py reconcile --job JOB --session SESSION` only after reading provider tags. For integration writes, POST the authenticated `/api/live/jobs/JOB/resume-integration` endpoint; it performs GitHub readback before writes. Acknowledged reports persist a receipt and retry readback without resending. Unknown publication writes without a receipt must be inspected at the provider before any manual resend. No code auto-merges the release branch.
 
 ## Temporary webhook lifecycle
 

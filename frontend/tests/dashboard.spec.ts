@@ -55,7 +55,7 @@ test("inspect evidence, persist a review, queue an event and navigate views", as
     .click();
   await page.setViewportSize({ width: 1440, height: 1120 });
   await page.screenshot({
-    path: "../evidence/dashboard-desktop.png",
+    path: "test-results/dashboard-desktop.png",
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -68,7 +68,7 @@ test("inspect evidence, persist a review, queue an event and navigate views", as
     ),
   ).toBeTruthy();
   await page.screenshot({
-    path: "../evidence/dashboard-mobile.png",
+    path: "test-results/dashboard-mobile.png",
     fullPage: true,
   });
 });
@@ -101,8 +101,68 @@ test("live operations shows real ledger and configuration state", async ({
   await expect(page.getByText("WF-041", { exact: true })).toHaveCount(0);
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.screenshot({
-    path: "../evidence/live-operations.png",
+    path: "test-results/live-operations.png",
     animations: "disabled",
     fullPage: true,
   });
+});
+
+test("dashboard recovers after an unavailable response", async ({ page }) => {
+  await page.route(
+    "**/api/dashboard",
+    (route) => route.fulfill({ status: 503, body: "unavailable" }),
+    { times: 1 },
+  );
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toBeVisible();
+  await page.getByRole("button", { name: "Retry connection" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Confidence, backed by evidence." }),
+  ).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("live polling skips overlaps and refresh keeps the latest response", async ({
+  page,
+  request,
+}) => {
+  const baseline = await (await request.get("/api/live/overview")).json();
+  await page.clock.install();
+  let requests = 0;
+  let releaseFirst!: () => void;
+  const firstBlocked = new Promise<void>((resolve) => {
+    releaseFirst = resolve;
+  });
+  await page.route("**/api/live/overview", async (route) => {
+    requests++;
+    if (requests === 1) {
+      await firstBlocked;
+      await route
+        .fulfill({ json: { ...baseline, repository: "old-response" } })
+        .catch(() => {});
+    } else {
+      await route.fulfill({
+        json: { ...baseline, repository: "latest-response" },
+      });
+    }
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Live operations", exact: true })
+    .click();
+  await expect.poll(() => requests).toBe(1);
+  await page.clock.fastForward(15_000);
+  expect(requests).toBe(1);
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "latest-response" }),
+  ).toBeVisible();
+  releaseFirst();
+  await expect(page.getByRole("heading", { name: "old-response" })).toHaveCount(
+    0,
+  );
+  await page.getByRole("button", { name: "Analytics", exact: true }).click();
+  const countOnLeave = requests;
+  await page.clock.fastForward(15_000);
+  expect(requests).toBe(countOnLeave);
 });

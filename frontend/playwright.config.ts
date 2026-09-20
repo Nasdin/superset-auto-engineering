@@ -1,9 +1,19 @@
 import { defineConfig } from "@playwright/test";
+const external = process.env.E2E_BASE_URL;
 export default defineConfig({
   testDir: "tests",
   use: {
-    baseURL: process.env.E2E_BASE_URL || "http://127.0.0.1:5173",
+    baseURL: external || "http://127.0.0.1:8010",
     browserName: "chromium",
+    trace: "retain-on-failure",
   },
+  webServer: external
+    ? undefined
+    : {
+        command: `${process.env.TEST_PYTHON || "../backend/.venv/bin/python"} ../scripts/serve_test_app.py`,
+        url: "http://127.0.0.1:8010/api/health",
+        reuseExistingServer: false,
+        timeout: 30_000,
+      },
   reporter: "list",
 });

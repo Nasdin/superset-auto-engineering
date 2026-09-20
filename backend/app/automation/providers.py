@@ -14,9 +14,15 @@ class ProviderError(Exception):
 
 
 class Providers:
-    def __init__(self, settings):
+    def __init__(self, settings, *, client: httpx.Client | None = None):
         self.s = settings
-        self.client = httpx.Client(timeout=45, follow_redirects=False)
+        self.client = (
+            client if client is not None else httpx.Client(timeout=45, follow_redirects=False)
+        )
+
+    def close(self) -> None:
+        """Release the connection pool owned by this adapter."""
+        self.client.close()
 
     def request(self, method, url, token, **kwargs):
         try:
@@ -38,22 +44,16 @@ class Providers:
         if response.status_code >= 500 and method != "GET":
             raise UnknownEffect(f"Provider {response.status_code}; effect unknown")
         if not response.is_success:
-            raise ProviderError(
-                f"Provider HTTP {response.status_code}", response.status_code
-            )
+            raise ProviderError(f"Provider HTTP {response.status_code}", response.status_code)
         try:
             return response.json() if response.content else None
         except ValueError:
             if method != "GET":
-                raise UnknownEffect(
-                    "Provider returned an unreadable mutation response"
-                ) from None
+                raise UnknownEffect("Provider returned an unreadable mutation response") from None
             raise ProviderError("Provider returned unreadable JSON") from None
 
     def gh(self, method, path, **kwargs):
-        return self.request(
-            method, "https://api.github.com/" + path, self.s.github_token, **kwargs
-        )
+        return self.request(method, "https://api.github.com/" + path, self.s.github_token, **kwargs)
 
     def devin(self, method, path, **kwargs):
         return self.request(
@@ -116,9 +116,7 @@ class Providers:
                 or comment.get("issue_url")
                 != f"https://api.github.com/repos/{repo}/issues/{payload['number']}"
             ):
-                raise ProviderError(
-                    "Published GitHub comment does not match the queued report"
-                )
+                raise ProviderError("Published GitHub comment does not match the queued report")
             return comment["html_url"]
         channel = payload.get("channel", self.s.slack_channel)
         if receipt["channel"] != channel:
