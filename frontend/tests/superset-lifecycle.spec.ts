@@ -22,14 +22,15 @@ async function sessions(page: Page, failRefresh = false) {
       return;
     }
     const origin = new URL(route.request().url()).origin;
+    const params = new URL(route.request().url()).searchParams;
     const payload = Buffer.from(
       JSON.stringify({ exp: Date.now() / 1000 + 10 }),
     ).toString("base64url");
     await route.fulfill({
       json: {
-        dashboard_id: route.request().url().includes("rolling")
-          ? "rolling"
-          : "monthly",
+        dashboard_id:
+          (params.get("layout") === "mobile" ? "mobile-" : "") +
+          (params.get("cadence") === "rolling" ? "rolling" : "monthly"),
         superset_url: `${origin}/synthetic-bi`,
         token: `e30.${payload}.signature`,
       },
@@ -70,6 +71,27 @@ test("unresponsive Superset shell fails visibly and can be reopened", async ({
     "height",
     "900px",
   );
+});
+
+test("narrow viewports select native full-width Superset layouts for both cadences", async ({
+  page,
+}) => {
+  await sessions(page);
+  await page.route("**/synthetic-bi/embedded/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: frame }),
+  );
+  await page.goto("/#analytics");
+  const iframe = page.locator(".superset-panel iframe");
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/monthly\?/);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-monthly\?/);
+  await page
+    .getByRole("button", { name: "Rolling window", exact: true })
+    .click();
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-rolling\?/);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/rolling\?/);
+  await expect(iframe).toHaveCount(1);
 });
 
 test("SDK renewal failure is visible, recovers and stops on navigation", async ({

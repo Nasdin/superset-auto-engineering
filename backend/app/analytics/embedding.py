@@ -28,6 +28,7 @@ class Selection(BaseModel):
     base: str = Field(default="", max_length=200)
     kind: Literal["", "fix", "dependency", "feature", "revert", "other", "bot"] = ""
     cadence: Literal["monthly", "rolling"] = "monthly"
+    layout: Literal["desktop", "mobile"] = "desktop"
     provenance: Literal["all", "tracked", "untracked"] = "all"
 
     def resolved(self, fork):
@@ -150,13 +151,15 @@ def session(request: Request, response: Response):
         values = selection.resolved(engine.settings.repo)
     except (ValidationError, ValueError) as error:
         raise HTTPException(422, "Invalid analytics filters") from error
-    dashboard_id = (
-        configured.get("rolling_dashboard_id")
-        if selection.cadence == "rolling"
-        else configured["dashboard_id"]
-    )
+    dashboard_key = {
+        ("monthly", "desktop"): "dashboard_id",
+        ("rolling", "desktop"): "rolling_dashboard_id",
+        ("monthly", "mobile"): "mobile_dashboard_id",
+        ("rolling", "mobile"): "mobile_rolling_dashboard_id",
+    }[selection.cadence, selection.layout]
+    dashboard_id = configured.get(dashboard_key)
     if not dashboard_id:
-        raise HTTPException(503, "Rolling analytics dashboard has not been provisioned")
+        raise HTTPException(503, "This analytics layout has not been provisioned")
     identity = remember_selection(request.app.state.analytics, values)
     try:
         token = client.guest_token(dashboard_id, identity)

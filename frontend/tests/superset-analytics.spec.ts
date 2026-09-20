@@ -30,9 +30,12 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
         .scrollIntoViewIfNeeded({ timeout: 30_000 });
     }
     await expect
-      .poll(() => responses.length, { timeout: 60_000 })
+      .poll(
+        () => responses.filter((r) => !r.request().frame().isDetached()).length,
+        { timeout: 60_000 },
+      )
       .toBeGreaterThanOrEqual(5);
-    const captured = responses.slice();
+    const captured = responses.filter((r) => !r.request().frame().isDetached());
     const charts = await Promise.all(
       captured.map(async (r) => {
         expect(r.status()).toBe(200);
@@ -146,6 +149,25 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
   const second = await cards.nth(1).boundingBox();
   expect(first?.width).toBeGreaterThan(270);
   expect(second!.y).toBeGreaterThan(first!.y + first!.height);
+  // Full-width cards can still contain a stale half-width ECharts canvas.
+  // Check the actual rendering surface, not just the surrounding grid layout.
+  for (let index = 0; index < 4; index++) {
+    const chart = cards.nth(index);
+    await chart.scrollIntoViewIfNeeded();
+    await expect
+      .poll(
+        () =>
+          chart.evaluate((element) => {
+            const canvas = element.querySelector("canvas");
+            return (
+              (canvas?.getBoundingClientRect().width || 0) /
+              element.getBoundingClientRect().width
+            );
+          }),
+        { timeout: 15_000 },
+      )
+      .toBeGreaterThan(0.8);
+  }
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

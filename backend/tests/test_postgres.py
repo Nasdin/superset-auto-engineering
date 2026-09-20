@@ -359,3 +359,48 @@ def test_postgres_pool_saturation_is_bounded_and_recovers(postgres):
             assert c.execute("SELECT 1 AS alive").fetchone()["alive"] == 1
     finally:
         db.close()
+
+
+@pytest.mark.parametrize("cadence", ["monthly", "rolling"])
+def test_superset_mobile_layout_uses_fixed_dashboard_with_same_row_scope(
+    postgres, monkeypatch, cadence
+):
+    store, history = postgres
+    app = FastAPI()
+    app.include_router(embedding_router)
+    app.state.engine = SimpleNamespace(
+        store=store, settings=SimpleNamespace(database=store.path, repo="Nasdin/superset")
+    )
+    app.state.analytics = history
+    calls = []
+
+    def token(dashboard, selection):
+        calls.append((dashboard, selection))
+        return "guest"
+
+    app.state.superset = SimpleNamespace(guest_token=token)
+    monkeypatch.setenv("SUPERSET_PUBLIC_URL", "https://example.com/bi")
+    store.remember(
+        "superset_dashboard", {"dashboard_id": "monthly", "rolling_dashboard_id": "rolling"}
+    )
+    with TestClient(app) as client:
+        assert client.post("/api/analytics/superset/session?layout=mobile").status_code == 503
+        store.remember(
+            "superset_dashboard",
+            {
+                "dashboard_id": "monthly",
+                "rolling_dashboard_id": "rolling",
+                "mobile_dashboard_id": "mobile-monthly",
+                "mobile_rolling_dashboard_id": "mobile-rolling",
+            },
+        )
+        desktop = client.post(f"/api/analytics/superset/session?cadence={cadence}").json()
+        mobile = client.post(
+            f"/api/analytics/superset/session?cadence={cadence}&layout=mobile&dashboard_id=attacker"
+        ).json()
+        assert desktop["selection_id"] == mobile["selection_id"]
+        assert calls == [
+            (cadence, desktop["selection_id"]),
+            ("mobile-" + cadence, desktop["selection_id"]),
+        ]
+        assert client.post("/api/analytics/superset/session?layout=attacker").status_code == 422

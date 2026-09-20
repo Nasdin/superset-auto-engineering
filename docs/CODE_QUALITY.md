@@ -42,6 +42,8 @@ The frontend remains **React 19 + TypeScript + Vite** with strict type checking.
 
 Superset uses the official embedded SDK and server-issued, short-lived guest tokens scoped to the configured dashboard and a persisted filter selection. Its iframe lifecycle is separate from the parent application; token refresh, failed loading and rapid filter changes need their own recovery. The live chart test checks actual Superset query results against the reference analytics, repository isolation, cadence switching, rollout annotations and mobile layout. A successful iframe handshake alone is not proof that chart queries succeeded.
 
+Narrow windows select native 12-column, one-chart-per-row dashboard variants; desktop keeps two charts per row. Both layouts reuse the same chart records and row-level selection. Superset calculates canvas dimensions from saved grid columns, so stretching a card with CSS does not resize the actual plot. The live test measures each mobile plotting canvas as well as the card; layout/cadence input selects only server-provisioned dashboard IDs.
+
 ## Durable invariants
 
 - A ledger is bound to its repository, target branch and Devin organization. Changing any of these—including repository spelling—is rejected before dispatch. Use a different database for a different execution scope. Exact spelling is intentional because existing durable job keys are case-sensitive.

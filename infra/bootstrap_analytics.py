@@ -367,31 +367,36 @@ def provision():
     ]
     dashboards = {}
     chart_ids = {}
-    for cadence in ("monthly", "rolling"):
+    # Superset calculates canvas pixels from the persisted grid column count.
+    # CSS card stretching cannot change those React width props; mobile embeds
+    # therefore get their own native 12-column layout, sharing the same charts.
+    for cadence, mobile in (
+        ("monthly", False),
+        ("rolling", False),
+        ("monthly", True),
+        ("rolling", True),
+    ):
+        key = cadence + ("_mobile" if mobile else "")
         charts = [
             chart_for(name, f"impact_{cadence}_chart", metric)
             for name, metric in measures
         ]
         charts += [detail_chart]
-        slug = "superset-engineering" + ("-rolling" if cadence == "rolling" else "")
+        slug = (
+            "superset-engineering"
+            + ("-rolling" if cadence == "rolling" else "")
+            + ("-mobile" if mobile else "")
+        )
         dashboard = db.session.query(Dashboard).filter_by(slug=slug).one_or_none()
         if dashboard is None:
             dashboard = Dashboard(slug=slug, owners=[admin])
             db.session.add(dashboard)
-        dashboard.dashboard_title = f"Superset analyzing Superset · {cadence}"
+        dashboard.dashboard_title = (
+            f"Superset analyzing Superset · {cadence}" + (" · mobile" if mobile else "")
+        )
         dashboard.slices = charts
         dashboard.published = True
-        # Superset's grid keeps desktop column widths on narrow embedded views.
-        # Let its chart resize observer measure full-width cards on phones.
-        dashboard.css = """
-@media (max-width: 600px) {
-  .dashboard .grid-row { flex-direction: column; }
-  .dashboard .grid-row > .dragdroppable-column { width: 100% !important; }
-  .dashboard .grid-row > .dragdroppable-column > .resizable-container {
-    width: 100% !important; max-width: 100% !important;
-  }
-}
-"""
+        dashboard.css = ""
         positions = {
             "DASHBOARD_VERSION_KEY": "v2",
             "ROOT_ID": {"id": "ROOT_ID", "type": "ROOT", "children": ["GRID_ID"]},
@@ -402,9 +407,12 @@ def provision():
                 "children": [],
             },
         }
-        for row_number, row_charts in enumerate(
-            (charts[:2], charts[2:4], charts[4:5])
-        ):
+        rows = (
+            [[chart] for chart in charts]
+            if mobile
+            else (charts[:2], charts[2:4], charts[4:5])
+        )
+        for row_number, row_charts in enumerate(rows):
             row_id = f"ROW-{row_number}"
             positions["GRID_ID"]["children"].append(row_id)
             positions[row_id] = {
@@ -426,7 +434,7 @@ def provision():
                         "chartId": chart.id,
                         "sliceName": chart.slice_name,
                         "width": 12 // len(row_charts),
-                        "height": (42, 42, 46)[row_number],
+                        "height": 46 if chart is detail_chart else 42,
                     },
                 }
         dashboard.position_json = json.dumps(positions)
@@ -450,8 +458,8 @@ def provision():
         # A newly embedded dashboard receives its UUID on SQLAlchemy flush.
         # Persisting str(None) here would break the first rolling-dashboard login.
         db.session.flush()
-        dashboards[cadence] = str(embedded.uuid)
-        chart_ids[cadence] = [c.id for c in charts]
+        dashboards[key] = str(embedded.uuid)
+        chart_ids[key] = [c.id for c in charts]
     db.session.commit()
     with engine.begin() as connection:
         connection.execute(
@@ -464,8 +472,12 @@ def provision():
                     {
                         "dashboard_id": dashboards["monthly"],
                         "rolling_dashboard_id": dashboards["rolling"],
+                        "mobile_dashboard_id": dashboards["monthly_mobile"],
+                        "mobile_rolling_dashboard_id": dashboards["rolling_mobile"],
                         "dashboard_path": "/superset/dashboard/superset-engineering/",
                         "rolling_dashboard_path": "/superset/dashboard/superset-engineering-rolling/",
+                        "mobile_dashboard_path": "/superset/dashboard/superset-engineering-mobile/",
+                        "mobile_rolling_dashboard_path": "/superset/dashboard/superset-engineering-rolling-mobile/",
                         "chart_ids": chart_ids["monthly"],
                         "rolling_chart_ids": chart_ids["rolling"],
                     }

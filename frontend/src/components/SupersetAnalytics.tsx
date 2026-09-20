@@ -14,6 +14,15 @@ export function SupersetAnalytics({ query }: { query: string }) {
   const [warning, setWarning] = useState("");
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
+  const [mobile, setMobile] = useState(
+    () => window.matchMedia("(max-width: 900px)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 900px)");
+    const change = () => setMobile(media.matches);
+    media.addEventListener("change", change);
+    return () => media.removeEventListener("change", change);
+  }, []);
   useEffect(() => {
     if (!mount.current) return;
     // Each selection owns its host. A slow previous SDK initialization can then
@@ -57,6 +66,8 @@ export function SupersetAnalytics({ query }: { query: string }) {
       45_000,
     );
     const createSession = async () => {
+      const selection = new URLSearchParams(query);
+      selection.set("layout", mobile ? "mobile" : "desktop");
       const request = new AbortController();
       const cancel = () => request.abort();
       controller.signal.addEventListener("abort", cancel, { once: true });
@@ -64,7 +75,7 @@ export function SupersetAnalytics({ query }: { query: string }) {
       const timeout = setTimeout(cancel, 20_000);
       try {
         return await api<EmbeddedSession>(
-          `analytics/superset/session?${query}`,
+          `analytics/superset/session?${selection}`,
           {},
           request.signal,
         );
@@ -156,7 +167,7 @@ export function SupersetAnalytics({ query }: { query: string }) {
       clearTimeout(openingTimer);
       stop();
     };
-  }, [query, retry]);
+  }, [query, retry, mobile]);
   return (
     <section
       className="panel superset-panel"
