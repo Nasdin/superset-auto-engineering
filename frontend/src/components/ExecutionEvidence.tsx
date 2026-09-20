@@ -16,7 +16,8 @@ export function ExecutionEvidence({ result }: { result: Job["result"] }) {
   const tests = result?.test_results;
   const evidenceUrl = (url: string | undefined) =>
     safeUrl(
-      result?.artifacts?.find((artifact) => artifact.url === url)?.public_url || "",
+      result?.artifacts?.find((artifact) => artifact.url === url)?.public_url ||
+        "",
     ) || safeUrl(url || "");
   return (
     <div className="execution-evidence">
