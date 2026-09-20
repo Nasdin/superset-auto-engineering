@@ -17,6 +17,7 @@ from .automation.artifacts import public_evidence
 from .automation.config import Settings
 from .automation.controls import router as controls_router
 from .automation.providers import Providers
+from .automation.recovery_routes import router as recovery_router
 from .automation.routes import router as live_router
 from .automation.runtime import create_runtime
 from .demo import create_demo_router
@@ -77,6 +78,7 @@ def create_app(
         )
     application.include_router(live_router)
     application.include_router(controls_router)
+    application.include_router(recovery_router)
     application.include_router(analytics_router)
     application.include_router(superset_router)
 

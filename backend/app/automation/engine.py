@@ -13,6 +13,7 @@ from .patches import preparation_service
 from .ports import ProviderGateway
 from .prompts import session_payload
 from .providers import ProviderError, UnknownEffect
+from .resilience import CREDIT_REASONS, Recovery
 from .store import Store
 from .validation import ValidationService
 
@@ -24,6 +25,8 @@ class Engine:
         self.settings = settings
         self.store = store
         self.providers = providers
+        if hasattr(providers, "store"):
+            providers.store = store
 
     def accept_issue(self, number, source):
         prior = self.store.by_key(f"issue:{self.settings.repo}:{number}")
@@ -57,10 +60,18 @@ class Engine:
         return {"status": "accepted", "job_id": job["id"]}
 
     def poll_issues(self):
+        page = self.store.recall("issue_poll_page", 1)
         issues = self.providers.gh(
             "GET",
             f"repos/{self.settings.repo}/issues",
-            params={"state": "open", "labels": self.settings.label, "per_page": 50},
+            params={
+                "state": "open",
+                "labels": self.settings.label,
+                "per_page": 50,
+                "page": page,
+                "sort": "created",
+                "direction": "asc",
+            },
         )
         accepted = 0
         for issue in issues:
@@ -70,6 +81,7 @@ class Engine:
             except ValueError:
                 continue
         self.store.remember("last_issue_poll", {"at": time.time(), "eligible": accepted})
+        self.store.remember("issue_poll_page", page + 1 if len(issues) == 50 else 1)
         return accepted
 
     def schedule_scan(self):
@@ -78,14 +90,12 @@ class Engine:
         return ScheduleService(self.settings, self.store, self.providers).tick()
 
     def tick(self):
-        if not self.settings.enabled:
-            return None
         if not self.settings.devin_key or not self.settings.github_token:
             self.store.remember(
                 "worker_status", {"state": "configuration_required", "at": time.time()}
             )
             return None
-        job = self.store.claim()
+        job = self.store.claim(allow_dispatch=self.settings.enabled)
         if not job:
             return None
         try:
@@ -93,21 +103,26 @@ class Engine:
                 self.dispatch(job)
             else:
                 self.poll(job)
+            if not self.store.get(job["id"]).get("error"):
+                Recovery(self.store).clear("job:" + job["id"])
         except UnknownEffect as e:
             self.store.update(job["id"], state="unknown_effect", error=str(e))
             self.store.audit(job["id"], "unknown_effect", {"action": "provider mutation"})
         except ProviderError as e:
-            # Poll errors are observations, not terminal session status.
-            self.store.update(
-                job["id"], error=str(e), next_poll=time.time() + self.settings.poll_seconds
+            Recovery(self.store).job_failure(job, e)
+        except OSError:
+            Recovery(self.store).job_failure(
+                job, ProviderError("Evidence storage unavailable", category="storage"), "archive"
             )
-            if job["state"] == "queued":
-                self.store.update(job["id"], state="blocked")
         except (ValueError, KeyError, TypeError) as e:
-            self.store.update(
-                job["id"],
-                state="needs_attention",
-                error=f"Invalid provider result: {type(e).__name__}: {str(e)[:250]}",
+            Recovery(self.store).job_failure(
+                job,
+                ProviderError(
+                    f"Invalid provider result: {type(e).__name__}",
+                    category="invalid_result",
+                    retryable=False,
+                ),
+                "handoff",
             )
         finally:
             self.store.update(job["id"], lease_until=0)
@@ -137,10 +152,14 @@ class Engine:
             job["kind"]
         ]
         if used + required_slots > self.settings.max_sessions:
-            self.store.update(
-                job["id"],
-                state="blocked",
-                error="Configured total session limit reached",
+            Recovery(self.store).job_failure(
+                job,
+                ProviderError(
+                    "Configured total session limit reached",
+                    category="local_limit",
+                    retryable=False,
+                ),
+                "dispatch",
             )
             return
         try:
@@ -150,11 +169,10 @@ class Engine:
             self.store.remember(
                 "learning_sync", {"state": "attention", "error": str(error), "at": time.time()}
             )
-            self.store.update(
-                job["id"],
-                state="queued",
-                error="Waiting for Knowledge reconciliation: " + str(error),
-                next_poll=time.time() + self.settings.poll_seconds,
+            Recovery(self.store).job_failure(
+                job,
+                ProviderError("Waiting for Knowledge reconciliation", category="knowledge"),
+                "knowledge",
             )
             return
         payload = session_payload(self.settings, job, context)
@@ -196,6 +214,11 @@ class Engine:
             {"status": session.get("status"), "detail": session.get("status_detail")},
         )
         result = session.get("structured_output")
+        if session.get("status") == "suspended" and session.get("status_detail") in CREDIT_REASONS:
+            self.store.remember(
+                "breaker:devin",
+                {"state": "open", "reason": "credits", "failures": 1, "retry_at": 0},
+            )
         # Devin can idle awaiting another instruction after completing a task.
         # Only an explicit final handoff may enter the normal evidence checks.
         ready = session.get("status_detail") == "finished" or (

@@ -267,3 +267,62 @@ def test_postgres_schedule_and_manual_intents_are_single_flight(postgres):
     with ThreadPoolExecutor(4) as pool:
         list(pool.map(lambda _: service.tick(), range(4)))
     assert len(store.jobs()) == 2
+
+
+def test_postgres_recovery_intent_is_atomic_under_concurrency(postgres):
+    from uuid import uuid4
+
+    from app.automation.recovery_routes import replay
+
+    store, _ = postgres
+    job = store.enqueue("retry-concurrent", "repair", {})
+    store.update(job["id"], state="dead_letter")
+    engine = SimpleNamespace(store=store)
+    intent = uuid4()
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        responses = list(pool.map(lambda _: replay(engine, "job", job["id"], intent), range(8)))
+    assert all(r == responses[0] for r in responses)
+    with store.connect() as c:
+        assert (
+            c.execute("SELECT COUNT(*) AS n FROM audit WHERE kind='operator_recovery'").fetchone()[
+                "n"
+            ]
+            == 1
+        )
+    assert store.get(job["id"])["state"] == "queued"
+
+
+def test_postgres_gate_outbox_transaction_and_restart(postgres):
+    store, _ = postgres
+    job = store.enqueue("gate-transaction", "validation", {})
+    store.update(job["id"], state="running", session_id="existing")
+    reports = [
+        {"key": "first", "payload": {"body": "evidence"}},
+        {"key": "invalid", "payload": {object()}},
+    ]
+    with pytest.raises(TypeError):
+        store.commit_validation(job["id"], "review_ready", {}, None, reports)
+    assert not store.publications() and store.get(job["id"])["state"] == "running"
+    store.commit_validation(job["id"], "review_ready", {}, None, reports[:1])
+    restarted = Store(store.path)
+    try:
+        assert restarted.get(job["id"])["state"] == "review_ready"
+        assert restarted.claim_publication()["key"] == "first"
+    finally:
+        restarted.database.close()
+
+
+def test_postgres_webhook_inbox_survives_restart(postgres):
+    from app.automation.inbox import Inbox
+
+    store, _ = postgres
+    inbox = Inbox(SimpleNamespace(store=store))
+    assert inbox.accept("delivery", {"event": "issues", "number": 1})["status"] == "queued"
+    restarted = Store(store.path)
+    try:
+        later = Inbox(SimpleNamespace(store=restarted))
+        assert later.accept("delivery", {"event": "issues", "number": 1})["status"] == "duplicate"
+        assert later.claim()["payload"]["number"] == 1
+        assert inbox.claim() is None
+    finally:
+        restarted.database.close()

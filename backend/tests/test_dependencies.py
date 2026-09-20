@@ -255,8 +255,12 @@ def test_signed_pr_event_intake_uses_live_bot_identity(monkeypatch, tmp_path, se
     assert client.post("/api/live/webhooks/github", content=body).status_code == 401
     assert (
         client.post("/api/live/webhooks/github", content=body, headers=headers).json()["status"]
-        == "accepted"
+        == "queued"
     )
+    from app.automation.inbox import Inbox
+
+    assert not db.jobs()
+    assert Inbox(Engine(settings, db, p)).tick()["state"] == "completed"
     assert (
         client.post("/api/live/webhooks/github", content=body, headers=headers).json()["status"]
         == "duplicate"

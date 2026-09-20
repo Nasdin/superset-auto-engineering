@@ -82,6 +82,8 @@ Acceptance requires all of:
 
 Only after these checks record the deployed SHA, stack/region, public URL and evidence in the deployment status. A single VM remains a single point of failure. This setup does not claim high availability or an uptime SLA.
 
+For worker/provider outages that do not involve data loss, use the [queue and provider recovery runbook](RESILIENCE.md). It covers bounded retries, credit/authentication holds, dead letters and existing-receipt confirmation. These controls preserve work across restarts; they do not replace backups or recover a lost disk.
+
 ## Optional manual migration and recovery
 
 The demo deployment does not install or enable `cognition-backup.timer`, and the template explicitly disables Lightsail automatic snapshots. The retained backup scripts are optional manual migration tools, not active schedules. To export data manually, run `infra/host/backup.sh` from the root shell. The script uses `pg_dump -Fc` for both databases, saves roles, artifacts, configuration and revision with checksums, and retains two local generations. Failed dumps do not replace the last completed backup. These files contain secrets and private workflow history; keep them private. They are not off-host protection by themselves.

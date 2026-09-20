@@ -10,6 +10,20 @@ def col(name, kind=Text, **options):
     return Column(name, kind, **options)
 
 
+# Sidecar table: additive migration, preserving existing jobs and provider receipts.
+Table(
+    "recovery",
+    automation,
+    col("key", primary_key=True),
+    col("attempts", Integer, nullable=False, server_default="0"),
+    col("stage", nullable=False),
+    col("category", nullable=False),
+    col("next_retry", Float, nullable=False, server_default="0"),
+    col("replay_state", nullable=False),
+    col("updated", Float, nullable=False),
+)
+
+
 Table(
     "schedules",
     automation,
@@ -126,4 +140,20 @@ Table(
     ],
     col("days", Integer, nullable=False),
     col("requested_at", Float, nullable=False),
+)
+
+
+Table(
+    "github_inbox",
+    automation,
+    col("id", primary_key=True),
+    col("payload", nullable=False),
+    col("state", nullable=False),
+    col("result"),
+    col("error"),
+    col("lease_token"),
+    col("lease_until", Float, nullable=False, server_default="0"),
+    col("next_retry", Float, nullable=False, server_default="0"),
+    col("created", Float, nullable=False),
+    col("updated", Float, nullable=False),
 )

@@ -7,6 +7,7 @@ from .links import safe_link
 from .ports import ProviderGateway
 from .providers import ProviderError, UnknownEffect
 from .redaction import provider_secrets, redact_text
+from .resilience import Recovery
 from .store import Store
 
 
@@ -17,12 +18,15 @@ class PublicationOutbox:
         self.providers = providers
 
     def publish(self, jid, number, body, validation=None):
+        self.store.queue_publication(**self.prepare_github(jid, number, body, validation))
+
+    def prepare_github(self, jid, number, body, validation=None):
         key = f"github:{jid}:{number}"
         if validation and validation.get("revision"):
             key += ":" + validation["revision"]
-        self.store.queue_publication(
-            key,
-            {
+        return dict(
+            key=key,
+            payload={
                 "provider": "github",
                 "repository": self.settings.repo,
                 "number": number,
@@ -32,12 +36,15 @@ class PublicationOutbox:
         )
 
     def publish_slack(self, job, body, validation=None):
+        self.store.queue_publication(**self.prepare_slack(job, body, validation))
+
+    def prepare_slack(self, job, body, validation=None):
         key = f"slack:{job['id']}"
         if validation and validation.get("revision"):
             key += ":" + validation["revision"]
-        self.store.queue_publication(
-            key,
-            {
+        return dict(
+            key=key,
+            payload={
                 "provider": "slack",
                 "channel": self.settings.slack_channel,
                 "body": f"Cognition {self.settings.repo} PR #{job['pr_number']}\n{redact_text(body, provider_secrets(self.settings))}",
@@ -77,9 +84,8 @@ class PublicationOutbox:
                 if payload.get("validation"):
                     try:
                         current = self.current_report(payload["validation"])
-                    except ProviderError as error:
-                        self.store.finish_publication(key, "pending", error=str(error))
-                        return  # Read failed before a write: safe to retry verification.
+                    except ProviderError:
+                        raise  # Verification failed before a write: bounded safe retry.
                     if not current:
                         self.store.finish_publication(
                             key,
@@ -108,12 +114,9 @@ class PublicationOutbox:
             if not safe_link(url):
                 raise ProviderError("Provider returned an invalid report URL")
             self.store.finish_publication(key, "sent", url=url)
+            Recovery(self.store).clear("publication:" + key)
         except (UnknownEffect, ProviderError, KeyError, TypeError, ValueError) as error:
-            state = (
-                "delivered"
-                if receipt
-                else "failed"
-                if isinstance(error, ProviderError)
-                else "unknown_effect"
-            )
-            self.store.finish_publication(key, state, error=str(error))
+            if not receipt and not isinstance(error, ProviderError):
+                self.store.finish_publication(key, "unknown_effect", error=str(error))
+            else:
+                Recovery(self.store).publication_failure(key, error, receipt)

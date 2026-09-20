@@ -14,7 +14,7 @@ Issues and Dependabot PRs → Devin implementation → exact candidate SHA → a
 | Public analytics | [Analytics workspace](https://superset-devin.nasrudinsalim.com/#analytics) | Six real Superset charts behind the same reviewer login |
 | Public source | [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering) | Application code, documentation and CI |
 
-The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker is authoritative; local automatic dispatch is disabled. The existing validator remains paused at a provider per-message limit, so deployment success does not mean candidate acceptance.
+The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker is authoritative; local automatic dispatch is disabled. The first independent candidate has accepted evidence in [the PR report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737); deployment health and each later candidate still require their own checks.
 
 [Live analytics screenshot](docs/images/superset-analytics-live.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
@@ -58,7 +58,7 @@ Compose reads `.env` for interpolation and passes an explicit set of settings to
 | `DEVIN_ORG_ID`, `DEVIN_API_KEY` | Organization API v3 scope and credential; required for Devin execution |
 | `GITHUB_WEBHOOK_SECRET` | Generated shared secret for signed GitHub deliveries |
 | `OPERATOR_TOKEN` | Generated owner key for operator commands and the browser’s Execution access expander; never the shared reviewer password |
-| `DEVIN_MAX_ACU`, `DEVIN_MAX_SESSIONS` | Defaults: 10 ACU per session, 6 sessions across the ledger's lifetime |
+| `DEVIN_MAX_ACU`, `DEVIN_MAX_SESSIONS` | Fresh-install defaults: 10 ACU per new session, 6 sessions across the ledger's lifetime. Current hosted configuration: 20 ACU / 20 sessions; provider credit and organization limits still apply |
 | `SESSION_TIMEOUT_SECONDS` | Default: 7200 seconds per session |
 | `POLL_SECONDS`, `BATCH_WINDOW_SECONDS` | Default polling/batching: 30/60 seconds |
 | `SCAN_INTERVAL_SECONDS` | Seeds the first discovery schedule (86400 daily; 0 paused). After first startup, edit the durable schedule in Workflows → Schedules & triggers |
@@ -176,18 +176,19 @@ For local event-driven intake:
 docker compose -f compose.yaml -f compose.webhook.yaml up -d
 ```
 
-Expose **only port 8001** through a development tunnel. In the fork's GitHub Settings → Webhooks, use `https://your-tunnel/api/live/webhooks/github`, content type `application/json`, and the `.env` value of `GITHUB_WEBHOOK_SECRET`. Subscribe to **Issues and Pull requests**. Signed events are deduplicated; polling provides recovery. The gateway rejects other paths. Do not tunnel unauthenticated dashboard port 8000. Temporary tunnels are not permanent hosting.
+Expose **only port 8001** through a development tunnel. In the fork's GitHub Settings → Webhooks, use `https://your-tunnel/api/live/webhooks/github`, content type `application/json`, and the `.env` value of `GITHUB_WEBHOOK_SECRET`. Subscribe to **Issues and Pull requests**. Valid signed events are saved to a durable, deduplicated inbox before acknowledgment; the worker processes them with bounded retries and polling provides recovery for eligible missed activity. The gateway rejects other paths. Do not tunnel unauthenticated dashboard port 8000. Temporary tunnels are not permanent hosting.
 
 For Slack, install a bot in the intended workspace, grant the posting/readback permissions required by your channel type, invite it to the channel, and set `SLACK_BOT_TOKEN` plus `SLACK_CHANNEL_ID`. The take-home destination is Nasrudin's **Tech** channel `C0C2NTYCPTR`; use that only with credentials for that workspace. Recreate API/worker after configuring. Reports persist an outbox receipt and confirm delivery before claiming success. Leaving Slack unconfigured does not prevent GitHub evidence delivery.
 
 ## Workspace navigation
 
-Four sections keep related features together:
+Five sections keep related features together:
 
 | Section | Features |
 |---|---|
-| Evidence | Release validation, PR evidence, repository lineage |
-| Workflows | Workflow lanes, Devin sessions, Dependabot, learning and memory |
+| Release gates | Exact-SHA validation, PR evidence, repository lineage and evidence delivery recovery |
+| Workflows | Workflow lanes, schedules/manual runs, Devin sessions, Dependabot and durable queue recovery |
+| Learning | Repository observations, Devin Knowledge synchronization and later-session reuse |
 | Analytics | Superset charts, repository selection, rolling-window comparisons |
 | Operations | Provider status, worker health, limits and delivery receipts |
 
@@ -308,7 +309,7 @@ E2E_BASE_URL=http://127.0.0.1:8000 SUPERSET_ANALYTICS_E2E=1 npx playwright test 
 
 Analytics compares **Fixes, Features, Bots and Other** across seven calendar months or rolling 7–180 day windows. It measures commits per PR, median merge hours, post-review commit rework and added/removed lines, with per-metric sample coverage. A dotted **21 September 2026** rollout marker separates baseline from later observations. The effort-saved calculator uses editable assumptions and completed Devin work; it never equates waiting time with engineering effort. [Design concepts and metric definitions](docs/design/ANALYTICS.md). Upstream/fork selection, six-month/previous/custom baselines, author/label/branch/work-type filters and tracked-work attribution remain available. Time to merge is elapsed creation-to-merge time grouped by merge date; incomplete/small cohorts remain visible and do not establish a causal Devin improvement. [Metric definitions and SQL](docs/POSTGRES_SUPERSET.md) · [code boundaries and tests](docs/CODE_QUALITY.md).
 
-The latest local BI/storage verification is [recorded here](docs/analysis/superset-postgres-verification.json). It is distinct from repaired-candidate acceptance: the previously observed independent Devin validation was blocked at its configured usage limit. See [the continuation checkpoint](docs/CONTINUE.md) for that workflow's evidence and remaining work.
+The local BI/storage verification is [recorded here](docs/analysis/superset-postgres-verification.json). It is distinct from repaired-candidate acceptance, which has its own [public validation report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737). See [the continuation checkpoint](docs/CONTINUE.md) for workflow evidence and remaining presentation work.
 
 
 ## Schedules, manual work and release gates
@@ -328,3 +329,18 @@ The gate checks session independence, current candidate SHA, six required checks
 Older sessions with an immutable v1 output schema can provide a same-SHA `evidence-report.json` attachment. It must agree with the final session verdict and pass the same v2 gate. To reassess a completed legacy session, run `PYTHONPATH=backend python scripts/recover_validation_handoff.py --job JOB_ID` in the configured runtime. This reads existing evidence; it cannot start paid work. Revised reports get distinct durable publication receipts, preserving the earlier failed-gate history.
 
 See [challenge acceptance and five-minute demo plan](docs/CHALLENGE_ACCEPTANCE.md).
+
+
+## Reliability when components fail
+
+**Workflows** and **Release gates** show queue health, bounded retries, dead letters, provider/credit holds, uncertain outcomes and pending evidence delivery. Expand **Recovery & durability** to inspect the next retry and recover an eligible record with the owner's operator key. Validation acceptance, confirmed report delivery and human approval remain separate states.
+
+- **Persist before proceeding:** signed GitHub intake, jobs, schedules, recovery state and publication receipts are stored in Postgres (or local SQLite). Restarting a container preserves them when the existing volumes remain.
+- **Retry selectively:** safe observations and known rejected requests retry up to five failed attempts with exponential backoff and jitter. Rate limits honor `Retry-After`; circuit breakers pause repeated provider failures. Expired credentials and exhausted credits remain visible holds until repaired.
+- **Protect ambiguous effects:** an unconfirmed paid session creation or report send is not automatically repeated. Recovery retains the job/session ID and checks existing receipts. Dead letters require operator attention; there is no force-replay control for uncertain writes.
+- **Keep observing:** disabling `AUTOMATION_ENABLED` stops new paid dispatch while retaining observation, delivery and freshness checks. It does not cancel an already-running provider session.
+- **Recover within the deployment's limits:** one worker uses a shared-volume lock; database reconnects back off and worker heartbeat is observable. This one-VM demo has no high availability or enabled backups. Database/disk loss is outside restart durability.
+
+The hosted application now permits **20 total sessions and 20 ACU per newly created session**. This does not purchase credits, change Devin organization/per-message limits or increase budgets of existing sessions. Fresh clones retain conservative defaults. Check the current provider account and queue before increasing capacity.
+
+See [the reliability design and operational recovery runbook](docs/RESILIENCE.md) for failure behavior, provider recovery, dead-letter replay, publication confirmation and explicitly unimplemented production improvements.

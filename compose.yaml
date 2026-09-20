@@ -42,6 +42,7 @@ x-runtime: &runtime
 services:
   cognition:
     <<: *runtime
+    restart: unless-stopped
     environment:
       <<: *runtime-environment
       AUTH_ENABLED: ${AUTH_ENABLED:-false}
@@ -58,6 +59,12 @@ services:
     <<: *runtime
     command: ["python", "-m", "app.automation.worker"]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.automation.health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
   analytics:
     <<: *runtime
     environment:

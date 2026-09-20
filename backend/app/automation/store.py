@@ -47,7 +47,7 @@ class Store:
                 c.execute("SELECT * FROM jobs WHERE dedup=:p0", {"p0": key}).fetchone()
             )
 
-    def claim(self):
+    def claim(self, allow_dispatch=True):
         now = time.time()
         with self.connect() as c:
             c.lock()
@@ -57,8 +57,8 @@ class Store:
                 {"p0": now},
             )
             row = c.execute(
-                "SELECT * FROM jobs WHERE state IN ('queued','running') AND next_poll<=:p0 AND lease_until<:p1 ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,created LIMIT 1",
-                {"p0": now, "p1": now},
+                "SELECT * FROM jobs WHERE (state='running' OR (state='queued' AND :dispatch=1)) AND next_poll<=:p0 AND lease_until<:p1 ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,created LIMIT 1",
+                {"p0": now, "p1": now, "dispatch": int(allow_dispatch)},
             ).fetchone()
             if not row:
                 return None
@@ -66,7 +66,7 @@ class Store:
             if (
                 row["state"] == "queued"
                 and c.execute(
-                    "SELECT 1 FROM jobs WHERE state IN ('running','dispatching','unknown_effect','needs_attention') LIMIT 1"
+                    "SELECT 1 FROM jobs WHERE state IN ('running','dispatching','unknown_effect','needs_attention') OR (session_id IS NOT NULL AND state IN ('blocked','dead_letter')) LIMIT 1"
                 ).fetchone()
             ):
                 return None
@@ -101,6 +101,34 @@ class Store:
                 "UPDATE jobs SET " + ",".join(k + "=:" + k for k in values) + " WHERE id=:id",
                 {**values, "id": jid},
             )
+
+    def commit_validation(self, jid, state, result, error, publications=()):
+        with self.connect() as c:
+            c.lock()
+            changed = bool(
+                c.execute(
+                    "UPDATE jobs SET state=:state,result=:result,error=:error,updated=:now "
+                    "WHERE id=:id AND state!='stale'",
+                    {
+                        "id": jid,
+                        "state": state,
+                        "result": json.dumps(result),
+                        "error": error,
+                        "now": time.time(),
+                    },
+                ).rowcount
+            )
+            if changed:
+                for item in publications:
+                    c.execute(
+                        "INSERT INTO publications(key,state,updated,payload) VALUES(:key,'pending',:now,:payload) ON CONFLICT DO NOTHING",
+                        {
+                            "key": item["key"],
+                            "now": time.time(),
+                            "payload": json.dumps(item["payload"]),
+                        },
+                    )
+            return changed
 
     def by_key(self, key):
         with self.connect() as c:
@@ -182,7 +210,7 @@ class Store:
             row = connection.execute("""SELECT
                 COUNT(session_id) AS sessions, COALESCE(SUM(acu),0) AS acu,
                 COALESCE(SUM(CASE WHEN state='review_ready' THEN 1 ELSE 0 END),0) AS review_ready,
-                COALESCE(SUM(CASE WHEN state IN ('blocked','needs_attention','unknown_effect','validation_failed') THEN 1 ELSE 0 END),0) AS attention
+                COALESCE(SUM(CASE WHEN state IN ('blocked','needs_attention','unknown_effect','validation_failed','dead_letter') THEN 1 ELSE 0 END),0) AS attention
                 FROM jobs""").fetchone()
             return dict(row)
 
@@ -276,7 +304,9 @@ class Store:
                 {"p0": time.time() - 180},
             )
             row = c.execute(
-                "SELECT * FROM publications WHERE state IN ('pending','delivered') ORDER BY updated LIMIT 1"
+                "SELECT p.* FROM publications p LEFT JOIN recovery r ON r.key='publication:' || p.key "
+                "WHERE p.state IN ('pending','delivered') AND COALESCE(r.next_retry,0)<=:now ORDER BY p.updated LIMIT 1",
+                {"now": time.time()},
             ).fetchone()
             if not row:
                 return None

@@ -4,6 +4,7 @@ import json
 from dataclasses import replace
 
 from app.automation import routes
+from app.automation.inbox import Inbox
 from app.automation.store import Store
 from app.main import create_app
 from fastapi.testclient import TestClient
@@ -70,12 +71,14 @@ def test_valid_webhook_is_deduplicated(monkeypatch, tmp_path):
     }
     assert (
         client.post("/api/live/webhooks/github", content=body, headers=headers).json()["status"]
-        == "accepted"
+        == "queued"
     )
     assert (
         client.post("/api/live/webhooks/github", content=body, headers=headers).json()["status"]
         == "duplicate"
     )
+    assert not Engine.store.jobs()
+    assert Inbox(Engine()).tick()["state"] == "completed"
     assert len(Engine.store.jobs()) == 1
 
 
@@ -114,7 +117,7 @@ def test_webhook_rejects_malformed_nested_payload(monkeypatch, tmp_path):
     assert client.post("/api/live/webhooks/github", content=b"x" * 1_000_001).status_code == 413
 
 
-def test_provider_intake_runs_outside_event_loop(monkeypatch, tmp_path):
+def test_durable_intake_runs_outside_event_loop(monkeypatch, tmp_path):
     import asyncio
     import threading
 
@@ -124,6 +127,8 @@ def test_provider_intake_runs_outside_event_loop(monkeypatch, tmp_path):
     intake_threads = []
 
     class Intake:
+        store = Store(settings.database)
+
         def accept_webhook(self, issue, delivery):
             intake_threads.append(threading.get_ident())
             return {"status": "accepted"}
@@ -149,6 +154,49 @@ def test_provider_intake_runs_outside_event_loop(monkeypatch, tmp_path):
                 "/api/live/webhooks/github", content=body, headers=signed_headers(settings, body)
             )
         assert response.status_code == 200
+        assert response.json()["status"] == "queued"
+        assert not intake_threads
+        await asyncio.to_thread(Inbox(intake).tick)
         assert intake_threads and intake_threads[0] != loop_thread
 
     asyncio.run(exercise())
+
+
+def test_issue_actor_rejected_before_durable_ack(monkeypatch, tmp_path):
+    client, settings = setup(monkeypatch, tmp_path)
+    body = json.dumps(
+        {
+            "repository": {"full_name": settings.repo},
+            "sender": {"login": "untrusted-contributor"},
+            "action": "opened",
+            "issue": {"number": 1, "labels": [{"name": settings.label}]},
+        }
+    ).encode()
+    assert (
+        client.post(
+            "/api/live/webhooks/github", content=body, headers=signed_headers(settings, body)
+        ).status_code
+        == 403
+    )
+    engine = client.app.dependency_overrides[routes.get_engine]()
+    assert not Inbox(engine).overview()
+
+
+def test_pr_webhook_ack_does_not_wait_for_github(monkeypatch, tmp_path):
+    client, settings = setup(monkeypatch, tmp_path)
+    engine = client.app.dependency_overrides[routes.get_engine]()
+    # This engine has no provider adapter: any provider access would fail immediately.
+    assert engine.providers is None
+    body = json.dumps(
+        {
+            "repository": {"full_name": settings.repo},
+            "sender": {"login": "dependabot[bot]"},
+            "action": "opened",
+            "pull_request": {"number": 7, "head": {"sha": "a" * 40}},
+        }
+    ).encode()
+    headers = {**signed_headers(settings, body), "X-GitHub-Event": "pull_request"}
+    response = client.post("/api/live/webhooks/github", content=body, headers=headers)
+    assert response.status_code == 200 and response.json()["status"] == "queued"
+    assert Inbox(engine).overview()[0]["state"] == "pending"
+    assert not engine.store.jobs()

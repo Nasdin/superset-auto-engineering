@@ -62,31 +62,51 @@ class EvidenceArchive:
         known = {a["url"]: a for a in attachments if a.get("source") == "devin"}
         self.directory.mkdir(parents=True, exist_ok=True)
         if len(artifacts) > 24:
-            raise ProviderError("Too many artifacts to publish")
+            raise ProviderError(
+                "Too many artifacts to publish", category="invalid_artifact", retryable=False
+            )
         result, total_bytes = [], 0
         for artifact in artifacts:
             content, mime = self.providers.attachment_content(known[artifact["url"]])
             total_bytes += len(content)
             if total_bytes > 80_000_000:
-                raise ProviderError("Evidence archive exceeds 80 MB")
+                raise ProviderError(
+                    "Evidence archive exceeds 80 MB", category="invalid_artifact", retryable=False
+                )
             mime = mime.split(";")[0].lower()
             if artifact["kind"] == "screenshot":
                 if mime != "image/png" or not content.startswith(b"\x89PNG\r\n\x1a\n"):
-                    raise ProviderError("Public screenshots must be PNG files")
+                    raise ProviderError(
+                        "Public screenshots must be PNG files",
+                        category="invalid_artifact",
+                        retryable=False,
+                    )
                 extension = "png"
             elif artifact["kind"] == "video":
                 if mime != "video/mp4" or content[4:8] != b"ftyp":
-                    raise ProviderError("Public recordings must be MP4 files")
+                    raise ProviderError(
+                        "Public recordings must be MP4 files",
+                        category="invalid_artifact",
+                        retryable=False,
+                    )
                 extension = "mp4"
             else:
                 if not (mime.startswith("text/") or mime == "application/json"):
-                    raise ProviderError("Public execution evidence must be text or JSON")
+                    raise ProviderError(
+                        "Public execution evidence must be text or JSON",
+                        category="invalid_artifact",
+                        retryable=False,
+                    )
                 try:
                     content = redact_text(
                         content.decode("utf-8"), provider_secrets(self.settings)
                     ).encode()
                 except UnicodeError:
-                    raise ProviderError("Execution evidence is not UTF-8 text") from None
+                    raise ProviderError(
+                        "Execution evidence is not UTF-8 text",
+                        category="invalid_artifact",
+                        retryable=False,
+                    ) from None
                 extension = "txt"
             digest = hashlib.sha256(content).hexdigest()
             name = f"{digest}.{extension}"

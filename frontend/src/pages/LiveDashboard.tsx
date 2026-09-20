@@ -1,4 +1,5 @@
 import { Disclosure, Inspection } from "../components/Disclosure";
+import { ResiliencePanel } from "../components/ResiliencePanel";
 import { ExecutionEvidence } from "../components/ExecutionEvidence";
 import { WorkflowLanes } from "./WorkflowLanes";
 import { useState } from "react";
@@ -229,6 +230,9 @@ export function LiveDashboard({ page }: { page: Page }) {
             Schedules & manual runs →
           </a>
         </div>
+      )}
+      {(page === "Workflows" || page === "Release validation") && (
+        <ResiliencePanel release={page === "Release validation"} />
       )}
       {error && (
         <div role="alert" className="notice">

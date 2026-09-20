@@ -6,11 +6,9 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from .config import Settings
-from .dependencies import DependencyService
 from .engine import Engine
+from .inbox import Inbox
 from .learning import LearningService, workflow_lane
-from .patches import PatchService
-from .pr_validation import VALIDATE_LABEL, PullRequestValidationService
 from .providers import ProviderError
 
 router = APIRouter(prefix="/api/live", tags=["automation"])
@@ -148,42 +146,15 @@ async def github_event(
             return {"status": "ignored"}
         if payload.pull_request is None:
             raise HTTPException(422, "Pull request is required")
-        try:
-            pr = await run_in_threadpool(eng.providers.pr, payload.pull_request.number)
-            if VALIDATE_LABEL in [x.get("name") for x in pr.get("labels", [])] or any(
-                j["pr_number"] == payload.pull_request.number
-                and j["kind"] in {"repair", "integration"}
-                for j in eng.store.operational_jobs()
-            ):
-                if eng.store.has_delivery(x_github_delivery):
-                    return {"status": "duplicate"}
-                job = await run_in_threadpool(
-                    PullRequestValidationService(settings, eng.store, eng.providers).accept,
-                    payload.pull_request.number,
-                    "pr_validation_webhook",
-                    payload.pull_request.head.sha,
-                )
-                eng.store.record_delivery(x_github_delivery)
-                return {
-                    "status": job.get("status", "accepted"),
-                    "job_id": job.get("id"),
-                    "reason": job.get("reason"),
-                }
-            service = (
-                PatchService
-                if pr.get("user", {}).get("login", "").lower() == settings.allowed_actor.lower()
-                else DependencyService
-            )(settings, eng.store, eng.providers)
-            return await run_in_threadpool(
-                service.webhook,
-                payload.pull_request.number,
-                x_github_delivery,
-                payload.pull_request.head.sha,
-            )
-        except ValueError as error:
-            return {"status": "ignored", "reason": str(error)}
-        except ProviderError as error:
-            raise HTTPException(502, str(error)) from None
+        return await run_in_threadpool(
+            Inbox(eng).accept,
+            x_github_delivery,
+            {
+                "event": "pull_request",
+                "number": payload.pull_request.number,
+                "sha": payload.pull_request.head.sha,
+            },
+        )
     if payload.sender.login.lower() != settings.allowed_actor.lower():
         raise HTTPException(403, "Actor not allowed")
     if x_github_event != "issues" or payload.action not in [
@@ -196,12 +167,11 @@ async def github_event(
         raise HTTPException(422, "Issue is required for issue events")
     if settings.label not in [label.name for label in payload.issue.labels]:
         return {"status": "ignored", "reason": "repair label missing"}
-    try:
-        return await run_in_threadpool(eng.accept_webhook, payload.issue.number, x_github_delivery)
-    except ValueError as error:
-        raise HTTPException(422, str(error)) from None
-    except ProviderError as error:
-        raise HTTPException(502, str(error)) from None
+    return await run_in_threadpool(
+        Inbox(eng).accept,
+        x_github_delivery,
+        {"event": "issues", "number": payload.issue.number},
+    )
 
 
 class Reconcile(BaseModel):

@@ -583,6 +583,10 @@ def test_report_readback_failure_never_resends_acknowledged_comment(setup):
     restarted = Engine(engine.settings, Store(db.path), provider)
     provider.confirm_publication = original
     restarted.flush_publication()
+    assert db.publications()[0]["state"] == "delivered"  # Backoff survives restart.
+    with db.connect() as c:
+        c.execute("UPDATE recovery SET next_retry=0")
+    restarted.flush_publication()
     assert db.publications()[0]["state"] == "sent"
     assert len(provider.comments) == 1
 

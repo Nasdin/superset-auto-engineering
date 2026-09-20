@@ -83,6 +83,9 @@ class ValidationService:
             "gate_failures": assessment.failures,
             "gate": status,
         }
+        # Downloads can be slow. Never revive a gate superseded while collecting proof.
+        if self.store.get(job["id"])["state"] == "stale" or not self.is_current(job):
+            return
         report = self.reports.build(job, result, status)
         targets = [job["pr_number"]]
         if job["payload"].get("issue_number"):
@@ -99,16 +102,20 @@ class ValidationService:
         }
         if result.get("handoff_attachment_id"):
             metadata["revision"] = result["handoff_attachment_id"]
-        for number in dict.fromkeys(targets):
-            self.outbox.publish(job["id"], number, report, validation=metadata)
+        publications = [
+            self.outbox.prepare_github(job["id"], number, report, validation=metadata)
+            for number in dict.fromkeys(targets)
+        ]
         if self.settings.slack_token and self.settings.slack_channel:
-            self.outbox.publish_slack(job, report, validation=metadata)
-        self.store.update(
+            publications.append(self.outbox.prepare_slack(job, report, validation=metadata))
+        if not self.store.commit_validation(
             job["id"],
-            state=status,
-            result=result,
-            error=(None if valid else "; ".join(assessment.failures)),
-        )
+            status,
+            result,
+            None if valid else "; ".join(assessment.failures),
+            publications,
+        ):
+            return
         lessons = self.store.recall("repository_lessons", [])
         lessons = [x for x in lessons if x["candidate_sha"] != job["candidate_sha"]]
         self.store.remember(

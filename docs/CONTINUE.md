@@ -13,6 +13,8 @@ This replaces the earlier pre-deployment checkpoint. The app is live in Sydney a
 
 Workflows → Schedules & triggers supports saved cadence/pause, Run now, existing issue/PR intake and resuming the same paused provider session. Execution access uses the private operator token, separate from the shared reviewer password. Learning is its own tab and shows knowledge observations, dispatch snapshots and subsequent outcomes.
 
+Workflows and Release gates expose durable recovery state, provider circuits, credit holds, dead letters and publication confirmation separately from validation. Use `docs/RESILIENCE.md` for the recovery procedure. Hosted application limits are 20 sessions total and 20 ACU per new session; provider organization and credit limits are unchanged.
+
 The saved discovery schedule supersedes the seed SCAN_INTERVAL_SECONDS after first startup. Changing .env requires container recreation. Do not run a second worker against an independent fresh ledger: it discards capacity and idempotency history.
 
 ## Remaining presentation work

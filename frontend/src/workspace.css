@@ -784,3 +784,138 @@
 .schedule-history > button:hover {
   background: #f4f5ef;
 }
+
+.resilience-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfcf8;
+  margin: 20px 0;
+  padding: 19px 22px 5px;
+}
+.resilience-header,
+.resilience-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.resilience-header {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.resilience-title {
+  font-size: 13px;
+}
+.resilience-counts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 22px 0 16px;
+  gap: 16px;
+}
+.resilience-counts > div {
+  border-left: 2px solid #d9dfce;
+  padding-left: 13px;
+}
+.resilience-counts strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.resilience-counts span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.resilience-caption {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 900px;
+}
+.resilience-panel > .disclosure {
+  background: transparent;
+  border-inline: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+.resilience-panel > .disclosure > summary {
+  padding-inline: 0;
+}
+.resilience-panel .disclosure-body {
+  padding-inline: 0;
+}
+.resilience-principles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin: 10px 0 22px;
+}
+.resilience-principles h3 {
+  font-size: 13px;
+  margin: 8px 0;
+}
+.resilience-principles p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.recovery-records {
+  margin: 24px 0;
+}
+.recovery-records h3 {
+  font-size: 13px;
+}
+.recovery-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid var(--border);
+  padding: 16px 0;
+}
+.recovery-row > div {
+  min-width: 0;
+}
+.recovery-row strong {
+  font-size: 12px;
+}
+.recovery-row p {
+  font-size: 12px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.recovery-row small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.recovery-id {
+  overflow-wrap: anywhere;
+}
+.recovery-row .button {
+  flex-shrink: 0;
+}
+.recovery-lock {
+  font-size: 11px;
+  color: #82621d;
+  max-width: 150px;
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .resilience-panel {
+    padding: 16px 15px 3px;
+  }
+  .resilience-counts {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 8px;
+  }
+  .resilience-principles {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .recovery-row {
+    flex-direction: column;
+    align-items: start;
+  }
+}

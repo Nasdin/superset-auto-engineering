@@ -131,6 +131,10 @@ def test_read_outage_before_comment_retries_without_posting(setup):
     assert not p.comments and store.publications()[0]["state"] == "pending"
     p.pr = original
     engine.flush_publication()
+    assert not p.comments  # No retry before the persisted deadline.
+    with store.connect() as c:
+        c.execute("UPDATE recovery SET next_retry=0")
+    engine.flush_publication()
     assert len(p.comments) == 1
 
 
@@ -149,6 +153,10 @@ def test_receipt_only_retry_does_not_repeat_post_after_head_changes(setup):
     assert len(p.comments) == 1 and store.publications()[0]["state"] == "delivered"
     p.document["head"]["sha"] = "d" * 40
     p.confirm_publication = confirm
+    engine.flush_publication()
+    assert store.publications()[0]["state"] == "delivered"
+    with store.connect() as c:
+        c.execute("UPDATE recovery SET next_retry=0")
     engine.flush_publication()
     assert len(p.comments) == 1 and store.publications()[0]["state"] == "sent"
 
@@ -206,7 +214,12 @@ def test_signed_pr_change_event_to_validation_and_confirmed_reply(setup, tmp_pat
         }
         response = client.post("/api/live/webhooks/github", content=body, headers=headers)
         assert response.status_code == 200
-        return response.json()
+        response_data = response.json()
+        if response_data["status"] == "queued":
+            from app.automation.inbox import Inbox
+
+            return Inbox(engine).tick()["result"]
+        return response_data
 
     first = deliver(SHA, "first")
     assert first["status"] == "accepted"
