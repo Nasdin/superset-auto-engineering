@@ -164,7 +164,7 @@ docker run -d --name cognition-api --restart unless-stopped \
   -e SUPERSET_INTERNAL_URL= \
   -v cognition-docker-data:/app/data \
   superset-auto-engineering
-curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:8000/api/health
+curl --retry 30 --retry-all-errors --retry-delay 2 --max-time 10 --fail http://127.0.0.1:8000/api/health
 docker logs --tail=100 cognition-api
 ```
 
@@ -187,7 +187,7 @@ docker run -d --name cognition-postgres-api --restart unless-stopped \
   -e AUTOMATION_ENABLED=false -e SUPERSET_INTERNAL_URL= \
   -v cognition-docker-data:/app/data \
   superset-auto-engineering
-curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:8000/api/health
+curl --retry 30 --retry-all-errors --retry-delay 2 --max-time 10 --fail http://127.0.0.1:8000/api/health
 ```
 
 The backend creates its application tables on startup. Postgres must be reachable **from the container**: `localhost` means the container itself. For a database on Docker Desktop's host, use `host.docker.internal`; on Linux add `--add-host host.docker.internal:host-gateway`. Use the host's mapped Postgres port where appropriate. On the same Docker network, use the database container name and its internal port 5432. Configure TLS and network access for a managed database according to its provider.

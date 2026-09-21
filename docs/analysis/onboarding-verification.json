@@ -18,7 +18,8 @@
     "vite_development": "passed: independent port 5173 frontend, authenticated API proxy, real Superset query from development origin",
     "docker_only_env_generation": "passed: helper runs in python:3.12-slim without host Python dependencies",
     "secret_preservation": "passed: repeated setup preserves nonempty credentials and custom URLs, repairs blank defaults",
-    "production_image_smoke": "passed locally; also added as a required CI step"
+    "production_image_smoke": "passed locally; also added as a required CI step",
+    "cold_start_readiness": "passed: immediate Docker startup health probe retries connection resets/empty replies and succeeds after API initialization"
   },
   "limits": [
     "Single-container recipes do not provision workers or embedded Superset.",

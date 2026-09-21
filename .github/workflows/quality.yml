@@ -80,7 +80,7 @@ jobs:
             -e AUTOMATION_ENABLED=false -e DATABASE_URL= \
             -e AUTOMATION_DATABASE=/app/data/automation.db cognition-quality
           trap 'docker logs --tail=40 cognition-quality-smoke; docker rm -f cognition-quality-smoke' EXIT
-          curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:18000/api/health
+          curl --retry 30 --retry-all-errors --retry-delay 2 --max-time 10 --fail http://127.0.0.1:18000/api/health
           python - <<'PYTHON'
           import json, re, urllib.request
           origin = "http://127.0.0.1:18000"
