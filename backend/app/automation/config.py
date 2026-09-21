@@ -28,6 +28,9 @@ class Settings:
     dependabot_enabled: bool = True
     learning_enabled: bool = True
     enabled: bool = False
+    autonomous_remediation: bool = True
+    max_remediation_attempts: int = 2
+    max_handoff_followups: int = 1
     cloudflare_account_id: str = ""
     cloudflare_audit_secret_id: str = field(default="", repr=False)
     evidence_public_url: str = ""
@@ -89,6 +92,10 @@ class Settings:
             values["learning_enabled"] = env["LEARNING_ENABLED"].lower() == "true"
         if "DEPENDABOT_ENABLED" in env:
             values["dependabot_enabled"] = env["DEPENDABOT_ENABLED"].lower() == "true"
+        if "AUTONOMOUS_REMEDIATION" in env:
+            values["autonomous_remediation"] = env["AUTONOMOUS_REMEDIATION"].lower() == "true"
+        if "MAX_REMEDIATION_ATTEMPTS" in env:
+            values["max_remediation_attempts"] = int(env["MAX_REMEDIATION_ATTEMPTS"])
         if "AUTOMATION_ENABLED" in env:
             values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
         if "EVIDENCE_PUBLIC_URL" in env:
@@ -116,6 +123,8 @@ class Settings:
             or self.session_timeout <= 0
             or self.scan_interval < 0
             or self.batch_seconds < 0
+            or not 0 <= self.max_remediation_attempts <= 3
+            or not 0 <= self.max_handoff_followups <= 2
         ):
             raise ValueError(
                 "Execution limits must be positive; session/scan/batch limits may be zero"

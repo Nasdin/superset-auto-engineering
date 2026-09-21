@@ -58,7 +58,7 @@ class Store:
                 {"p0": now},
             )
             row = c.execute(
-                "SELECT * FROM jobs WHERE (state='running' OR (state='queued' AND :dispatch=1)) AND next_poll<=:p0 AND lease_until<:p1 ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,created LIMIT 1",
+                "SELECT * FROM jobs WHERE (state='running' OR (state='queued' AND :dispatch=1)) AND next_poll<=:p0 AND lease_until<:p1 ORDER BY CASE state WHEN 'running' THEN 0 ELSE 1 END,CASE kind WHEN 'remediation' THEN 0 WHEN 'validation' THEN 1 WHEN 'integration' THEN 2 WHEN 'scan' THEN 4 ELSE 3 END,created LIMIT 1",
                 {"p0": now, "p1": now, "dispatch": int(allow_dispatch)},
             ).fetchone()
             if not row:
@@ -111,7 +111,9 @@ class Store:
             {**values, "id": jid},
         ).rowcount
 
-    def commit_handoff(self, jid, *, values, publications=(), followups=()):
+    def commit_handoff(
+        self, jid, *, values, publications=(), followups=(), supersede_candidates=()
+    ):
         """Commit state, follow-up jobs and reports together; never call providers here.
 
         Stable job/publication keys make replay safe. Superseded jobs cannot publish
@@ -121,17 +123,23 @@ class Store:
             c.lock()
             if not self._update(c, jid, values, unless_stale=True):
                 return False
+            for candidate in supersede_candidates:
+                c.execute(
+                    "UPDATE jobs SET state='stale',error='Superseded by Devin remediation; prior evidence retained',updated=:now WHERE kind='validation' AND pr_number=:number AND candidate_sha=:sha AND state IN ('review_ready','validation_failed','awaiting_ci')",
+                    {"now": time.time(), "number": candidate["number"], "sha": candidate["sha"]},
+                )
             for job in followups:
                 self._enqueue(c, **job)
             for item in publications:
                 self._queue_publication(c, **item)
             return True
 
-    def commit_validation(self, jid, state, result, error, publications=()):
+    def commit_validation(self, jid, state, result, error, publications=(), followups=()):
         return self.commit_handoff(
             jid,
             values={"state": state, "result": result, "error": error},
             publications=publications,
+            followups=followups,
         )
 
     def by_key(self, key):
@@ -214,7 +222,7 @@ class Store:
             row = connection.execute("""SELECT
                 COUNT(session_id) AS sessions, COALESCE(SUM(acu),0) AS acu,
                 COALESCE(SUM(CASE WHEN state='review_ready' THEN 1 ELSE 0 END),0) AS review_ready,
-                COALESCE(SUM(CASE WHEN state IN ('blocked','needs_attention','unknown_effect','validation_failed','dead_letter') THEN 1 ELSE 0 END),0) AS attention
+                COALESCE(SUM(CASE WHEN state IN ('blocked','needs_attention','unknown_effect','validation_failed','dead_letter','failed') THEN 1 ELSE 0 END),0) AS attention
                 FROM jobs""").fetchone()
             return dict(row)
 

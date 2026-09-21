@@ -227,6 +227,53 @@ class Providers:
     def pr(self, number):
         return self.gh("GET", f"repos/{self.s.repo}/pulls/{number}")
 
+    def mark_ready(self, number, expected_sha):
+        """Promote a validated draft; caller owns the durable intent and CI gate.
+
+        Re-reading an already promoted PR is safe after a lost acknowledgement.
+        This operation never merges a PR or changes its code.
+        """
+
+        def current():
+            pr = self.pr(number)
+            if (
+                pr.get("state") != "open"
+                or pr.get("head", {}).get("sha") != expected_sha
+                or pr.get("head", {}).get("repo", {}).get("full_name") != self.s.repo
+                or pr.get("base", {}).get("repo", {}).get("full_name") != self.s.repo
+                or pr.get("base", {}).get("ref") != self.s.branch
+                or not pr.get("node_id")
+                or not isinstance(pr.get("draft"), bool)
+            ):
+                raise ProviderError(
+                    "PR readiness target changed or is outside the configured fork", 409
+                )
+            return pr
+
+        pr = current()
+        if pr["draft"]:
+            result = self.gh(
+                "POST",
+                "graphql",
+                json={
+                    "query": "mutation($id: ID!) { markPullRequestReadyForReview(input: {pullRequestId: $id}) { pullRequest { id isDraft } } }",
+                    "variables": {"id": pr["node_id"]},
+                },
+            )
+            if not isinstance(result, dict) or result.get("errors"):
+                # GraphQL can return HTTP 200 with partial execution/errors.
+                raise UnknownEffect("GitHub PR readiness mutation needs provider reconciliation")
+            pr = current()
+            if pr["draft"]:
+                raise UnknownEffect("GitHub has not confirmed the PR readiness transition")
+        return {
+            "id": pr["node_id"],
+            "number": number,
+            "sha": expected_sha,
+            "url": pr["html_url"],
+            "draft": False,
+        }
+
     def comment(self, number, body, repository=None):
         return self.gh(
             "POST",

@@ -19,6 +19,18 @@ def cycle(engine):
     s, db = engine.settings, engine.store
     # Stopping new paid dispatch must not stop observation, delivery or freshness.
     tasks = [("outbox", engine.flush_publication)]
+    if s.enabled and s.github_token and s.devin_key and s.autonomous_remediation:
+        from .handoffs import HandoffRecovery
+        from .outbox import PublicationOutbox
+
+        tasks.append(("handoff_recovery", HandoffRecovery(engine).tick))
+        tasks.append(
+            ("readiness_receipts", PublicationOutbox(s, db, engine.providers).reconcile_readiness)
+        )
+    if s.github_token and s.devin_key and time.time() - db.recall("last_remediation_tick", 0) >= 60:
+        from .remediation import RemediationService
+
+        tasks.append(("remediation", RemediationService(s, db, engine.providers).reconcile))
     if s.github_token:
         tasks.append(("inbox", Inbox(engine).tick))
     if s.github_token and s.devin_key:
@@ -41,6 +53,8 @@ def cycle(engine):
     for name, action in tasks:
         try:
             action()
+            if name == "remediation":
+                db.remember("last_remediation_tick", time.time())
             if name == "schedule":
                 db.remember("last_schedule_tick", time.time())
         except Exception as e:

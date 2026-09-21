@@ -144,7 +144,7 @@ class Recovery:
                     for r in rows
                 ),
                 "dead_letters": sum(r["state"] == "dead_letter" for r in rows),
-                "held": sum(r["state"] in {"blocked", "needs_attention"} for r in rows),
+                "held": sum(r["state"] in {"blocked", "needs_attention", "failed"} for r in rows),
                 "uncertain": sum(r["state"] == "unknown_effect" for r in rows),
                 "pending_publications": sum(
                     p["state"] not in {"sent", "stale"} for p in publications

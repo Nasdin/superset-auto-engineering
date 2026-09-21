@@ -38,7 +38,7 @@ class PullRequestProvider(FakeProvider):
 @pytest.fixture
 def setup(tmp_path):
     settings = replace(
-        Settings(),
+        Settings(autonomous_remediation=False),
         database=str(tmp_path / "jobs.db"),
         enabled=True,
         devin_key="test",

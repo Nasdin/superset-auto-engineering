@@ -34,10 +34,25 @@ class FakeProvider:
     def pr(self, n):
         return {
             "state": "open",
-            "head": {"sha": SHA},
+            "draft": False,
+            "head": {"sha": SHA, "ref": "cognition/fix", "repo": {"full_name": "Nasdin/superset"}},
             "base": {"repo": {"full_name": "Nasdin/superset"}, "ref": "master"},
             "html_url": f"https://github.com/Nasdin/superset/pull/{n}",
         }
+
+    def gh(self, method, path, **kwargs):
+        if path.endswith("/check-runs"):
+            return {"check_runs": []}
+        if path.endswith("/status"):
+            return {"statuses": []}
+        if path.endswith("required_status_checks"):
+            return {"contexts": []}
+        if "/rules/branches/" in path:
+            return []
+        raise AssertionError(path)
+
+    def mark_ready(self, number, sha):
+        return {"number": number, "sha": sha}
 
     def comment(self, n, body, repository=None):
         self.comments.append((n, body))
@@ -74,7 +89,7 @@ def setup(tmp_path):
     p = FakeProvider()
     p.comments = []
     s = replace(
-        Settings(),
+        Settings(autonomous_remediation=False),
         enabled=True,
         branch="master",
         devin_key="test",
@@ -469,6 +484,11 @@ def test_integration_never_merges_default_or_release_branch(setup, monkeypatch, 
 
     def github(method, path, **kwargs):
         if method == "GET":
+            if (
+                path.endswith(("/check-runs", "/status", "required_status_checks"))
+                or "/rules/branches/" in path
+            ):
+                return FakeProvider.gh(p, method, path, **kwargs)
             if "/git/ref/" in path:
                 raise ProviderError("Not found", 404)
             if path.endswith("/pulls"):
@@ -504,6 +524,9 @@ def test_integration_never_merges_default_or_release_branch(setup, monkeypatch, 
         for path, body in mutations
         if path.endswith("/merges")
     )
+    assert all(
+        body["title"].startswith("chore: ") for path, body in mutations if path.endswith("/pulls")
+    )
     val = next(j for j in db.jobs() if j["kind"] == "validation")
     assert val["candidate_sha"] == "d" * 40 and val["pr_number"] == 3
     assert val["payload"]["implementation_jobs"] == [j["id"]]
@@ -530,6 +553,11 @@ def test_integration_recovers_lost_write_responses_without_duplicates(setup, los
     def github(method, path, **kwargs):
         action = path.rsplit("/", 1)[-1]
         if method == "GET":
+            if (
+                path.endswith(("/check-runs", "/status", "required_status_checks"))
+                or "/rules/branches/" in path
+            ):
+                return FakeProvider.gh(p, method, path, **kwargs)
             if "/git/ref/" in path:
                 if remote["head"] is None:
                     raise ProviderError("Not found", 404)
@@ -551,7 +579,11 @@ def test_integration_recovers_lost_write_responses_without_duplicates(setup, los
                 "number": 3,
                 "html_url": "https://github.com/Nasdin/superset/pull/3",
                 "state": "open",
-                "head": {"sha": integrated, "ref": branch},
+                "head": {
+                    "sha": integrated,
+                    "ref": branch,
+                    "repo": {"full_name": "Nasdin/superset"},
+                },
             }
             response = remote["pr"]
         if action == lost_at and writes[action] == 1:

@@ -53,7 +53,11 @@ class BotProvider(FakeProvider):
 def setup(tmp_path):
     db = Store(tmp_path / "bot.db")
     settings = replace(
-        Settings(), branch="master", enabled=True, devin_key="test", github_token="test"
+        Settings(autonomous_remediation=False),
+        branch="master",
+        enabled=True,
+        devin_key="test",
+        github_token="test",
     )
     provider = BotProvider()
     return db, provider, Engine(settings, db, provider), DependencyService(settings, db, provider)

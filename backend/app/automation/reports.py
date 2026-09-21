@@ -108,6 +108,23 @@ class ReleaseReportBuilder:
                 lines.append(f"![Superset running — {name}](<{url}>)")
         if not artifacts:
             lines.append("No provider-confirmed artifacts available. The evidence gate is blocked.")
+        ci = result.get("ci")
+        if ci:
+            lines += ["", "### GitHub checks", f"Current revision CI: {ci['state']}."]
+            if not ci.get("configured"):
+                lines.append(
+                    "No GitHub CI checks were reported for this revision; the independent runtime evidence above is evaluated separately."
+                )
+            lines += [
+                f"- {plain_report(c['name'])}: {plain_report(c.get('conclusion') or c['status'])}"
+                for c in ci.get("checks", [])
+            ]
+        recovery = result.get("recovery")
+        if recovery and recovery.get("automatic"):
+            lines += [
+                "",
+                "Devin recovery is queued automatically; a fresh independent validator must approve the resulting revision. No human or Codex implementation is substituted.",
+            ]
         if result.get("gate_failures"):
             lines += ["", "### Evidence gate gaps"] + [
                 "- " + plain_report(f) for f in result["gate_failures"]

@@ -89,3 +89,64 @@ def test_slack_ambiguous_outcomes_are_never_definite_failures(response):
     with pytest.raises(UnknownEffect):
         p.slack("report", "correlation", channel="C_DEMO")
     assert len(calls) == 1
+
+
+def ready_pr(*, draft=True, sha="a" * 40):
+    return {
+        "node_id": "PR_test",
+        "state": "open",
+        "draft": draft,
+        "head": {"sha": sha, "repo": {"full_name": "Nasdin/superset"}},
+        "base": {"ref": "cognition-release-6.1", "repo": {"full_name": "Nasdin/superset"}},
+        "html_url": "https://github.com/Nasdin/superset/pull/4",
+    }
+
+
+def test_ready_promotion_reads_back_and_reconciles_without_repeat_write():
+    calls = []
+    draft = True
+
+    def handle(req):
+        nonlocal draft
+        calls.append(req.method)
+        if req.method == "POST":
+            assert req.url.path == "/graphql"
+            draft = False
+            return httpx.Response(200, json={"data": {"markPullRequestReadyForReview": {}}})
+        return httpx.Response(200, json=ready_pr(draft=draft))
+
+    p = provider(handle)
+    assert p.mark_ready(4, "a" * 40)["draft"] is False
+    assert p.mark_ready(4, "a" * 40)["sha"] == "a" * 40
+    assert calls == ["GET", "POST", "GET", "GET"]
+
+
+@pytest.mark.parametrize("field", ["sha", "repository", "base", "closed"])
+def test_ready_promotion_refuses_changed_or_out_of_scope_pr(field):
+    pr = ready_pr()
+    if field == "sha":
+        pr["head"]["sha"] = "b" * 40
+    elif field == "repository":
+        pr["head"]["repo"]["full_name"] = "apache/superset"
+    elif field == "base":
+        pr["base"]["ref"] = "master"
+    else:
+        pr["state"] = "closed"
+    calls = []
+
+    def handle(req):
+        calls.append(req.method)
+        return httpx.Response(200, json=pr)
+
+    with pytest.raises(ProviderError, match="target changed"):
+        provider(handle).mark_ready(4, "a" * 40)
+    assert calls == ["GET"]
+
+
+@pytest.mark.parametrize("response", [{}, {"errors": [{"message": "partial failure"}]}])
+def test_ready_promotion_ambiguous_response_needs_reconciliation(response):
+    p = provider(
+        lambda req: httpx.Response(200, json=ready_pr() if req.method == "GET" else response)
+    )
+    with pytest.raises(UnknownEffect):
+        p.mark_ready(4, "a" * 40)

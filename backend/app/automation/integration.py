@@ -166,7 +166,7 @@ class IntegrationService:
                 "POST",
                 f"repos/{self.settings.repo}/pulls",
                 json={
-                    "title": f"Cognition integration: {len(members)} workstream(s)",
+                    "title": f"chore: integrate {len(members)} workstream candidate(s)",
                     "head": branch,
                     "base": self.settings.branch,
                     "body": body,

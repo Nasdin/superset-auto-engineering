@@ -141,8 +141,19 @@ class Engine:
             self.settings, self.store, self.providers, job["kind"]
         ).preflight(job):
             return
+        if job["kind"] == "remediation":
+            from .remediation import RemediationService
+
+            if not RemediationService(self.settings, self.store, self.providers).preflight(job):
+                return
         if job["kind"] == "validation":
             if not ValidationService(self.settings, self.store, self.providers).is_current(job):
+                return
+            from .remediation import RemediationService
+
+            if not RemediationService(
+                self.settings, self.store, self.providers
+            ).preflight_validation(job):
                 return
             if (
                 job["payload"].get("work_type") == "dependency"
@@ -155,6 +166,7 @@ class Engine:
         used = self.store.session_count(excluding=job["id"])
         required_slots = {
             "repair": 2,
+            "remediation": 2,
             "dependency": 2,
             "patch": 2,
             "scan": 3,
@@ -239,10 +251,21 @@ class Engine:
             and result.get("task_complete") is True
         )
         if ready:
+            from .handoffs import HandoffRecovery
+
+            followup = self.store.recall(f"handoff-followup:{job['id']}", {})
+            if followup.get("attempts") and not HandoffRecovery(self).fresh_after_followup(
+                job, session, result, followup
+            ):
+                return  # A message acknowledgement cannot replay the old completed handoff.
             if not isinstance(result, dict):
                 raise ValueError("Finished session has no structured output")
             if job["kind"] == "repair":
                 self.finish_repair(job, result)
+            elif job["kind"] == "remediation":
+                from .remediation import RemediationService
+
+                RemediationService(self.settings, self.store, self.providers).finish(job, result)
             elif job["kind"] in {"dependency", "patch"}:
                 preparation_service(self.settings, self.store, self.providers, job["kind"]).finish(
                     job, result

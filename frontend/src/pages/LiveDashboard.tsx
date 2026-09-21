@@ -69,6 +69,14 @@ export function JobDetail({
         <State value={job.state} />
       </div>
       <div className="detail-body">
+        {job.payload.recovery_attempt !== undefined && (
+          <p className="quiet">
+            Automatic recovery · attempt {job.payload.recovery_attempt} ·{" "}
+            {job.payload.recovery_mode === "code_repair"
+              ? "Devin repairs the existing PR; a fresh Devin session validates the resulting candidate."
+              : "A fresh Devin session recollects evidence for this commit."}
+          </p>
+        )}
         {!!job.automations?.length && (
           <p className="quiet">
             Automation: {job.automations.map((a) => a.name).join(", ")} ·{" "}
@@ -107,6 +115,26 @@ export function JobDetail({
           </p>
         )}
         {job.error && <div className="notice">{job.error}</div>}
+        {job.result?.ci && (
+          <div className="notice">
+            <strong>GitHub checks: {job.result.ci.state}</strong>
+            {!job.result.ci.configured && " · No CI checks reported"}
+            {job.result.ci.checks
+              .filter(
+                (check) =>
+                  check.status !== "completed" ||
+                  !["success", "neutral", "skipped"].includes(
+                    check.conclusion || "",
+                  ),
+              )
+              .map((check) => (
+                <p key={`${check.name}:${check.url}`}>
+                  <External url={check.url}>{check.name}</External> ·{" "}
+                  {check.conclusion || check.status}
+                </p>
+              ))}
+          </div>
+        )}
         {job.kind === "validation" && (
           <p className="quiet">
             {job.state === "review_ready"

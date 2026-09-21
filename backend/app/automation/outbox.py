@@ -35,6 +35,21 @@ class PublicationOutbox:
             },
         )
 
+    def prepare_ready(self, job, revision="initial"):
+        return {
+            "key": f"github-ready:{job['id']}:{job['candidate_sha']}:{revision}",
+            "payload": {
+                "provider": "github_ready",
+                "repository": self.settings.repo,
+                "number": job["pr_number"],
+                "sha": job["candidate_sha"],
+                "validation": {
+                    "job_id": job["id"],
+                    "targets": [{"number": job["pr_number"], "sha": job["candidate_sha"]}],
+                },
+            },
+        }
+
     def publish_slack(self, job, body, validation=None):
         self.store.queue_publication(**self.prepare_slack(job, body, validation))
 
@@ -58,7 +73,12 @@ class PublicationOutbox:
         job = self.store.get(metadata["job_id"])
         if job and job["state"] in {"running", "dispatching"}:
             raise ProviderError("Validation handoff is still being committed")
-        if not job or job["state"] not in {"review_ready", "validation_failed", "needs_attention"}:
+        if not job or job["state"] not in {
+            "review_ready",
+            "validation_failed",
+            "needs_attention",
+            "awaiting_ci",
+        }:
             return False
         if not ValidationService(self.settings, self.store, self.providers).is_current(job):
             return False
@@ -72,6 +92,50 @@ class PublicationOutbox:
             ):
                 return False
         return True
+
+    def reconcile_readiness(self):
+        """Resolve uncertain ready mutations only from observed state; never resend."""
+        from .readiness import ci_status, current_pr
+
+        with self.store.connect() as connection:
+            items = [
+                self.store.decode(row)
+                for row in connection.execute(
+                    "SELECT * FROM publications WHERE state='unknown_effect'"
+                )
+            ]
+        for item in items:
+            payload = item.get("payload") or {}
+            if item["state"] != "unknown_effect" or payload.get("provider") != "github_ready":
+                continue
+            try:
+                pr = current_pr(self.settings, self.providers, payload["number"], payload["sha"])
+            except ValueError:
+                self.store.finish_publication(
+                    item["key"], "stale", error="Candidate changed during readiness reconciliation"
+                )
+                continue
+            job = self.store.get(payload["validation"]["job_id"])
+            if (
+                pr.get("draft") is False
+                and job
+                and job["state"] == "review_ready"
+                and ci_status(self.settings, self.providers, payload["number"], payload["sha"])[
+                    "state"
+                ]
+                == "success"
+            ):
+                self.store.finish_publication(
+                    item["key"],
+                    "sent",
+                    url=pr["html_url"],
+                    receipt={
+                        "number": payload["number"],
+                        "sha": payload["sha"],
+                        "reconciled": True,
+                    },
+                )
+                self.store.audit(job["id"], "readiness_reconciled", {"sha": payload["sha"]})
 
     def flush_publication(self):
         item = self.store.claim_publication()
@@ -93,7 +157,23 @@ class PublicationOutbox:
                             error="PR changed before publication; previous evidence was not posted",
                         )
                         return
-                if payload["provider"] == "github":
+                if payload["provider"] == "github_ready":
+                    from .readiness import ci_status
+
+                    job = self.store.get(payload["validation"]["job_id"])
+                    if job["state"] != "review_ready":
+                        self.store.finish_publication(
+                            key, "stale", error="Release gate is not ready"
+                        )
+                        return
+                    ci = ci_status(self.settings, self.providers, payload["number"], payload["sha"])
+                    if ci["state"] != "success":
+                        self.store.finish_publication(
+                            key, "stale", error="CI changed before readiness publication"
+                        )
+                        return
+                    receipt = self.providers.mark_ready(payload["number"], payload["sha"])
+                elif payload["provider"] == "github":
                     result = self.providers.comment(
                         payload["number"],
                         payload["body"],
@@ -110,7 +190,15 @@ class PublicationOutbox:
                 # Persist the acknowledged write BEFORE any readback. If the read
                 # fails or the worker crashes, only confirmation is retried.
                 self.store.finish_publication(key, "confirming", receipt=receipt)
-            url = self.providers.confirm_publication(payload, receipt)
+            if payload["provider"] == "github_ready":
+                from .readiness import current_pr
+
+                pr = current_pr(self.settings, self.providers, payload["number"], payload["sha"])
+                if pr.get("draft") is not False:
+                    raise ProviderError("PR readiness mutation has not been confirmed")
+                url = pr["html_url"]
+            else:
+                url = self.providers.confirm_publication(payload, receipt)
             if not safe_link(url):
                 raise ProviderError("Provider returned an invalid report URL")
             self.store.finish_publication(key, "sent", url=url)

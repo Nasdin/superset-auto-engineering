@@ -44,7 +44,8 @@ class PullRequestValidationService:
             return {"status": "ignored", "reason": "Superseded PR event"}
         # Own implementation pushes are handled after its structured handoff.
         if any(
-            j["kind"] in {"repair", "patch", "dependency", "maintenance"} and j["state"] in ACTIVE
+            j["kind"] in {"repair", "patch", "dependency", "maintenance", "remediation"}
+            and j["state"] in ACTIVE
             for j in related
         ):
             return {"status": "deferred", "reason": "Implementation handoff pending"}
@@ -63,7 +64,8 @@ class PullRequestValidationService:
         originals = [
             j
             for j in related
-            if j["kind"] in {"repair", "patch", "dependency", "maintenance", "integration"}
+            if j["kind"]
+            in {"repair", "patch", "dependency", "maintenance", "remediation", "integration"}
         ]
         if originals and not validations and all(j["candidate_sha"] == sha for j in originals):
             return {
@@ -76,7 +78,7 @@ class PullRequestValidationService:
         implementation_ids = {
             j["id"]
             for j in originals
-            if j["kind"] in {"repair", "patch", "dependency", "maintenance"}
+            if j["kind"] in {"repair", "patch", "dependency", "maintenance", "remediation"}
         }
         for prior in related:
             implementation_ids.update(prior["payload"].get("implementation_jobs", []))

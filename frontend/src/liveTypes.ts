@@ -27,12 +27,25 @@ export type Job = {
     source?: string;
     members?: { job_id: string; pr_number: number; sha: string }[];
     implementation_jobs?: string[];
+    recovery_attempt?: number;
+    recovery_mode?: string;
+    automation_actor?: string;
   };
   result?: {
     summary?: string;
     observations?: string[];
     gate_failures?: string[];
     provenance?: string;
+    ci?: {
+      state: string;
+      configured: boolean;
+      checks: {
+        name: string;
+        status: string;
+        conclusion: string | null;
+        url: string;
+      }[];
+    };
     artifacts?: Artifact[];
     api_requests?: {
       name: string;
