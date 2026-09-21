@@ -643,3 +643,46 @@ def test_attachment_reference_hold_requires_literal_finality_ownership_and_indep
     assert observed["state"] == "validation_failed"
     assert observed["result"].get("handoff_correction") != "attachment_references"
     assert p.messages == []
+
+
+@pytest.mark.parametrize("invalidate_after_readback", [False, True])
+def test_attachment_correction_cannot_revive_concurrently_superseded_validation(
+    system, invalidate_after_readback
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    fetch = p.attachments
+    read_pr = p.pr
+
+    def invalidate():
+        p.document["head"]["sha"] = NEW
+        db.supersede_validation(job, NEW, e.settings.repo)
+        assert db.get(job["id"])["state"] == "stale"
+
+    if invalidate_after_readback:
+        # The provider freshness read succeeded, but intake won the DB lock before the hold.
+        reads = 0
+
+        def race_after_readback(number):
+            nonlocal reads
+            document = read_pr(number)
+            reads += 1
+            if reads == 2:
+                invalidate()
+            return document
+
+        p.pr = race_after_readback
+    else:
+        # Candidate changes during attachment collection, before the final provider check.
+        def race_during_attachments(session_id):
+            attachments = fetch(session_id)
+            invalidate()
+            return attachments
+
+        p.attachments = race_during_attachments
+    e.finish_validation(job, handoff)
+    assert db.get(job["id"])["state"] == "stale"
+    replacements = [j for j in db.jobs() if j["kind"] == "validation" and j["candidate_sha"] == NEW]
+    assert len(replacements) == 1 and replacements[0]["state"] == "queued"
+    assert db.recall("handoff-followup:" + job["id"]) is None
+    assert db.publications() == [] and p.messages == []

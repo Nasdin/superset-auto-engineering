@@ -122,18 +122,24 @@ class ValidationService:
             and provider_attachment_index(attachments)
             and unconfirmed_evidence_urls(result, attachments)
         ):
-            self.store.update(
+            # Attachment reads can outlive this candidate. Check the provider again,
+            # then use the transactional stale guard so concurrent intake cannot be revived.
+            if not self.is_current(job):
+                return
+            self.store.commit_handoff(
                 job["id"],
-                state="needs_attention",
-                result={
-                    **result,
-                    "artifacts": [],
-                    "provenance": "unverified_validation",
-                    "gate": "needs_attention",
-                    "gate_failures": list(assessment.failures),
-                    "handoff_correction": "attachment_references",
+                values={
+                    "state": "needs_attention",
+                    "result": {
+                        **result,
+                        "artifacts": [],
+                        "provenance": "unverified_validation",
+                        "gate": "needs_attention",
+                        "gate_failures": list(assessment.failures),
+                        "handoff_correction": "attachment_references",
+                    },
+                    "error": "Evidence references do not match this session's provider attachment index; awaiting bounded Devin handoff correction",
                 },
-                error="Evidence references do not match this session's provider attachment index; awaiting bounded Devin handoff correction",
             )
             return
         valid = assessment.passed
