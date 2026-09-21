@@ -4,6 +4,36 @@ Superset analyzing Superset: a FastAPI + React/TypeScript control plane for GitH
 
 Issues and Dependabot PRs → Devin implementation → exact candidate SHA → a fresh validation session → screenshots, API transcripts, logs and test evidence → GitHub/Slack report → human review.
 
+**Canonical public repository:** [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering). The former private `Nasdin/cognition` repository is archived and is no longer a development or deployment source. “Cognition” remains the UI name and some internal service names; it does not require a second application repository. [Nasdin/superset](https://github.com/Nasdin/superset) is the separate target fork where Devin opens and repairs PRs.
+
+## Product tour
+
+These screenshots were captured from the hosted application on **21 September 2026**, not generated mockups. Counts and operational states are snapshots; open the live workspace for current results. Reviewer access is required and credentials are not published here.
+
+### Analytics: understand delivery over time
+
+Native Superset charts compare **Fixes, Features and Bots**, with repository/date filters and monthly or weekly buckets. Delivery starts with merged PR counts and total commits in those PRs, followed by merge time, rework and code metrics. Missing commit enrichment leaves gaps rather than misleading partial totals. The launch marker is a date, not proof of a causal improvement.
+
+![Live Analytics Delivery view with monthly PR and commit counts](docs/images/analytics-delivery-2026-09-21.png)
+
+### Workflows: follow execution and recovery
+
+Scheduled, manual and repository-triggered work flows through durable lanes. Provider holds, retry state and delivery receipts are visible. At capture time the worker reported degraded status, including a GitHub authentication hold; this screenshot does not imply all queued work is healthy.
+
+![Live workflow queue health and recovery status](docs/images/workflows-live-2026-09-21.png)
+
+### Learning: trace human corrections
+
+Human feedback records the author, rationale and source run. Editable guidance has revision history; native Knowledge receipts and subsequent use are tracked separately from evidence that a fix works.
+
+![Live Learning page with feedback and memory provenance](docs/images/learning-live-2026-09-21.png)
+
+### Evidence: review the exact revision
+
+Release gates tie browser/API/test evidence to a candidate SHA. **Recorded demos** retain completed examples separately from current release readiness. An old passing recording cannot approve a newer commit.
+
+![Live Evidence release gates and recorded demo navigation](docs/images/evidence-live-2026-09-21.png)
+
 ## Choose a setup
 
 | Goal | Command / instructions | Included |
@@ -27,7 +57,7 @@ No Devin, GitHub or Slack credentials are required to boot and inspect the appli
 
 The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker owns the hosted target; local automatic dispatch is disabled by default. A separately authorized [real local demonstration](docs/LOCAL_AUTONOMOUS_RUN.md) uses an isolated fork branch, label, database and worker lock. The featured complete recorded case is [PR #10](https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623), with an autonomous fix and fresh validation. [PR #12](https://github.com/Nasdin/superset/pull/12#issuecomment-5759479894) demonstrates an incomplete human patch, runtime failure, Devin repair and renewed evidence. Recorded checkpoints do not assert current merge readiness.
 
-[Live analytics screenshot](docs/images/superset-analytics-live.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
+[Current analytics screenshot](docs/images/analytics-delivery-2026-09-21.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
 ## 1. Clone and configure `.env`
 
@@ -109,7 +139,7 @@ curl --fail http://127.0.0.1:8000/api/health
 curl --fail http://127.0.0.1:8189/bi/health
 ```
 
-Open [the dashboard](http://127.0.0.1:8000) and choose **Analytics**. No Superset admin login is needed for embedding. Initial image downloads and Superset metadata migrations can take several minutes. `analytics-superset-init` exiting with code **0** is expected; its job is to provision the datasets and five Delivery charts and four Rework & code charts, with desktop/mobile and calendar week/month layouts.
+Open [the dashboard](http://127.0.0.1:8000) and choose **Analytics**. No Superset admin login is needed for embedding. Initial image downloads and Superset metadata migrations can take several minutes. `analytics-superset-init` exiting with code **0** is expected; its job is to provision the datasets and seven Delivery charts and four Rework & code charts, with desktop/mobile and calendar week/month layouts.
 
 | Service | Role |
 | --- | --- |
@@ -252,14 +282,14 @@ For Slack, install a bot in the intended workspace, grant the posting/readback p
 
 ## Workspace navigation
 
-Five sections keep related features together:
+Four primary sections keep related features together:
 
 | Section | Features |
 |---|---|
-| Release gates | Exact-SHA validation, PR evidence, repository lineage and evidence delivery recovery |
+| Evidence | Release gates, recorded demos, exact-SHA validation, PR evidence, repository lineage and delivery recovery |
 | Workflows | Workflow lanes, automations, Learning & memory, Devin sessions, Dependabot and durable queue recovery |
 | Analytics | Superset charts, repository/date selection, Delivery, Rework & code, Impact estimate |
-| Operations | Provider status, worker health, limits and delivery receipts |
+| System | Provider status, worker health, limits and delivery receipts |
 
 View links can be bookmarked, such as `/#learning` and `/#pull-requests`. The original [design mockup](docs/dashboard-mockup.png) informs the revision-first evidence layout.
 
@@ -424,9 +454,11 @@ Analytics history uses **read-through monthly loading**. Selecting a period outs
 
 Superset chart results are cached **in Redis memory for five minutes**, shared across its processes. Repository, filters, layout and data revision isolate results. Imports change the selection identity so a refreshed dashboard requests new data; an already open selection has a bounded five-minute cache lifetime. FastAPI also caches analytics responses in process memory for 60 seconds, with at most 32 entries and an 8 MiB serialized budget. Cache hits still perform a small revision lookup, but skip reading and analyzing the full PR history. Chart-cache failures fall back to database reads with timeouts; authentication and rate-limit storage retain their existing failure protections. `ANALYTICS_CHART_CACHE_SECONDS` controls the chart TTL and must match in the Superset service and bootstrap environment when reprovisioning.
 
-The **Delivery** tab compares Fixes, Features and Bots in native Superset charts: commits per PR, median merge hours, commits after first review, lines changed per PR, and **Total merge hours by work type · calendar month**. The **Rework & code** tab expands review rework and added/removed lines. **Impact estimate** exposes the editable effort model without loading BI charts. Repository and date dropdowns stay visible, with calendar **Week / Month** granularity. Custom ranges cover 1–366 completed UTC days; the first and last buckets are clipped to the exact selected dates. Advanced cohort filters and previous/six-month/custom baselines live under **Analysis controls**.
+The **Delivery** tab compares Fixes, Features and Bots in native Superset charts: merged PR counts, total commits in merged PRs, commits per PR, median merge hours, commits after first review, lines changed per PR, and **Total merge hours by work type · calendar month**. The **Rework & code** tab expands review rework and added/removed lines. **Impact estimate** exposes the editable effort model without loading BI charts. Repository and date dropdowns stay visible, with calendar **Week / Month** granularity. Custom ranges cover 1–366 completed UTC days; the first and last buckets are clipped to the exact selected dates. Advanced cohort filters and previous/six-month/custom baselines live under **Analysis controls**.
 
 There is no **Other** bucket. Bot-authored PRs belong exclusively to Bots. Dependencies, documentation, refactoring, tests, build/CI, performance, releases, reverts and maintenance remain explicitly named under **Measurement details**, rather than being relabeled as features or fixes. A title without reliable signals remains visibly **Needs classification**. The three-series overview is a focused comparison, not a claim that these three groups account for all engineering work.
+
+**Monthly PR and commit volume** groups PRs by merge date in UTC, clipped to the selected range. Commit totals sum all commits belonging to those merged PRs; they do not count commits by their authored date. A category/bucket with incomplete commit enrichment remains blank. Verified empty periods are zero. These charts follow the Week / Month control.
 
 **Total merge hours** sums `(merged_at - created_at)` for PRs merged in each selected UTC calendar month. Three PRs taking 10, 20 and 30 hours contribute 60 hours; overlapping waits count separately. It stays monthly when other charts use weeks. Missing history or invalid durations produce a gap; verified empty months produce zero. The accessible monthly table includes the complete all-work total and every named category.
 

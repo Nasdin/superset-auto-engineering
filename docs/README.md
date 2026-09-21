@@ -1,6 +1,6 @@
 # Cognition: the story, the analysis, and the evidence
 
-Start with the slides, then inspect the underlying data. The charts describe public Superset activity; the workflow diagrams describe our implementation. Slides are explanatory material, **not validation evidence for a release**.
+Start with the [current product tour and live screenshots](../README.md#product-tour), then inspect the slides and underlying data. The screenshots below are dated historical checkpoints; the README gallery reflects the 21 September deployment. The charts describe public Superset activity; the workflow diagrams describe our implementation. Slides are explanatory material, **not validation evidence for a release**.
 
 - [Editable nine-slide deck](slides/cognition-story.pptx)
 - [Product and analysis explainer](EXPLAINER.md)
