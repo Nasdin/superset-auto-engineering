@@ -14,25 +14,25 @@ These screenshots were captured from the hosted application on **21 September 20
 
 Native Superset charts compare **Fixes, Features and Bots**, with repository/date filters and monthly or weekly buckets. Delivery starts with merged PR counts and total commits in those PRs, followed by merge time, rework and code metrics. Missing commit enrichment leaves gaps rather than misleading partial totals. The launch marker is a date, not proof of a causal improvement.
 
-![Live Analytics Delivery view with monthly PR and commit counts](docs/images/analytics-delivery-2026-09-21.png)
+![Live Analytics Delivery view with monthly PR and commit counts](docs/images/analytics-delivery-2026-09-21.jpg)
 
 ### Workflows: follow execution and recovery
 
 Scheduled, manual and repository-triggered work flows through durable lanes. Provider holds, retry state and delivery receipts are visible. At capture time the worker reported degraded status, including a GitHub authentication hold; this screenshot does not imply all queued work is healthy.
 
-![Live workflow queue health and recovery status](docs/images/workflows-live-2026-09-21.png)
+![Live workflow queue health and recovery status](docs/images/workflows-live-2026-09-21.jpg)
 
 ### Learning: trace human corrections
 
 Human feedback records the author, rationale and source run. Editable guidance has revision history; native Knowledge receipts and subsequent use are tracked separately from evidence that a fix works.
 
-![Live Learning page with feedback and memory provenance](docs/images/learning-live-2026-09-21.png)
+![Live Learning page with feedback and memory provenance](docs/images/learning-live-2026-09-21.jpg)
 
 ### Evidence: review the exact revision
 
 Release gates tie browser/API/test evidence to a candidate SHA. **Recorded demos** retain completed examples separately from current release readiness. An old passing recording cannot approve a newer commit.
 
-![Live Evidence release gates and recorded demo navigation](docs/images/evidence-live-2026-09-21.png)
+![Live Evidence release gates and recorded demo navigation](docs/images/evidence-live-2026-09-21.jpg)
 
 ## Choose a setup
 
@@ -57,7 +57,7 @@ No Devin, GitHub or Slack credentials are required to boot and inspect the appli
 
 The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker owns the hosted target; local automatic dispatch is disabled by default. A separately authorized [real local demonstration](docs/LOCAL_AUTONOMOUS_RUN.md) uses an isolated fork branch, label, database and worker lock. The featured complete recorded case is [PR #10](https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623), with an autonomous fix and fresh validation. [PR #12](https://github.com/Nasdin/superset/pull/12#issuecomment-5759479894) demonstrates an incomplete human patch, runtime failure, Devin repair and renewed evidence. Recorded checkpoints do not assert current merge readiness.
 
-[Current analytics screenshot](docs/images/analytics-delivery-2026-09-21.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
+[Current analytics screenshot](docs/images/analytics-delivery-2026-09-21.jpg) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
 ## 1. Clone and configure `.env`
 
