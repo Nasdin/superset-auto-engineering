@@ -480,9 +480,9 @@ def provision():
                 "cross_filters_enabled": False,
                 "native_filter_configuration": [],
                 "label_colors": {
-                    "Bots": "#d39027",
-                    "Fixes": "#128777",
-                    "Features": "#3780d1",
+                    "Bots": "#df8717",
+                    "Fixes": "#009880",
+                    "Features": "#2583ff",
                     "Dependencies": "#8561b5",
                     "Documentation": "#8b7355",
                     "Refactoring": "#b85e7d",

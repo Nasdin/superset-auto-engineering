@@ -85,7 +85,10 @@ export function ImpactOverview({ impact }: { impact: Impact }) {
               {now[sample]} / {now.merged_prs} merged PRs measured
               {now[sample] < now.merged_prs ? " · partial sample" : ""}
             </small>
-            <p>{definition}</p>
+            <details className="metric-definition">
+              <summary>About this metric</summary>
+              <p>{definition}</p>
+            </details>
           </article>
         ))}
       </div>
@@ -455,13 +458,15 @@ export function HistoryCoverage({
               : "Needs review"}
         </span>
       </div>
-      <p>
-        Missing months load automatically without Devin credits. Charts update
-        as history arrives; incomplete months remain gaps, not zero activity.
-      </p>
       {backfill.months.length > 0 && (
         <details>
           <summary>Monthly import progress</summary>
+          <p>
+            Missing months load automatically without Devin credits. Charts
+            update as history arrives; incomplete months remain gaps, not zero
+            activity.
+          </p>
+
           <ul className="analytics-months">
             {backfill.months.map((month) => (
               <li key={month.month}>

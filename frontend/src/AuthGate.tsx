@@ -5,8 +5,9 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 
+import { CognitionBrand } from "./components/CognitionBrand";
 import { ApiError, requestJson } from "./api";
 
 type Session = { enabled: boolean; authenticated: boolean };
@@ -125,12 +126,9 @@ export default function AuthGate({
   return (
     <main className="login-page">
       <section className="login-story" aria-label="Cognition workspace">
-        <div className="brand">
-          <span className="brand-mark">c</span>cognition
-          <span className="brand-dot">.</span>
-        </div>
+        <CognitionBrand />
         <div className="login-story-copy">
-          <span className="eyebrow">SUPERSET ENGINEERING</span>
+          <span className="eyebrow">ENGINEERING ANALYTICS</span>
           <h1>
             Every release
             <br />
@@ -148,9 +146,6 @@ export default function AuthGate({
             <span>Review</span>
           </div>
         </div>
-        <p className="login-footer">
-          <ShieldCheck size={17} /> Built to earn trust.
-        </p>
       </section>
       <section className="login-panel" aria-labelledby="login-title">
         <div className="login-card">

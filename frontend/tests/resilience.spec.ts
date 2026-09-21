@@ -152,9 +152,7 @@ test("recovery is owner-only, reuses uncertain request intents and never replays
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBeTruthy();
-  await page
-    .getByRole("button", { name: "Release gates", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Evidence", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Release reliability" }),
   ).toContainText(

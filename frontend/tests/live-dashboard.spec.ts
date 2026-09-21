@@ -16,9 +16,7 @@ test("default workspace only loads live records, with honest empty states", asyn
   await expect(page.getByText("WF-041")).toHaveCount(0);
   for (const name of ["Workflows", "Devin runs", "Repository graph"]) {
     if (name === "Repository graph")
-      await page
-        .getByRole("button", { name: "Release gates", exact: true })
-        .click();
+      await page.getByRole("button", { name: "Evidence", exact: true }).click();
     await page.getByRole("button", { name, exact: true }).click();
     await expect(
       page.getByText("No live records match these filters."),
@@ -49,14 +47,21 @@ test("analytics passes repository and cohort filters to Superset and reports una
   await page.getByLabel("Work signal").selectOption("dependency");
   await expect.poll(() => selections.at(-1)?.get("kind")).toBe("dependency");
   await page.getByLabel("Work signal").selectOption("fix");
+  await expect.poll(() => selections.at(-1)?.get("kind")).toBe("fix");
   await page
     .getByRole("combobox", { name: "Author", exact: true })
     .selectOption("test-engineer");
+  await expect
+    .poll(() => selections.at(-1)?.get("author"))
+    .toBe("test-engineer");
   await page
     .getByRole("combobox", { name: "Label", exact: true })
     .selectOption("bug");
+  await expect.poll(() => selections.at(-1)?.get("label")).toBe("bug");
   await page.getByLabel("Base branch").selectOption("master");
+  await expect.poll(() => selections.at(-1)?.get("base")).toBe("master");
   await page.getByLabel("Attribution").selectOption("tracked");
+  await expect.poll(() => selections.at(-1)?.get("provenance")).toBe("tracked");
   await page.getByLabel("Compare with").selectOption("previous");
   await expect
     .poll(() => Object.fromEntries(selections.at(-1) || []))
@@ -282,9 +287,7 @@ test("PR evidence filters and independent run artifacts are inspectable", async 
     path: "test-results/pr-execution-evidence-fixture.png",
     fullPage: true,
   });
-  await page
-    .getByRole("button", { name: "Release gates", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Evidence", exact: true }).click();
   await page.getByRole("button", { name: "PR evidence", exact: true }).click();
   await page.getByText("Filter pull requests", { exact: true }).click();
   await page.getByLabel("Change type").selectOption("feature");

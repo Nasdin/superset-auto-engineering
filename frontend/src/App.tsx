@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Box, ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { CognitionBrand } from "./components/CognitionBrand";
 import { PageBoundary } from "./components/PageBoundary";
 import { OperatorProvider } from "./components/OperatorAccess";
 import { sections, views, pageFromHash, type Page } from "./navigation";
@@ -81,18 +82,12 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
           Skip to content
         </a>
         <aside>
-          <div className="brand">
-            <span className="brand-mark">c</span>cognition
-            <span className="brand-dot">.</span>
-          </div>
-          <div className="workspace">
-            <Box size={19} />
-            <div>
-              <strong>Superset engineering</strong>
-              <small>Issue → change → evidence</small>
-            </div>
-          </div>
-          <div className="nav-label">WORKSPACE</div>
+          <CognitionBrand />
+          <p className="sidebar-intro">
+            Engineering analytics
+            <br />
+            for what builds next
+          </p>
           <nav aria-label="Workspace">
             {sections.map((item) => {
               const Icon = item.icon;
@@ -105,55 +100,38 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
                   onClick={() => navigate(item.views[0].page)}
                 >
                   <Icon size={19} />
-                  <span>
-                    <strong>{item.name}</strong>
-                    <small>{item.description}</small>
-                  </span>
-                  <ChevronRight className="nav-chevron" size={14} />
+                  <span>{item.name}</span>
                 </button>
               );
             })}
           </nav>
-          <div className="sidebar-note">
-            <div className="orbit">
-              <ShieldCheck size={23} />
-            </div>
-            <strong>Built to earn trust.</strong>
-            <p>
-              Every verdict has a revision.
+          <div className="sidebar-footer">
+            <strong>Superset</strong>
+            <span>
+              Turn engineering
               <br />
-              Every revision needs proof.
-            </p>
-          </div>
-          <div className="workspace-bottom">
-            <span className="avatar">N</span>
-            <div>
-              <strong>Nasrudin’s workspace</strong>
-              <small>
-                {window.location.hostname === "127.0.0.1" ||
-                window.location.hostname === "localhost"
-                  ? "Local workspace"
-                  : window.location.hostname}
-              </small>
-            </div>
+              progress into impact.
+            </span>
           </div>
         </aside>
         <div className="shell">
           <header>
             <div>
-              <span>Superset engineering</span>
+              <span>Projects</span>
+              <ChevronRight size={14} />
+              <span>Superset</span>
               <ChevronRight size={14} />
               <strong>{section.name}</strong>
             </div>
             <div>
-              <span className="badge green">
-                {page === "Analytics" ? "Powered by Superset" : "Live ledger"}
-              </span>
               {onLogout && (
                 <button className="signout-button" onClick={onLogout}>
                   Sign out
                 </button>
               )}
+              <span className="profile-avatar" aria-label="Workspace profile">
+                N
+              </span>
             </div>
           </header>
           {section.views.length > 1 && (

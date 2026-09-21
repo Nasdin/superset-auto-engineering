@@ -11,6 +11,18 @@ test("collapsed controls keep context and keyboard access across refresh", async
   ).toBeVisible();
   await expect(page.getByLabel("Window end (UTC)")).toBeHidden();
   await expect(summary).toContainText("apache/superset");
+  await page
+    .getByRole("combobox", { name: "Time range", exact: true })
+    .selectOption("90");
+  await expect(summary).toContainText("90 days");
+  const bots = page
+    .getByRole("group", { name: "Work type", exact: true })
+    .getByRole("button", { name: "Bots", exact: true });
+  await bots.click();
+  await expect(bots).toHaveAttribute("aria-pressed", "true");
+  await expect(summary).toContainText("bot");
+  await bots.click();
+  await expect(bots).toHaveAttribute("aria-pressed", "false");
   await summary.focus();
   await page.keyboard.press("Enter");
   await expect(
@@ -20,6 +32,9 @@ test("collapsed controls keep context and keyboard access across refresh", async
   await page.getByText("Refine cohort", { exact: true }).click();
   await page.getByLabel("Work signal").selectOption("bot");
   await summary.click();
+  await expect(
+    page.getByRole("combobox", { name: "Time range", exact: true }),
+  ).toHaveValue("60");
   await expect(summary).toContainText("60 days");
   await expect(summary).toContainText("bot");
   await page.getByText("Page tools", { exact: true }).click();

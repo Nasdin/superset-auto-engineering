@@ -1,9 +1,14 @@
-import { Activity, GitPullRequest, Settings2, ShieldCheck } from "lucide-react";
+import {
+  ChartNoAxesColumn,
+  Workflow,
+  Settings,
+  FileCheck2,
+} from "lucide-react";
 
 export const sections = [
   {
-    name: "Release gates",
-    icon: ShieldCheck,
+    name: "Evidence",
+    icon: FileCheck2,
     description: "Review the proof",
     views: [
       {
@@ -17,7 +22,7 @@ export const sections = [
   },
   {
     name: "Workflows",
-    icon: GitPullRequest,
+    icon: Workflow,
     description: "Follow the work",
     views: [
       { page: "Workflows", label: "Workflow lanes", slug: "workflows" },
@@ -37,13 +42,13 @@ export const sections = [
   },
   {
     name: "Analytics",
-    icon: Activity,
+    icon: ChartNoAxesColumn,
     description: "Measure the change",
     views: [{ page: "Analytics", label: "Analytics", slug: "analytics" }],
   },
   {
-    name: "Operations",
-    icon: Settings2,
+    name: "System",
+    icon: Settings,
     description: "Connections & limits",
     views: [
       { page: "Live operations", label: "Live operations", slug: "operations" },

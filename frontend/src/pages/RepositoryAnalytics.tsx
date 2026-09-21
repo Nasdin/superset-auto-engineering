@@ -80,197 +80,254 @@ export function RepositoryAnalytics() {
     URL.revokeObjectURL(url);
   }
   return (
-    <main id="main">
-      <div className="heading">
+    <main id="main" className="engineering-analytics">
+      <div className="heading analytics-heading">
         <div>
-          <div className="eyebrow">ENGINEERING INTELLIGENCE / SUPERSET</div>
           <h1>Engineering impact</h1>
-          <p>
-            Understand what ships, what needs rework, and what changes over
-            time.
-          </p>
+          <p>Superset, measured over time.</p>
         </div>
-        <Disclosure title="Page tools" className="page-tools">
+        <section
+          className="analytics-primary-controls"
+          aria-label="Analytics repository"
+        >
+          <label className="compact-field">
+            Repository
+            <select
+              value={filters.repository}
+              onChange={(e) => change("repository", e.target.value)}
+            >
+              {(response?.value.repositories || ["apache/superset"]).map(
+                (repo) => (
+                  <option key={repo} value={repo}>
+                    {repo}
+                  </option>
+                ),
+              )}
+            </select>
+          </label>
+          <label className="compact-field">
+            Time range
+            <select
+              value={filters.days}
+              onChange={(e) => change("days", e.target.value)}
+              aria-describedby="time-range-hint"
+            >
+              {["30", "90", "180"].includes(filters.days) ? null : (
+                <option value={filters.days}>{filters.days} days</option>
+              )}
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="180">Last 180 days</option>
+            </select>
+          </label>
+          <label className="compact-field">
+            Granularity
+            <select
+              value={filters.cadence}
+              onChange={(e) => change("cadence", e.target.value)}
+            >
+              <option value="monthly">Monthly</option>
+              <option value="rolling">Rolling window</option>
+            </select>
+          </label>
+          <p className="sr-only">
+            Automation always runs in{" "}
+            {response?.value.workflow_repository || "the configured fork"}.
+          </p>
+          <p className="sr-only" id="time-range-hint">
+            Controls the comparison period and rolling window size, ending on
+            the selected UTC date. Monthly charts show calendar months.
+          </p>
+        </section>
+      </div>
+      <div className="analytics-controls-row">
+        <div className="analytics-toolbar">
+          <div className="category-filters" role="group" aria-label="Work type">
+            {[
+              ["fix", "Fixes"],
+              ["feature", "Features"],
+              ["bot", "Bots"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                aria-pressed={filters.kind === value}
+                onClick={() =>
+                  change("kind", filters.kind === value ? "" : value)
+                }
+              >
+                <span className={`segment-dot ${label.toLowerCase()}`} />
+                {label}
+              </button>
+            ))}
+            {filters.kind && (
+              <button
+                className="clear-category"
+                onClick={() => change("kind", "")}
+              >
+                All work
+              </button>
+            )}
+          </div>
+          <Disclosure title="Page tools" className="page-tools">
+            <button
+              className="button"
+              onClick={() => {
+                refresh();
+                setChartRevision((v) => v + 1);
+              }}
+            >
+              <RefreshCw size={15} />
+              Refresh data
+            </button>
+            <button className="button" disabled={!data} onClick={download}>
+              <ArrowDownToLine size={15} />
+              Export analysis
+            </button>
+          </Disclosure>
+        </div>
+        <Disclosure
+          title="Analysis controls"
+          summary={`${filters.repository} · ${filters.days} days to ${filters.end} · ${filters.comparison === "six_months" ? "vs six months earlier" : filters.comparison === "previous" ? "vs previous window" : `vs ${filters.baseline_end || "custom baseline"}`}${[
+            filters.kind,
+            filters.author,
+            filters.label,
+            filters.base,
+            filters.provenance === "all" ? "" : filters.provenance,
+          ]
+            .filter(Boolean)
+            .map((value) => ` · ${value}`)
+            .join("")}`}
+          className="analysis-controls"
+        >
+          <div className="analytics-filters">
+            <label className="compact-field">
+              Window end (UTC)
+              <input
+                type="date"
+                value={filters.end}
+                max={yesterday}
+                onChange={(e) => change("end", e.target.value)}
+              />
+            </label>
+            <label className="compact-field">
+              Rolling window: {filters.days} days
+              <input
+                type="range"
+                min="7"
+                max="180"
+                value={filters.days}
+                onChange={(e) => change("days", e.target.value)}
+              />
+            </label>
+            <label className="compact-field">
+              Compare with
+              <select
+                value={filters.comparison}
+                onChange={(e) => change("comparison", e.target.value)}
+              >
+                <option value="six_months">Six months earlier</option>
+                <option value="previous">Previous window</option>
+                <option value="custom">Custom baseline</option>
+              </select>
+            </label>
+            {filters.comparison === "custom" && (
+              <label className="compact-field">
+                Baseline end (UTC)
+                <input
+                  type="date"
+                  value={filters.baseline_end}
+                  max={filters.end}
+                  onChange={(e) => change("baseline_end", e.target.value)}
+                />
+              </label>
+            )}
+            <details className="impact-advanced">
+              <summary>Refine cohort</summary>
+              <div className="analytics-filters">
+                <label className="compact-field">
+                  Work signal
+                  <select
+                    value={filters.kind}
+                    onChange={(e) => change("kind", e.target.value)}
+                  >
+                    <option value="">All work</option>
+                    <option value="bot">Bot authors</option>
+                    <option value="fix">Fix / bug labels</option>
+                    <option value="dependency">
+                      Dependencies / Dependabot
+                    </option>
+                    <option value="feature">
+                      Feature / enhancement signals
+                    </option>
+                    <option value="revert">Revert / rollback title</option>
+                    <option value="docs">Documentation</option>
+                    <option value="refactor">Refactoring</option>
+                    <option value="test">Tests</option>
+                    <option value="build">Build &amp; CI</option>
+                    <option value="performance">Performance</option>
+                    <option value="release">Releases</option>
+                    <option value="maintenance">Maintenance / styling</option>
+                    <option value="unclassified">Needs classification</option>
+                  </select>
+                </label>
+                <label className="compact-field">
+                  Attribution
+                  <select
+                    value={filters.provenance}
+                    onChange={(e) => change("provenance", e.target.value)}
+                  >
+                    <option value="all">All PRs</option>
+                    <option value="tracked">Tracked Devin work</option>
+                    <option value="untracked">
+                      Not tracked by this system
+                    </option>
+                  </select>
+                </label>
+                {(
+                  [
+                    ["author", "Author", "authors"],
+                    ["label", "Label", "labels"],
+                    ["base", "Base branch", "bases"],
+                  ] as const
+                ).map(([key, title, list]) => (
+                  <label className="compact-field" key={key}>
+                    {title}
+                    <select
+                      value={filters[key]}
+                      onChange={(e) => change(key, e.target.value)}
+                    >
+                      <option value="">All</option>
+                      {response?.value.filters[list].map((value) => (
+                        <option key={value}>{value}</option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </details>
+          </div>
           <button
-            className="button"
-            onClick={() => {
-              refresh();
-              setChartRevision((v) => v + 1);
-            }}
+            className="text-button reset-controls"
+            onClick={() =>
+              setFilters({
+                repository: filters.repository,
+                end: yesterday,
+                days: "30",
+                comparison: "six_months",
+                baseline_end: "",
+                author: "",
+                label: "",
+                base: "",
+                kind: "",
+                provenance: "all",
+                cadence: filters.cadence,
+              })
+            }
           >
-            <RefreshCw size={15} />
-            Refresh data
-          </button>
-          <button className="button" disabled={!data} onClick={download}>
-            <ArrowDownToLine size={15} />
-            Export analysis
+            Reset filters
           </button>
         </Disclosure>
       </div>
-      <section className="analytics-source" aria-label="Analytics repository">
-        <label className="compact-field">
-          Repository
-          <select
-            value={filters.repository}
-            onChange={(e) => change("repository", e.target.value)}
-          >
-            {(response?.value.repositories || ["apache/superset"]).map(
-              (repo) => (
-                <option key={repo} value={repo}>
-                  {repo === "apache/superset"
-                    ? "Original repository"
-                    : "Workflow fork"}{" "}
-                  · {repo}
-                </option>
-              ),
-            )}
-          </select>
-        </label>
-        <p>
-          Explore the original project or your workflow fork. Automation always
-          runs in{" "}
-          <strong>
-            {response?.value.workflow_repository || "the configured fork"}
-          </strong>
-          .
-        </p>
-      </section>
-      <Disclosure
-        title="Analysis controls"
-        summary={`${filters.repository} · ${filters.days} days to ${filters.end} · ${filters.comparison === "six_months" ? "vs six months earlier" : filters.comparison === "previous" ? "vs previous window" : `vs ${filters.baseline_end || "custom baseline"}`}${[
-          filters.kind,
-          filters.author,
-          filters.label,
-          filters.base,
-          filters.provenance === "all" ? "" : filters.provenance,
-        ]
-          .filter(Boolean)
-          .map((value) => ` · ${value}`)
-          .join("")}`}
-        className="analysis-controls"
-      >
-        <div className="analytics-filters">
-          <label className="compact-field">
-            Window end (UTC)
-            <input
-              type="date"
-              value={filters.end}
-              max={yesterday}
-              onChange={(e) => change("end", e.target.value)}
-            />
-          </label>
-          <label className="compact-field">
-            Rolling window: {filters.days} days
-            <input
-              type="range"
-              min="7"
-              max="180"
-              value={filters.days}
-              onChange={(e) => change("days", e.target.value)}
-            />
-          </label>
-          <label className="compact-field">
-            Compare with
-            <select
-              value={filters.comparison}
-              onChange={(e) => change("comparison", e.target.value)}
-            >
-              <option value="six_months">Six months earlier</option>
-              <option value="previous">Previous window</option>
-              <option value="custom">Custom baseline</option>
-            </select>
-          </label>
-          {filters.comparison === "custom" && (
-            <label className="compact-field">
-              Baseline end (UTC)
-              <input
-                type="date"
-                value={filters.baseline_end}
-                max={filters.end}
-                onChange={(e) => change("baseline_end", e.target.value)}
-              />
-            </label>
-          )}
-          <details className="impact-advanced">
-            <summary>Refine cohort</summary>
-            <div className="analytics-filters">
-              <label className="compact-field">
-                Work signal
-                <select
-                  value={filters.kind}
-                  onChange={(e) => change("kind", e.target.value)}
-                >
-                  <option value="">All work</option>
-                  <option value="bot">Bot authors</option>
-                  <option value="fix">Fix / bug labels</option>
-                  <option value="dependency">Dependencies / Dependabot</option>
-                  <option value="feature">Feature / enhancement signals</option>
-                  <option value="revert">Revert / rollback title</option>
-                  <option value="docs">Documentation</option>
-                  <option value="refactor">Refactoring</option>
-                  <option value="test">Tests</option>
-                  <option value="build">Build &amp; CI</option>
-                  <option value="performance">Performance</option>
-                  <option value="release">Releases</option>
-                  <option value="maintenance">Maintenance / styling</option>
-                  <option value="unclassified">Needs classification</option>
-                </select>
-              </label>
-              <label className="compact-field">
-                Attribution
-                <select
-                  value={filters.provenance}
-                  onChange={(e) => change("provenance", e.target.value)}
-                >
-                  <option value="all">All PRs</option>
-                  <option value="tracked">Tracked Devin work</option>
-                  <option value="untracked">Not tracked by this system</option>
-                </select>
-              </label>
-              {(
-                [
-                  ["author", "Author", "authors"],
-                  ["label", "Label", "labels"],
-                  ["base", "Base branch", "bases"],
-                ] as const
-              ).map(([key, title, list]) => (
-                <label className="compact-field" key={key}>
-                  {title}
-                  <select
-                    value={filters[key]}
-                    onChange={(e) => change(key, e.target.value)}
-                  >
-                    <option value="">All</option>
-                    {response?.value.filters[list].map((value) => (
-                      <option key={value}>{value}</option>
-                    ))}
-                  </select>
-                </label>
-              ))}
-            </div>
-          </details>
-        </div>
-        <button
-          className="text-button reset-controls"
-          onClick={() =>
-            setFilters({
-              repository: filters.repository,
-              end: yesterday,
-              days: "30",
-              comparison: "six_months",
-              baseline_end: "",
-              author: "",
-              label: "",
-              base: "",
-              kind: "",
-              provenance: "all",
-              cadence: filters.cadence,
-            })
-          }
-        >
-          Reset filters
-        </button>
-      </Disclosure>
       {error && (
         <div role="alert" className="notice">
           {error}{" "}
@@ -306,27 +363,6 @@ export function RepositoryAnalytics() {
           )}
           {data.backfill && <HistoryCoverage backfill={data.backfill} />}
           <ImpactOverview impact={data.impact} />
-          <div className="impact-trend-heading">
-            <div>
-              <h2>The direction of travel</h2>
-              <p>
-                Total merge hours by work type, followed by delivery and rework
-                trends. Bots are counted once, separately from human work. The
-                dotted line marks 21 September 2026.
-              </p>
-            </div>
-            <div className="segmented" aria-label="Trend cadence">
-              {(["monthly", "rolling"] as const).map((value) => (
-                <button
-                  key={value}
-                  aria-pressed={filters.cadence === value}
-                  onClick={() => change("cadence", value)}
-                >
-                  {value === "monthly" ? "By month" : "Rolling window"}
-                </button>
-              ))}
-            </div>
-          </div>
           <SupersetAnalytics
             key={`${chartRevision}:${data.data_revision}`}
             query={query}
@@ -377,8 +413,10 @@ export function RepositoryAnalytics() {
             )}
           </Disclosure>
           <MonthlyCoverage impact={data.impact} />
-          <CategoryComparison impact={data.impact} />
-          <ImpactEstimate impact={data.impact} />
+          <div className="analytics-comparison-grid">
+            <CategoryComparison impact={data.impact} />
+            <ImpactEstimate impact={data.impact} />
+          </div>
           <RolloutComparison impact={data.impact} />
           <footer>
             <span>{data.provenance}</span>

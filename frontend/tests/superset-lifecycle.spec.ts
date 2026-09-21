@@ -86,8 +86,8 @@ test("narrow viewports select native full-width Superset layouts for both cadenc
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-monthly\?/);
   await page
-    .getByRole("button", { name: "Rolling window", exact: true })
-    .click();
+    .getByRole("combobox", { name: "Granularity", exact: true })
+    .selectOption("rolling");
   await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-rolling\?/);
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect(iframe).toHaveAttribute("src", /\/embedded\/rolling\?/);
@@ -142,8 +142,8 @@ test("changing cadence during initialization keeps exactly the new frame", async
     /monthly/,
   );
   await page
-    .getByRole("button", { name: "Rolling window", exact: true })
-    .click();
+    .getByRole("combobox", { name: "Granularity", exact: true })
+    .selectOption("rolling");
   await expect(page.locator(".superset-panel iframe")).toHaveAttribute(
     "src",
     /rolling/,

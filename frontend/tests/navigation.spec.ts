@@ -21,7 +21,7 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   });
   const primary = page.getByRole("navigation", { name: "Workspace" });
   await expect(primary.getByRole("button")).toHaveCount(4);
-  for (const name of ["Release gates", "Workflows", "Analytics", "Operations"])
+  for (const name of ["Evidence", "Workflows", "Analytics", "System"])
     await expect(
       primary.getByRole("button", { name, exact: true }),
     ).toBeVisible();
@@ -57,9 +57,7 @@ test("four workspaces retain every feature, deep links and mobile navigation", a
   await expect(
     page.getByRole("heading", { name: "Dependency updates" }),
   ).toBeVisible();
-  await primary
-    .getByRole("button", { name: "Operations", exact: true })
-    .click();
+  await primary.getByRole("button", { name: "System", exact: true }).click();
   await expect(
     page.getByRole("heading", {
       name: "Workspace health",

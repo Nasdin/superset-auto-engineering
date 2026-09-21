@@ -158,8 +158,8 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
   });
   responses = [];
   await page
-    .getByRole("button", { name: "Rolling window", exact: true })
-    .click();
+    .getByRole("combobox", { name: "Granularity", exact: true })
+    .selectOption("rolling");
   await checkCharts("repository=apache%2Fsuperset&cadence=rolling");
   responses = [];
   await page.getByText("Analysis controls", { exact: true }).click();
