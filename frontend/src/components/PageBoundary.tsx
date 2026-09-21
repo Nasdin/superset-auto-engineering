@@ -11,6 +11,26 @@ export class PageBoundary extends Component<
     return { failed: true };
   }
 
+  componentDidCatch(error: Error) {
+    // Only page-code loading failures can refresh automatically. Never replay
+    // API calls or treat an application exception as a deployment mismatch.
+    if (
+      !/Failed to fetch dynamically imported module|Importing a module script failed|Loading chunk .* failed/.test(
+        error.message,
+      )
+    )
+      return;
+    try {
+      const key = "cognition:chunk-recovery";
+      const previous = Number(sessionStorage.getItem(key) || 0);
+      if (Date.now() - previous < 60_000) return;
+      sessionStorage.setItem(key, String(Date.now()));
+      window.location.reload();
+    } catch {
+      // Storage may be disabled; retain the explicit reload button.
+    }
+  }
+
   render() {
     if (this.state.failed) {
       return (

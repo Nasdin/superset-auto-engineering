@@ -187,3 +187,14 @@ def test_analytics_overload_rejects_before_allocating_history_and_releases_slot(
                 first.result()
         monkeypatch.setattr(app.state.analytics, "pulls", original)
         assert client.get("/api/analytics/pull-requests").status_code == 200
+
+
+def test_frontend_entry_is_not_cached_across_releases(tmp_path):
+    static = tmp_path / "static"
+    static.mkdir()
+    (static / "index.html").write_text("<html>new release</html>")
+    with TestClient(make_app(tmp_path, static_directory=static)) as client:
+        for path in ("/", "/index.html"):
+            response = client.get(path)
+            assert response.status_code == 200
+            assert response.headers["cache-control"] == "no-store"
