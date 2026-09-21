@@ -21,14 +21,15 @@ router = APIRouter(prefix="/api/analytics/superset", tags=["superset analytics"]
 class Selection(BaseModel):
     repository: str = "apache/superset"
     end: date = Field(default_factory=lambda: datetime.now(UTC).date() - timedelta(days=1))
-    days: int = Field(default=30, ge=7, le=180)
+    days: int = Field(default=30, ge=1, le=366)
     comparison: Literal["six_months", "previous", "custom"] = "six_months"
     baseline_end: date | None = None
     author: str = Field(default="", max_length=100)
     label: str = Field(default="", max_length=200)
     base: str = Field(default="", max_length=200)
     kind: WorkKind = ""
-    cadence: Literal["monthly", "rolling"] = "monthly"
+    cadence: Literal["monthly", "weekly", "rolling"] = "monthly"
+    panel: Literal["overview", "delivery", "rework"] = "overview"
     layout: Literal["desktop", "mobile"] = "desktop"
     provenance: Literal["all", "tracked", "untracked"] = "all"
 
@@ -164,12 +165,17 @@ def session(request: Request, response: Response):
         values = selection.resolved(engine.settings.repo)
     except (ValidationError, ValueError) as error:
         raise HTTPException(422, "Invalid analytics filters") from error
-    dashboard_key = {
-        ("monthly", "desktop"): "dashboard_id",
-        ("rolling", "desktop"): "rolling_dashboard_id",
-        ("monthly", "mobile"): "mobile_dashboard_id",
-        ("rolling", "mobile"): "mobile_rolling_dashboard_id",
-    }[selection.cadence, selection.layout]
+    if selection.panel != "overview":
+        if selection.cadence == "rolling":
+            raise HTTPException(422, "Choose calendar weeks or months for this view")
+        dashboard_key = f"{selection.panel}_{selection.cadence}_{selection.layout}"
+    else:
+        dashboard_key = {
+            ("monthly", "desktop"): "dashboard_id",
+            ("rolling", "desktop"): "rolling_dashboard_id",
+            ("monthly", "mobile"): "mobile_dashboard_id",
+            ("rolling", "mobile"): "mobile_rolling_dashboard_id",
+        }.get((selection.cadence, selection.layout), "")
     dashboard_id = configured.get(dashboard_key)
     if not dashboard_id:
         raise HTTPException(503, "This analytics layout has not been provisioned")

@@ -225,6 +225,56 @@ SELECT * FROM reporting.impact_aggregates WHERE cadence='rolling';
 CREATE OR REPLACE VIEW reporting.impact_categories AS
 SELECT * FROM reporting.impact_aggregates WHERE cadence='categories';
 
+-- Calendar buckets clipped to the selected dates. Weeks start on Monday (UTC).
+CREATE OR REPLACE VIEW reporting.focus_periods AS
+SELECT s.selection_id,s.repository, grain.cadence, p.bucket::date AS chart_date,
+ GREATEST(p.bucket::date,s.window_end::date-(s.days-1)) AS window_start,
+ LEAST((p.bucket+grain.step-interval '1 day')::date,s.window_end::date) AS window_end
+FROM public.analytics_selections s
+CROSS JOIN (VALUES ('monthly','month',interval '1 month'),('weekly','week',interval '1 week')) grain(cadence,unit,step)
+CROSS JOIN LATERAL generate_series(
+ date_trunc(grain.unit,(s.window_end::date-(s.days-1))::timestamp),
+ date_trunc(grain.unit,s.window_end::date::timestamp),grain.step) p(bucket);
+
+CREATE OR REPLACE VIEW reporting.focus_aggregates AS
+SELECT w.selection_id,w.repository,w.cadence,w.chart_date,w.window_start,w.window_end,g.segment,
+ count(p.number) AS merged_prs,count(p.hours_to_merge) AS measured_prs,
+ avg(p.commits_count)::double precision AS avg_commits,
+ percentile_cont(0.5) WITHIN GROUP (ORDER BY p.hours_to_merge)::double precision AS median_hours,
+ avg(p.rework_commits)::double precision AS avg_rework,
+ avg(p.additions+p.deletions)::double precision AS avg_lines_changed,
+ avg(p.additions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL)::double precision AS avg_additions,
+ avg(p.deletions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL)::double precision AS avg_deletions,
+ reporting.history_covered(w.repository,w.window_start,w.window_end) AS history_covered,
+ sum(p.hours_to_merge)::double precision AS total_hours
+FROM reporting.focus_periods w CROSS JOIN (VALUES ('Fixes'),('Features'),('Bots')) g(segment)
+LEFT JOIN reporting.selected_prs p ON p.selection_id=w.selection_id AND p.segment=g.segment
+ AND p.merged_at>=(w.window_start::timestamp AT TIME ZONE 'UTC')
+ AND p.merged_at<((w.window_end+1)::timestamp AT TIME ZONE 'UTC')
+GROUP BY w.selection_id,w.repository,w.cadence,w.chart_date,w.window_start,w.window_end,g.segment;
+
+CREATE OR REPLACE VIEW reporting.focus_chart AS
+SELECT selection_id,cadence,chart_date,segment,
+ CASE WHEN history_covered THEN median_hours END AS median_hours,
+ CASE WHEN history_covered THEN avg_commits END AS avg_commits,
+ CASE WHEN history_covered THEN avg_rework END AS avg_rework,
+ CASE WHEN history_covered THEN avg_lines_changed END AS avg_lines_changed,
+ CASE WHEN history_covered THEN avg_additions END AS avg_additions,
+ CASE WHEN history_covered THEN avg_deletions END AS avg_deletions,
+ CASE WHEN history_covered AND merged_prs=measured_prs THEN COALESCE(total_hours,0)::double precision END AS segment_total_hours
+FROM reporting.focus_aggregates
+UNION ALL
+SELECT s.selection_id,c.cadence,DATE '2026-09-24',g.segment,
+ NULL::double precision,NULL::double precision,NULL::double precision,NULL::double precision,
+ NULL::double precision,NULL::double precision,NULL::double precision
+FROM public.analytics_selections s
+CROSS JOIN (VALUES ('Fixes'),('Features'),('Bots')) g(segment)
+CROSS JOIN (VALUES ('monthly'),('weekly')) c(cadence)
+WHERE s.window_end::date BETWEEN DATE '2026-09-14' AND DATE '2026-09-24';
+CREATE OR REPLACE VIEW reporting.focus_monthly_chart AS SELECT * FROM reporting.focus_chart WHERE cadence='monthly';
+CREATE OR REPLACE VIEW reporting.focus_weekly_chart AS SELECT * FROM reporting.focus_chart WHERE cadence='weekly';
+GRANT SELECT ON reporting.focus_monthly_chart,reporting.focus_weekly_chart TO cognition_reader;
+
 -- Axis-only NULL rows extend the chart to the rollout marker without creating
 -- post-rollout observations. Actual analysis views above never include these rows.
 CREATE OR REPLACE VIEW reporting.impact_monthly_chart AS

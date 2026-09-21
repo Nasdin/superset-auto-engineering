@@ -23,7 +23,7 @@ test("a broken view preserves navigation and can recover after a route change", 
   await page.unroute("**/api/analytics/pull-requests?*");
   await page.getByRole("button", { name: "Analytics", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Engineering impact" }),
+    page.getByRole("heading", { name: "What changed after launch?" }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "This view could not be displayed" }),

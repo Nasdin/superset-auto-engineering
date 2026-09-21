@@ -5,6 +5,7 @@ import AuthGate from "./AuthGate";
 import "./styles.css";
 import "./workspace.css";
 import "./reference-theme.css";
+import "./analytics-focus.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthGate>{(onLogout) => <App onLogout={onLogout} />}</AuthGate>

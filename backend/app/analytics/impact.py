@@ -78,7 +78,7 @@ def changes(current, baseline):
     return result
 
 
-def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=None):
+def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=None, bounded=False):
     completed = completed or set()
     current = window(rows, status, end, days)
     baseline = window(rows, status, baseline_end, days)
@@ -95,19 +95,22 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
         )
     monthly = []
     monthly_totals = []
-    for offset in range(6, -1, -1):
-        start = months_before(end.replace(day=1), offset)
-        stop = min(months_before(start, -1) - timedelta(days=1), end)
+    range_start = end - timedelta(days=days - 1)
+    months = ((end.year - range_start.year) * 12 + end.month - range_start.month) if bounded else 6
+    for offset in range(months, -1, -1):
+        month = months_before(end.replace(day=1), offset)
+        start = max(month, range_start) if bounded else month
+        stop = min(months_before(month, -1) - timedelta(days=1), end)
         monthly_totals.append(
             {
-                "month": start.isoformat(),
+                "month": month.isoformat(),
                 **window(rows, status, stop, (stop - start).days + 1),
             }
         )
         for name in SEGMENTS:
             monthly.append(
                 {
-                    "month": start.isoformat(),
+                    "month": month.isoformat(),
                     "segment": name,
                     **window(
                         grouped[name],
@@ -117,6 +120,20 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
                     ),
                 }
             )
+    weekly = []
+    if bounded:
+        week = range_start - timedelta(days=range_start.weekday())
+        while week <= end:
+            start, stop = max(week, range_start), min(week + timedelta(days=6), end)
+            for name in SEGMENTS:
+                weekly.append(
+                    {
+                        "month": week.isoformat(),
+                        "segment": name,
+                        **window(grouped[name], status, stop, (stop - start).days + 1),
+                    }
+                )
+            week += timedelta(days=7)
     # Symmetric, non-overlapping windows around launch; no post-launch data is invented.
     post_days = min(days, max(0, (end - ROLLOUT_DATE).days + 1))
     before = window(rows, status, ROLLOUT_DATE - timedelta(days=1), post_days or days)
@@ -135,6 +152,7 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
         "changes": changes(current, baseline),
         "categories": categories,
         "monthly": monthly,
+        "weekly": weekly,
         "monthly_totals": monthly_totals,
         "rollout": {
             "before": before,

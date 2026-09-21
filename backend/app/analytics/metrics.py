@@ -91,6 +91,7 @@ def analyze(
     completed=None,
     provenance="all",
     offset=0,
+    bounded=False,
 ):
     from .impact import impact_report, is_bot
 
@@ -134,6 +135,7 @@ def analyze(
             baseline_end=baseline_end,
             tracked=tracked,
             completed=completed,
+            bounded=bounded,
         ),
         "current": current,
         "baseline": baseline,

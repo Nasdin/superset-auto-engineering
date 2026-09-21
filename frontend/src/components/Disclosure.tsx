@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 /** Native disclosure preserves keyboard behavior and stays open during polling. */
@@ -7,14 +7,21 @@ export function Disclosure({
   summary,
   children,
   className = "",
+  defaultOpen = false,
 }: {
   title: string;
   summary?: ReactNode;
   children: ReactNode;
   className?: string;
+  defaultOpen?: boolean;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <details className={`disclosure ${className}`}>
+    <details
+      className={`disclosure ${className}`}
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
       <summary>
         <SlidersHorizontal size={16} aria-hidden="true" />
         <span className="disclosure-title">{title}</span>

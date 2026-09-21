@@ -11,6 +11,7 @@ test("collapsed controls keep context and keyboard access across refresh", async
   ).toBeVisible();
   await expect(page.getByLabel("Window end (UTC)")).toBeHidden();
   await expect(summary).toContainText("apache/superset");
+  await page.getByLabel("Choose dates").click();
   await page
     .getByRole("combobox", { name: "Time range", exact: true })
     .selectOption("90");
@@ -32,9 +33,11 @@ test("collapsed controls keep context and keyboard access across refresh", async
   await page.getByText("Refine cohort", { exact: true }).click();
   await page.getByLabel("Work signal").selectOption("bot");
   await summary.click();
-  await expect(
-    page.getByRole("combobox", { name: "Time range", exact: true }),
-  ).toHaveValue("60");
+  await page.getByLabel("Choose dates").click();
+  await expect(page.getByLabel("Time range", { exact: true })).toHaveValue(
+    "custom",
+  );
+  await page.getByLabel("Choose dates").click();
   await expect(summary).toContainText("60 days");
   await expect(summary).toContainText("bot");
   await page.getByText("Page tools", { exact: true }).click();
@@ -48,7 +51,7 @@ test("collapsed controls keep context and keyboard access across refresh", async
   await expect(page.getByLabel("Work signal")).toHaveValue("");
   await expect(
     page.getByLabel("Rolling window:", { exact: false }),
-  ).toHaveValue("30");
+  ).toHaveValue("180");
 });
 
 test("inspection brings evidence into focus and close returns to its trigger", async ({
@@ -122,7 +125,7 @@ test("every workspace view fits desktop and phone with discoverable controls", a
     ["runs", "Devin runs", "Filter records"],
     ["dependencies", "Dependency updates", "Filter pull requests"],
     ["learning", "Learning & memory", "Filter observations"],
-    ["analytics", "Engineering impact", "Analysis controls"],
+    ["analytics", "What changed after launch?", "Analysis controls"],
     ["operations", "Workspace health", "Operating configuration"],
   ];
   for (const [slug, title, control] of views) {

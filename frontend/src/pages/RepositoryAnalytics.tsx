@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
-import { ArrowDownToLine, RefreshCw } from "lucide-react";
+import { ArrowDownToLine, RefreshCw, Github } from "lucide-react";
+import { AnalyticsDateRange } from "../components/AnalyticsDateRange";
+import { AnalyticsComparison } from "../components/AnalyticsComparison";
 import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Analytics } from "../analyticsTypes";
@@ -19,7 +21,7 @@ export function RepositoryAnalytics() {
   const [filters, setFilters] = useState({
     repository: "apache/superset",
     end: yesterday,
-    days: "30",
+    days: "180",
     comparison: "six_months",
     baseline_end: "",
     author: "",
@@ -29,9 +31,16 @@ export function RepositoryAnalytics() {
     provenance: "all",
     cadence: "monthly",
   });
+  const [activeTab, setActiveTab] = useState<"delivery" | "rework" | "impact">(
+    "delivery",
+  );
   const [chartRevision, setChartRevision] = useState(0);
   const offset = 0;
-  const params = new URLSearchParams({ ...filters, offset: String(offset) });
+  const params = new URLSearchParams({
+    ...filters,
+    bounded: "true",
+    offset: String(offset),
+  });
   if (!filters.baseline_end) params.delete("baseline_end");
   const query = params.toString();
   const load = useCallback(
@@ -81,64 +90,115 @@ export function RepositoryAnalytics() {
   }
   return (
     <main id="main" className="engineering-analytics">
-      <div className="heading analytics-heading">
-        <div>
-          <h1>Engineering impact</h1>
-          <p>Superset, measured over time.</p>
-        </div>
+      <div className="analytics-range-bar">
         <section
-          className="analytics-primary-controls"
+          className="repository-picker"
           aria-label="Analytics repository"
         >
-          <label className="compact-field">
+          <label>
             Repository
-            <select
-              value={filters.repository}
-              onChange={(e) => change("repository", e.target.value)}
-            >
-              {(response?.value.repositories || ["apache/superset"]).map(
-                (repo) => (
-                  <option key={repo} value={repo}>
-                    {repo}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
-          <label className="compact-field">
-            Time range
-            <select
-              value={filters.days}
-              onChange={(e) => change("days", e.target.value)}
-              aria-describedby="time-range-hint"
-            >
-              {["30", "90", "180"].includes(filters.days) ? null : (
-                <option value={filters.days}>{filters.days} days</option>
-              )}
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="180">Last 180 days</option>
-            </select>
-          </label>
-          <label className="compact-field">
-            Granularity
-            <select
-              value={filters.cadence}
-              onChange={(e) => change("cadence", e.target.value)}
-            >
-              <option value="monthly">Monthly</option>
-              <option value="rolling">Rolling window</option>
-            </select>
+            <div className="select-with-icon">
+              <Github size={19} />
+              <select
+                aria-label="Repository"
+                value={filters.repository}
+                onChange={(e) => change("repository", e.target.value)}
+              >
+                {(response?.value.repositories || ["apache/superset"]).map(
+                  (repo) => (
+                    <option key={repo} value={repo}>
+                      {repo}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
           </label>
           <p className="sr-only">
             Automation always runs in{" "}
             {response?.value.workflow_repository || "the configured fork"}.
           </p>
-          <p className="sr-only" id="time-range-hint">
-            Controls the comparison period and rolling window size, ending on
-            the selected UTC date. Monthly charts show calendar months.
-          </p>
         </section>
+        <AnalyticsDateRange
+          end={filters.end}
+          days={filters.days}
+          latest={yesterday}
+          onApply={(end, days) => setFilters((f) => ({ ...f, end, days }))}
+        />
+        <div
+          className="calendar-granularity"
+          role="group"
+          aria-label="Granularity"
+        >
+          {[
+            ["weekly", "Week"],
+            ["monthly", "Month"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              aria-pressed={filters.cadence === value}
+              onClick={() => change("cadence", value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="heading analytics-focus-heading">
+        <h1>What changed after launch?</h1>
+      </div>
+      <div className="analytics-view-bar">
+        <div
+          className="analytics-view-tabs"
+          role="tablist"
+          aria-label="Analytics views"
+        >
+          {(
+            [
+              ["delivery", "Delivery"],
+              ["rework", "Rework & code"],
+              ["impact", "Impact estimate"],
+            ] as const
+          ).map(([key, label], index, tabs) => (
+            <button
+              role="tab"
+              key={key}
+              id={`tab-${key}`}
+              aria-controls="analytics-view"
+              aria-selected={activeTab === key}
+              tabIndex={activeTab === key ? 0 : -1}
+              onClick={() => setActiveTab(key)}
+              onKeyDown={(event) => {
+                const next =
+                  event.key === "ArrowRight"
+                    ? (index + 1) % tabs.length
+                    : event.key === "ArrowLeft"
+                      ? (index + tabs.length - 1) % tabs.length
+                      : event.key === "Home"
+                        ? 0
+                        : event.key === "End"
+                          ? tabs.length - 1
+                          : -1;
+                if (next >= 0) {
+                  event.preventDefault();
+                  setActiveTab(tabs[next][0]);
+                  document.getElementById(`tab-${tabs[next][0]}`)?.focus();
+                }
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="launch-context">
+          21 Sep 2026 · system introduced
+          <br />
+          <span>
+            {data?.impact.rollout.after
+              ? "Comparisons are observational, not proof of causation."
+              : "Post-launch comparisons await a verified cohort."}
+          </span>
+        </p>
       </div>
       <div className="analytics-controls-row">
         <div className="analytics-toolbar">
@@ -206,15 +266,17 @@ export function RepositoryAnalytics() {
                 type="date"
                 value={filters.end}
                 max={yesterday}
-                onChange={(e) => change("end", e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value) change("end", e.target.value);
+                }}
               />
             </label>
             <label className="compact-field">
               Rolling window: {filters.days} days
               <input
                 type="range"
-                min="7"
-                max="180"
+                min="1"
+                max="366"
                 value={filters.days}
                 onChange={(e) => change("days", e.target.value)}
               />
@@ -312,7 +374,7 @@ export function RepositoryAnalytics() {
               setFilters({
                 repository: filters.repository,
                 end: yesterday,
-                days: "30",
+                days: "180",
                 comparison: "six_months",
                 baseline_end: "",
                 author: "",
@@ -347,7 +409,11 @@ export function RepositoryAnalytics() {
         </p>
       )}
       {data && (
-        <>
+        <div
+          id="analytics-view"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeTab}`}
+        >
           {data.sync.error && (
             <div className="notice">
               Import: {data.sync.error}. Previously imported records remain
@@ -361,16 +427,53 @@ export function RepositoryAnalytics() {
               required.
             </div>
           )}
-          {data.backfill && <HistoryCoverage backfill={data.backfill} />}
-          <ImpactOverview impact={data.impact} />
-          <SupersetAnalytics
-            key={`${chartRevision}:${data.data_revision}`}
-            query={query}
-          />
+          {data.backfill?.state !== "ready" && data.backfill && (
+            <HistoryCoverage backfill={data.backfill} />
+          )}
+          {activeTab !== "impact" ? (
+            <>
+              {filters.kind &&
+                !["fix", "feature", "bot"].includes(filters.kind) && (
+                  <p className="notice">
+                    The overview compares Fixes, Features and Bots. Open
+                    Measurement details for the selected named work type.
+                  </p>
+                )}
+              <SupersetAnalytics
+                key={`${chartRevision}:${data.data_revision}:${activeTab}`}
+                query={`${query}&panel=${activeTab}`}
+                compact
+              />
+              <div className="analytics-comparison-grid">
+                <AnalyticsComparison impact={data.impact} />
+                <ImpactEstimate impact={data.impact} expanded />
+              </div>
+            </>
+          ) : (
+            <div className="impact-focus">
+              <ImpactEstimate impact={data.impact} expanded />
+              <section className="panel impact-explanation">
+                <h2>What this estimate means</h2>
+                <p>
+                  The model uses completed Devin work that was opened after
+                  launch and merged in the selected period. Adjust the manual
+                  effort and human oversight assumptions to explore the
+                  potential impact.
+                </p>
+                <p>
+                  Faster merging does not automatically mean engineering hours
+                  saved. Missing history withholds the estimate, and no future
+                  improvements are projected.
+                </p>
+                <RolloutComparison impact={data.impact} />
+              </section>
+            </div>
+          )}
           <p className="impact-footnote merge-hours-definition">
             Total merge hours sums the elapsed time from opening to merging for
-            every selected PR merged in each UTC month, split by work type. The
-            all-work chart provides the combined total. Waiting time and
+            PRs in the Fixes, Features and Bots comparison merged in each UTC
+            month, clipped to the selected dates. The complete work-type
+            breakdown remains available in Measurement details. Waiting time and
             overlapping PRs count separately; this is not engineering labour or
             time saved. The latest month includes completed days only.
           </p>
@@ -412,17 +515,22 @@ export function RepositoryAnalytics() {
               </div>
             )}
           </Disclosure>
-          <MonthlyCoverage impact={data.impact} />
-          <div className="analytics-comparison-grid">
+          <Disclosure
+            title="Measurement details"
+            summary="Samples, definitions and all work classifications"
+          >
+            <ImpactOverview impact={data.impact} />
+            <MonthlyCoverage impact={data.impact} />
             <CategoryComparison impact={data.impact} />
-            <ImpactEstimate impact={data.impact} />
-          </div>
-          <RolloutComparison impact={data.impact} />
+            {activeTab !== "impact" && (
+              <RolloutComparison impact={data.impact} />
+            )}
+          </Disclosure>
           <footer>
             <span>{data.provenance}</span>
             <span>UTC dates · completed days only · no fixture values</span>
           </footer>
-        </>
+        </div>
       )}
     </main>
   );

@@ -30,7 +30,7 @@ async function sessions(page: Page, failRefresh = false) {
       json: {
         dashboard_id:
           (params.get("layout") === "mobile" ? "mobile-" : "") +
-          (params.get("cadence") === "rolling" ? "rolling" : "monthly"),
+          (params.get("cadence") === "weekly" ? "weekly" : "monthly"),
         superset_url: `${origin}/synthetic-bi`,
         token: `e30.${payload}.signature`,
       },
@@ -85,12 +85,10 @@ test("narrow viewports select native full-width Superset layouts for both cadenc
   await expect(iframe).toHaveAttribute("src", /\/embedded\/monthly\?/);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-monthly\?/);
-  await page
-    .getByRole("combobox", { name: "Granularity", exact: true })
-    .selectOption("rolling");
-  await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-rolling\?/);
+  await page.getByRole("button", { name: "Week", exact: true }).click();
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/mobile-weekly\?/);
   await page.setViewportSize({ width: 1280, height: 900 });
-  await expect(iframe).toHaveAttribute("src", /\/embedded\/rolling\?/);
+  await expect(iframe).toHaveAttribute("src", /\/embedded\/weekly\?/);
   await expect(iframe).toHaveCount(1);
 });
 
@@ -141,12 +139,10 @@ test("changing cadence during initialization keeps exactly the new frame", async
     "src",
     /monthly/,
   );
-  await page
-    .getByRole("combobox", { name: "Granularity", exact: true })
-    .selectOption("rolling");
+  await page.getByRole("button", { name: "Week", exact: true }).click();
   await expect(page.locator(".superset-panel iframe")).toHaveAttribute(
     "src",
-    /rolling/,
+    /weekly/,
   );
   await expect(page.locator(".superset-panel iframe")).toHaveCSS(
     "height",
@@ -156,7 +152,7 @@ test("changing cadence during initialization keeps exactly the new frame", async
   await expect(page.locator(".superset-panel iframe")).toHaveCount(1);
   await expect(page.locator(".superset-panel iframe")).toHaveAttribute(
     "src",
-    /rolling/,
+    /weekly/,
   );
 });
 

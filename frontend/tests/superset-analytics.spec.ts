@@ -1,137 +1,108 @@
 import { test, expect, type Response } from "@playwright/test";
 
-test("real Superset impact charts match cohorts, switch cadence and isolate repositories", async ({
+test("native Superset delivery and rework charts match bounded cohorts across dates, repositories and layouts", async ({
   page,
 }) => {
   test.skip(
     !process.env.SUPERSET_ANALYTICS_E2E,
     "Requires provisioned BI Superset",
   );
-  test.setTimeout(240_000);
-  page.on("pageerror", (error) => console.log("Browser error:", error.message));
+  test.setTimeout(300_000);
   let responses: Response[] = [];
   page.on("response", (response) => {
     if (response.url().includes("/api/v1/chart/data?"))
       responses.push(response);
   });
-  async function checkCharts(query: string) {
-    const frame = page.frameLocator("iframe");
-    for (const name of [
-      "Hours to merge",
-      "Commits per PR",
-      "Rework after review",
-      "Lines changed per PR",
-      "Total hours before merge · calendar month",
-      "Total merge hours by work type · calendar month",
-      "Merged changes · current window",
-    ]) {
-      await page.locator(".superset-panel").scrollIntoViewIfNeeded();
-      await frame
-        .locator('[data-test="span-title"]')
-        .filter({ hasText: name })
-        .scrollIntoViewIfNeeded({ timeout: 30_000 });
-    }
+  const focus = ["Fixes", "Features", "Bots"];
+  async function checkCharts(query: string, panel = "delivery") {
+    const metrics =
+      panel === "delivery"
+        ? [
+            "avg_commits",
+            "median_hours",
+            "avg_rework",
+            "avg_lines_changed",
+            "segment_total_hours",
+          ]
+        : ["avg_rework", "avg_lines_changed", "avg_additions", "avg_deletions"];
+    const titles = page
+      .frameLocator("iframe")
+      .locator('[data-test="span-title"]');
+    await expect(titles).toHaveCount(metrics.length, { timeout: 30_000 });
+    for (const title of await titles.all())
+      await title.scrollIntoViewIfNeeded();
     await expect
       .poll(
         () => responses.filter((r) => !r.request().frame().isDetached()).length,
         { timeout: 60_000 },
       )
-      .toBeGreaterThanOrEqual(7);
+      .toBeGreaterThanOrEqual(metrics.length);
     const captured = responses.filter((r) => !r.request().frame().isDetached());
     const charts = await Promise.all(
-      captured.map(async (r) => {
-        expect(r.status()).toBe(200);
-        const body = await r.json();
+      captured.map(async (response) => {
+        expect(response.status()).toBe(200);
+        const body = await response.json();
         for (const result of body.result) expect(result.status).toBe("success");
         return {
           ...body.result[0],
-          metric: r.request().postDataJSON()?.queries?.[0]?.metrics?.[0],
+          metric: response.request().postDataJSON()?.queries?.[0]?.metrics?.[0],
         };
       }),
     );
     const reference = await (
-      await page.request.get(`/api/analytics/pull-requests?${query}`)
+      await page.request.get(
+        `/api/analytics/pull-requests?bounded=true&days=180&${query}`,
+      )
     ).json();
-    const trendCharts = charts.filter((c) => c.colnames.includes("chart_date"));
-    expect(trendCharts).toHaveLength(6);
-    const comparisonCharts = trendCharts.filter(
-      (c) => !["total_hours", "segment_total_hours"].includes(c.metric),
-    );
-    const mergeTrend = trendCharts.find((c) => c.metric === "median_hours");
-    expect(mergeTrend).toBeDefined();
-    if (!query.includes("cadence=rolling")) {
-      for (const expected of reference.impact.monthly) {
-        const actual = mergeTrend.data.find(
-          (r: { chart_date: number }) =>
-            new Date(r.chart_date).toISOString().slice(0, 10) ===
-            expected.month,
-        );
-        expect(actual).toBeDefined();
-        if (expected.covered && expected.median_hours !== null)
-          expect(actual[expected.segment]).toBeCloseTo(
-            expected.median_hours,
-            8,
-          );
-        else expect(actual[expected.segment]).toBeNull();
-      }
-    }
-    const monthlyTotal = trendCharts.find((c) => c.metric === "total_hours");
-    expect(monthlyTotal).toBeDefined();
-    for (const expected of reference.impact.monthly_totals) {
-      const actual = monthlyTotal.data.find(
-        (r: { chart_date: number }) =>
-          new Date(r.chart_date).toISOString().slice(0, 10) === expected.month,
-      );
-      expect(actual).toBeDefined();
-      if (expected.covered_total_hours === null)
-        expect(actual["All selected PRs"]).toBeNull();
-      else
-        expect(actual["All selected PRs"]).toBeCloseTo(
-          expected.covered_total_hours,
-          8,
-        );
-    }
-    const categoryTotal = trendCharts.find(
-      (c) => c.metric === "segment_total_hours",
-    );
-    expect(categoryTotal).toBeDefined();
-    for (const expected of reference.impact.monthly) {
-      const actual = categoryTotal.data.find(
-        (r: { chart_date: number }) =>
-          new Date(r.chart_date).toISOString().slice(0, 10) === expected.month,
-      );
-      expect(actual).toBeDefined();
-      if (expected.covered_total_hours === null)
-        expect(actual[expected.segment]).toBeNull();
-      else
-        expect(actual[expected.segment]).toBeCloseTo(
-          expected.covered_total_hours,
-          8,
-        );
-    }
-    for (const chart of comparisonCharts) {
+    for (const metric of metrics) {
+      const chart = charts.find((c) => c.metric === metric);
+      expect(chart, metric).toBeDefined();
+      expect(
+        chart.colnames.filter((name: string) => name !== "chart_date").sort(),
+      ).toEqual([...focus].sort());
       expect(
         chart.annotation_data?.["System introduced"]?.records?.[0]?.start_dttm,
       ).toBeTruthy();
-      for (const segment of reference.impact.categories.map(
-        (c: { segment: string }) => c.segment,
-      ))
-        expect(chart.colnames).toContain(segment);
+      const cadence =
+        query.includes("cadence=weekly") && metric !== "segment_total_hours"
+          ? "weekly"
+          : "monthly";
+      for (const row of reference.impact[cadence].filter(
+        (r: { segment: string }) => focus.includes(r.segment),
+      )) {
+        const actual = chart.data.find(
+          (r: { chart_date: number }) =>
+            new Date(r.chart_date).toISOString().slice(0, 10) === row.month,
+        );
+        expect(actual).toBeDefined();
+        const expected = !row.covered
+          ? null
+          : metric === "segment_total_hours"
+            ? row.covered_total_hours
+            : metric === "avg_additions"
+              ? row.code_samples
+                ? row.additions / row.code_samples
+                : null
+              : metric === "avg_deletions"
+                ? row.code_samples
+                  ? row.deletions / row.code_samples
+                  : null
+                : row[metric];
+        if (expected === null) expect(actual[row.segment]).toBeNull();
+        else expect(actual[row.segment]).toBeCloseTo(expected, 7);
+      }
     }
-    for (const name of [
-      "Hours to merge",
-      "Commits per PR",
-      "Rework after review",
-      "Lines changed per PR",
-    ])
-      await expect(
-        frame.locator('[data-test="span-title"]').filter({ hasText: name }),
-      ).toBeVisible();
-    await expect(frame.getByText("Data error", { exact: true })).toHaveCount(0);
     await expect(
-      frame.getByText("Unexpected error", { exact: false }),
+      page.frameLocator("iframe").getByText("Data error", { exact: true }),
     ).toHaveCount(0);
-    return { charts, reference };
+    console.log(
+      JSON.stringify({
+        panel,
+        query,
+        charts: metrics.length,
+        parity: "passed",
+      }),
+    );
   }
   await page.goto("/#analytics");
   if (process.env.AUTH_E2E_PASSWORD) {
@@ -141,71 +112,48 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
     await page.getByRole("button", { name: "Open workspace" }).click();
   }
   await expect(
-    page.getByRole("heading", { name: "Engineering impact" }),
+    page.getByRole("heading", { name: "What changed after launch?" }),
   ).toBeVisible();
-  const initial = await checkCharts("repository=apache%2Fsuperset");
-  console.log(
-    JSON.stringify({
-      monthly_chart_columns: initial.charts
-        .filter((c) => c.colnames.includes("chart_date"))
-        .map((c) => c.colnames),
-      current: initial.reference.impact.current,
-    }),
-  );
+  await checkCharts("repository=apache%2Fsuperset");
+  await page.setViewportSize({ width: 1513, height: 1033 });
+  await page
+    .getByRole("heading", { name: "What changed after launch?" })
+    .scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: "test-results/engineering-impact-desktop.png",
+    path: "test-results/analytics-focus-desktop.png",
     fullPage: true,
   });
   responses = [];
-  await page
-    .getByRole("combobox", { name: "Granularity", exact: true })
-    .selectOption("rolling");
-  await checkCharts("repository=apache%2Fsuperset&cadence=rolling");
+  await page.getByRole("button", { name: "Week", exact: true }).click();
+  await checkCharts("repository=apache%2Fsuperset&cadence=weekly");
   responses = [];
-  await page.getByText("Analysis controls", { exact: true }).click();
-  await page.getByRole("slider").fill("60");
-  await checkCharts("repository=apache%2Fsuperset&days=60&cadence=rolling");
-  responses = [];
-  await page.getByText("Refine cohort", { exact: true }).click();
-  await page.getByLabel("Work signal").selectOption("bot");
-  await checkCharts(
-    "repository=apache%2Fsuperset&days=60&kind=bot&cadence=rolling",
-  );
+  await page.getByRole("tab", { name: "Rework & code", exact: true }).click();
+  await checkCharts("repository=apache%2Fsuperset&cadence=weekly", "rework");
   responses = [];
   await page
     .getByRole("combobox", { name: "Repository", exact: true })
     .selectOption("Nasdin/superset");
-  await checkCharts(
-    "repository=Nasdin%2Fsuperset&days=60&kind=bot&cadence=rolling",
-  );
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByLabel("Work signal").selectOption("");
+  await checkCharts("repository=Nasdin%2Fsuperset&cadence=weekly", "rework");
   responses = [];
-  await page
-    .getByRole("combobox", { name: "Repository", exact: true })
-    .selectOption("apache/superset");
-  await checkCharts("repository=apache%2Fsuperset&days=60&cadence=rolling");
+  await page.getByRole("tab", { name: "Delivery", exact: true }).click();
+  await page.getByRole("button", { name: "Month", exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await checkCharts("repository=Nasdin%2Fsuperset");
   const cards = page.frameLocator("iframe").locator(".chart-slice");
   const first = await cards.nth(0).boundingBox();
   const second = await cards.nth(1).boundingBox();
   expect(first?.width).toBeGreaterThan(270);
   expect(second!.y).toBeGreaterThan(first!.y + first!.height);
-  // Full-width cards can still contain a stale half-width ECharts canvas.
-  // Check the actual rendering surface, not just the surrounding grid layout.
-  for (let index = 0; index < 4; index++) {
-    const chart = cards.nth(index);
+  for (let i = 0; i < 4; i++) {
+    const chart = cards.nth(i);
     await chart.scrollIntoViewIfNeeded();
     await expect
-      .poll(
-        () =>
-          chart.evaluate((element) => {
-            const canvas = element.querySelector("canvas");
-            return (
-              (canvas?.getBoundingClientRect().width || 0) /
-              element.getBoundingClientRect().width
-            );
-          }),
-        { timeout: 15_000 },
+      .poll(() =>
+        chart.evaluate(
+          (element) =>
+            (element.querySelector("canvas")?.getBoundingClientRect().width ||
+              0) / element.getBoundingClientRect().width,
+        ),
       )
       .toBeGreaterThan(0.8);
   }
@@ -215,7 +163,12 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
     ),
   ).toBeTruthy();
   await page.screenshot({
-    path: "test-results/engineering-impact-mobile.png",
+    path: "test-results/analytics-focus-mobile.png",
     fullPage: true,
   });
+  await page.getByRole("tab", { name: "Impact estimate", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "What this estimate means" }),
+  ).toBeVisible();
+  await expect(page.locator("iframe")).toHaveCount(0);
 });

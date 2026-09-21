@@ -8,7 +8,13 @@ type EmbeddedSession = {
   token: string;
 };
 
-export function SupersetAnalytics({ query }: { query: string }) {
+export function SupersetAnalytics({
+  query,
+  compact = false,
+}: {
+  query: string;
+  compact?: boolean;
+}) {
   const mount = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
@@ -170,19 +176,21 @@ export function SupersetAnalytics({ query }: { query: string }) {
   }, [query, retry, mobile]);
   return (
     <section
-      className="panel superset-panel"
+      className={`panel superset-panel ${compact ? "superset-focus" : ""}`}
       aria-label="Apache Superset analytics"
     >
-      <div className="panel-heading">
-        <div>
-          <h2>Superset · Delivery, rework & code</h2>
-          <p>
-            Real GitHub history · every chart follows your repository and cohort
-            filters
-          </p>
+      {!compact && (
+        <div className="panel-heading">
+          <div>
+            <h2>Superset · Delivery, rework & code</h2>
+            <p>
+              Real GitHub history · every chart follows your repository and
+              cohort filters
+            </p>
+          </div>
+          <span className="badge green">Powered by Apache Superset</span>
         </div>
-        <span className="badge green">Powered by Apache Superset</span>
-      </div>
+      )}
       {loading && (
         <p className="empty" role="status">
           Opening the Superset dashboard…

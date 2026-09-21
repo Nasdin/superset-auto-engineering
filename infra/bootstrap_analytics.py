@@ -85,7 +85,7 @@ def provision():
     extra["engine_params"] = {
         "connect_args": {
             "connect_timeout": 5,
-            "options": "-c statement_timeout=30000 -c lock_timeout=5000",
+            "options": "-c statement_timeout=30000 -c lock_timeout=5000 -c jit=off",
         },
     }
     database.extra = json.dumps(extra)
@@ -109,6 +109,8 @@ def provision():
         "impact_rolling_chart",
         "impact_total_monthly_chart",
         "impact_segment_total_monthly_chart",
+        "focus_monthly_chart",
+        "focus_weekly_chart",
     ):
         table = (
             db.session.query(SqlaTable)
@@ -138,15 +140,9 @@ def provision():
         tables[name] = table
     # Native events are rendered as ECharts vertical markLines. This records a
     # rollout date, not an observed improvement or a synthetic post-rollout value.
-    layer = (
-        db.session.query(AnnotationLayer)
-        .filter_by(name="Cognition rollout")
-        .one_or_none()
-    )
+    layer = db.session.query(AnnotationLayer).filter_by(name="Cognition rollout").one_or_none()
     if layer is None:
-        layer = AnnotationLayer(
-            name="Cognition rollout", descr="Recorded deployment date"
-        )
+        layer = AnnotationLayer(name="Cognition rollout", descr="Recorded deployment date")
         db.session.add(layer)
     db.session.flush()
     event = db.session.query(Annotation).filter_by(layer_id=layer.id).first()
@@ -165,13 +161,11 @@ def provision():
         "show": True,
         "showLabel": True,
         "showMarkers": False,
-        "color": "#c55330",
+        "color": "#59677b",
         "style": "dotted",
         "width": 2,
     }
-    annotation_read = security_manager.find_permission_view_menu(
-        "can_read", "Annotation"
-    )
+    annotation_read = security_manager.find_permission_view_menu("can_read", "Annotation")
     if annotation_read and annotation_read not in guest.permissions:
         guest.permissions.append(annotation_read)
 
@@ -209,13 +203,9 @@ def provision():
             "orderby": [],
         }
         if metric_name:
-            metric = next(
-                (m for m in table.metrics if m.metric_name == metric_name), None
-            )
+            metric = next((m for m in table.metrics if m.metric_name == metric_name), None)
             if metric is None:
-                metric = SqlMetric(
-                    metric_name=metric_name, expression=f"MAX({metric_name})"
-                )
+                metric = SqlMetric(metric_name=metric_name, expression=f"MAX({metric_name})")
                 table.metrics.append(metric)
             metric.expression = f"MAX({metric_name})"
             params.update(
@@ -229,9 +219,11 @@ def provision():
                 legendOrientation="bottom",
                 rich_tooltip=True,
                 y_axis_format=",.1f",
-                x_axis_time_format="%b %Y",
+                x_axis_time_format="%d %b" if view == "focus_weekly_chart" else "%b %Y",
                 show_empty_columns=True,
-                annotation_layers=[annotation],
+                annotation_layers=[
+                    {**annotation, "showLabel": False} if view.startswith("focus_") else annotation
+                ],
                 markerEnabled=True,
                 markerSize=4,
                 truncate_metric=True,
@@ -256,7 +248,9 @@ def provision():
                 granularity="chart_date",
                 metrics=[metric_name],
                 series_columns=["segment"],
-                annotation_layers=[annotation],
+                annotation_layers=[
+                    {**annotation, "showLabel": False} if view.startswith("focus_") else annotation
+                ],
                 post_processing=[
                     {
                         "operation": "pivot",
@@ -318,9 +312,7 @@ def provision():
         # charts, including required annotation fields not used by event lines.
         errors = ChartDataQueryContextSchema().validate(query_context)
         if errors:
-            raise ValueError(
-                f"Invalid Superset chart configuration for {name}: {errors}"
-            )
+            raise ValueError(f"Invalid Superset chart configuration for {name}: {errors}")
         chart.query_context = json.dumps(query_context)
         return chart
 
@@ -380,17 +372,47 @@ def provision():
     # Superset calculates canvas pixels from the persisted grid column count.
     # CSS card stretching cannot change those React width props; mobile embeds
     # therefore get their own native 12-column layout, sharing the same charts.
-    for cadence, mobile in (
-        ("monthly", False),
-        ("rolling", False),
-        ("monthly", True),
-        ("rolling", True),
-    ):
-        key = cadence + ("_mobile" if mobile else "")
-        charts = [
-            chart_for(name, f"impact_{cadence}_chart", metric)
-            for name, metric in measures
-        ]
+    layouts = [
+        (cadence, mobile, "overview")
+        for cadence in ("monthly", "rolling")
+        for mobile in (False, True)
+    ]
+    layouts += [
+        (cadence, mobile, panel)
+        for panel in ("delivery", "rework")
+        for cadence in ("monthly", "weekly")
+        for mobile in (False, True)
+    ]
+    for cadence, mobile, panel in layouts:
+        focused = panel != "overview"
+        key = (
+            f"{panel}_{cadence}_{'mobile' if mobile else 'desktop'}"
+            if focused
+            else cadence + ("_mobile" if mobile else "")
+        )
+        if focused:
+            focus_measures = (
+                [
+                    ("Commits per PR", "avg_commits"),
+                    ("Median hours to merge", "median_hours"),
+                    ("Commits after first review", "avg_rework"),
+                    ("Lines changed per PR", "avg_lines_changed"),
+                ]
+                if panel == "delivery"
+                else [
+                    ("Commits after first review", "avg_rework"),
+                    ("Lines changed per PR", "avg_lines_changed"),
+                    ("Lines added per PR", "avg_additions"),
+                    ("Lines removed per PR", "avg_deletions"),
+                ]
+            )
+            charts = [
+                chart_for(name, f"focus_{cadence}_chart", metric) for name, metric in focus_measures
+            ]
+        else:
+            charts = [
+                chart_for(name, f"impact_{cadence}_chart", metric) for name, metric in measures
+            ]
         total_chart = chart_for(
             "Total hours before merge · calendar month",
             "impact_total_monthly_chart",
@@ -417,11 +439,22 @@ def provision():
             "durations stay blank. Overlapping waits count separately, not as labour saved."
         )
         # Lead with the requested category total, full width in both layouts.
-        charts = [category_total, *charts, total_chart, detail_chart]
+        if focused:
+            if panel == "delivery":
+                charts.append(
+                    chart_for(
+                        "Total merge hours by work type · calendar month",
+                        "focus_monthly_chart",
+                        "segment_total_hours",
+                    )
+                )
+        else:
+            charts = [category_total, *charts, total_chart, detail_chart]
         slug = (
             "superset-engineering"
             + ("-rolling" if cadence == "rolling" else "")
             + ("-mobile" if mobile else "")
+            + (f"-{panel}-{cadence}" if focused else "")
         )
         dashboard = db.session.query(Dashboard).filter_by(slug=slug).one_or_none()
         if dashboard is None:
@@ -432,7 +465,11 @@ def provision():
         )
         dashboard.slices = charts
         dashboard.published = True
-        dashboard.css = ""
+        dashboard.css = (
+            '[data-test="span-title"] {font-weight:600;font-size:15px;color:#101b2d} .dashboard-content {background:#fcfcfb} .dashboard-component-chart-holder {border:1px solid #dfe4eb;border-radius:6px;}'
+            if focused
+            else ""
+        )
         positions = {
             "DASHBOARD_VERSION_KEY": "v2",
             "ROOT_ID": {"id": "ROOT_ID", "type": "ROOT", "children": ["GRID_ID"]},
@@ -446,7 +483,11 @@ def provision():
         rows = (
             [[chart] for chart in charts]
             if mobile
-            else (charts[:1], charts[1:3], charts[3:5], charts[5:6], charts[6:7])
+            else (
+                [charts[i : i + 2] for i in range(0, len(charts), 2)]
+                if focused
+                else (charts[:1], charts[1:3], charts[3:5], charts[5:6], charts[6:7])
+            )
         )
         for row_number, row_charts in enumerate(rows):
             row_id = f"ROW-{row_number}"
@@ -470,7 +511,7 @@ def provision():
                         "chartId": chart.id,
                         "sliceName": chart.slice_name,
                         "width": 12 // len(row_charts),
-                        "height": 46 if chart is detail_chart else 42,
+                        "height": 32 if focused else 46 if chart is detail_chart else 42,
                     },
                 }
         dashboard.position_json = json.dumps(positions)
@@ -519,6 +560,11 @@ def provision():
                         "rolling_dashboard_id": dashboards["rolling"],
                         "mobile_dashboard_id": dashboards["monthly_mobile"],
                         "mobile_rolling_dashboard_id": dashboards["rolling_mobile"],
+                        **{
+                            key: value
+                            for key, value in dashboards.items()
+                            if key.startswith(("delivery_", "rework_"))
+                        },
                         "dashboard_path": "/superset/dashboard/superset-engineering/",
                         "rolling_dashboard_path": "/superset/dashboard/superset-engineering-rolling/",
                         "mobile_dashboard_path": "/superset/dashboard/superset-engineering-mobile/",
@@ -535,7 +581,7 @@ def provision():
         json.dumps(
             {
                 "dashboards": dashboards,
-                "charts_per_dashboard": len(chart_ids["monthly"]),
+                "charts_per_dashboard": {key: len(ids) for key, ids in chart_ids.items()},
                 "datasets": len(tables),
             }
         )

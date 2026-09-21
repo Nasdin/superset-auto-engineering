@@ -15,8 +15,9 @@ test("impact shows measurement gaps and an explicit adjustable effort scenario",
   });
   await page.goto("/#analytics");
   await expect(
-    page.getByRole("heading", { name: "Engineering impact" }),
+    page.getByRole("heading", { name: "What changed after launch?" }),
   ).toBeVisible();
+  await page.getByText("Measurement details", { exact: true }).click();
   await expect(page.getByLabel("System rollout")).toContainText(
     "21 September 2026",
   );
@@ -25,7 +26,6 @@ test("impact shows measurement gaps and an explicit adjustable effort scenario",
   ).toBeVisible();
   const model = page.getByLabel("Estimated time saved", { exact: true });
   await expect(model).toContainText("6 engineering hours");
-  await model.getByText("Estimate assumptions", { exact: true }).click();
   await model.getByLabel("Manual implementation + review / PR").fill("1");
   await expect(model).toContainText("2 engineering hours");
   await model.getByLabel("Human oversight with Devin / PR").fill("2");
@@ -176,6 +176,7 @@ test("missing history explains queued imports and withholds unknown totals while
   await coverage.getByText("Monthly import progress").click();
   await expect(coverage).toContainText("Retry scheduled");
   await expect(coverage).toContainText("No verified coverage yet");
+  await page.getByText("Measurement details", { exact: true }).click();
   await page.getByText("Monthly sample coverage", { exact: true }).click();
   const totals = page.getByRole("table", {
     name: "Total hours before merge · calendar months",
@@ -202,6 +203,7 @@ test("work types replace Other and expose summed merge hours independently of th
   page,
 }) => {
   await page.goto("/#analytics");
+  await page.getByText("Measurement details", { exact: true }).click();
   const comparison = page.locator(".impact-comparison");
   await expect(
     comparison.getByRole("heading", { name: "Work types & merge time" }),
@@ -229,6 +231,7 @@ test("work types replace Other and expose summed merge hours independently of th
   const kinds = page.getByLabel("Work signal");
   await expect(kinds.locator('option[value="other"]')).toHaveCount(0);
   await kinds.selectOption("docs");
+  await page.getByText("Measurement details", { exact: true }).click();
   await expect(comparison).toBeVisible();
   await expect(kinds).toHaveValue("docs");
   await page.setViewportSize({ width: 390, height: 844 });

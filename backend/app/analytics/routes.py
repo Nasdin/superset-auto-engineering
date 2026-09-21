@@ -38,7 +38,7 @@ def pull_requests(
     response: Response,
     repository: str = "apache/superset",
     end: date | None = None,
-    days: int = Query(default=30, ge=7, le=180),
+    days: int = Query(default=30, ge=1, le=366),
     comparison: Literal["six_months", "previous", "custom"] = "six_months",
     baseline_end: date | None = None,
     author: str = Query(default="", max_length=100),
@@ -46,6 +46,7 @@ def pull_requests(
     base: str = Query(default="", max_length=200),
     kind: WorkKind = "",
     provenance: Literal["all", "tracked", "untracked"] = "all",
+    bounded: bool = False,
     offset: int = Query(default=0, ge=0, le=100000),
 ):
     engine = request.app.state.engine
@@ -105,6 +106,7 @@ def pull_requests(
         offset,
         tuple(sorted(tracked)),
         tuple(sorted(completed)),
+        bounded,
     )
     if (result := cache.get(key)) is not None:
         response.headers["X-Analytics-Cache"] = "hit"
@@ -146,6 +148,7 @@ def pull_requests(
                 completed=completed,
                 provenance=provenance,
                 offset=offset,
+                bounded=bounded,
             ),
         }
         cache.put(key, result)

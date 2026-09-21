@@ -181,3 +181,32 @@ def test_monthly_total_is_unknown_for_incomplete_history_or_invalid_duration():
         tracked=set(),
     )
     assert all(row["covered_total_hours"] is None for row in missing["monthly_totals"])
+
+
+def test_bounded_calendar_periods_clip_both_ends_and_partition_selected_prs():
+    rows = [
+        record(n, created="2026-08-01T00:00:00Z", merged=f"{day}T12:00:00Z")
+        for n, day in enumerate(
+            ["2026-08-30", "2026-08-31", "2026-09-01", "2026-09-06", "2026-09-07"], 1
+        )
+    ]
+    result = impact_report(
+        rows,
+        STATUS,
+        end=date(2026, 9, 6),
+        days=7,
+        baseline_end=date(2026, 3, 6),
+        tracked=set(),
+        bounded=True,
+    )
+    monthly = [r for r in result["monthly"] if r["segment"] == "Fixes"]
+    weekly = [r for r in result["weekly"] if r["segment"] == "Fixes"]
+    assert [(r["start"], r["end"], r["merged_prs"]) for r in monthly] == [
+        ("2026-08-31", "2026-08-31", 1),
+        ("2026-09-01", "2026-09-06", 2),
+    ]
+    assert [(r["start"], r["end"], r["merged_prs"]) for r in weekly] == [
+        ("2026-08-31", "2026-09-06", 3)
+    ]
+    assert sum(r["total_hours"] or 0 for r in monthly) == result["current"]["total_hours"]
+    assert sum(r["total_hours"] or 0 for r in weekly) == result["current"]["total_hours"]

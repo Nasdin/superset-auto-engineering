@@ -200,7 +200,13 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
   );
 }
 
-export function ImpactEstimate({ impact }: { impact: Impact }) {
+export function ImpactEstimate({
+  impact,
+  expanded = false,
+}: {
+  impact: Impact;
+  expanded?: boolean;
+}) {
   const [manual, setManual] = useState("2");
   const [review, setReview] = useState("0.5");
   const manualHours = Number(manual),
@@ -248,6 +254,7 @@ export function ImpactEstimate({ impact }: { impact: Impact }) {
         <div className="model-assumptions">
           <Disclosure
             title="Estimate assumptions"
+            defaultOpen={expanded}
             summary={
               valid
                 ? `${manual}h manual · ${review}h oversight`
@@ -331,10 +338,9 @@ export function RolloutComparison({ impact }: { impact: Impact }) {
       </p>
       <p>
         Changes require complete history, all PRs measured for that metric, and
-        at least five observations in each window. Monthly points are calendar
-        months; the latest month is partial. Rolling points are the selected
-        number of days, sampled weekly. Partial enrichment is a sample, not a
-        population estimate.
+        at least five observations in each window. Monthly and weekly points are
+        calendar periods clipped to the selected dates. Partial enrichment is a
+        sample, not a population estimate.
       </p>
       <p>
         PR merge time includes nights, weekends and waiting. Commit history can
@@ -384,9 +390,8 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
       </div>
       <p>
         Monthly totals include every work group in the selected cohort and stay
-        on calendar months when the other charts use rolling windows. Missing
-        history or invalid durations leave a gap; only a verified empty month is
-        zero.
+        on calendar months when the other charts use weeks. Missing history or
+        invalid durations leave a gap; only a verified empty month is zero.
       </p>
       <div className="impact-table-scroll">
         <table className="impact-table">

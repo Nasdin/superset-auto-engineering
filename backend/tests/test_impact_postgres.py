@@ -494,3 +494,38 @@ def test_category_totals_classification_parity_and_conservation(postgres):  # no
         r["segment_total_hours"] is None
         for r in rows(history, "impact_segment_total_monthly_chart", identity)
     )
+
+
+def test_focus_periods_match_bounded_python_and_isolate_repository(postgres):  # noqa: F811
+    from app.analytics.impact import impact_report
+
+    store, history = postgres
+    seed(history)
+    install(store)
+    identity = select(history, days=31)
+    reference = impact_report(
+        history.pulls("apache/superset"),
+        history.status("apache/superset"),
+        end=date(2026, 9, 20),
+        days=31,
+        baseline_end=date(2026, 3, 20),
+        tracked=set(),
+        bounded=True,
+    )
+    for cadence in ("monthly", "weekly"):
+        actual = rows(history, f"focus_{cadence}_chart", identity)
+        assert {r["segment"] for r in actual} == {"Fixes", "Features", "Bots"}
+        for expected in reference[cadence]:
+            if expected["segment"] not in {"Fixes", "Features", "Bots"}:
+                continue
+            found = next(
+                r
+                for r in actual
+                if r["chart_date"].isoformat() == expected["month"]
+                and r["segment"] == expected["segment"]
+            )
+            for metric in ("avg_commits", "median_hours", "avg_rework", "avg_lines_changed"):
+                assert found[metric] == expected[metric]
+            assert found["segment_total_hours"] == expected["covered_total_hours"]
+    absent = select(history, repository="Nasdin/superset", days=31)
+    assert all(r["median_hours"] is None for r in rows(history, "focus_weekly_chart", absent))
