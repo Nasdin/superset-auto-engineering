@@ -7,3 +7,6 @@ COPY infra/bootstrap_analytics.py /app/cognition/bootstrap_analytics.py
 COPY backend/app/analytics/reporting.sql /app/cognition/reporting.sql
 USER superset
 ENV SUPERSET_CONFIG_PATH=/app/cognition/superset_config.py
+
+# Bootstrap runs by absolute script path; expose the adapter to it and Gunicorn.
+ENV PYTHONPATH=/app/pythonpath:/app:/app/cognition
