@@ -362,7 +362,7 @@
 .analytics-comparison-grid .impact-table-scroll {
   overflow: auto;
 }
-.engineering-analytics .impact-model-value {
+.engineering-analytics .model-value {
   font-family: Georgia, "Times New Roman", serif;
 }
 .login-page .login-story {
@@ -567,4 +567,18 @@
     grid-column: 1 / -1;
     grid-row: 3;
   }
+}
+
+.login-page .login-story-copy p,
+.login-page .login-trail {
+  color: #b8c0cc;
+}
+.login-page .login-trail span {
+  background: #30353e;
+  border-color: #58616e;
+  color: #f7f8fa;
+}
+.login-page .login-card input {
+  background: #fff;
+  border-color: #d8dce2;
 }
