@@ -47,7 +47,8 @@ export function RecordedCases() {
         </div>
         <div className="case-measures">
           <span>
-            <strong>{proof.tests}</strong>passing tests · {proof.failed} failed
+            <strong>{proof.tests}</strong>targeted tests passed · {proof.failed}{" "}
+            failed
           </span>
           <span>
             <strong>{proof.sha.slice(0, 8)}</strong>exact validated revision
@@ -108,6 +109,9 @@ export function RecordedCases() {
           src={proof.video}
           aria-label="Recorded Devin browser validation"
         />
+        <a href={proof.video} target="_blank" rel="noreferrer">
+          Open recording in a separate tab ↗
+        </a>
       </details>
       <p className="case-provenance">
         Recorded {new Date(proof.recorded_at).toLocaleString()} · scoped

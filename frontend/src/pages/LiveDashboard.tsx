@@ -197,7 +197,10 @@ export function LiveDashboard({ page }: { page: Page }) {
   const [status, setStatus] = useState("");
   const jobs = data?.jobs || [];
   const candidates = jobs.filter((j) => j.kind === "validation");
-  const candidate = candidates.find((j) => j.id === selected) || candidates[0];
+  const candidate =
+    candidates.find((j) => j.id === selected) ||
+    candidates.find((j) => j.state !== "stale") ||
+    candidates[0];
   const visible = jobs.filter(
     (j) =>
       (page !== "Devin runs" || j.session_url) &&
