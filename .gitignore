@@ -11,6 +11,7 @@ __pycache__/
 !.env.example
 data/
 frontend/test-results/
+frontend/test-results-*/
 frontend/playwright-report/
 .DS_Store
 

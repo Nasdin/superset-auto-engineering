@@ -9,7 +9,7 @@ test("impact shows measurement gaps and an explicit adjustable effort scenario",
     data.impact.estimate = {
       eligible_prs: 4,
       covered: true,
-      by_segment: { Fixes: 4, Features: 0, Bots: 0, Other: 0 },
+      by_segment: { Fixes: 4, Features: 0, Bots: 0, Documentation: 0 },
     };
     await route.fulfill({ json: data });
   });
@@ -196,4 +196,45 @@ test("missing history explains queued imports and withholds unknown totals while
   await expect(page.locator(".merge-hours-definition")).toContainText(
     "not engineering labour or time saved",
   );
+});
+
+test("work types replace Other and expose summed merge hours independently of the median", async ({
+  page,
+}) => {
+  await page.goto("/#analytics");
+  const comparison = page.locator(".impact-comparison");
+  await expect(
+    comparison.getByRole("heading", { name: "Work types & merge time" }),
+  ).toBeVisible();
+  await expect(
+    comparison.getByRole("columnheader", {
+      name: "Total merge hours",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    comparison.getByRole("columnheader", {
+      name: "Median merge hours",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    comparison.getByRole("rowheader", { name: "Documentation", exact: true }),
+  ).toBeVisible();
+  await expect(
+    comparison.getByRole("rowheader", { name: "Other", exact: true }),
+  ).toHaveCount(0);
+  await page.getByText("Analysis controls", { exact: true }).click();
+  await page.getByText("Refine cohort", { exact: true }).click();
+  const kinds = page.getByLabel("Work signal");
+  await expect(kinds.locator('option[value="other"]')).toHaveCount(0);
+  await kinds.selectOption("docs");
+  await expect(comparison).toBeVisible();
+  await expect(kinds).toHaveValue("docs");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
 });

@@ -80,7 +80,7 @@ def provision():
     )
     # Superset uses NullPool for chart engines, so QueuePool-only settings here
     # would crash queries. Concurrent chart connections are bounded by Gunicorn
-    # threads (four on the demo host); driver deadlines bound each operation.
+    # threads (three per process); driver deadlines bound each operation.
     extra = json.loads(database.extra or "{}")
     extra["engine_params"] = {
         "connect_args": {
@@ -108,6 +108,7 @@ def provision():
         "impact_monthly_chart",
         "impact_rolling_chart",
         "impact_total_monthly_chart",
+        "impact_segment_total_monthly_chart",
     ):
         table = (
             db.session.query(SqlaTable)
@@ -224,7 +225,7 @@ def provision():
                 metrics=[metric_name],
                 groupby=["segment"],
                 show_legend=True,
-                legendType="plain",
+                legendType="scroll",
                 legendOrientation="bottom",
                 rich_tooltip=True,
                 y_axis_format=",.1f",
@@ -270,7 +271,7 @@ def provision():
                 ],
             )
             chart.description = (
-                "Merged PRs grouped into mutually exclusive Bots, Fixes, Features and Other. "
+                "Merged PRs grouped by explicit change type, with bot authors counted only in Bots. "
                 "Missing enrichment remains blank; it is never measured zero. The dotted line "
                 "marks 2026-09-21, not a proven effect. An axis-only null row keeps the marker visible."
             )
@@ -289,6 +290,8 @@ def provision():
                         for c in (
                             "median_hours",
                             "hours_to_merge",
+                            "total_hours",
+                            "segment_total_hours",
                             "avg_commits",
                             "avg_rework",
                             "avg_lines_changed",
@@ -352,6 +355,7 @@ def provision():
             "author",
             "segment",
             "category",
+            "classification_reason",
             "tracked",
             "merged_at",
             "hours_to_merge",
@@ -399,7 +403,21 @@ def provision():
             "summed: this is neither working hours nor time saved. Uncovered months or "
             "months containing invalid durations stay blank; fully covered empty months are zero."
         )
-        charts += [total_chart, detail_chart]
+        category_total = chart_for(
+            "Total merge hours by work type · calendar month",
+            "impact_segment_total_monthly_chart",
+            "segment_total_hours",
+        )
+        category_total.description = (
+            "Sum of elapsed creation-to-merge hours by UTC merge month and mutually exclusive "
+            "work type. Bot authors belong only to Bots. Explicit title intent takes precedence "
+            "over broad labels. Documentation, dependencies, refactoring, tests, build/CI, "
+            "performance, releases, reverts and maintenance are separately named. Titles "
+            "without reliable signals remain Needs classification. Missing history or invalid "
+            "durations stay blank. Overlapping waits count separately, not as labour saved."
+        )
+        # Lead with the requested category total, full width in both layouts.
+        charts = [category_total, *charts, total_chart, detail_chart]
         slug = (
             "superset-engineering"
             + ("-rolling" if cadence == "rolling" else "")
@@ -428,7 +446,7 @@ def provision():
         rows = (
             [[chart] for chart in charts]
             if mobile
-            else (charts[:2], charts[2:4], charts[4:5], charts[5:6])
+            else (charts[:1], charts[1:3], charts[3:5], charts[5:6], charts[6:7])
         )
         for row_number, row_charts in enumerate(rows):
             row_id = f"ROW-{row_number}"
@@ -465,7 +483,16 @@ def provision():
                     "Bots": "#d39027",
                     "Fixes": "#128777",
                     "Features": "#3780d1",
-                    "Other": "#929b92",
+                    "Dependencies": "#8561b5",
+                    "Documentation": "#8b7355",
+                    "Refactoring": "#b85e7d",
+                    "Tests": "#57968c",
+                    "Build & CI": "#697b98",
+                    "Performance": "#55863e",
+                    "Releases": "#c06e36",
+                    "Reverts": "#b34747",
+                    "Maintenance": "#7c8580",
+                    "Needs classification": "#434843",
                 },
             }
         )
@@ -508,7 +535,7 @@ def provision():
         json.dumps(
             {
                 "dashboards": dashboards,
-                "charts_per_dashboard": 6,
+                "charts_per_dashboard": len(chart_ids["monthly"]),
                 "datasets": len(tables),
             }
         )

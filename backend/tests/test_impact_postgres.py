@@ -4,6 +4,7 @@ import json
 from datetime import date
 from pathlib import Path
 
+from app.analytics.classification import SEGMENTS
 from app.analytics.embedding import remember_selection
 from test_postgres import postgres  # noqa: F401
 
@@ -116,7 +117,7 @@ def test_impact_periods_segments_and_missing_measurements(postgres):  # noqa: F8
     install(store)  # Reprovisioning preserves dependencies and existing view columns.
     identity = select(history)
     monthly = rows(history, "impact_monthly", identity)
-    assert len(monthly) == 7 * 4
+    assert len(monthly) == 7 * len(SEGMENTS)
     assert min(row["month"] for row in monthly) == date(2026, 3, 1)
     assert max(row["window_end"] for row in monthly) == date(2026, 9, 20)
     assert sum(row["merged_prs"] for row in monthly) == 8
@@ -131,11 +132,11 @@ def test_impact_periods_segments_and_missing_measurements(postgres):  # noqa: F8
     assert fixes["additions"] == 10 and fixes["deletions"] == 5
     assert september["Bots"]["avg_commits"] is None
     assert september["Bots"]["additions"] is None
-    assert september["Other"]["merged_prs"] == 0
-    assert september["Other"]["median_hours"] is None
+    assert september["Documentation"]["merged_prs"] == 0
+    assert september["Documentation"]["median_hours"] is None
     assert all(row["history_covered"] for row in monthly)
     rolling = rows(history, "impact_rolling", identity)
-    assert len(rolling) == 27 * 4
+    assert len(rolling) == 27 * len(SEGMENTS)
     current = [row for row in rolling if row["window_end"] == date(2026, 9, 20)]
     assert {row["window_start"] for row in current} == {date(2026, 8, 22)}
     assert sum(row["merged_prs"] for row in current) == 6
@@ -164,7 +165,7 @@ def test_impact_filters_selection_isolation_and_axis_extent(postgres):  # noqa: 
     no_match = select(history, author="engineer' OR true --")
     assert all(row["merged_prs"] == 0 for row in rows(history, "impact_monthly", no_match))
     extent = rows(history, "impact_monthly_chart", bots, "AND chart_date=DATE '2026-09-24'")
-    assert len(extent) == 4
+    assert len(extent) == len(SEGMENTS)
     assert all(
         row[metric] is None
         for row in extent
@@ -399,4 +400,97 @@ def test_explicit_month_gap_overrides_broad_coverage_until_verified(postgres):  
             0
         ]["total_hours"]
         is None
+    )
+
+
+def test_category_totals_classification_parity_and_conservation(postgres):  # noqa: F811
+    from app.analytics.classification import classify
+    from app.analytics.impact import impact_report, segment
+    from test_analytics import record
+    from test_classification import CASES
+
+    store, history = postgres
+    docs = [
+        record(
+            i,
+            title=title,
+            labels=labels,
+            created="2026-09-01T00:00:00Z",
+            merged=f"2026-09-01T{(i % 23):02}:00:00Z",
+        )
+        for i, (title, labels, _) in enumerate(CASES, 1)
+    ]
+    docs += [record(100, title="feat: bot", author="builder[bot]", labels=[])]
+    docs += [record(39640, title="Sl permissions", labels=[])]
+    with history.connect() as c:
+        for pr in docs:
+            c.execute(
+                "INSERT INTO pull_requests(repository,number,data) VALUES(:r,:n,:d)",
+                {"r": "apache/superset", "n": pr["number"], "d": json.dumps(pr)},
+            )
+    status = {
+        "complete": True,
+        "coverage_from": "2020-01-01",
+        "last_success": "2026-09-21T00:00:00Z",
+    }
+    history.set_status("apache/superset", status)
+    install(store)
+    identity = select(history)
+    sql_docs = {row["number"]: row for row in rows(history, "details", identity)}
+    for pr in docs:
+        row = sql_docs[pr["number"]]
+        assert (row["category"], row["classification_reason"]) == classify(pr)
+        assert row["segment"] == segment(pr)
+    python = impact_report(
+        docs, status, end=date(2026, 9, 20), days=30, baseline_end=date(2026, 3, 20), tracked=set()
+    )
+    chart = rows(history, "impact_segment_total_monthly_chart", identity)
+    actual = {
+        (row["chart_date"].isoformat(), row["segment"]): row["segment_total_hours"] for row in chart
+    }
+    for row in python["monthly"]:
+        assert actual[row["month"], row["segment"]] == row["covered_total_hours"]
+    for row in rows(history, "impact_total_monthly_chart", identity):
+        if row["total_hours"] is not None:
+            assert (
+                sum(r["segment_total_hours"] for r in chart if r["chart_date"] == row["chart_date"])
+                == row["total_hours"]
+            )
+    assert all(
+        r["segment_total_hours"] is None for r in chart if r["chart_date"] == date(2026, 9, 24)
+    )
+    assert (
+        sum(
+            r["segment_total_hours"] or 0
+            for r in rows(
+                history, "impact_segment_total_monthly_chart", select(history, kind="bot")
+            )
+        )
+        == 216
+    )
+    assert all(
+        r["segment_total_hours"] is None
+        for r in rows(
+            history,
+            "impact_segment_total_monthly_chart",
+            select(history, repository="Nasdin/superset"),
+        )
+    )
+    # An invalid duration must not turn into a deceptively complete category total.
+    invalid = record(999, created="2026-09-11T00:00:00Z", merged="2026-09-10T00:00:00Z")
+    with history.connect() as c:
+        c.execute(
+            "INSERT INTO pull_requests(repository,number,data) VALUES(:r,:n,:d)",
+            {"r": "apache/superset", "n": 999, "d": json.dumps(invalid)},
+        )
+    invalid_chart = rows(
+        history, "impact_segment_total_monthly_chart", identity, "AND chart_date=DATE '2026-09-01'"
+    )
+    by_type = {r["segment"]: r["segment_total_hours"] for r in invalid_chart}
+    assert by_type["Fixes"] is None
+    assert by_type["Bots"] == 216
+    history.set_status("apache/superset", {})
+    assert all(
+        r["segment_total_hours"] is None
+        for r in rows(history, "impact_segment_total_monthly_chart", identity)
     )

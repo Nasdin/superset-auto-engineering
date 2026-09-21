@@ -3,10 +3,10 @@
 from datetime import UTC, date, timedelta
 from statistics import mean, median
 
+from .classification import CATEGORY_LABELS, SEGMENTS, category
 from .metrics import cohort, covered, hours, months_before, timestamp
 
 ROLLOUT_DATE = date(2026, 9, 21)
-SEGMENTS = ("Fixes", "Features", "Bots", "Other")
 
 
 def is_bot(pr):
@@ -14,11 +14,7 @@ def is_bot(pr):
 
 
 def segment(pr):
-    from .metrics import category
-
-    return (
-        "Bots" if is_bot(pr) else {"fix": "Fixes", "feature": "Features"}.get(category(pr), "Other")
-    )
+    return "Bots" if is_bot(pr) else CATEGORY_LABELS[category(pr)]
 
 
 def measure(rows):
@@ -86,9 +82,12 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
     completed = completed or set()
     current = window(rows, status, end, days)
     baseline = window(rows, status, baseline_end, days)
+    grouped = {name: [] for name in SEGMENTS}
+    for pr in rows:
+        grouped[segment(pr)].append(pr)
     categories = []
     for name in SEGMENTS:
-        selected = [pr for pr in rows if segment(pr) == name]
+        selected = grouped[name]
         now = window(selected, status, end, days)
         before = window(selected, status, baseline_end, days)
         categories.append(
@@ -111,7 +110,7 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
                     "month": start.isoformat(),
                     "segment": name,
                     **window(
-                        [pr for pr in rows if segment(pr) == name],
+                        grouped[name],
                         status,
                         stop,
                         (stop - start).days + 1,

@@ -12,6 +12,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field, ValidationError
 
+from .classification import CLASSIFICATION_VERSION, WorkKind
 from .metrics import months_before
 
 router = APIRouter(prefix="/api/analytics/superset", tags=["superset analytics"])
@@ -26,7 +27,7 @@ class Selection(BaseModel):
     author: str = Field(default="", max_length=100)
     label: str = Field(default="", max_length=200)
     base: str = Field(default="", max_length=200)
-    kind: Literal["", "fix", "dependency", "feature", "revert", "other", "bot"] = ""
+    kind: WorkKind = ""
     cadence: Literal["monthly", "rolling"] = "monthly"
     layout: Literal["desktop", "mobile"] = "desktop"
     provenance: Literal["all", "tracked", "untracked"] = "all"
@@ -60,7 +61,12 @@ def remember_selection(store, values):
     # SQL/cache keys from the browser or sharing a cohort across repositories.
     identity = hashlib.sha256(
         json.dumps(
-            {**values, "data_revision": store.revision(values["repository"])}, sort_keys=True
+            {
+                **values,
+                "data_revision": store.revision(values["repository"]),
+                "classification_version": CLASSIFICATION_VERSION,
+            },
+            sort_keys=True,
         ).encode()
     ).hexdigest()
     with store.connect() as db:

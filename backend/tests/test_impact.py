@@ -27,7 +27,11 @@ def test_unknown_is_not_zero_and_bot_groups_never_double_count():
         record(4, title="docs", labels=[]),
     ]
     result = report(rows)
-    assert [row["current"]["merged_prs"] for row in result["categories"]] == [1, 1, 1, 1]
+    assert {
+        row["segment"]: row["current"]["merged_prs"]
+        for row in result["categories"]
+        if row["current"]["merged_prs"]
+    } == {"Fixes": 1, "Features": 1, "Bots": 1, "Documentation": 1}
     assert sum(row["current"]["merged_prs"] for row in result["categories"]) == 4
     assert result["current"]["avg_commits"] is None
     assert result["current"]["additions"] is None

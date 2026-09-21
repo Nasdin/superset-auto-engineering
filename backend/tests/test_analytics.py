@@ -113,7 +113,7 @@ def test_invalid_dates_coverage_and_zero_baseline():
     assert result["change_percent"] is None
     assert category(record(title="Revert fix: bump dependency")) == "revert"
     assert category(record(title="chore: bump library")) == "dependency"
-    assert category(record(title="docs: examples", labels=[])) == "other"
+    assert category(record(title="docs: examples", labels=[])) == "docs"
 
 
 def test_pagination_upsert_and_cutoff(tmp_path):

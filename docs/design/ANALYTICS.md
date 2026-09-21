@@ -11,7 +11,7 @@ Prompt briefs: a restrained off-white engineering dashboard with a compact navig
 
 ## What the numbers mean
 
-All cohorts use the UTC merge date. Fixes and Features use existing title/label signals. A GitHub bot author takes precedence in the **Bots** segment, so rows cannot double-count. **Other** includes unclassified work, docs and human dependency changes. Bot accounts and ledger-tracked Devin work are separate dimensions.
+All cohorts use the UTC merge date. Fixes and Features use existing title/label signals. A GitHub bot author takes precedence in the **Bots** segment, so rows cannot double-count. **Documentation, Dependencies, Refactoring, Tests, Build & CI, Performance, Releases, Reverts and Maintenance** retain their specific meanings. Explicit title intent wins over broad labels. Only genuinely ambiguous metadata is flagged **Needs classification**; reviewed PR exceptions include a source and reason. Bot accounts and ledger-tracked Devin work are separate dimensions.
 
 | Measure | Definition | Limits |
 | --- | --- | --- |
@@ -45,3 +45,5 @@ Deployed revision `212c7804153fc59527f537e8d0d1f7c61c3db9b9` to the existing Syd
 The public test checked all five chart responses, monthly merge-metric parity with the API, monthly/rolling switching, 60-day windows, bot filtering, upstream/fork isolation, native rollout annotations and stacked charts at 390px. [Desktop screenshot](../screenshots/engineering-impact-desktop.png), [mobile screenshot](../screenshots/engineering-impact-mobile.png), and [API/authentication receipt](../analysis/engineering-impact-verification.json) are from this deployment.
 
 The initial detailed backfill imported 600 upstream PRs and four fork PRs. The hourly importer continues from persisted progress. Screenshots and receipts are point-in-time observations; counts can change during import. No post-launch improvement or measured labour savings is claimed before data exists. The workflow worker and its existing execution holds were not changed by this analytics deployment.
+
+The leading category-total chart sums creation-to-merge hours per work type and UTC merge month. It partitions the all-work total; bots never also count in a human work category. Incomplete history or invalid durations remain gaps.

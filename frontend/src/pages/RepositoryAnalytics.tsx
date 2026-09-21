@@ -206,7 +206,14 @@ export function RepositoryAnalytics() {
                   <option value="dependency">Dependencies / Dependabot</option>
                   <option value="feature">Feature / enhancement signals</option>
                   <option value="revert">Revert / rollback title</option>
-                  <option value="other">Other</option>
+                  <option value="docs">Documentation</option>
+                  <option value="refactor">Refactoring</option>
+                  <option value="test">Tests</option>
+                  <option value="build">Build &amp; CI</option>
+                  <option value="performance">Performance</option>
+                  <option value="release">Releases</option>
+                  <option value="maintenance">Maintenance / styling</option>
+                  <option value="unclassified">Needs classification</option>
                 </select>
               </label>
               <label className="compact-field">
@@ -303,10 +310,9 @@ export function RepositoryAnalytics() {
             <div>
               <h2>The direction of travel</h2>
               <p>
-                Fixes <span className="segment-dot fixes" /> Features{" "}
-                <span className="segment-dot features" /> Bots{" "}
-                <span className="segment-dot bots" /> · 21 Sep marks the start
-                of this system
+                Total merge hours by work type, followed by delivery and rework
+                trends. Bots are counted once, separately from human work. The
+                dotted line marks 21 September 2026.
               </p>
             </div>
             <div className="segmented" aria-label="Trend cadence">
@@ -327,10 +333,10 @@ export function RepositoryAnalytics() {
           />
           <p className="impact-footnote merge-hours-definition">
             Total merge hours sums the elapsed time from opening to merging for
-            every selected PR merged in each UTC month. All work groups are
-            included unless you filter the cohort. Waiting time and overlapping
-            PRs count separately; this is not engineering labour or time saved.
-            The latest month includes completed days only.
+            every selected PR merged in each UTC month, split by work type. The
+            all-work chart provides the combined total. Waiting time and
+            overlapping PRs count separately; this is not engineering labour or
+            time saved. The latest month includes completed days only.
           </p>
           <Disclosure
             title="Data source & freshness"

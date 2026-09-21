@@ -117,7 +117,7 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
     <section className="panel impact-comparison">
       <div className="panel-heading">
         <div>
-          <h2>Fixes, features & bots</h2>
+          <h2>Work types & merge time</h2>
           <p>Mutually exclusive groups · bots take precedence over work type</p>
         </div>
         <div className="segmented" aria-label="Comparison period">
@@ -142,7 +142,8 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
               <th>Work group</th>
               <th>Merged PRs</th>
               <th>Commits / PR</th>
-              <th>Merge hours</th>
+              <th>Median merge hours</th>
+              <th>Total merge hours</th>
               <th>Rework / PR</th>
               <th>Lines added</th>
               <th>Lines removed</th>
@@ -165,6 +166,7 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
                   [
                     ["avg_commits", "commits_samples"],
                     ["median_hours", "merge_samples"],
+                    ["covered_total_hours", "merge_samples"],
                     ["avg_rework", "rework_samples"],
                     ["additions", "code_samples"],
                     ["deletions", "code_samples"],
@@ -184,9 +186,12 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
         </table>
       </div>
       <p className="impact-footnote">
-        Other keeps documentation, maintenance, and unclassified human work
-        visible. Bots means GitHub bot accounts, not all AI-assisted work.
-        “Tracked Devin work” uses our workflow ledger.
+        Explicit title types take precedence over broad labels. Documentation,
+        dependencies, refactoring, tests, build and CI, performance, releases,
+        reverts, and maintenance have their own groups. “Needs classification”
+        flags titles with no reliable type signal; inspect the PR details before
+        assigning intent. Bots means GitHub bot accounts, not all AI-assisted
+        work. “Tracked Devin work” uses our workflow ledger.
       </p>
     </section>
   );
@@ -386,6 +391,7 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
             <tr>
               <th>Month / group</th>
               <th>Merged PRs</th>
+              <th>Total merge hours</th>
               <th>Commit samples</th>
               <th>Rework samples</th>
               <th>Code samples</th>
@@ -402,6 +408,7 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
                   {row.merged_prs}
                   {!row.covered && <small>observed · incomplete</small>}
                 </td>
+                <td>{number(row.covered_total_hours)}</td>
                 <td>{row.commits_samples}</td>
                 <td>{row.rework_samples}</td>
                 <td>{row.code_samples}</td>

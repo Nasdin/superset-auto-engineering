@@ -2,10 +2,11 @@
 
 import calendar
 import math
-import re
 from collections import Counter
 from datetime import UTC, date, datetime, timedelta
 from statistics import median
+
+from .classification import category, classify
 
 
 def months_before(day: date, months=6):
@@ -16,35 +17,6 @@ def months_before(day: date, months=6):
 
 def timestamp(value):
     return datetime.fromisoformat(value.replace("Z", "+00:00")) if value else None
-
-
-def category(pr):
-    """Observable, mutually exclusive title/label signals, not semantic ground truth."""
-    title = pr["title"].lower()
-    labels = {label.lower() for label in pr["labels"]}
-    if re.search(r"\brevert\b|\brollback\b", title):
-        return "revert"
-    if (
-        pr["author"].lower() == "dependabot[bot]"
-        or any(
-            label in {"dependencies", ".dependency", "dependabot"}
-            or label.startswith("dependencies:")
-            for label in labels
-        )
-        or re.search(r"\b(deps|dependency|dependencies|bump)\b", title)
-    ):
-        return "dependency"
-    if re.match(r"(fix|bugfix)(\b|\()", title) or labels & {
-        "#bug",
-        "bug",
-        "fix",
-        "bugfix",
-        "type:bug",
-    }:
-        return "fix"
-    if re.match(r"(feat|feature)(\b|\()", title) or labels & {"enhancement", "feature"}:
-        return "feature"
-    return "other"
 
 
 def hours(pr):
@@ -178,6 +150,7 @@ def analyze(
                 **pr,
                 "hours_to_merge": hours(pr),
                 "category": category(pr),
+                "classification_reason": classify(pr)[1],
                 "tracked": pr["number"] in tracked,
             }
             for pr in merged[offset : offset + 50]

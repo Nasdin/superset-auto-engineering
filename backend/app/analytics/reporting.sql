@@ -11,12 +11,41 @@ WITH source AS (
  FROM source
 ), classified AS (
 SELECT *,lower(author)='dependabot[bot]' AS dependabot,
- CASE WHEN lower(title) ~ '\m(revert|rollback)\M' THEN 'revert'
- WHEN lower(author)='dependabot[bot]' OR lower(title) ~ '\m(deps|dependency|dependencies|bump)\M'
- OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) IN ('dependencies','.dependency','dependabot') OR lower(l) LIKE 'dependencies:%') THEN 'dependency'
- WHEN lower(title) ~ '^(fix|bugfix)(\M|\()' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) IN ('#bug','bug','fix','bugfix','type:bug')) THEN 'fix'
- WHEN lower(title) ~ '^(feat|feature)(\M|\()' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) IN ('enhancement','feature')) THEN 'feature'
- ELSE 'other' END AS category,
+ -- BEGIN GENERATED category
+CASE
+ WHEN url='https://github.com/apache/superset/pull/39640' THEN 'feature'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(revert|rollback)([^a-z0-9_]|$)' THEN 'revert'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(fix|bugfix|hotfix)([^a-z0-9_]|$)' THEN 'fix'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(feat|feature)([^a-z0-9_]|$)' THEN 'feature'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(docs?|documentation)([^a-z0-9_]|$)' THEN 'docs'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(refactor)([^a-z0-9_]|$)' THEN 'refactor'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(tests?|testing)([^a-z0-9_]|$)' THEN 'test'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(perf|performance)([^a-z0-9_]|$)' THEN 'performance'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(release)([^a-z0-9_]|$)|^helm chart release([^a-z0-9_]|$)' THEN 'release'
+ WHEN lower(btrim(title)) ~ '^chore\((docs?|documentation)\)' THEN 'docs'
+ WHEN lower(btrim(title)) ~ '^chore\((ci|build)\)' THEN 'build'
+ WHEN lower(btrim(title)) ~ '^chore\((tests?|testing)\)' THEN 'test'
+ WHEN lower(btrim(title)) ~ '^chore\((perf|performance)\)' THEN 'performance'
+ WHEN lower(btrim(title)) ~ '^chore\((refactor)\)' THEN 'refactor'
+ WHEN lower(btrim(title)) ~ '^chore\((release)\)' THEN 'release'
+ WHEN lower(btrim(title)) ~ '^(chore|build)\(deps[^)]*\)|^(chore:[ ]*)?(bump|upgrade|downgrade|pin)[ ]' THEN 'dependency'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(build|ci)([^a-z0-9_]|$)' THEN 'build'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(dependencies(:.*)?|\.dependency|dependabot)$') THEN 'dependency'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(chore|style|cleanup)([^a-z0-9_]|$)' THEN 'maintenance'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?bug|fix|bugfix|type:bug|type: bug)$') THEN 'fix'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?feature|enhancement|type:feature|type: feature)$') THEN 'feature'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?docs?|documentation|type:documentation)$') THEN 'docs'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(refactor|refactoring)$') THEN 'refactor'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(test|tests|testing)$') THEN 'test'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(build|ci|ci/cd)$') THEN 'build'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(perf|performance)$') THEN 'performance'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(release|releases)$') THEN 'release'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(maintenance|chore|cleanup)$') THEN 'maintenance'
+ WHEN lower(btrim(title)) ~ '(^|[^a-z0-9_])(bump|upgrade|downgrade|pin)[ ]|^(deps|dependencies|dependency)([^a-z0-9_]|$)' THEN 'dependency'
+ WHEN lower(btrim(title)) ~ '(add|adding).*(to inthewild|to supersetbot metadata)' THEN 'maintenance'
+ WHEN lower(author)='dependabot[bot]' THEN 'dependency'
+ ELSE 'unclassified' END AS category,
+-- END GENERATED category
  CASE WHEN merged_at>=created_at THEN extract(epoch FROM (merged_at-created_at))/3600.0 END AS hours_to_merge
 FROM normalized
 )
@@ -32,7 +61,47 @@ SELECT c.*,
  doc->>'enrichment_state' AS enrichment_state,
  (lower(COALESCE(doc->>'author_type',''))='bot' OR right(lower(COALESCE(c.author,'')),5)='[bot]') AS is_bot,
  CASE WHEN lower(COALESCE(doc->>'author_type',''))='bot' OR right(lower(COALESCE(c.author,'')),5)='[bot]' THEN 'Bots'
- WHEN c.category='fix' THEN 'Fixes' WHEN c.category='feature' THEN 'Features' ELSE 'Other' END AS segment
+ WHEN c.category='fix' THEN 'Fixes' WHEN c.category='feature' THEN 'Features'
+ WHEN c.category='dependency' THEN 'Dependencies' WHEN c.category='docs' THEN 'Documentation'
+ WHEN c.category='refactor' THEN 'Refactoring' WHEN c.category='test' THEN 'Tests'
+ WHEN c.category='build' THEN 'Build & CI' WHEN c.category='performance' THEN 'Performance'
+ WHEN c.category='release' THEN 'Releases' WHEN c.category='revert' THEN 'Reverts'
+ WHEN c.category='maintenance' THEN 'Maintenance' ELSE 'Needs classification' END AS segment,
+-- BEGIN GENERATED classification_reason
+CASE
+ WHEN url='https://github.com/apache/superset/pull/39640' THEN 'Reviewed PR body and diff: new semantic-layer access permissions'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(revert|rollback)([^a-z0-9_]|$)' THEN 'Revert or rollback title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(fix|bugfix|hotfix)([^a-z0-9_]|$)' THEN 'Fix title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(feat|feature)([^a-z0-9_]|$)' THEN 'Feature title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(docs?|documentation)([^a-z0-9_]|$)' THEN 'Documentation title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(refactor)([^a-z0-9_]|$)' THEN 'Refactoring title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(tests?|testing)([^a-z0-9_]|$)' THEN 'Test title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(perf|performance)([^a-z0-9_]|$)' THEN 'Performance title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(release)([^a-z0-9_]|$)|^helm chart release([^a-z0-9_]|$)' THEN 'Release title'
+ WHEN lower(btrim(title)) ~ '^chore\((docs?|documentation)\)' THEN 'Explicit documentation scope'
+ WHEN lower(btrim(title)) ~ '^chore\((ci|build)\)' THEN 'Explicit build & ci scope'
+ WHEN lower(btrim(title)) ~ '^chore\((tests?|testing)\)' THEN 'Explicit tests scope'
+ WHEN lower(btrim(title)) ~ '^chore\((perf|performance)\)' THEN 'Explicit performance scope'
+ WHEN lower(btrim(title)) ~ '^chore\((refactor)\)' THEN 'Explicit refactoring scope'
+ WHEN lower(btrim(title)) ~ '^chore\((release)\)' THEN 'Explicit releases scope'
+ WHEN lower(btrim(title)) ~ '^(chore|build)\(deps[^)]*\)|^(chore:[ ]*)?(bump|upgrade|downgrade|pin)[ ]' THEN 'Dependency update title'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(build|ci)([^a-z0-9_]|$)' THEN 'Build or CI title'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(dependencies(:.*)?|\.dependency|dependabot)$') THEN 'Dependency label'
+ WHEN lower(btrim(title)) ~ '^(\[[^]]+\][ ]*)?(chore|style|cleanup)([^a-z0-9_]|$)' THEN 'Maintenance or styling title'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?bug|fix|bugfix|type:bug|type: bug)$') THEN 'Bug or fix label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?feature|enhancement|type:feature|type: feature)$') THEN 'Feature or enhancement label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(#?docs?|documentation|type:documentation)$') THEN 'Documentation label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(refactor|refactoring)$') THEN 'Refactoring label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(test|tests|testing)$') THEN 'Test label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(build|ci|ci/cd)$') THEN 'Build or CI label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(perf|performance)$') THEN 'Performance label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(release|releases)$') THEN 'Release label'
+ WHEN EXISTS(SELECT 1 FROM jsonb_array_elements_text(labels) l WHERE lower(l) ~ '^(maintenance|chore|cleanup)$') THEN 'Maintenance label'
+ WHEN lower(btrim(title)) ~ '(^|[^a-z0-9_])(bump|upgrade|downgrade|pin)[ ]|^(deps|dependencies|dependency)([^a-z0-9_]|$)' THEN 'Dependency update wording'
+ WHEN lower(btrim(title)) ~ '(add|adding).*(to inthewild|to supersetbot metadata)' THEN 'Community metadata update'
+ WHEN lower(author)='dependabot[bot]' THEN 'Dependabot author'
+ ELSE 'No reliable type signal in title or labels' END AS classification_reason
+-- END GENERATED classification_reason
 FROM classified c JOIN source USING(repository,number);
 
 CREATE OR REPLACE VIEW reporting.selected_prs AS
@@ -143,7 +212,7 @@ SELECT w.selection_id,w.repository,w.cadence,w.cohort,w.month,w.window_start,w.w
  reporting.history_covered(w.repository,w.window_start,w.window_end) AS history_covered,
  sum(p.hours_to_merge)::double precision AS total_hours
 FROM reporting.impact_periods w
-CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Other')) g(segment)
+CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Dependencies'),('Documentation'),('Refactoring'),('Tests'),('Build & CI'),('Performance'),('Releases'),('Reverts'),('Maintenance'),('Needs classification')) g(segment)
 LEFT JOIN reporting.selected_prs p ON p.selection_id=w.selection_id AND p.segment=g.segment
  AND p.merged_at>=(w.window_start::timestamp AT TIME ZONE 'UTC')
  AND p.merged_at<((w.window_end+1)::timestamp AT TIME ZONE 'UTC')
@@ -169,7 +238,7 @@ UNION ALL
 SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
  THEN GREATEST(s.window_end::date,DATE '2026-09-24') ELSE s.window_end::date END,g.segment,
  NULL::double precision,NULL::double precision,NULL::double precision,NULL::double precision
-FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Other')) g(segment);
+FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Dependencies'),('Documentation'),('Refactoring'),('Tests'),('Build & CI'),('Performance'),('Releases'),('Reverts'),('Maintenance'),('Needs classification')) g(segment);
 CREATE OR REPLACE VIEW reporting.impact_rolling_chart AS
 SELECT selection_id,window_end AS chart_date,segment,
  CASE WHEN history_covered THEN median_hours END AS median_hours,
@@ -181,7 +250,7 @@ UNION ALL
 SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
  THEN GREATEST(s.window_end::date,DATE '2026-09-24') ELSE s.window_end::date END,g.segment,
  NULL::double precision,NULL::double precision,NULL::double precision,NULL::double precision
-FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Other')) g(segment);
+FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Dependencies'),('Documentation'),('Refactoring'),('Tests'),('Build & CI'),('Performance'),('Releases'),('Reverts'),('Maintenance'),('Needs classification')) g(segment);
 
 -- A month is one non-overlapping UTC merge-date cohort. Totals represent elapsed
 -- PR time, not engineer labour: overlapping PR durations are intentionally summed.
@@ -198,6 +267,18 @@ SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
  'All selected PRs'::text,NULL::double precision
 FROM public.analytics_selections s;
 
+-- The category totals partition the all-work monthly total without double counting.
+CREATE OR REPLACE VIEW reporting.impact_segment_total_monthly_chart AS
+SELECT selection_id,month AS chart_date,segment,
+ CASE WHEN history_covered AND measured_prs=merged_prs
+ THEN COALESCE(total_hours,0)::double precision END AS segment_total_hours
+FROM reporting.impact_monthly
+UNION ALL
+SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
+ THEN GREATEST(s.window_end::date,DATE '2026-09-24') ELSE s.window_end::date END,
+ g.segment,NULL::double precision
+FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Dependencies'),('Documentation'),('Refactoring'),('Tests'),('Build & CI'),('Performance'),('Releases'),('Reverts'),('Maintenance'),('Needs classification')) g(segment);
+
 REVOKE EXECUTE ON FUNCTION reporting.history_covered(text,date,date) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION reporting.history_covered(text,date,date) TO cognition_reader;
 REVOKE ALL ON SCHEMA reporting FROM PUBLIC;
@@ -205,4 +286,4 @@ GRANT USAGE ON SCHEMA reporting TO cognition_reader;
 GRANT SELECT ON reporting.comparison,reporting.cohorts,reporting.trend,reporting.details,
  reporting.impact_monthly,reporting.impact_rolling,reporting.impact_categories,
  reporting.impact_monthly_chart,reporting.impact_rolling_chart,
- reporting.impact_total_monthly_chart TO cognition_reader;
+ reporting.impact_total_monthly_chart,reporting.impact_segment_total_monthly_chart TO cognition_reader;

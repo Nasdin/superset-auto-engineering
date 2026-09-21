@@ -67,7 +67,7 @@ services:
     logging: *small-logging
     environment:
       SERVER_WORKER_AMOUNT: '1'
-      SERVER_THREADS_AMOUNT: '4'
+      SERVER_THREADS_AMOUNT: '3'
       WORKER_MAX_REQUESTS: '1000'
       WORKER_MAX_REQUESTS_JITTER: '100'
   ingress:

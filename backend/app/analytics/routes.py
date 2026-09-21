@@ -6,6 +6,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 
 from .backfill import MonthBackfill
+from .classification import CLASSIFICATION_VERSION, WorkKind
 from .metrics import analyze, months_before
 
 router = APIRouter(prefix="/api/analytics", tags=["repository analytics"])
@@ -43,7 +44,7 @@ def pull_requests(
     author: str = Query(default="", max_length=100),
     label: str = Query(default="", max_length=200),
     base: str = Query(default="", max_length=200),
-    kind: Literal["", "fix", "dependency", "feature", "revert", "other", "bot"] = "",
+    kind: WorkKind = "",
     provenance: Literal["all", "tracked", "untracked"] = "all",
     offset: int = Query(default=0, ge=0, le=100000),
 ):
@@ -129,6 +130,7 @@ def pull_requests(
             "repositories": repositories,
             "workflow_repository": engine.settings.repo,
             "provenance": "GitHub REST API / persisted public PR metadata",
+            "classification_version": CLASSIFICATION_VERSION,
             "backfill": loading,
             **analyze(
                 stored_pulls,
