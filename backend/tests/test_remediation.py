@@ -686,3 +686,110 @@ def test_attachment_correction_cannot_revive_concurrently_superseded_validation(
     assert len(replacements) == 1 and replacements[0]["state"] == "queued"
     assert db.recall("handoff-followup:" + job["id"]) is None
     assert db.publications() == [] and p.messages == []
+
+
+def test_pending_ci_progress_dedupes_across_restart_and_republishes_final_readiness(system):
+    db, p, e, service = system
+    job = validation(db)
+    e.finish_validation(job, result())
+    for _ in range(5):
+        e.flush_publication()
+    initial_ready_comments = len(p.comments)
+    assert initial_ready_comments == 2 and p.ready_calls == 1
+    initial_success_checks = copy.deepcopy(p.checks)
+
+    # Marking ready can trigger a same-SHA CI rerun; publish that state once.
+    p.checks[0].update(status="queued", conclusion=None)
+    service.reconcile()
+    for _ in range(3):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+    pending_comments = len(p.comments)
+    assert pending_comments == initial_ready_comments + 2
+    receipts_before_restart = {item["key"] for item in db.all_publications()}
+    e = Engine(e.settings, Store(db.path), p)
+    db = e.store
+    service = RemediationService(e.settings, db, p)
+
+    # Different jobs start/finish, but the pending gate and runtime evidence are unchanged.
+    for checks in [
+        [{"name": "regression", "status": "in_progress", "conclusion": None}],
+        [
+            {"name": "regression", "status": "completed", "conclusion": "success"},
+            {"name": "browser", "status": "queued", "conclusion": None},
+        ],
+        [
+            {"name": "regression", "status": "completed", "conclusion": "success"},
+            {"name": "browser", "status": "in_progress", "conclusion": None},
+        ],
+    ]:
+        p.checks = checks
+        service.reconcile()
+        for _ in range(3):
+            e.flush_publication()
+        assert db.get(job["id"])["state"] == "awaiting_ci"
+        assert db.get(job["id"])["result"]["ci"]["state"] == "pending"
+        assert len(p.comments) == pending_comments
+        assert {item["key"] for item in db.all_publications()} == receipts_before_restart
+
+    # Even an identical success snapshot to the initial one needs a new final report:
+    # the last delivered report is now the awaiting-CI transition.
+    p.checks = initial_success_checks
+    service.reconcile()
+    for _ in range(4):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "review_ready"
+    assert len(p.comments) == pending_comments + 2
+    assert all("release validation — review ready" in body for _, body in p.comments[-2:])
+    assert db.get(job["id"])["result"]["report_transition"] == 3
+    service.reconcile()
+    e.flush_publication()
+    assert len(p.comments) == pending_comments + 2
+
+    # A genuine later failure is not swallowed by the pending-progress deduplication.
+    p.checks[0]["conclusion"] = "failure"
+    service.reconcile()
+    for _ in range(3):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "validation_failed"
+    assert len(p.comments) == pending_comments + 4
+    assert all("release validation — validation failed" in body for _, body in p.comments[-2:])
+
+
+def test_pending_ci_revised_evidence_is_not_suppressed(system):
+    db, p, e, service = system
+    p.checks[0].update(status="queued", conclusion=None)
+    job = validation(db)
+    handoff = result()
+    e.finish_validation(job, handoff)
+    initial = {item["key"] for item in db.all_publications()}
+    revised = copy.deepcopy(handoff)
+    revised["summary"] = "Agent supplied a revised measured test report"
+    revised["test_results"]["passed"] += 1
+    e.finish_validation(db.get(job["id"]), revised)
+    publications = db.all_publications()
+    assert len(publications) == len(initial) + 2
+    assert initial < {item["key"] for item in publications}
+    e.finish_validation(db.get(job["id"]), revised)
+    assert len(db.all_publications()) == len(publications)
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+
+
+def test_existing_pending_gate_without_new_counter_does_not_republish_after_patch(system):
+    db, p, e, service = system
+    p.checks[0].update(status="queued", conclusion=None)
+    job = validation(db)
+    e.finish_validation(job, result())
+    for _ in range(3):
+        e.flush_publication()
+    old_result = db.get(job["id"])["result"]
+    old_result.pop("report_transition")  # Simulate a persisted gate from before this change.
+    db.update(job["id"], result=old_result)
+    existing = {item["key"] for item in db.all_publications()}
+    e = Engine(e.settings, Store(db.path), p)
+    p.checks[0]["status"] = "in_progress"
+    RemediationService(e.settings, e.store, p).reconcile()
+    e.flush_publication()
+    assert {item["key"] for item in e.store.all_publications()} == existing
+    assert len(p.comments) == 2
+    assert e.store.get(job["id"])["result"]["ci"]["checks"][0]["status"] == "in_progress"

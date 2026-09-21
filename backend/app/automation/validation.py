@@ -185,6 +185,31 @@ class ValidationService:
             "limit": self.settings.max_remediation_attempts,
             "next": followups[0]["kind"] if followups else None,
         }
+        prior = self.store.get(job["id"])
+        prior_result = prior.get("result") or {}
+        evidence_fields = (
+            "handoff_attachment_id",
+            "candidate_sha",
+            "evidence_version",
+            "task_complete",
+            "passed",
+            "summary",
+            "blocker",
+            "checks",
+            "artifacts",
+            "api_requests",
+            "coverage",
+            "test_results",
+        )
+        evidence = {key: result.get(key) for key in evidence_fields}
+        unchanged_pending = prior["state"] == status == "awaiting_ci" and evidence == {
+            key: prior_result.get(key) for key in evidence_fields
+        }
+        # Persist the latest CI progress without repeatedly publishing unchanged evidence.
+        # A later return to review-ready must still have its own durable delivery identity.
+        result["report_transition"] = prior_result.get("report_transition", 0) + int(
+            prior["state"] != status
+        )
         report = self.reports.build(job, result, status)
         targets = [job["pr_number"]]
         if job["payload"].get("issue_number"):
@@ -199,20 +224,22 @@ class ValidationService:
                 for m in job["payload"].get("members", [])
             ],
         }
-        if self.settings.autonomous_remediation:
-            metadata["revision"] = hashlib.sha256(
-                json.dumps(
-                    {"handoff": result.get("handoff_attachment_id"), "status": status, "ci": ci},
-                    sort_keys=True,
-                ).encode()
-            ).hexdigest()[:16]
-        elif result.get("handoff_attachment_id"):
-            metadata["revision"] = result["handoff_attachment_id"]
+        metadata["revision"] = hashlib.sha256(
+            json.dumps(
+                {
+                    "evidence": evidence,
+                    "status": status,
+                    "ci": {"state": "pending"} if status == "awaiting_ci" else ci,
+                    "transition": result["report_transition"],
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:16]
         publications = [
             self.outbox.prepare_github(job["id"], number, report, validation=metadata)
-            for number in dict.fromkeys(targets)
+            for number in (dict.fromkeys(targets) if not unchanged_pending else [])
         ]
-        if self.settings.slack_token and self.settings.slack_channel:
+        if not unchanged_pending and self.settings.slack_token and self.settings.slack_channel:
             publications.append(self.outbox.prepare_slack(job, report, validation=metadata))
         if valid and self.providers.pr(job["pr_number"]).get("draft", False):
             publications.append(self.outbox.prepare_ready(job, metadata.get("revision", "initial")))

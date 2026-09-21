@@ -1,0 +1,303 @@
+{
+  "verified_at": "2026-09-21T08:09:08.675133+00:00",
+  "candidate_sha": "2e52222e6dcd4596972e37472a32915e4697c8b9",
+  "gate": "awaiting_ci",
+  "validator_session": "https://app.devin.ai/sessions/4a8c8b6b01e74611b1aa332e230357a9",
+  "job_id": "cd3b1f79-087b-431f-a4f7-634d8b433205",
+  "implementation_session": "https://app.devin.ai/sessions/c1fcd9205f4e448f8320b32c8c57bda5",
+  "discovery_session": "https://app.devin.ai/sessions/3def8e1dff9f43b4853d4b2fdd7e972e",
+  "tests": {
+    "failed": 0,
+    "passed": 586,
+    "command": "cd ~/repos/superset && SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab --junitxml=~/evidence/junit.xml -p no:cacheprovider -q -o addopts=''",
+    "skipped": 0,
+    "report_url": "https://app.devin.ai/attachments/972fa6aa-286f-41cf-b9dc-b8a20fd4344e/test_report.txt"
+  },
+  "coverage": {
+    "scope": "superset/sql/parse.py (changed module: 436/447 lines, 126/128 branches) + superset/db_engine_specs/clickhouse.py (95/166 lines, 7/36 branches); not an overall Superset percentage",
+    "command": "cd ~/repos/superset && SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab --junitxml=~/evidence/junit.xml -p no:cacheprovider -q -o addopts='' && ~/venv-val/bin/python -m coverage json/xml/report --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py'",
+    "report_url": "https://app.devin.ai/attachments/4b11a5e6-a787-4384-b901-41ec9cde55d2/coverage.json",
+    "lines_total": 613,
+    "lines_covered": 531,
+    "branches_total": 164,
+    "branches_covered": 133
+  },
+  "ci": {
+    "state": "pending",
+    "checks": 96
+  },
+  "github": {
+    "number": 10,
+    "state": "open",
+    "draft": false,
+    "merged": false,
+    "head_sha": "2e52222e6dcd4596972e37472a32915e4697c8b9",
+    "base": "cognition-local-e2e-20260921"
+  },
+  "publications": [
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:10:884c3f2f7b0684bd",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10#issuecomment-5757359537",
+      "error": null,
+      "updated": 1789978136.004044
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:9:884c3f2f7b0684bd",
+      "state": "pending",
+      "url": null,
+      "error": null,
+      "updated": 1789978114.472307
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:8:884c3f2f7b0684bd",
+      "state": "pending",
+      "url": null,
+      "error": null,
+      "updated": 1789978114.470904
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:9:ebabaf7a7377fb4d",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/9#issuecomment-5757348362",
+      "error": null,
+      "updated": 1789978074.141324
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:8:ebabaf7a7377fb4d",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/issues/8#issuecomment-5757345066",
+      "error": null,
+      "updated": 1789978055.092012
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:10:ebabaf7a7377fb4d",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10#issuecomment-5757341765",
+      "error": null,
+      "updated": 1789978036.427835
+    },
+    {
+      "key": "github-ready:cd3b1f79-087b-431f-a4f7-634d8b433205:2e52222e6dcd4596972e37472a32915e4697c8b9:46dfcc3662f408c2",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10",
+      "error": null,
+      "updated": 1789977979.8017762
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:9:46dfcc3662f408c2",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/9#issuecomment-5757327412",
+      "error": null,
+      "updated": 1789977955.8051882
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:8:46dfcc3662f408c2",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/issues/8#issuecomment-5757324231",
+      "error": null,
+      "updated": 1789977936.973689
+    },
+    {
+      "key": "github:cd3b1f79-087b-431f-a4f7-634d8b433205:10:46dfcc3662f408c2",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10#issuecomment-5757320037",
+      "error": null,
+      "updated": 1789977912.3894851
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "video",
+      "name": "browser_journey.mp4",
+      "url": "https://app.devin.ai/attachments/0dce0a19-c9e7-4df3-9122-8729ba270bc2/browser_journey.mp4",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/7777b27e147a1de3c613a666cbde47f662c5bc0e0bfeb8712a4b3e79bb86eb73.mp4",
+      "http_status": 200,
+      "content_type": "video/mp4",
+      "sha256": "7777b27e147a1de3c613a666cbde47f662c5bc0e0bfeb8712a4b3e79bb86eb73",
+      "bytes": 4074699,
+      "committed_copy": "browser-journey.mp4"
+    },
+    {
+      "kind": "screenshot",
+      "name": "01-login.png",
+      "url": "https://app.devin.ai/attachments/9ed189df-fd3c-4131-b6f0-b010db436f0f/01-login.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/9b4253c7826d1770718aa7bf51920b0d3811c092ce6c33ed0915d64beb597764.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "9b4253c7826d1770718aa7bf51920b0d3811c092ce6c33ed0915d64beb597764",
+      "bytes": 228873
+    },
+    {
+      "kind": "screenshot",
+      "name": "02-sqllab-limit-by-5-rows.png",
+      "url": "https://app.devin.ai/attachments/68630007-f494-45ec-a36a-86a897d90b9e/02-sqllab-limit-by-5-rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/9ae3754f47bda3647851f5fbba1ed14c19393cf48a85ffdbc3c93be1c59426a9.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "9ae3754f47bda3647851f5fbba1ed14c19393cf48a85ffdbc3c93be1c59426a9",
+      "bytes": 280614,
+      "committed_copy": "sqllab-five-rows.png"
+    },
+    {
+      "kind": "screenshot",
+      "name": "03-sqllab-offset-4-rows.png",
+      "url": "https://app.devin.ai/attachments/34eb3148-f121-4d94-9478-0f5f9794ada0/03-sqllab-offset-4-rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/5cc636a58d9a9549e56c5f4bb162f030f53ffb13937f472ebcd0bdc44287858c.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "5cc636a58d9a9549e56c5f4bb162f030f53ffb13937f472ebcd0bdc44287858c",
+      "bytes": 276064
+    },
+    {
+      "kind": "screenshot",
+      "name": "04-sqllab-plain-limit-2-rows.png",
+      "url": "https://app.devin.ai/attachments/4e2caffb-01cf-4686-a84d-e1ccce06b2d6/04-sqllab-plain-limit-2-rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/a9f23d966fe25b4d6b8d2d64ba13c78db7b5d3855a1c24e2f9fdbfe1dba94b72.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "a9f23d966fe25b4d6b8d2d64ba13c78db7b5d3855a1c24e2f9fdbfe1dba94b72",
+      "bytes": 264165
+    },
+    {
+      "kind": "screenshot",
+      "name": "05-chart-table-5-rows.png",
+      "url": "https://app.devin.ai/attachments/7d42891e-4a69-46e1-9b1c-c84d8cf814a8/05-chart-table-5-rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/a351d191dba429dec18b16dd1a85b342b4cfbb5a5428fe66a605acee9fab0338.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "a351d191dba429dec18b16dd1a85b342b4cfbb5a5428fe66a605acee9fab0338",
+      "bytes": 351217
+    },
+    {
+      "kind": "screenshot",
+      "name": "06-dashboard-saved.png",
+      "url": "https://app.devin.ai/attachments/bd6697c3-8e0e-4e6a-a0ef-c0e97b492f4c/06-dashboard-saved.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/b1992b5d027fe6e95a70a66cbb743eee703df8976b1940b937ec4409f8915378.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "b1992b5d027fe6e95a70a66cbb743eee703df8976b1940b937ec4409f8915378",
+      "bytes": 291127
+    },
+    {
+      "kind": "screenshot",
+      "name": "07-dashboard-reloaded.png",
+      "url": "https://app.devin.ai/attachments/e2954d0d-6828-4fa8-81de-7ef37e275acc/07-dashboard-reloaded.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/f0fb8dd654771ea11266afea4a3ef3547d412b7b2d991d12ee6415334f7ee579.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "f0fb8dd654771ea11266afea4a3ef3547d412b7b2d991d12ee6415334f7ee579",
+      "bytes": 252846,
+      "committed_copy": "dashboard-reloaded.png"
+    },
+    {
+      "kind": "logs",
+      "name": "superset_server_log.txt",
+      "url": "https://app.devin.ai/attachments/8d634b41-7519-4e69-bb70-33b4fcb120c2/superset_server_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/26cae83090d96c898a151f9902ebe0806e1ad30f881d3752187a6a28f32ef0ec.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "26cae83090d96c898a151f9902ebe0806e1ad30f881d3752187a6a28f32ef0ec",
+      "bytes": 44664
+    },
+    {
+      "kind": "logs",
+      "name": "database_behavior_log.txt",
+      "url": "https://app.devin.ai/attachments/92c81065-6750-4159-864a-ea9252ae5196/database_behavior_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/01da864825784cf7fc26ee9cc4cbf861877e9333d1941b01e6abbd63f6411862.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "01da864825784cf7fc26ee9cc4cbf861877e9333d1941b01e6abbd63f6411862",
+      "bytes": 1372
+    },
+    {
+      "kind": "logs",
+      "name": "behavior_parse_check.txt",
+      "url": "https://app.devin.ai/attachments/adeb6ecf-4eba-4fcb-84da-6c9069fe18ca/behavior_parse_check.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/999cb3c3aae9bb00a1672f636cec2878af0b005995805669fbf2bc6a4c1afdb6.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "999cb3c3aae9bb00a1672f636cec2878af0b005995805669fbf2bc6a4c1afdb6",
+      "bytes": 1417
+    },
+    {
+      "kind": "logs",
+      "name": "expected_behavior.txt",
+      "url": "https://app.devin.ai/attachments/18012722-1359-4a30-86ab-cacc9f09f5ed/expected_behavior.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/4f472c17804e7156aabc08544a77521d02e571315a75b63510dd3f44b556c449.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "4f472c17804e7156aabc08544a77521d02e571315a75b63510dd3f44b556c449",
+      "bytes": 2719
+    },
+    {
+      "kind": "api",
+      "name": "api_transcript.txt",
+      "url": "https://app.devin.ai/attachments/0c7ec7ce-fd4c-4bfe-a9a8-0e59990036cc/api_transcript.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/a175e0faca8c8536aeb49562d9785848e9e9a9e68b44847b432ff1717f601f14.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "a175e0faca8c8536aeb49562d9785848e9e9a9e68b44847b432ff1717f601f14",
+      "bytes": 5748,
+      "committed_copy": "api-transcript.txt"
+    },
+    {
+      "kind": "tests",
+      "name": "test_report.txt",
+      "url": "https://app.devin.ai/attachments/972fa6aa-286f-41cf-b9dc-b8a20fd4344e/test_report.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/3f973a247efedf42f869fef21bd3ea3a76e456aeb897ca677ec00a04419eb653.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "3f973a247efedf42f869fef21bd3ea3a76e456aeb897ca677ec00a04419eb653",
+      "bytes": 4207,
+      "committed_copy": "test-report.txt"
+    },
+    {
+      "kind": "tests",
+      "name": "junit_report.txt",
+      "url": "https://app.devin.ai/attachments/76410d4e-8cb1-44a7-8a82-d727a6e4df39/junit_report.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/d44d74130dc09689004d3abd42d6faf9f0b263ea32c60cbb16245ef6ce2bfcc6.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "d44d74130dc09689004d3abd42d6faf9f0b263ea32c60cbb16245ef6ce2bfcc6",
+      "bytes": 93465
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage.json",
+      "url": "https://app.devin.ai/attachments/4b11a5e6-a787-4384-b901-41ec9cde55d2/coverage.json",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/7897bef7bf3d80479187f807653704238797dfd06db6857733f3eb56c95fbe9a.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "7897bef7bf3d80479187f807653704238797dfd06db6857733f3eb56c95fbe9a",
+      "bytes": 62798,
+      "committed_copy": "coverage.json"
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage.xml",
+      "url": "https://app.devin.ai/attachments/2d528f4a-0efd-41d5-a08d-8c86596e5c10/coverage.xml",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/285a576263ed580f67f5bf8519f45a9da17997160aa3e2b99e4fe7258e87d8bd.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "285a576263ed580f67f5bf8519f45a9da17997160aa3e2b99e4fe7258e87d8bd",
+      "bytes": 27489
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage_report.txt",
+      "url": "https://app.devin.ai/attachments/085bdde5-62da-4375-8cb4-9630c63b42cb/coverage_report.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/15c325217c7729e1b801d119271fc13de928d403c46ca3514816bfca063a67ad.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "15c325217c7729e1b801d119271fc13de928d403c46ca3514816bfca063a67ad",
+      "bytes": 1086
+    }
+  ],
+  "limitations": [
+    "Temporary public-evidence URLs require the local server and tunnel to remain running.",
+    "Async Celery SQL Lab and CSV export paths were not validated.",
+    "Codex fixed orchestration policy/concurrency during this development run; Devin alone authored Superset fixes and runtime evidence.",
+    "No merge or AWS deployment performed."
+  ]
+}

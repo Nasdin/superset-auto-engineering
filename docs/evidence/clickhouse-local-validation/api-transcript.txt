@@ -1,0 +1,51 @@
+API transcript — Nasdin/superset PR #10 — candidate SHA 2e52222e6dcd4596972e37472a32915e4697c8b9 — 2026-09-21T07:55:40Z
+Superset served from ~/repos/superset (detached HEAD 2e52222e6dcd4596972e37472a32915e4697c8b9) on http://localhost:8088; /health = OK
+Credentials are synthetic local fixtures supplied via env vars; Authorization headers and tokens are redacted.
+
+### 1. POST /api/v1/security/login
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/security/login" -H "Content-Type: application/json" -d "{\"username\":\"$SUPERSET_USER\",\"password\":\"$SUPERSET_PASSWORD\",\"provider\":\"db\",\"refresh\":true}"
+status: 200 (expected 200)  response: {"access_token": "[REDACTED]", "refresh_token": "[REDACTED]"}
+assert: 200 and access_token present -> PASS
+
+### 2. POST /api/v1/database/
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/database/" -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d "{\"database_name\":\"ch_validation\",\"sqlalchemy_uri\":\"clickhousedb://[REDACTED]@localhost:18123/default\",\"expose_in_sqllab\":true,\"allow_dml\":false}"
+status: 201 (expected 201)  response excerpt: {"id": 1, "result": {"database_name": "ch_validation", "sqlalchemy_uri": "[REDACTED]"}}
+assert: 201 and id returned -> PASS
+
+### 3. GET /api/v1/database/1
+curl -s -o body.json -w "%{http_code}" "$SUPERSET_URL/api/v1/database/$DBID" -H "Authorization: [REDACTED]"
+status: 200 (expected 200)  response excerpt: backend/database_name = clickhousedb ch_validation
+assert: 200 and backend clickhousedb -> PASS
+
+### 4. POST /api/v1/sqllab/execute/  --  SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/sqllab/execute/" -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id","runAsync":false,"queryLimit":1000,"client_id":"val4"}'
+status: 200 (expected 200)
+response excerpt: {"status": "success", "rows": 5, "ids": [1, 2, 3], "executedSql": "SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id ) LIMIT 1001", "limitingFactor": "NOT_LIMITED", "data": [{"id": 1, "ts": "2026-01-03T00:00:00"}, {"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-02T00:00:00"}, {"id": 2, "ts": "2026-01-02T00:00:00"}, {"id": 3, "ts": "2026-01-01T00:00:00"}]}
+assert: status 200, 5 rows, ids [1, 2, 3], executedSql contains 'LIMIT 2 BY id' -> PASS
+
+### 5. POST /api/v1/sqllab/execute/  --  SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/sqllab/execute/" -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id","runAsync":false,"queryLimit":1000,"client_id":"val5"}'
+status: 200 (expected 200)
+response excerpt: {"status": "success", "rows": 4, "ids": [1, 2], "executedSql": "SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id ) LIMIT 1001", "limitingFactor": "NOT_LIMITED", "data": [{"id": 1, "ts": "2026-01-02T00:00:00"}, {"id": 2, "ts": "2026-01-02T00:00:00"}, {"id": 1, "ts": "2026-01-01T00:00:00"}, {"id": 2, "ts": "2026-01-01T00:00:00"}]}
+assert: status 200, 4 rows, ids [1, 2], executedSql contains 'LIMIT 2 OFFSET 1 BY id' -> PASS
+
+### 6. POST /api/v1/sqllab/execute/  --  SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/sqllab/execute/" -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2","runAsync":false,"queryLimit":1000,"client_id":"val6"}'
+status: 200 (expected 200)
+response excerpt: {"status": "success", "rows": 2, "ids": [1, 2], "executedSql": "SELECT id, ts FROM events ORDER BY ts DESC LIMIT 3", "limitingFactor": "QUERY", "data": [{"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-03T00:00:00"}]}
+assert: status 200, 2 rows, ids [1, 2], executedSql contains 'LIMIT 3' -> PASS
+
+### 7. POST /api/v1/sqllab/execute/  --  SELECT id, ts FROM events ORDER BY ts DESC
+curl -s -o body.json -w "%{http_code}" -X POST "$SUPERSET_URL/api/v1/sqllab/execute/" -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, ts FROM events ORDER BY ts DESC","runAsync":false,"queryLimit":1000,"client_id":"val7"}'
+status: 200 (expected 200)
+response excerpt: {"status": "success", "rows": 7, "ids": [1, 2, 3], "executedSql": "SELECT id, ts FROM events ORDER BY ts DESC LIMIT 1001", "limitingFactor": "NOT_LIMITED", "data": [{"id": 1, "ts": "2026-01-03T00:00:00"}, {"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-02T00:00:00"}, {"id": 2, "ts": "2026-01-02T00:00:00"}, {"id": 1, "ts": "2026-01-01T00:00:00"}, {"id": 2, "ts": "2026-01-01T00:00:00"}, {"id": 3, "ts": "2026-01-01T00:00:00"}]}
+assert: status 200, 7 rows, ids [1, 2, 3], executedSql contains 'LIMIT 1001' -> PASS
+
+### 8. ClickHouse system.query_log — SQL Superset actually sent (curl -s -u '[REDACTED]' http://localhost:18123/)
+2026-09-21 07:55:41	5	SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id ) LIMIT 1001 FORMAT Native
+2026-09-21 07:55:41	4	SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id ) LIMIT 1001 FORMAT Native
+2026-09-21 07:55:41	3	SELECT id, ts FROM events ORDER BY ts DESC LIMIT 3 FORMAT Native
+2026-09-21 07:55:41	7	SELECT id, ts FROM events ORDER BY ts DESC LIMIT 1001 FORMAT Native
+assert: query_log contains wrapped 'LIMIT 2 BY id ) LIMIT 1001' sent by Superset -> PASS
+
+OVERALL PASS
