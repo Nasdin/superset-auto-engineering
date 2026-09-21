@@ -96,6 +96,7 @@ class ValidationService:
         # Only its owner may correct that handoff; never bind files by their names.
         if (
             self.settings.autonomous_remediation
+            and not assessment.passed
             and followup.get("attempts", 0) < self.settings.max_handoff_followups
             and result.get("task_complete") is True
             and result.get("passed") is True

@@ -157,6 +157,38 @@ def test_authentication_or_health_only_is_not_functional_api_evidence(url):
 
 
 @pytest.mark.parametrize(
+    "url", ["http://localhost:8088/api/v1/security/login", "http://localhost:8088/api/health"]
+)
+def test_setup_request_can_accompany_verified_functional_api_evidence(url):
+    payload = result()
+    setup = {**payload["api_requests"][0], "name": "setup", "url": url}
+    payload["api_requests"].insert(0, setup)
+    assert assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("actual_status", 500),
+        ("passed", False),
+        ("assertion", ""),
+        ("evidence_url", "https://example.com/unconfirmed"),
+        ("url", "https://external.example/api/v1/security/login"),
+    ],
+)
+def test_functional_success_does_not_hide_invalid_setup_evidence(field, value):
+    payload = result()
+    setup = {
+        **payload["api_requests"][0],
+        "name": "login",
+        "url": "http://localhost:8088/api/v1/security/login",
+    }
+    setup[field] = value
+    payload["api_requests"].insert(0, setup)
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
     "option",
     [
         "-u alice:PRIVATE",

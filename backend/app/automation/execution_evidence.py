@@ -19,6 +19,7 @@ def execution_failures(result, artifacts):
     if not isinstance(requests, list) or not requests:
         failures.append("No executed Superset API requests recorded")
     else:
+        functional_requests = 0
         for request in requests:
             if not isinstance(request, dict):
                 failures.append("Malformed API request evidence")
@@ -28,8 +29,6 @@ def execution_failures(result, artifacts):
                 url.scheme in {"http", "https"}
                 and url.hostname in {"localhost", "127.0.0.1", "::1"}
                 and url.path.startswith("/api/")
-                and "/security/" not in url.path
-                and url.path.rstrip("/").rsplit("/", 1)[-1] not in {"health", "healthcheck", "ping"}
                 and request.get("method") in {"GET", "POST", "PUT", "PATCH", "DELETE"}
                 and isinstance(request.get("curl"), str)
                 and request["curl"].strip().startswith("curl ")
@@ -47,6 +46,18 @@ def execution_failures(result, artifacts):
                 failures.append(
                     "API execution must include local Superset request, successful status, assertion, response and confirmed transcript"
                 )
+            elif "/security/" not in url.path and url.path.rstrip("/").rsplit("/", 1)[-1] not in {
+                "health",
+                "healthcheck",
+                "ping",
+            }:
+                functional_requests += 1
+        # Login/health may be useful setup evidence, but cannot replace the actual
+        # functional request. Every reported request must still pass the checks above.
+        if not functional_requests:
+            failures.append(
+                "API execution requires a functional Superset request beyond login or health"
+            )
     coverage = result.get("coverage")
     if not isinstance(coverage, dict) or not (
         all(

@@ -17,6 +17,28 @@ from test_automation import SHA, FakeProvider, result, validation
 NEW = "b" * 40
 
 
+def test_unreferenced_uploads_do_not_truncate_actual_ownership(system):
+    from app.automation.artifacts import unconfirmed_evidence_urls
+
+    db, p, e, _ = system
+    attachments = FakeProvider().attachments("validator")
+    extras = [
+        {
+            **attachments[0],
+            "url": f"https://attachments.devin.ai/unused/{i}",
+            "attachment_id": f"unused-{i}",
+        }
+        for i in range(24)
+    ]
+    p.attachments = lambda sid: extras + attachments
+    payload = {**result(), "task_complete": True}
+    assert not unconfirmed_evidence_urls(payload, p.attachments("validator"))
+    job = validation(db)
+    e.finish_validation(job, payload)
+    assert db.get(job["id"])["state"] == "review_ready"
+    assert not p.messages
+
+
 class Provider(FakeProvider):
     def __init__(self):
         self.document = super().pr(2)

@@ -31,7 +31,14 @@ def provider_attachment_index(attachments):
 
 
 def unconfirmed_evidence_urls(result, attachments):
-    known = {item["url"] for item in provider_attachment_index(attachments)}
+    known = {
+        item["url"]
+        for item in attachments
+        if item.get("source") == "devin"
+        and item.get("attachment_id")
+        and isinstance(item.get("url"), str)
+        and safe_link(item["url"])
+    }
     references = [item.get("url") for item in result.get("artifacts", [])]
     references += [item.get("evidence_url") for item in result.get("api_requests", [])]
     references += [
