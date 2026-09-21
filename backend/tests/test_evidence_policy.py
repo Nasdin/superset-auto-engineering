@@ -205,3 +205,46 @@ def test_curl_credential_options_are_redacted(option):
     assert "PRIVATE" not in str(
         sanitize({"curl": f"curl {option} http://localhost:8088/api/v1/chart/"})
     )
+
+
+@pytest.mark.parametrize("status", [400, 401, 403, 422])
+def test_explicit_security_rejection_is_valid_alongside_functional_success(status):
+    payload = result()
+    negative = {
+        **payload["api_requests"][0],
+        "name": "Tampered JWT rejected",
+        "expected_outcome": "rejection",
+        "expected_status": status,
+        "actual_status": status,
+        "assertion": "Tampered JWT cannot access dashboard data",
+        "response_excerpt": '{"message":"Invalid token"}',
+    }
+    payload["api_requests"].append(negative)
+    assert assess(payload).passed
+    payload["api_requests"] = [negative]
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "outcome,expected,actual",
+    [
+        ("success", 401, 401),
+        ("rejection", 401, 200),
+        ("rejection", 401, 403),
+        ("rejection", 500, 500),
+        ("rejection", 302, 302),
+        ("unknown", 200, 200),
+        ("success", 200.0, 200),
+    ],
+)
+def test_negative_test_metadata_cannot_hide_unexpected_or_server_errors(outcome, expected, actual):
+    payload = result()
+    payload["api_requests"].append(
+        {
+            **payload["api_requests"][0],
+            "expected_outcome": outcome,
+            "expected_status": expected,
+            "actual_status": actual,
+        }
+    )
+    assert not assess(payload).passed

@@ -224,13 +224,24 @@ def pull_requests(
     offset: int = 0,
     eng: Engine = Depends(get_engine),
 ):
-    from .workbench import pull_request_rows
+    from .workbench import execution_context, pull_request_rows
 
     if kind not in {"", "dependency", "fix", "feature", "revert", "other"} or offset < 0:
         raise HTTPException(422, "Invalid work filter or offset")
     history = request.app.state.analytics
     jobs = eng.store.operational_jobs()
-    rows = pull_request_rows(history.pulls(eng.settings.repo), jobs, eng.store.all_publications())
+    execution = execution_context(
+        eng.settings,
+        jobs,
+        eng.store.recall("worker_status", {}),
+        [
+            {"provider": provider, **eng.store.recall("breaker:" + provider, {})}
+            for provider in ("devin", "github")
+        ],
+    )
+    rows = pull_request_rows(
+        history.pulls(eng.settings.repo), jobs, eng.store.all_publications(), execution
+    )
     filtered = [
         row
         for row in rows
@@ -242,6 +253,7 @@ def pull_requests(
         "repository": eng.settings.repo,
         "branch": eng.settings.branch,
         "enabled": eng.settings.enabled and eng.settings.dependabot_enabled,
+        "execution": execution,
         "queue_holds": [
             {
                 "id": job["id"],

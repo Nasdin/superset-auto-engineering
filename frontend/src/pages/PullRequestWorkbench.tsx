@@ -6,7 +6,27 @@ import { api } from "../api";
 import { usePollingResource } from "../hooks/usePollingResource";
 import type { Job, Overview } from "../liveTypes";
 import { JobDetail, State } from "./LiveDashboard";
+import "./PullRequestWorkbench.css";
 
+type QueueBlocker = {
+  code: string;
+  message: string;
+  job_id?: string;
+  pr_number?: number | null;
+  state?: string;
+  session_url?: string | null;
+};
+type Progress = {
+  state: string;
+  label: string;
+  detail: string;
+  ready: boolean;
+  session_url?: string | null;
+  candidate_sha?: string | null;
+  observed_at?: number;
+  validation_pr?: number;
+  blocker?: QueueBlocker;
+};
 type Pull = {
   number: number;
   title: string;
@@ -16,12 +36,23 @@ type Pull = {
   state: string;
   merged_at?: string;
   runs: Job[];
-  publications: Overview["publications"];
+  publications: (Overview["publications"][number] & { purpose?: string })[];
+  progress?: Progress;
 };
 type Workbench = {
   repository: string;
   branch: string;
   enabled: boolean;
+  execution?: {
+    enabled: boolean;
+    dependabot_enabled: boolean;
+    sessions_used: number;
+    sessions_limit: number;
+    sessions_remaining: number;
+    max_acu_per_session: number;
+    worker: { state?: string; at?: number };
+    blockers: QueueBlocker[];
+  };
   queue_holds?: {
     id: string;
     state: string;
@@ -111,16 +142,74 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
               </p>
             )}
           </Disclosure>
-          {data.queue_holds?.map((hold) => (
-            <div className="notice" key={hold.id} role="status">
-              <strong>
-                Queue held{hold.pr_number ? ` by PR #${hold.pr_number}` : ""}:
-              </strong>{" "}
-              {hold.error?.includes("usage_limit_exceeded")
-                ? "Devin reached its session spending limit. A budget decision is needed before queued work can start."
-                : hold.error || hold.state.replaceAll("_", " ")}
-            </div>
-          ))}
+          {data.execution && (
+            <section className="panel" aria-label="Execution queue">
+              <div className="panel-heading">
+                <div>
+                  <h2>Execution queue</h2>
+                  <p>
+                    {data.execution.enabled
+                      ? "Automatic execution enabled"
+                      : "New execution paused"}{" "}
+                    · {data.execution.sessions_used} of{" "}
+                    {data.execution.sessions_limit} session slots used ·{" "}
+                    {data.execution.sessions_remaining} remaining
+                  </p>
+                </div>
+                <span className="badge">
+                  {data.execution.max_acu_per_session} ACU per new session
+                </span>
+              </div>
+              {data.execution.blockers.map((blocker, index) => (
+                <div
+                  className={`notice workbench-status ${blocker.code === "active_run" ? "workbench-status-active" : ""}`}
+                  key={`${blocker.code}:${blocker.job_id || index}`}
+                  role="status"
+                >
+                  <strong>
+                    {blocker.pr_number
+                      ? `PR #${blocker.pr_number}: `
+                      : "Queue: "}
+                    {blocker.state
+                      ? blocker.state.replaceAll("_", " ")
+                      : blocker.code.replaceAll("_", " ")}
+                  </strong>
+                  <p>{blocker.message}</p>
+                  {blocker.session_url && (
+                    <External url={blocker.session_url}>
+                      {blocker.code === "active_run"
+                        ? "Open active Devin session"
+                        : "Open blocking Devin session"}
+                    </External>
+                  )}
+                </div>
+              ))}
+              {!data.execution.blockers.length && (
+                <p className="quiet">
+                  No global queue hold is recorded. Each step must also fit its
+                  reserved session allowance.
+                </p>
+              )}
+              <p className="quiet workbench-note">
+                Session slots are this application's execution limit, not the
+                Devin credit balance.{" "}
+                {data.execution.worker.at
+                  ? `Worker last observed ${new Date(data.execution.worker.at * 1000).toLocaleString()}.`
+                  : "Worker heartbeat unavailable."}
+              </p>
+            </section>
+          )}
+          {!data.execution &&
+            data.queue_holds?.map((hold) => (
+              <div className="notice" key={hold.id} role="status">
+                <strong>
+                  Queue held{hold.pr_number ? ` by PR #${hold.pr_number}` : ""}:
+                </strong>{" "}
+                {hold.error?.includes("usage_limit_exceeded")
+                  ? "Devin reached its session spending limit. A budget decision is needed before queued work can start."
+                  : hold.error || hold.state.replaceAll("_", " ")}
+              </div>
+            ))}
           <section className="panel">
             <div className="panel-heading">
               <div>
@@ -196,7 +285,7 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                     <th>Pull request</th>
                     <th>Change type</th>
                     <th>Author</th>
-                    <th>Latest run</th>
+                    <th>Readiness & progress</th>
                     <th>Evidence</th>
                   </tr>
                 </thead>
@@ -221,7 +310,40 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                       </td>
                       <td>{pr.dependabot ? "Dependabot" : pr.author}</td>
                       <td>
-                        {pr.runs[0] ? (
+                        {pr.progress ? (
+                          <>
+                            <span
+                              className={`badge ${pr.progress.ready ? "green" : ""}`}
+                            >
+                              {pr.progress.label}
+                            </span>
+                            <small>{pr.progress.detail}</small>
+                            {pr.progress.candidate_sha && (
+                              <small>
+                                Recorded SHA{" "}
+                                <code title={pr.progress.candidate_sha}>
+                                  {pr.progress.candidate_sha.slice(0, 12)}
+                                </code>
+                                {pr.progress.validation_pr !== pr.number
+                                  ? ` · integration PR #${pr.progress.validation_pr}`
+                                  : ""}
+                              </small>
+                            )}
+                            {pr.progress.session_url && (
+                              <External url={pr.progress.session_url}>
+                                Open Devin session
+                              </External>
+                            )}
+                            {!pr.progress.session_url &&
+                              pr.progress.blocker?.session_url && (
+                                <External url={pr.progress.blocker.session_url}>
+                                  {pr.progress.blocker.code === "active_run"
+                                    ? "View active run"
+                                    : "View blocking run"}
+                                </External>
+                              )}
+                          </>
+                        ) : pr.runs[0] ? (
                           <State value={pr.runs[0].state} />
                         ) : (
                           <span className="quiet">No recorded run</span>
@@ -285,12 +407,35 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                   Open original PR
                 </External>
               </div>
+              {picked.progress && (
+                <section
+                  className={`notice workbench-status ${picked.progress.ready ? "workbench-status-ready" : ""}`}
+                  aria-label="Recorded release gate"
+                >
+                  <strong>{picked.progress.label}</strong>
+                  <p>{picked.progress.detail}</p>
+                  {picked.progress.observed_at && (
+                    <small>
+                      Recorded{" "}
+                      {new Date(
+                        picked.progress.observed_at * 1000,
+                      ).toLocaleString()}
+                      . New commits require a fresh gate; GitHub remains the
+                      source for current merge requirements.
+                    </small>
+                  )}
+                </section>
+              )}
               <div className="live-links">
                 {picked.publications.map((pub) => (
                   <div key={pub.key}>
                     <State value={pub.state} />
                     {pub.url ? (
-                      <External url={pub.url}>Published report</External>
+                      <External url={pub.url}>
+                        {pub.purpose === "readiness"
+                          ? "PR readiness confirmed"
+                          : "Published report"}
+                      </External>
                     ) : (
                       <span className="quiet">
                         {" "}

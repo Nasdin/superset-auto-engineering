@@ -5,6 +5,7 @@ import re
 import time
 
 from .config import Settings
+from .execution_policy import RESERVED_SESSIONS
 from .integration import IntegrationService
 from .learning import LearningService
 from .links import safe_link
@@ -164,16 +165,7 @@ class Engine:
                 )
                 return
         used = self.store.session_count(excluding=job["id"])
-        required_slots = {
-            "repair": 2,
-            "remediation": 2,
-            "dependency": 2,
-            "patch": 2,
-            "scan": 3,
-            "validation": 1,
-            "audit": 1,
-            "maintenance": 2,
-        }[job["kind"]]
+        required_slots = RESERVED_SESSIONS[job["kind"]]
         if used + required_slots > self.settings.max_sessions:
             Recovery(self.store).job_failure(
                 job,

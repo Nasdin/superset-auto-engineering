@@ -25,6 +25,12 @@ def execution_failures(result, artifacts):
                 failures.append("Malformed API request evidence")
                 continue
             url = urlparse(str(request.get("url", "")))
+            status = request.get("actual_status")
+            outcome = request.get("expected_outcome", "success")
+            status_matches_contract = type(status) is int and (
+                (outcome == "success" and 200 <= status < 300)
+                or (outcome == "rejection" and 400 <= status < 500)
+            )
             valid = (
                 url.scheme in {"http", "https"}
                 and url.hostname in {"localhost", "127.0.0.1", "::1"}
@@ -32,8 +38,8 @@ def execution_failures(result, artifacts):
                 and request.get("method") in {"GET", "POST", "PUT", "PATCH", "DELETE"}
                 and isinstance(request.get("curl"), str)
                 and request["curl"].strip().startswith("curl ")
-                and type(request.get("actual_status")) is int
-                and 200 <= request["actual_status"] < 300
+                and status_matches_contract
+                and type(request.get("expected_status")) is int
                 and request["actual_status"] == request.get("expected_status")
                 and request.get("passed") is True
                 and all(
@@ -44,16 +50,21 @@ def execution_failures(result, artifacts):
             )
             if not valid:
                 failures.append(
-                    "API execution must include local Superset request, successful status, assertion, response and confirmed transcript"
+                    "API execution must include a local Superset request, matching expected outcome and status, assertion, response and confirmed transcript"
                 )
-            elif "/security/" not in url.path and url.path.rstrip("/").rsplit("/", 1)[-1] not in {
-                "health",
-                "healthcheck",
-                "ping",
-            }:
+            elif (
+                outcome == "success"
+                and "/security/" not in url.path
+                and url.path.rstrip("/").rsplit("/", 1)[-1]
+                not in {
+                    "health",
+                    "healthcheck",
+                    "ping",
+                }
+            ):
                 functional_requests += 1
-        # Login/health may be useful setup evidence, but cannot replace the actual
-        # functional request. Every reported request must still pass the checks above.
+        # Setup and explicit negative security tests cannot replace a successful
+        # functional request. Legacy evidence without an outcome still requires 2xx.
         if not functional_requests:
             failures.append(
                 "API execution requires a functional Superset request beyond login or health"
@@ -110,6 +121,7 @@ EXECUTION_PROPERTIES = {
                 "url": STRING,
                 "curl": STRING,
                 "expected_status": {"type": "integer"},
+                "expected_outcome": {"type": "string", "enum": ["success", "rejection"]},
                 "actual_status": {"type": "integer"},
                 "assertion": STRING,
                 "response_excerpt": STRING,

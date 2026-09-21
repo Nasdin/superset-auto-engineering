@@ -1,0 +1,23 @@
+# Bot PRs: preparation is not release approval
+
+Dependabot PRs into the configured Superset fork/release branch enter the durable dependency queue through signed GitHub events or polling. Devin repairs dependency/build compatibility on the existing PR branch. The worker then starts a different Devin session against the final full commit SHA to start Superset, exercise browser/API/database behavior, run relevant regression tests and measured coverage, and upload screenshots, video and logs. The final report is published to the original PR through the durable outbox. Only accepted runtime evidence plus current passing GitHub checks produce the review-ready gate. A changed head invalidates old evidence; failures enter bounded remediation and fresh validation. Human review and merge remain separate.
+
+The workbench shows the recorded gate, candidate SHA, linked Devin run, evidence reports and the reason work cannot start. A green GitHub build alone is not Devin validation. The workbench uses the durable ledger, so its recorded gate is timestamped; the publication worker rechecks GitHub before delivering readiness.
+
+## PR #6 recovery, 21 September 2026
+
+[PR #6](https://github.com/Nasdin/superset/pull/6) updates PyJWT. The hosted ledger inspection found a dependency job held at `needs_attention`, not an exhausted account budget: five recorded sessions against the configured twenty-session cap. Its [existing Devin session](https://app.devin.ai/sessions/27fa8e9254964bd2b623dceee4735948) had pushed `feca9891f6bd2d93374ba1db2bc85ca0c424b0d3` and reported 5,636 passing unit tests, but its final blocker still listed incomplete browser evidence. These are preparation-agent observations, not independent acceptance. The hosted worker was an older revision without bounded handoff recovery, so the attention hold also prevented further queued work from starting.
+
+The current feature-branch code was exercised locally without deploying or restarting AWS. A read-only copy of this one job, preserving its ID, session and original result, was imported into a separate Postgres ledger. The ordinary handoff recovery code resumed the same provider-confirmed inactive session; no result was rewritten or manually promoted. This local runner has no scheduled or repository-wide intake. It handles only PR #6, allows at most three new sessions in addition to the imported session, caps new sessions at 20 ACU, and permits one remediation attempt. The hosted job remains held while local recovery owns the work, preventing duplicate dispatch by the older worker. This is a scoped local recovery demonstration, not a claim that the public deployment has been upgraded.
+
+The local runner uses the same handoff recovery, engine, remediation, freshness and publication services as the normal worker. Its ignored configuration and local database contain provider credentials and execution history; they are not committed. Evidence URLs use the existing temporary evidence-only tunnel and remain available only while its local server is running.
+
+**Current outcome:** the preparation session is running again; independent validation and final acceptance are pending. Do not merge on the strength of the earlier preparation report. Before a later deployment, reconcile the hosted job with the local recovery history and provider receipts rather than replaying it.
+
+## Expected security failures
+
+A security journey may deliberately send an invalid or tampered token. Structured API evidence declares `expected_outcome: rejection` and an exact expected 4xx status with an assertion and confirmed transcript. Such a negative test is valid alongside a successful functional API request. It cannot replace that successful request. Unexpected statuses, 5xx responses, missing assertions or unconfirmed transcripts fail the gate. Legacy evidence without the outcome field continues to require 2xx success.
+
+## Local code verification
+
+The queue/readiness read model uses no provider calls; it joins the complete ledger, provider holds, heartbeat, shared session reservation policy and publication receipts. Tests cover a paused PR holding another PR, lifetime usage versus reserved follow-ups, disabled execution, stale workers, a new candidate superseding prior readiness, mismatched CI/SHA, and revision-suffixed reports. Local verification: **463 backend tests passed, 30 skipped** (environment-dependent tests); Ruff check/format passed. The frontend production build and two focused browser tests passed, including queue-to-ready fixture transitions, receipt links and mobile layout. These fixture tests verify the application behavior; they do not substitute for the real PR #6 validator.

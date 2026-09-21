@@ -1,12 +1,14 @@
 # Isolated local Devin demonstration
 
+Current status: the runtime proof passed and was published, but a later CI rerun failed because the Cypress executable was missing. An automatic Devin repair is running; this candidate is not currently cleared for merge.
+
 This run uses the real Devin and GitHub APIs, driven by the ordinary application worker on the local machine. The worker, database and dashboard run locally; Devin executes its code changes and Superset validation in its hosted session environment. This is separate from the AWS deployment. Do not merge the orchestration feature branch or deploy it without Nasrudin's explicit instruction.
 
 - Orchestration branch: `feat/devin-autonomous-verification` in `Nasdin/superset-auto-engineering`.
 - Superset target branch: `cognition-local-e2e-20260921` in `Nasdin/superset`, copied without code changes from release baseline `c37118edd0146019ab0ae4ae1a97a597cb56c88e`.
 - Intake label: `cognition:local-e2e-20260921`. The AWS worker uses a different target branch and label.
 - Storage: local Postgres database `cognition_local_e2e_20260921`; isolated artifact directory and worker lock.
-- Bounds: at most eight local sessions, 20 ACU per new session, two automatic recovery attempts. This is a separate, explicitly authorized test budget; it does not reset the hosted ledger or imply the account has unlimited credits.
+- Bounds: at most eight local sessions, 20 ACU per new session, initially two automatic recovery attempts, extended locally to three after the CI infrastructure failure described below. This is a separate, explicitly authorized test budget; it does not reset the hosted ledger or imply the account has unlimited credits.
 - No recurring local discovery schedule; one explicit manual discovery event starts this chain. Further steps come from worker handoffs and repository observations.
 - The local dashboard runs on loopback only. A temporary Cloudflare Quick Tunnel exposes a separate server with only `/public-evidence/<content-hash>`; private APIs, execution controls and the database are not exposed. These test URLs last only while that local tunnel runs.
 - Secrets stay in ignored `.env.local-e2e`; local process state stays in ignored `data/local-e2e/`. None belongs in Git.
@@ -37,19 +39,25 @@ The ordinary worker started its second and final bounded recollection attempt, [
 
 A final concurrency review reproduced a PR-head-change race during attachment collection: the correction hold could revive an already stale validation. The transition now rechecks the candidate and commits through the store's transactional stale guard. Both race windows have regression tests; **427 backend tests passed, 30 skipped** after this fix. This changes orchestration state handling only; it does not edit Superset or substitute a validator result.
 
-## Accepted live result
+## Runtime evidence and initial readiness
 
 The third validator passed the gate at `2e52222e6dcd4596972e37472a32915e4697c8b9`. It ran the exact Superset checkout with ClickHouse 24.8, exercised SQL Lab, created and reloaded a dashboard, and captured seven screenshots and a 57.6-second browser video. Its API transcript includes the actual curl requests, successful statuses, row assertions and ClickHouse query-log readback. **586 regression tests passed, zero failed/skipped.** Scoped coverage is **531/613 lines (86.6%) and 133/164 branches (81.1%)** across the parser and ClickHouse engine spec; this is not whole-repository coverage. Async Celery SQL Lab and CSV export were not validated.
 
 The ordinary outbox published the accepted report to [integration PR #10](https://github.com/Nasdin/superset/pull/10#issuecomment-5757320037), [fix PR #9](https://github.com/Nasdin/superset/pull/9#issuecomment-5757327412), and [issue #8](https://github.com/Nasdin/superset/issues/8#issuecomment-5757324231). Its fourth receipt confirms that it marked PR #10 ready for review. GitHub readback shows the same SHA, `draft=false`, `state=open`, and `merged=false`; 44 CI checks passed and six were skipped before readiness. Marking the PR ready triggered another same-SHA CI run, so the worker correctly returned to awaiting CI while that rerun completes. All 18 public artifacts returned HTTP 200, and the SQL Lab screenshot rendered at 1600×1200 through GitHub's image proxy.
 
-This run used five real Devin sessions: discovery, repair, and three independent validators. There were no manual Superset code edits, handoff rewrites, success comments or draft promotions. Codex did repair the application policy and concurrency bugs described above while this development run was active. Thus the Superset work and delivery were agent-driven, but this first orchestration development run was not free of operator maintenance.
+The initial runtime proof used five real Devin sessions: discovery, repair, and three independent validators. There were no manual Superset code edits, handoff rewrites, success comments or draft promotions. Codex did repair the application policy and concurrency bugs described above while this development run was active. Thus the Superset work and delivery were agent-driven, but this first orchestration development run was not free of operator maintenance.
 
 [Readback receipt and attachment hashes](evidence/clickhouse-local-validation/readback.json) · [Browser video](evidence/clickhouse-local-validation/browser-journey.mp4) · [API transcript](evidence/clickhouse-local-validation/api-transcript.txt) · [Test report](evidence/clickhouse-local-validation/test-report.txt) · [Coverage JSON](evidence/clickhouse-local-validation/coverage.json). These selected byte-for-byte evidence copies are committed for review after the temporary tunnel stops; the original PR media URLs still depend on that tunnel. No AWS deployment or PR merge occurred.
 
 ![Devin's SQL Lab validation showing all five expected rows](evidence/clickhouse-local-validation/sqllab-five-rows.png)
 
 ![Devin's saved dashboard after reload](evidence/clickhouse-local-validation/dashboard-reloaded.png)
+
+## CI failure after initial readiness
+
+The same-SHA CI rerun failed `cypress-matrix (0, chrome)` in [job 106258383908](https://github.com/Nasdin/superset/actions/runs/35576161003/job/106258383908). The log shows a cache-service outage followed by a missing Cypress 11.2.0 executable; all five retries fail before browser tests run. This does not invalidate the captured ClickHouse behavior, but it **does block the release gate**. The application automatically published [the failing gate](https://github.com/Nasdin/superset/pull/10#issuecomment-5757543633); the earlier ready report is historical, not current approval.
+
+After the two evidence recollections consumed the initial recovery allowance, the local policy was extended to one additional recovery attempt. The overall budget remains eight sessions and 20 ACU per session. The ordinary worker automatically started [Devin remediation `fda3c2b20a4a47d1bfef89df4ec5cdb6`](https://app.devin.ai/sessions/fda3c2b20a4a47d1bfef89df4ec5cdb6), job `833d34e6-254e-4996-a60b-6110622e138a`, on the existing integration PR branch. No failed job or test was skipped, no Superset code was edited by Codex, and no manual success result was supplied. Remediation and fresh validation are pending.
 
 ## What has been verified separately
 
