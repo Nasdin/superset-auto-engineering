@@ -5,8 +5,10 @@ import re
 import time
 
 from .config import Settings
+from .execution_policy import RESERVED_SESSIONS
 from .integration import IntegrationService
 from .learning import LearningService
+from .learning_lock import learning_lease
 from .links import safe_link
 from .outbox import PublicationOutbox
 from .patches import preparation_service
@@ -164,16 +166,7 @@ class Engine:
                 )
                 return
         used = self.store.session_count(excluding=job["id"])
-        required_slots = {
-            "repair": 2,
-            "remediation": 2,
-            "dependency": 2,
-            "patch": 2,
-            "scan": 3,
-            "validation": 1,
-            "audit": 1,
-            "maintenance": 2,
-        }[job["kind"]]
+        required_slots = RESERVED_SESSIONS[job["kind"]]
         if used + required_slots > self.settings.max_sessions:
             Recovery(self.store).job_failure(
                 job,
@@ -185,8 +178,14 @@ class Engine:
                 "dispatch",
             )
             return
+        with learning_lease(self.store) as renew:
+            self._dispatch_session(job, renew)
+
+    def _dispatch_session(self, job, renew):
         try:
-            context = LearningService(self.settings, self.store, self.providers).context(job)
+            context = LearningService(self.settings, self.store, self.providers).context(
+                job, renew=renew
+            )
         except (ProviderError, UnknownEffect) as error:
             # Knowledge reconciliation happens before session creation: no paid effect exists.
             self.store.remember(
@@ -208,6 +207,7 @@ class Engine:
             "dispatch_started",
             {"kind": job["kind"], "max_acu": self.settings.max_acu},
         )
+        renew()
         session = self.providers.create_session(payload)
         if not session.get("session_id") or not safe_link(session.get("url", "")):
             raise UnknownEffect("Creation response missing session identity; reconcile by job tag")

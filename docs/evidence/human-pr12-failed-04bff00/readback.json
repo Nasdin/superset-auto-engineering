@@ -1,0 +1,189 @@
+{
+  "verified_at": "2026-09-21T11:09:21.137221+00:00",
+  "job_id": "20fa0027-1880-4f42-a083-da4a01b5dbc6",
+  "candidate_sha": "04bff00adce72e92a948a0b195510f11df85f54b",
+  "current_job_state": "stale",
+  "recorded_gate": "validation_failed",
+  "gate_failures": [
+    "Validator reported failure or an unresolved blocker",
+    "Mandatory checks are missing, duplicated, or failing",
+    "API execution must include a local Superset request, matching expected outcome and status, assertion, response and confirmed transcript",
+    "API execution must include a local Superset request, matching expected outcome and status, assertion, response and confirmed transcript"
+  ],
+  "validator_session": "https://app.devin.ai/sessions/75ea2f5671324b0ead74333816031f19",
+  "tests": {
+    "failed": 0,
+    "passed": 496,
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] coverage run --branch --include='superset/sql/parse.py,superset/sql_lab.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py -p no:cacheprovider --junitxml=junit.xml -q",
+    "skipped": 0,
+    "report_url": "https://app.devin.ai/attachments/a990097e-6c61-4d77-83bb-6ca55d0f2796/test_report.txt"
+  },
+  "coverage": {
+    "scope": "superset/sql/parse.py (modified by PR) and superset/sql_lab.py (applies the SQL Lab row cap via get_limit_value/set_limit_value); repo @ 04bff00adce72e92a948a0b195510f11df85f54b, sqlglot 28.10.0",
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] coverage run --branch --include='superset/sql/parse.py,superset/sql_lab.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py -p no:cacheprovider --junitxml=junit.xml -q && coverage json --include='superset/sql/parse.py,superset/sql_lab.py' -o coverage.json && coverage xml --include=... -o coverage.xml",
+    "report_url": "https://app.devin.ai/attachments/c66317d7-d136-4036-8f00-2a4cd22811b5/coverage.json",
+    "lines_total": 756,
+    "lines_covered": 643,
+    "branches_total": 228,
+    "branches_covered": 168
+  },
+  "publications": [
+    {
+      "key": "github:20fa0027-1880-4f42-a083-da4a01b5dbc6:12:8e33c1d77557c0c8",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/12#issuecomment-5759200865",
+      "error": null,
+      "updated": 1789987371.114959
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "browser_journey_04bff00.mp4",
+      "kind": "video",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/e34d7be2e95991f3faebaaf9a4ba1a27adf9c34d085dbc892effc5efa68cb391.mp4",
+      "sha256": "e34d7be2e95991f3faebaaf9a4ba1a27adf9c34d085dbc892effc5efa68cb391",
+      "bytes": 5004910,
+      "http_status": 200,
+      "committed_copy": "browser_journey_04bff00.mp4"
+    },
+    {
+      "name": "02_query_a_limit5_pass.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/dc2e94cc53a765c1748fdbbf9e2eeda631eaedc35fb2ab4a07b937b8ac75a105.png",
+      "sha256": "dc2e94cc53a765c1748fdbbf9e2eeda631eaedc35fb2ab4a07b937b8ac75a105",
+      "bytes": 258283,
+      "http_status": 200
+    },
+    {
+      "name": "03_query_b_simple_by_pass.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/d563e749b7517306029dc9f05ea23b2718599aeb8a73622d55504d5a4096e1e4.png",
+      "sha256": "d563e749b7517306029dc9f05ea23b2718599aeb8a73622d55504d5a4096e1e4",
+      "bytes": 260190,
+      "http_status": 200
+    },
+    {
+      "name": "04_query_c_offset_by_fail.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/c39d0146dfb55f8706d0310cf92870d4d7d279ed7aebea18190f5c5645ff257d.png",
+      "sha256": "c39d0146dfb55f8706d0310cf92870d4d7d279ed7aebea18190f5c5645ff257d",
+      "bytes": 261854,
+      "http_status": 200,
+      "committed_copy": "04_query_c_offset_by_fail.png"
+    },
+    {
+      "name": "05_query_d_comma_by_fail.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/2111f51dc2c4913a8bc492ce28b8ef4e2ef0e7c1eefe6a4174dbfe3cb3c4ea45.png",
+      "sha256": "2111f51dc2c4913a8bc492ce28b8ef4e2ef0e7c1eefe6a4174dbfe3cb3c4ea45",
+      "bytes": 260995,
+      "http_status": 200
+    },
+    {
+      "name": "06_create_chart_missing_dataset.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/d5abd6c4a13926f9fc9f64295d5fcd2ea720119bc22b116814bd23a2ac1ce02a.png",
+      "sha256": "d5abd6c4a13926f9fc9f64295d5fcd2ea720119bc22b116814bd23a2ac1ce02a",
+      "bytes": 364597,
+      "http_status": 200
+    },
+    {
+      "name": "07_query_c_table_chart_pass.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/362b1ab70991c3db99ef9783bf15a872d844cdee76014abba3266c2af2aaba76.png",
+      "sha256": "362b1ab70991c3db99ef9783bf15a872d844cdee76014abba3266c2af2aaba76",
+      "bytes": 315710,
+      "http_status": 200
+    },
+    {
+      "name": "09_dashboard_reloaded_pass.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/1fc90cc3e179ae785fe217e4fb3925088312b1956ac45a1a5676f21253035ef0.png",
+      "sha256": "1fc90cc3e179ae785fe217e4fb3925088312b1956ac45a1a5676f21253035ef0",
+      "bytes": 227234,
+      "http_status": 200
+    },
+    {
+      "name": "10_saved_chart_reopened_pass.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/7ff32745e3af2f5765e97254ed873b1598eb571b895601bec9d6fb0d1d7dc64d.png",
+      "sha256": "7ff32745e3af2f5765e97254ed873b1598eb571b895601bec9d6fb0d1d7dc64d",
+      "bytes": 330593,
+      "http_status": 200
+    },
+    {
+      "name": "api_transcript.txt",
+      "kind": "api",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/143e4b5ed41d1300bfd9923f43c3faeb1e81ee8ef2f8cc9d5dca05bc1ac31b3a.txt",
+      "sha256": "143e4b5ed41d1300bfd9923f43c3faeb1e81ee8ef2f8cc9d5dca05bc1ac31b3a",
+      "bytes": 5232,
+      "http_status": 200,
+      "committed_copy": "api_transcript.txt"
+    },
+    {
+      "name": "test_report.txt",
+      "kind": "tests",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/15378d9b7a4635a35d9faff01c44caa2a887eba8feac8ce85e33ec6f749d8d48.txt",
+      "sha256": "15378d9b7a4635a35d9faff01c44caa2a887eba8feac8ce85e33ec6f749d8d48",
+      "bytes": 4460,
+      "http_status": 200,
+      "committed_copy": "test_report.txt"
+    },
+    {
+      "name": "junit.xml",
+      "kind": "tests",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/3f3343411ccfc2184e36a92c5addd0bc9c958eacb991c2ee4ba6f20e01e81f29.txt",
+      "sha256": "3f3343411ccfc2184e36a92c5addd0bc9c958eacb991c2ee4ba6f20e01e81f29",
+      "bytes": 78956,
+      "http_status": 200
+    },
+    {
+      "name": "parser_probe.txt",
+      "kind": "tests",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/4fc8ee2b730dd2f6ee8b41d0c24786409c4c675e4b465aaf3fba697877b443df.txt",
+      "sha256": "4fc8ee2b730dd2f6ee8b41d0c24786409c4c675e4b465aaf3fba697877b443df",
+      "bytes": 1160,
+      "http_status": 200
+    },
+    {
+      "name": "coverage.json",
+      "kind": "coverage",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/39a8a760fa449a132a2eabfbc00e66cb722340290e6267cbbc5d7dc5828709a8.txt",
+      "sha256": "39a8a760fa449a132a2eabfbc00e66cb722340290e6267cbbc5d7dc5828709a8",
+      "bytes": 65954,
+      "http_status": 200,
+      "committed_copy": "coverage.json"
+    },
+    {
+      "name": "coverage.xml",
+      "kind": "coverage",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/c1fc39ba674148b7df136c8386436614cc6816f2c632acad8420d6637d9ffcdc.txt",
+      "sha256": "c1fc39ba674148b7df136c8386436614cc6816f2c632acad8420d6637d9ffcdc",
+      "bytes": 34683,
+      "http_status": 200
+    },
+    {
+      "name": "superset_service_logs.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/3aaf3f4cf5adf6094c5e910a4db092629c7c3722f00798a61e8937da2404ac20.txt",
+      "sha256": "3aaf3f4cf5adf6094c5e910a4db092629c7c3722f00798a61e8937da2404ac20",
+      "bytes": 53527,
+      "http_status": 200
+    },
+    {
+      "name": "clickhouse_database_logs.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/64474beeb78acf638082c80c47a966165bce855b867d35facafa712caa52cdf2.txt",
+      "sha256": "64474beeb78acf638082c80c47a966165bce855b867d35facafa712caa52cdf2",
+      "bytes": 11240,
+      "http_status": 200
+    }
+  ],
+  "limitations": [
+    "Checkpoint evidence, not merge approval.",
+    "Original failed evidence is historical after the repair.",
+    "Repaired runtime evidence awaits GitHub CI.",
+    "Scoped coverage; source Python with prebuilt frontend assets and local ClickHouse due image rate limits.",
+    "Original tunnel URLs depend on local server lifetime; committed copies persist."
+  ]
+}

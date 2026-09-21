@@ -1,0 +1,94 @@
+HEAD e7abd6aa25a60f108f8b34fde2e0aa323821f171
+SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab --junitxml=/home/ubuntu/evidence/junit.xml -p no:cacheprovider -q -o addopts='' 2>&1 | tee ~/evidence/test_report.txt
+/home/ubuntu/venv-val/lib/python3.12/site-packages/coverage/inorout.py:461: CoverageWarning: --include is ignored because --source is set (include-ignored)
+  self.warn("--include is ignored because --source is set", slug="include-ignored")
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 49%]
+........................................................................ [ 61%]
+........................................................................ [ 73%]
+........................................................................ [ 86%]
+........................................................................ [ 98%]
+..........                                                               [100%]
+=============================== warnings summary ===============================
+../../venv-val/lib/python3.12/site-packages/flask_babel/__init__.py:224
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_babel/__init__.py:224: DeprecationWarning: 'locked_cached_property' is deprecated and will be removed in Flask 2.4. Use a lock inside the decorated function if locking is needed.
+    @locked_cached_property
+
+../../venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:14
+../../venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:14
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:14: DeprecationWarning: '_app_ctx_stack' is deprecated and will be removed in Flask 2.4.
+    from flask import _app_ctx_stack, abort, current_app, request
+
+../../venv-val/lib/python3.12/site-packages/flask_appbuilder/models/sqla/base_legacy.py:105
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_appbuilder/models/sqla/base_legacy.py:105: MovedIn20Warning: Deprecated API features detected! These feature(s) are not compatible with SQLAlchemy 2.0. To prevent incompatible upgrades prior to updating applications, ensure requirements files are pinned to "sqlalchemy<2.0". Set environment variable SQLALCHEMY_WARN_20=1 to show all deprecation warnings.  Set environment variable SQLALCHEMY_SILENCE_UBER_WARNING=1 to silence this message. (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    @as_declarative(name="Model", metaclass=ModelDeclarativeMeta)
+
+tests/unit_tests/sql/parse_tests.py: 594 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 198 warnings
+tests/unit_tests/sql_lab_test.py: 204 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 198 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 198 warnings
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:302: DeprecationWarning: '_app_ctx_stack' is deprecated and will be removed in Flask 2.4. Use 'g' to store data, or 'app_ctx' to access the current context.
+    queries = _app_ctx_stack.top.sqlalchemy_queries
+
+tests/unit_tests/sql/parse_tests.py: 6 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 2 warnings
+tests/unit_tests/sql_lab_test.py: 5 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 2 warnings
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:304: DeprecationWarning: '_app_ctx_stack' is deprecated and will be removed in Flask 2.4. Use 'g' to store data, or 'app_ctx' to access the current context.
+    queries = _app_ctx_stack.top.sqlalchemy_queries = []
+
+tests/unit_tests/sql/parse_tests.py::test_table
+tests/unit_tests/sql/parse_tests.py::test_custom_dialect[app0]
+tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-ascend]
+tests/unit_tests/db_engine_specs/test_clickhouse.py::test_convert_dttm[Date-toDate('2019-01-02')]
+tests/unit_tests/sql_lab_test.py::test_execute_query
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py::test_streaming_sql_result_export_command_init
+tests/unit_tests/commands/sql_lab/test_estimate.py::test_validate_raises_when_database_not_found
+  /home/ubuntu/repos/superset/superset/utils/cache_manager.py:225: UserWarning: Flask-Caching: CACHE_TYPE is set to null, caching is effectively disabled.
+    cache.init_app(app, cache_config)
+
+tests/unit_tests/sql/parse_tests.py: 6 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 2 warnings
+tests/unit_tests/sql_lab_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 2 warnings
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/flask_caching/__init__.py:145: DeprecationWarning: Using the initialization functions in flask_caching.backend is deprecated.  Use the a full path to backend classes directly.
+    self._set_cache(app, config)
+
+tests/unit_tests/sql/parse_tests.py: 9 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 3 warnings
+tests/unit_tests/sql_lab_test.py: 3 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 3 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 3 warnings
+  /home/ubuntu/repos/superset/superset/utils/encrypt.py:57: DeprecationWarning: The 'EncryptedType' class will change implementation from 'LargeBinary' to 'String' in a future version. Use 'StringEncryptedType' to use the 'String' implementation.
+    return EncryptedType(*args, lambda: app_config["SECRET_KEY"], **kwargs)
+
+tests/unit_tests/sql_lab_test.py: 28 warnings
+  /home/ubuntu/repos/superset/superset/utils/dates.py:34: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return datetime_to_epoch(datetime.utcnow())
+
+tests/unit_tests/sql_lab_test.py::test_execute_query
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_exceeds_payload_limit
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_within_payload_limit
+  /home/ubuntu/venv-val/lib/python3.12/site-packages/sqlalchemy/sql/schema.py:2783: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)
+
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_within_payload_limit
+  /home/ubuntu/repos/superset/tests/unit_tests/sql_lab_test.py:178: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    execute_sql_statements(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit_tests/sql_lab_test.py::test_get_sql_results_oauth2
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+tests/unit_tests/sql_lab_test.py::test_get_sql_results_oauth2
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------------- generated xml file: /home/ubuntu/evidence/junit.xml --------------
+586 passed, 1489 warnings in 10.48s

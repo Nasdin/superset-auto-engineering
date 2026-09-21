@@ -1,0 +1,1089 @@
+candidate_sha=a118efc7dace13270f920607944aab8173b08b79
+command: SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] COVERAGE_FILE=/home/ubuntu/evidence/.coverage python -m coverage run --branch --include="superset/sql/parse.py,superset/sql_lab.py,superset/db_engine_specs/clickhouse.py" -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py tests/unit_tests/db_engine_specs/test_clickhouse.py -p no:cacheprovider -rA -q
+/home/ubuntu/venv-superset/lib/python3.12/site-packages/coverage/inorout.py:461: CoverageWarning: --include is ignored because --source is set (include-ignored)
+  self.warn("--include is ignored because --source is set", slug="include-ignored")
+........................................................................ [ 12%]
+........................................................................ [ 25%]
+........................................................................ [ 38%]
+........................................................................ [ 51%]
+........................................................................ [ 64%]
+........................................................................ [ 77%]
+........................................................................ [ 90%]
+.....................................................                    [100%]
+==================================== PASSES ====================================
+__________________________________ test_table __________________________________
+---------------------------- Captured stderr setup -----------------------------
+2026-09-21 11:01:47,185:WARNING:py.warnings:/home/ubuntu/repos/superset/superset/utils/cache_manager.py:225: UserWarning: Flask-Caching: CACHE_TYPE is set to null, caching is effectively disabled.
+  cache.init_app(app, cache_config)
+
+2026-09-21 11:01:47,426:INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+2026-09-21 11:01:47,427:INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+2026-09-21 11:01:48,183:INFO:superset.app:Pending database migrations: run 'superset db upgrade'
+2026-09-21 11:01:48,742:WARNING:flask_appbuilder.base:appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+2026-09-21 11:01:48,843:WARNING:flask_appbuilder.base:View already exists LogRestApi ignoring
+2026-09-21 11:01:48,869:INFO:superset.core.mcp.core_mcp_injection:MCP dependency injection initialized successfully
+2026-09-21 11:01:48,869:INFO:superset.core.mcp.core_mcp_injection:MCP service app imported - host tools registered
+------------------------------ Captured log setup ------------------------------
+WARNING  py.warnings:warnings.py:112 /home/ubuntu/repos/superset/superset/utils/cache_manager.py:225: UserWarning: Flask-Caching: CACHE_TYPE is set to null, caching is effectively disabled.
+  cache.init_app(app, cache_config)
+
+INFO     alembic.runtime.migration:migration.py:207 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:210 Will assume non-transactional DDL.
+INFO     superset.app:app.py:184 Pending database migrations: run 'superset db upgrade'
+WARNING  flask_appbuilder.base:base.py:234 appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+WARNING  flask_appbuilder.base:base.py:549 View already exists LogRestApi ignoring
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:297 MCP dependency injection initialized successfully
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:304 MCP service app imported - host tools registered
+________________________ test_extract_tables_select_if _________________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:48,932:INFO:sqlglot:Applying array index offset (-1)
+------------------------------ Captured log call -------------------------------
+INFO     sqlglot:helper.py:205 Applying array index offset (-1)
+____________________ test_extract_tables_show_columns_from _____________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:48,957:WARNING:sqlglot:'SHOW COLUMNS FROM t1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW COLUMNS FROM t1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_____________________ test_extract_tables_show_partitions ______________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:48,970:WARNING:sqlglot:'SHOW PARTITIONS FROM orders
+WHERE ds >= '2013-01-01' ORDER BY ds DESC
+' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW PARTITIONS FROM orders
+WHERE ds >= '2013-01-01' ORDER BY ds DESC
+' contains unsupported syntax. Falling back to parsing as a 'Command'.
+______________________ test_extract_tables_multistatement ______________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,038:WARNING:sqlglot:'ADD JAR file:///hive.jar' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'ADD JAR file:///hive.jar' contains unsupported syntax. Falling back to parsing as a 'Command'.
+________________________________ test_sqlscript ________________________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,100:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,100:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_sqlscript_split[let foo = 1; tbl | where bar == foo-kustokql-expected2] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,110:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,111:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+____________________________ test_kustokqlstatement ____________________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,129:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,129:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____________________ test_kustokqlstatement_split_script ______________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,137:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,137:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,137:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,137:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____________________ test_kustokqlstatement_with_program ______________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,139:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______________________ test_kustokqlstatement_with_set ________________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,141:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,141:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_kustokql_statement_split_special[print banner=strcat("Hello", ", ", "World!")-1] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,143:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______ test_kustokql_statement_split_special[print 'O\\'Malley\\'s'-1] ________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,145:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______ test_kustokql_statement_split_special[print 'O\\'Mal;ley\\'s'-1] _______
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,147:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+___ test_kustokql_statement_split_special[print ```foo;\nbar;\nbaz;```\n-1] ____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,149:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__________ test_has_mutation[sqlite-EXPLAIN SELECT * FROM foo-False] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,176:WARNING:sqlglot:'EXPLAIN SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+____ test_has_mutation[postgresql-EXPLAIN ANALYZE SELECT * FROM foo-False] _____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,199:WARNING:sqlglot:'EXPLAIN ANALYZE SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN ANALYZE SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+______ test_has_mutation[postgresql-EXPLAIN ANALYZE DELETE FROM foo-True] ______
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,203:WARNING:sqlglot:'EXPLAIN ANALYZE DELETE FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN ANALYZE DELETE FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_____________ test_has_mutation[postgresql-SHOW search_path-False] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,207:WARNING:sqlglot:'SHOW search_path' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW search_path' contains unsupported syntax. Falling back to parsing as a 'Command'.
+___________ test_has_mutation[trino-EXPLAIN SELECT * FROM foo-False] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,248:WARNING:sqlglot:'EXPLAIN SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN SELECT * FROM foo' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_________________ test_has_mutation[trino-SHOW SCHEMAS-False] __________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,251:WARNING:sqlglot:'SHOW SCHEMAS' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW SCHEMAS' contains unsupported syntax. Falling back to parsing as a 'Command'.
+______________ test_has_mutation[kustokql-tbl | limit 100-False] _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,256:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+____ test_has_mutation[kustokql-let foo = 1; tbl | where bar == foo-False] _____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,258:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,258:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+________________ test_has_mutation[kustokql-.show tables-False] ________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,260:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__________________ test_has_mutation[kustokql-print 1-False] ___________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,262:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____ test_has_mutation[kustokql-set querytrace; Events | take 100-False] ______
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,264:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:49,264:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______________ test_has_mutation[kustokql-.drop table foo-True] _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,266:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______ test_has_mutation[kustokql-.set-or-append table foo <| bar-True] _______
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,268:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+____________ test_has_mutation[base-SHOW LOCKS test EXTENDED-False] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,270:WARNING:sqlglot:'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_________ test_has_mutation[base-SET hivevar:desc='Legislators'-False] _________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,273:WARNING:sqlglot:'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+________________ test_has_mutation[base-EXPLAIN SELECT 1-False] ________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,278:WARNING:sqlglot:'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_________________ test_has_mutation[base-SHOW CATALOGS-False] __________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,287:WARNING:sqlglot:'SHOW CATALOGS' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW CATALOGS' contains unsupported syntax. Falling back to parsing as a 'Command'.
+__________________ test_has_mutation[base-SHOW TABLES-False] ___________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,289:WARNING:sqlglot:'SHOW TABLES' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW TABLES' contains unsupported syntax. Falling back to parsing as a 'Command'.
+____________ test_has_mutation[hive-SHOW LOCKS test EXTENDED-False] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,299:WARNING:sqlglot:'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_________ test_has_mutation[hive-SET hivevar:desc='Legislators'-False] _________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,301:WARNING:sqlglot:'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+________________ test_has_mutation[hive-EXPLAIN SELECT 1-False] ________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,304:WARNING:sqlglot:'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+________ test_has_mutation[presto-SET hivevar:desc='Legislators'-False] ________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,313:WARNING:sqlglot:'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SET hivevar:desc='Legislators'' contains unsupported syntax. Falling back to parsing as a 'Command'.
+___________ test_has_mutation[presto-SHOW LOCKS test EXTENDED-False] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,322:WARNING:sqlglot:'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'SHOW LOCKS test EXTENDED' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_______________ test_has_mutation[presto-EXPLAIN SELECT 1-False] _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:49,325:WARNING:sqlglot:'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'EXPLAIN SELECT 1' contains unsupported syntax. Falling back to parsing as a 'Command'.
+__________________________ test_custom_dialect[app0] ___________________________
+---------------------------- Captured stderr setup -----------------------------
+2026-09-21 11:01:49,597:INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+2026-09-21 11:01:49,597:INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+2026-09-21 11:01:50,110:INFO:superset.app:Pending database migrations: run 'superset db upgrade'
+2026-09-21 11:01:51,013:WARNING:flask_appbuilder.base:appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+2026-09-21 11:01:51,140:WARNING:flask_appbuilder.base:View already exists LogRestApi ignoring
+2026-09-21 11:01:51,172:INFO:superset.core.mcp.core_mcp_injection:MCP dependency injection initialized successfully
+2026-09-21 11:01:51,172:INFO:superset.core.mcp.core_mcp_injection:MCP service app imported - host tools registered
+------------------------------ Captured log setup ------------------------------
+INFO     alembic.runtime.migration:migration.py:207 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:210 Will assume non-transactional DDL.
+INFO     superset.app:app.py:184 Pending database migrations: run 'superset db upgrade'
+WARNING  flask_appbuilder.base:base.py:234 appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+WARNING  flask_appbuilder.base:base.py:549 View already exists LogRestApi ignoring
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:297 MCP dependency injection initialized successfully
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:304 MCP service app imported - host tools registered
+___________________ test_is_mutating[SELECT 1-False-ascend] ____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-09-21 11:01:51,471:INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+2026-09-21 11:01:51,471:INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+2026-09-21 11:01:52,020:INFO:superset.app:Pending database migrations: run 'superset db upgrade'
+2026-09-21 11:01:52,570:WARNING:flask_appbuilder.base:appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+2026-09-21 11:01:52,672:WARNING:flask_appbuilder.base:View already exists LogRestApi ignoring
+2026-09-21 11:01:52,699:INFO:superset.core.mcp.core_mcp_injection:MCP dependency injection initialized successfully
+2026-09-21 11:01:52,700:INFO:superset.core.mcp.core_mcp_injection:MCP service app imported - host tools registered
+------------------------------ Captured log setup ------------------------------
+INFO     alembic.runtime.migration:migration.py:207 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:210 Will assume non-transactional DDL.
+INFO     superset.app:app.py:184 Pending database migrations: run 'superset db upgrade'
+WARNING  flask_appbuilder.base:base.py:234 appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+WARNING  flask_appbuilder.base:base.py:549 View already exists LogRestApi ignoring
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:297 MCP dependency injection initialized successfully
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:304 MCP service app imported - host tools registered
+_ test_is_mutating_anonymous_block[\nDO $$\nBEGIN\n  INSERT INTO public.users (name, real_name)\n    VALUES ('SQLLab bypass DML', 'SQLLab bypass DML');\nEND;\n$$;\n            -True] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,746:WARNING:sqlglot:'DO $$
+BEGIN
+  INSERT INTO public.users (name, real_name)
+    VALUES ('SQLLab bypass DML', 'SQLLab by' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'DO $$
+BEGIN
+  INSERT INTO public.users (name, real_name)
+    VALUES ('SQLLab bypass DML', 'SQLLab by' contains unsupported syntax. Falling back to parsing as a 'Command'.
+_ test_is_mutating_anonymous_block[\nDO $$\nBEGIN\n    IF (SELECT COUNT(*) FROM orders WHERE status = 'pending') > 100 THEN\n        RAISE NOTICE 'High pending order volume detected';\n    END IF;\nEND;\n$$;\n            -True] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,750:WARNING:sqlglot:'DO $$
+BEGIN
+    IF (SELECT COUNT(*) FROM orders WHERE status = 'pending') > 100 THEN
+        RAISE N' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'DO $$
+BEGIN
+    IF (SELECT COUNT(*) FROM orders WHERE status = 'pending') > 100 THEN
+        RAISE N' contains unsupported syntax. Falling back to parsing as a 'Command'.
+______________ test_get_kql_limit_value[StormEvents | take 10-10] ______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,864:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____________ test_get_kql_limit_value[StormEvents | limit 20-20] ______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,866:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_get_kql_limit_value[StormEvents | where State == 'FL' | summarize count()-None] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,868:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+____ test_get_kql_limit_value[StormEvents | where name has 'limit 10'-None] ____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,870:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+______________ test_get_kql_limit_value[AnotherTable | take 5-5] _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,873:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____ test_get_kql_limit_value[datatable(x:int) [1, 2, 3] | take 100-100] ______
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,875:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_get_kql_limit_value[\n    Table1 | where msg contains 'abc;xyz'\n           | limit 5\n    -5] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,877:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______________ test_get_kql_limit_value[table | take five-None] _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,879:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__ test_set_kql_limit_value[StormEvents | take 10-100-StormEvents | take 100] __
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,965:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__ test_set_kql_limit_value[StormEvents | limit 20-10-StormEvents | limit 10] __
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,967:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_set_kql_limit_value[StormEvents | where State == 'FL' | summarize count()-10-StormEvents | where State == 'FL' | summarize count() | take 10] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,969:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_set_kql_limit_value[StormEvents | where name has 'limit 10'-10-StormEvents | where name has 'limit 10' | take 10] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,972:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__ test_set_kql_limit_value[AnotherTable | take 5-50-AnotherTable | take 50] ___
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,974:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_set_kql_limit_value[datatable(x:int) [1, 2, 3] | take 100-10-datatable(x:int) [1, 2, 3] | take 10] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,976:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_set_kql_limit_value[\n    Table1 | where msg contains 'abc;xyz'\n           | limit 5\n    -10-Table1 | where msg contains 'abc;xyz'\n           | limit 10] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,979:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+________ test_set_kql_limit_value_invalid_method[LimitMethod.WRAP_SQL] _________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,981:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_______ test_set_kql_limit_value_invalid_method[LimitMethod.FETCH_MANY] ________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:53,986:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+___________ test_kqlstatement_is_select[StormEvents | take 10-True] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,460:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+___________ test_kqlstatement_is_select[StormEvents | limit 20-True] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,462:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_kqlstatement_is_select[StormEvents | where State == 'FL' | summarize count()-True] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,464:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+__ test_kqlstatement_is_select[StormEvents | where name has 'limit 10'-True] ___
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,466:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+___________ test_kqlstatement_is_select[AnotherTable | take 5-True] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,468:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+___ test_kqlstatement_is_select[datatable(x:int) [1, 2, 3] | take 100-True] ____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,471:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_____ test_kqlstatement_is_select[.create table StormEvents (x:int)-False] _____
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,473:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+_ test_kqlstatement_is_select[.ingest inline into table StormEvents <| StormEvents | take 10-False] _
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,475:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+________________________ test_awsathena_engine_mapping _________________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,480:WARNING:sqlglot:'USING EXTERNAL FUNCTION my_func(x INT) RETURNS INT LAMBDA 'lambda_name' SELECT my_func(id) FROM my_t' contains unsupported syntax. Falling back to parsing as a 'Command'.
+------------------------------ Captured log call -------------------------------
+WARNING  sqlglot:parser.py:1950 'USING EXTERNAL FUNCTION my_func(x INT) RETURNS INT LAMBDA 'lambda_name' SELECT my_func(id) FROM my_t' contains unsupported syntax. Falling back to parsing as a 'Command'.
+________ test_check_functions_present[Table | limit 10-kustokql-False] _________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,501:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:54,501:WARNING:superset.sql.parse:Kusto KQL doesn't support checking for functions present.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1210 Kusto KQL doesn't support checking for functions present.
+__________ test_check_tables_present[Table | limit 10-kustokql-False] __________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:54,524:WARNING:superset.sql.parse:Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+2026-09-21 11:01:54,524:WARNING:superset.sql.parse:Kusto KQL doesn't support checking for tables present.
+------------------------------ Captured log call -------------------------------
+WARNING  superset.sql.parse:parse.py:1154 Kusto KQL doesn't support table extraction. This means that data access roles will not be enforced by Superset in the database.
+WARNING  superset.sql.parse:parse.py:1220 Kusto KQL doesn't support checking for tables present.
+______________________________ test_execute_query ______________________________
+---------------------------- Captured stderr setup -----------------------------
+2026-09-21 11:01:54,855:INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+2026-09-21 11:01:54,856:INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+2026-09-21 11:01:55,392:INFO:superset.app:Pending database migrations: run 'superset db upgrade'
+2026-09-21 11:01:55,943:WARNING:flask_appbuilder.base:appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+2026-09-21 11:01:56,054:WARNING:flask_appbuilder.base:View already exists LogRestApi ignoring
+2026-09-21 11:01:56,080:INFO:superset.core.mcp.core_mcp_injection:MCP dependency injection initialized successfully
+2026-09-21 11:01:56,080:INFO:superset.core.mcp.core_mcp_injection:MCP service app imported - host tools registered
+------------------------------ Captured log setup ------------------------------
+INFO     alembic.runtime.migration:migration.py:207 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:210 Will assume non-transactional DDL.
+INFO     superset.app:app.py:184 Pending database migrations: run 'superset db upgrade'
+WARNING  flask_appbuilder.base:base.py:234 appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+WARNING  flask_appbuilder.base:base.py:549 View already exists LogRestApi ignoring
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:297 MCP dependency injection initialized successfully
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:304 MCP service app imported - host tools registered
+_______________ test_execute_sql_statement_exceeds_payload_limit _______________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:56,096:INFO:superset.sql_lab:Query 1: Set query to 'running'
+2026-09-21 11:01:56,102:INFO:superset.sql_lab:Query 1: Running block 1 out of 1
+2026-09-21 11:01:56,109:INFO:superset.sql_lab:Query 1: Storing results in results backend, key: 1a9e99fc-c2da-410c-bf76-d3196d8f0b4d
+2026-09-21 11:01:56,109:INFO:superset.sql_lab:Result size exceeds the allowed limit.
+------------------------------ Captured log call -------------------------------
+INFO     superset.sql_lab:sql_lab.py:399 Query 1: Set query to 'running'
+INFO     superset.sql_lab:sql_lab.py:499 Query 1: Running block 1 out of 1
+INFO     superset.sql_lab:sql_lab.py:564 Query 1: Storing results in results backend, key: 1a9e99fc-c2da-410c-bf76-d3196d8f0b4d
+INFO     superset.sql_lab:sql_lab.py:582 Result size exceeds the allowed limit.
+_______________ test_execute_sql_statement_within_payload_limit ________________
+----------------------------- Captured stderr call -----------------------------
+2026-09-21 11:01:56,114:INFO:superset.sql_lab:Query 1: Set query to 'running'
+2026-09-21 11:01:56,120:INFO:superset.sql_lab:Query 1: Running block 1 out of 1
+2026-09-21 11:01:56,126:INFO:superset.sql_lab:Query 1: Storing results in results backend, key: d9155fa8-ce4a-4e53-9f14-6c53cf608476
+2026-09-21 11:01:56,127:INFO:superset.sql_lab:Query 1: Successfully stored results in backend, key: d9155fa8-ce4a-4e53-9f14-6c53cf608476
+2026-09-21 11:01:56,146:WARNING:py.warnings:/home/ubuntu/repos/superset/tests/unit_tests/sql_lab_test.py:178: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+  execute_sql_statements(
+
+------------------------------ Captured log call -------------------------------
+INFO     superset.sql_lab:sql_lab.py:399 Query 1: Set query to 'running'
+INFO     superset.sql_lab:sql_lab.py:499 Query 1: Running block 1 out of 1
+INFO     superset.sql_lab:sql_lab.py:564 Query 1: Storing results in results backend, key: d9155fa8-ce4a-4e53-9f14-6c53cf608476
+INFO     superset.sql_lab:sql_lab.py:635 Query 1: Successfully stored results in backend, key: d9155fa8-ce4a-4e53-9f14-6c53cf608476
+WARNING  py.warnings:warnings.py:112 /home/ubuntu/repos/superset/tests/unit_tests/sql_lab_test.py:178: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+  execute_sql_statements(
+_________________________ test_get_sql_results_oauth2 __________________________
+----------------------------- Captured stderr call -----------------------------
+2021-04-01 00:00:00,000:INFO:superset.sql_lab:Query 1: Set query to 'running'
+------------------------------ Captured log call -------------------------------
+INFO     superset.sql_lab:sql_lab.py:399 Query 1: Set query to 'running'
+_________________ test_convert_dttm[Date-toDate('2019-01-02')] _________________
+---------------------------- Captured stderr setup -----------------------------
+2026-09-21 11:01:57,697:WARNING:py.warnings:/home/ubuntu/repos/superset/superset/utils/cache_manager.py:225: UserWarning: Flask-Caching: CACHE_TYPE is set to null, caching is effectively disabled.
+  cache.init_app(app, cache_config)
+
+2026-09-21 11:01:57,934:INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+2026-09-21 11:01:57,934:INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+2026-09-21 11:01:58,480:INFO:superset.app:Pending database migrations: run 'superset db upgrade'
+2026-09-21 11:01:59,060:WARNING:flask_appbuilder.base:appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+2026-09-21 11:01:59,170:WARNING:flask_appbuilder.base:View already exists LogRestApi ignoring
+2026-09-21 11:01:59,200:INFO:superset.core.mcp.core_mcp_injection:MCP dependency injection initialized successfully
+2026-09-21 11:01:59,200:INFO:superset.core.mcp.core_mcp_injection:MCP service app imported - host tools registered
+------------------------------ Captured log setup ------------------------------
+WARNING  py.warnings:warnings.py:112 /home/ubuntu/repos/superset/superset/utils/cache_manager.py:225: UserWarning: Flask-Caching: CACHE_TYPE is set to null, caching is effectively disabled.
+  cache.init_app(app, cache_config)
+
+INFO     alembic.runtime.migration:migration.py:207 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:210 Will assume non-transactional DDL.
+INFO     superset.app:app.py:184 Pending database migrations: run 'superset db upgrade'
+WARNING  flask_appbuilder.base:base.py:234 appbuilder.app is deprecated and will be removed in a future version. Use current_app instead
+WARNING  flask_appbuilder.base:base.py:549 View already exists LogRestApi ignoring
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:297 MCP dependency injection initialized successfully
+INFO     superset.core.mcp.core_mcp_injection:core_mcp_injection.py:304 MCP service app imported - host tools registered
+=========================== short test summary info ============================
+PASSED tests/unit_tests/sql/parse_tests.py::test_table
+PASSED tests/unit_tests/sql/parse_tests.py::test_table_qualify
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_sql
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_subselect
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_select_in_expression
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_parenthesis
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_with_schema
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_union
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_select_from_values
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_select_array
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_select_if
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_with_catalog
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_illdefined
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_show_tables_from
+PASSED tests/unit_tests/sql/parse_tests.py::test_format_show_tables
+PASSED tests/unit_tests/sql/parse_tests.py::test_format_no_dialect
+PASSED tests/unit_tests/sql/parse_tests.py::test_split_no_dialect
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_show_columns_from
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_where_subquery
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_describe
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_show_partitions
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_join
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_semi_join
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_combinations
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_with
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_reusing_aliases
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_multistatement
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_complex
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_mixed_from_clause
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_nested_select
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_complex_cte_with_prefix
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_identifier_list_with_keyword_as_alias
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[ SELECT foo FROM tbl ; -postgresql-expected0]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[SELECT foo FROM tbl1; SELECT bar FROM tbl2;-postgresql-expected1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[let foo = 1; tbl | where bar == foo-kustokql-expected2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[SELECT 1; -- extraneous comment-postgresql-expected3]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[SHOW TABLES FROM s1 like '%order%';-mysql-expected4]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlscript_split[SELECT 1; SELECT 2; SELECT 3;-unknown-engine-expected5]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokqlstatement
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokqlstatement_split_script
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokqlstatement_with_program
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokqlstatement_with_set
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokql_statement_split_special[print banner=strcat("Hello", ", ", "World!")-1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokql_statement_split_special[print 'O\\'Malley\\'s'-1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokql_statement_split_special[print 'O\\'Mal;ley\\'s'-1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kustokql_statement_split_special[print ```foo;\nbar;\nbaz;```\n-1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_split_kql[;Table | take 5-expected0]
+PASSED tests/unit_tests/sql/parse_tests.py::test_split_kql[;Table | take 5;-expected1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_split_kql[\nlet totalPagesPerDay = PageViews\n| summarize by Page, Day = startofday(Timestamp)\n| summarize count() by Day;\nlet materializedScope = PageViews\n| summarize by Page, Day = startofday(Timestamp);\nlet cachedResult = materialize(materializedScope);\ncachedResult\n| project Page, Day1 = Day\n| join kind = inner\n(\n    cachedResult\n    | project Page, Day2 = Day\n)\non Page\n| where Day2 > Day1\n| summarize count() by Day1, Day2\n| join kind = inner\n    totalPagesPerDay\non $left.Day1 == $right.Day\n| project Day1, Day2, Percentage = count_*100.0/count_1\n            -expected2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-INSERT INTO foo VALUES (1)-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-UPDATE foo SET bar = 2 WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-DELETE FROM foo WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-CREATE TABLE foo (id INT, bar TEXT)-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-DROP TABLE foo-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-EXPLAIN SELECT * FROM foo-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[sqlite-PRAGMA table_info(foo)-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-INSERT INTO foo (id, bar) VALUES (1, 'test')-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-UPDATE foo SET bar = 'new' WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-DELETE FROM foo WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-CREATE TABLE foo (id SERIAL PRIMARY KEY, bar TEXT)-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-DROP TABLE foo-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-EXPLAIN ANALYZE SELECT * FROM foo-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-EXPLAIN ANALYZE DELETE FROM foo-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-SHOW search_path-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgresql-SET search_path TO public-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[postgres-\n            with source as (\n                select 1 as one\n            )\n            select * from source\n            -False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-INSERT INTO foo VALUES (1, 'bar')-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-UPDATE foo SET bar = 'baz' WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-DELETE FROM foo WHERE id = 1-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-CREATE TABLE foo (id INT, bar VARCHAR)-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-DROP TABLE foo-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-EXPLAIN SELECT * FROM foo-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-SHOW SCHEMAS-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[trino-SET SESSION optimization_level = '3'-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-tbl | limit 100-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-let foo = 1; tbl | where bar == foo-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-.show tables-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-print 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-set querytrace; Events | take 100-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-.drop table foo-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[kustokql-.set-or-append table foo <| bar-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-SHOW LOCKS test EXTENDED-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-SET hivevar:desc='Legislators'-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-UPDATE t1 SET col1 = NULL-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-EXPLAIN SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-WITH bla AS (SELECT 1) SELECT * FROM bla-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-SHOW CATALOGS-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[base-SHOW TABLES-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-UPDATE t1 SET col1 = NULL-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-INSERT OVERWRITE TABLE tabB SELECT a.Age FROM TableA-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-SHOW LOCKS test EXTENDED-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-SET hivevar:desc='Legislators'-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-EXPLAIN SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[hive-WITH bla AS (SELECT 1) SELECT * FROM bla-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-SET hivevar:desc='Legislators'-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-UPDATE t1 SET col1 = NULL-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-INSERT OVERWRITE TABLE tabB SELECT a.Age FROM TableA-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-SHOW LOCKS test EXTENDED-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-EXPLAIN SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-SELECT 1-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_mutation[presto-WITH bla AS (SELECT 1) SELECT * FROM bla-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_settings
+PASSED tests/unit_tests/sql/parse_tests.py::test_custom_dialect[app0]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-ascend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-awsathena]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-bigquery]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-clickhouse]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-clickhousedb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-cockroachdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-couchbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-crate]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-databend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-databricks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-db2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-denodo]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-dremio]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-drill]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-druid]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-duckdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-dynamodb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-elasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-exa]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-firebird]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-firebolt]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-gsheets]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-hana]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-ibmi]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-impala]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-kustokql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-kustosql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-kylin]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-mariadb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-motherduck]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-mssql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-mysql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-netezza]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-oceanbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-ocient]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-odelasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-oracle]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-pinot]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-postgresql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-pydoris]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-redshift]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-risingwave]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-shillelagh]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-snowflake]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-solr]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-sqlite]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-starrocks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-superset]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-teradatasql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-vertica]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-ascend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-awsathena]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-bigquery]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-clickhouse]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-clickhousedb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-cockroachdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-couchbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-crate]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-databend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-databricks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-db2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-denodo]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-dremio]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-drill]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-druid]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-duckdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-dynamodb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-elasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-exa]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-firebird]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-firebolt]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-gsheets]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-hana]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-ibmi]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-impala]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-kustokql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-kustosql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-kylin]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-mariadb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-motherduck]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-mssql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-mysql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-netezza]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-oceanbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-ocient]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-odelasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-oracle]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-pinot]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-postgresql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-pydoris]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-redshift]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-risingwave]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-shillelagh]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-snowflake]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-solr]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-sqlite]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-starrocks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-superset]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-teradatasql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[with source as ( select 1 as one ) select * from source-False-vertica]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-ascend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-awsathena]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-bigquery]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-clickhouse]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-clickhousedb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-cockroachdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-couchbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-crate]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-databend]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-databricks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-db2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-denodo]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-dremio]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-drill]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-druid]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-duckdb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-dynamodb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-elasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-exa]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-firebird]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-firebolt]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-gsheets]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-hana]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-ibmi]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-impala]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-kustokql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-kustosql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-kylin]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-mariadb]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-motherduck]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-mssql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-mysql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-netezza]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-oceanbase]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-ocient]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-odelasticsearch]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-oracle]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-pinot]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-postgresql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-pydoris]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-redshift]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-risingwave]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-shillelagh]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-snowflake]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-solr]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-sqlite]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-starrocks]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-superset]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-teradatasql]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating[ALTER TABLE foo ADD COLUMN bar INT-True-vertica]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating_anonymous_block[\nDO $$\nBEGIN\n  INSERT INTO public.users (name, real_name)\n    VALUES ('SQLLab bypass DML', 'SQLLab bypass DML');\nEND;\n$$;\n            -True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_mutating_anonymous_block[\nDO $$\nBEGIN\n    IF (SELECT COUNT(*) FROM orders WHERE status = 'pending') > 100 THEN\n        RAISE NOTICE 'High pending order volume detected';\n    END IF;\nEND;\n$$;\n            -True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_optimize
+PASSED tests/unit_tests/sql/parse_tests.py::test_firebolt
+PASSED tests/unit_tests/sql/parse_tests.py::test_firebolt_old
+PASSED tests/unit_tests/sql/parse_tests.py::test_firebolt_old_escape_string
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT * FROM users LIMIT 10-postgresql-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[\nWITH cte_example AS (\n  SELECT * FROM my_table\n  LIMIT 100\n)\nSELECT * FROM cte_example\nLIMIT 10;\n        -postgresql-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT * FROM users ORDER BY id DESC LIMIT 25-postgresql-25]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT * FROM users-postgresql-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT TOP 5 name FROM employees-teradatasql-5]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT TOP (42) * FROM table_name-teradatasql-42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from table-postgresql-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from mytable limit 10-postgresql-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from (select * from my_subquery limit 10) where col=1 limit 20-postgresql-20]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from (select * from my_subquery limit 10);-postgresql-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from (select * from my_subquery limit 10) where col=1 limit 20;-postgresql-20]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from mytable limit 20, 10-postgresql-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[select * from mytable limit 10 offset 20-postgresql-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[\nSELECT id, value, i\nFROM (SELECT * FROM my_table LIMIT 10),\nLATERAL generate_series(1, value) AS i;\n        -postgresql-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_limit_value[SELECT * FROM my_table LIMIT invalid-postgresql-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_clickhouse_simple_limit_by_keeps_groups
+PASSED tests/unit_tests/sql/parse_tests.py::test_clickhouse_offset_limit_by_keeps_groups[SELECT id, val FROM events ORDER BY id, val LIMIT 2 OFFSET 1 BY id-LIMIT 2-OFFSET 1 BY id]
+PASSED tests/unit_tests/sql/parse_tests.py::test_clickhouse_offset_limit_by_keeps_groups[SELECT id, val FROM events ORDER BY id, val LIMIT 1, 2 BY id-LIMIT 2-OFFSET 1 BY id]
+PASSED tests/unit_tests/sql/parse_tests.py::test_clickhouse_offset_limit_by_keeps_groups[SELECT id, val FROM events ORDER BY id, val LIMIT 1 OFFSET 2 BY id, val-LIMIT 1-OFFSET 2 BY id, val]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[StormEvents | take 10-10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[StormEvents | limit 20-20]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[StormEvents | where State == 'FL' | summarize count()-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[StormEvents | where name has 'limit 10'-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[AnotherTable | take 5-5]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[datatable(x:int) [1, 2, 3] | take 100-100]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[\n    Table1 | where msg contains 'abc;xyz'\n           | limit 5\n    -5]
+PASSED tests/unit_tests/sql/parse_tests.py::test_get_kql_limit_value[table | take five-None]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t-postgresql-10-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM t\nLIMIT 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t LIMIT 1000-postgresql-10-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM t\nLIMIT 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t-mssql-10-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10\n  *\nFROM t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t-teradatasql-10-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10\n  *\nFROM t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t-oracle-10-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM t\nFETCH FIRST 10 ROWS ONLY]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM t-db2-10-LimitMethod.WRAP_SQL-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM t\n)\nLIMIT 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SEL TOP 1000 * FROM My_table-teradatasql-100-LimitMethod.FORCE_LIMIT-SELECT\nTOP 100\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SEL TOP 1000 * FROM My_table;-teradatasql-100-LimitMethod.FORCE_LIMIT-SELECT\nTOP 100\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SEL TOP 1000 * FROM My_table;-teradatasql-1000-LimitMethod.FORCE_LIMIT-SELECT\nTOP 1000\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table;-teradatasql-100-LimitMethod.FORCE_LIMIT-SELECT\nTOP 100\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table;-teradatasql-10000-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10000\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table-mssql-100-LimitMethod.FORCE_LIMIT-SELECT\nTOP 100\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table;-mssql-100-LimitMethod.FORCE_LIMIT-SELECT\nTOP 100\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table;-mssql-10000-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10000\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT TOP 1000 * FROM My_table;-mssql-1000-LimitMethod.FORCE_LIMIT-SELECT\nTOP 1000\n  *\nFROM My_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[\nwith abc as (select * from test union select * from test1)\nselect TOP 100 * from currency\n            -mssql-1000-LimitMethod.FORCE_LIMIT-WITH abc AS (\n  SELECT\n    *\n  FROM test\n  UNION\n  SELECT\n    *\n  FROM test1\n)\nSELECT\nTOP 1000\n  *\nFROM currency]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT DISTINCT x from tbl-mssql-100-LimitMethod.FORCE_LIMIT-SELECT DISTINCT\nTOP 100\n  x\nFROM tbl]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT 1 as cnt-mssql-10-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10\n  1 AS cnt]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[select TOP 1000 * from abc where id=1-mssql-10-LimitMethod.FORCE_LIMIT-SELECT\nTOP 10\n  *\nFROM abc\nWHERE\n  id = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM birth_names -- SOME COMMENT-postgresql-1000-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM birth_names /* SOME COMMENT */\nLIMIT 1000]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM birth_names -- SOME COMMENT WITH LIMIT 555-postgresql-1000-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM birth_names /* SOME COMMENT WITH LIMIT 555 */\nLIMIT 1000]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM birth_names LIMIT 555-postgresql-1000-LimitMethod.FORCE_LIMIT-SELECT\n  *\nFROM birth_names\nLIMIT 1000]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_limit_value[SELECT * FROM birth_names LIMIT 555-postgresql-1000-LimitMethod.FETCH_MANY-SELECT\n  *\nFROM birth_names\nLIMIT 555]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[StormEvents | take 10-100-StormEvents | take 100]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[StormEvents | limit 20-10-StormEvents | limit 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[StormEvents | where State == 'FL' | summarize count()-10-StormEvents | where State == 'FL' | summarize count() | take 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[StormEvents | where name has 'limit 10'-10-StormEvents | where name has 'limit 10' | take 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[AnotherTable | take 5-50-AnotherTable | take 50]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[datatable(x:int) [1, 2, 3] | take 100-10-datatable(x:int) [1, 2, 3] | take 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value[\n    Table1 | where msg contains 'abc;xyz'\n           | limit 5\n    -10-Table1 | where msg contains 'abc;xyz'\n           | limit 10]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value_invalid_method[LimitMethod.WRAP_SQL]
+PASSED tests/unit_tests/sql/parse_tests.py::test_set_kql_limit_value_invalid_method[LimitMethod.FETCH_MANY]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[SELECT 1-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[SELECT 1 AS cnt-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[\nSELECT 'INR' AS cur\nUNION\nSELECT 'USD' AS cur\nUNION\nSELECT 'EUR' AS cur\n            -postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[WITH cte AS (SELECT 1) SELECT * FROM cte-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[\nWITH\n    x AS (SELECT a FROM t1),\n    y AS (SELECT a AS b FROM t2),\n    z AS (SELECT b AS c FROM t3)\nSELECT c FROM z\n            -postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[\nWITH\n    x AS (SELECT a FROM t1),\n    y AS (SELECT a AS b FROM x),\n    z AS (SELECT b AS c FROM y)\nSELECT c FROM z\n            -postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_cte[\nWITH CTE__test (SalesPersonID, SalesOrderID, SalesYear)\nAS (\n    SELECT SalesPersonID, SalesOrderID, YEAR(OrderDate) AS SalesYear\n    FROM SalesOrderHeader\n    WHERE SalesPersonID IS NOT NULL\n)\nSELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear\nFROM CTE__test\nGROUP BY SalesYear, SalesPersonID\nORDER BY SalesPersonID, SalesYear;\n            -postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_as_cte[SELECT 1-postgresql-WITH __cte AS (\n  SELECT\n    1\n)]
+PASSED tests/unit_tests/sql/parse_tests.py::test_as_cte[\nWITH currency AS (SELECT 'INR' AS cur),\n     currency_2 AS (SELECT 'USD' AS cur)\nSELECT * FROM currency\nUNION ALL\nSELECT * FROM currency_2\n            -postgresql-WITH currency AS (\n  SELECT\n    'INR' AS cur\n), currency_2 AS (\n  SELECT\n    'USD' AS cur\n), __cte AS (\n  SELECT\n    *\n  FROM currency\n  UNION ALL\n  SELECT\n    *\n  FROM currency_2\n)]
+PASSED tests/unit_tests/sql/parse_tests.py::test_as_cte_called_twice
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM some_table AS t-rules0-SELECT\n  t.foo\nFROM (\n  SELECT\n    *\n  FROM some_table\n  WHERE\n    id = 42\n) AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM some_table AS t-rules1-SELECT\n  t.foo\nFROM some_table AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM some_table AS t WHERE bar = 'baz'-rules2-SELECT\n  t.foo\nFROM (\n  SELECT\n    *\n  FROM some_table\n  WHERE\n    id = 42\n) AS t\nWHERE\n  bar = 'baz']
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM schema1.some_table AS t-rules3-SELECT\n  t.foo\nFROM (\n  SELECT\n    *\n  FROM schema1.some_table\n  WHERE\n    id = 42\n) AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM schema1.some_table AS t-rules4-SELECT\n  t.foo\nFROM schema1.some_table AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM catalog1.schema1.some_table AS t-rules5-SELECT\n  t.foo\nFROM (\n  SELECT\n    *\n  FROM catalog1.schema1.some_table\n  WHERE\n    id = 42\n) AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT t.foo FROM catalog1.schema1.some_table AS t-rules6-SELECT\n  t.foo\nFROM catalog1.schema1.some_table AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM some_table WHERE 1=1-rules7-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM some_table\n  WHERE\n    id = 42\n) AS "some_table"\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM table WHERE 1=1-rules8-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM table\n  WHERE\n    id = 42\n) AS "table"\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM "table" WHERE 1=1-rules9-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM "table"\n  WHERE\n    id = 42\n) AS "table"\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM table WHERE 1=1-rules10-SELECT\n  *\nFROM table\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM other_table WHERE 1=1-rules11-SELECT\n  *\nFROM other_table\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM table JOIN other_table ON table.id = other_table.id-rules12-SELECT\n  *\nFROM table\nJOIN (\n  SELECT\n    *\n  FROM other_table\n  WHERE\n    id = 42\n) AS "other_table"\n  ON table.id = other_table.id]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM "table" JOIN other_table ON "table".id = other_table.id-rules13-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM "table"\n  WHERE\n    id = 42\n) AS "table"\nJOIN other_table\n  ON "table".id = other_table.id]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM (SELECT * FROM some_table)-rules14-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM (\n    SELECT\n      *\n    FROM some_table\n    WHERE\n      id = 42\n  ) AS "some_table"\n)]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM table UNION ALL SELECT * FROM other_table-rules15-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM table\n  WHERE\n    id = 42\n) AS "table"\nUNION ALL\nSELECT\n  *\nFROM other_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM table UNION ALL SELECT * FROM other_table-rules16-SELECT\n  *\nFROM table\nUNION ALL\nSELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM other_table\n  WHERE\n    id = 42\n) AS "other_table"]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT a.*, b.* FROM tbl_a AS a INNER JOIN tbl_b AS b ON a.col = b.col-rules17-SELECT\n  a.*,\n  b.*\nFROM (\n  SELECT\n    *\n  FROM tbl_a\n  WHERE\n    id = 42\n) AS a\nINNER JOIN tbl_b AS b\n  ON a.col = b.col]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT a.*, b.* FROM tbl_a a INNER JOIN tbl_b b ON a.col = b.col-rules18-SELECT\n  a.*,\n  b.*\nFROM (\n  SELECT\n    *\n  FROM tbl_a\n  WHERE\n    id = 42\n) AS a\nINNER JOIN tbl_b AS b\n  ON a.col = b.col]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_subquery_transformer[SELECT * FROM public.flights LIMIT 100-rules19-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM public.flights\n  WHERE\n    "AIRLINE" LIKE 'A%'\n) AS "flights"\nLIMIT 100]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_invalid_method
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT t.foo FROM some_table AS t-rules0-SELECT\n  t.foo\nFROM some_table AS t\nWHERE\n  t.id = 42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT t.foo FROM schema2.some_table AS t-rules1-SELECT\n  t.foo\nFROM schema2.some_table AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT t.foo FROM catalog2.schema1.some_table AS t-rules2-SELECT\n  t.foo\nFROM catalog2.schema1.some_table AS t]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT t.foo FROM some_table AS t WHERE bar = 'baz'-rules3-SELECT\n  t.foo\nFROM some_table AS t\nWHERE\n  t.id = 42 AND (\n    bar = 'baz'\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT t.foo FROM some_table AS t WHERE bar = 'baz' OR foo = 'qux'-rules4-SELECT\n  t.foo\nFROM some_table AS t\nWHERE\n  t.id = 42 AND (\n    bar = 'baz' OR foo = 'qux'\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM some_table WHERE 1=1-rules5-SELECT\n  *\nFROM some_table\nWHERE\n  some_table.id = 42 AND (\n    1 = 1\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM some_table WHERE TRUE OR FALSE-rules6-SELECT\n  *\nFROM some_table\nWHERE\n  some_table.id = 42 AND (\n    TRUE OR FALSE\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table WHERE 1=1-rules7-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42 AND (\n    1 = 1\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM "table" WHERE 1=1-rules8-SELECT\n  *\nFROM "table"\nWHERE\n  "table".id = 42 AND (\n    1 = 1\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table WHERE 1=1-rules9-SELECT\n  *\nFROM table\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM other_table WHERE 1=1-rules10-SELECT\n  *\nFROM other_table\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table-rules11-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM some_table-rules12-SELECT\n  *\nFROM some_table\nWHERE\n  some_table.id = 42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table ORDER BY id-rules13-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42\nORDER BY\n  id]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table WHERE 1=1 AND table.id=42-rules14-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42 AND (\n    1 = 1 AND table.id = 42\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[\nSELECT * FROM table\nJOIN other_table\nON table.id = other_table.id\nAND other_table.id=42\n            -rules15-SELECT\n  *\nFROM table\nJOIN other_table\n  ON other_table.id = 42 AND (\n    table.id = other_table.id AND other_table.id = 42\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table WHERE 1=1 AND id=42-rules16-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42 AND (\n    1 = 1 AND id = 42\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table JOIN other_table ON table.id = other_table.id-rules17-SELECT\n  *\nFROM table\nJOIN other_table\n  ON other_table.id = 42 AND (\n    table.id = other_table.id\n  )]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table JOIN other_table-rules18-SELECT\n  *\nFROM table\nJOIN other_table\n  ON other_table.id = 42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[\nSELECT *\nFROM table\nJOIN other_table\nON table.id = other_table.id\nWHERE 1=1\n            -rules19-SELECT\n  *\nFROM table\nJOIN other_table\n  ON other_table.id = 42 AND (\n    table.id = other_table.id\n  )\nWHERE\n  1 = 1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM (SELECT * FROM other_table)-rules20-SELECT\n  *\nFROM (\n  SELECT\n    *\n  FROM other_table\n  WHERE\n    other_table.id = 42\n)]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table UNION ALL SELECT * FROM other_table-rules21-SELECT\n  *\nFROM table\nWHERE\n  table.id = 42\nUNION ALL\nSELECT\n  *\nFROM other_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[SELECT * FROM table UNION ALL SELECT * FROM other_table-rules22-SELECT\n  *\nFROM table\nUNION ALL\nSELECT\n  *\nFROM other_table\nWHERE\n  other_table.id = 42]
+PASSED tests/unit_tests/sql/parse_tests.py::test_rls_predicate_transformer[INSERT INTO some_table (col1, col2) VALUES (1, 2)-rules23-INSERT INTO some_table (\n  col1,\n  col2\n)\nVALUES\n  (1, 2)]
+PASSED tests/unit_tests/sql/parse_tests.py::test_as_create_table[SELECT * FROM some_table-table0-CREATE TABLE some_table AS\nSELECT\n  *\nFROM some_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_as_create_table[SELECT * FROM some_table-table1-CREATE TABLE catalog1.schema1.some_table AS\nSELECT\n  *\nFROM some_table]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_ctas[SELECT * FROM table-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_ctas[\n-- comment\nSELECT * FROM table\n-- comment 2\n            -mysql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_ctas[\n-- comment\nSET @value = 42;\nSELECT @value as foo;\n-- comment 2\n            -mysql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_ctas[\n-- comment\nEXPLAIN SELECT * FROM table\n-- comment 2\n            -mysql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_ctas[\nSELECT * FROM table;\nINSERT INTO TABLE (foo) VALUES (42);\n            -mysql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_cvas[SELECT * FROM table-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_cvas[\n-- comment\nSELECT * FROM table\n-- comment 2\n            -mysql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_cvas[\n-- comment\nSET @value = 42;\nSELECT @value as foo;\n-- comment 2\n            -mysql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_cvas[\n-- comment\nSELECT value as foo;\n-- comment 2\n            -mysql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_is_valid_cvas[\nSELECT * FROM table;\nINSERT INTO TABLE (foo) VALUES (42);\n            -mysql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col = 1-col = 1-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[1=\t\n1-1 = 1-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[(col = 1)-(col = 1)-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[(col1 = 1) AND (col2 = 2)-(col1 = 1) AND (col2 = 2)-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col = 'abc' -- comment-col = 'abc' /* comment */-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[TRUE /* precise_count_distinct=true */-TRUE /* precise_count_distinct=true */-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col > 1 /* hint=value */-col > 1 /* hint=value */-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col = 'col1 = 1) AND (col2 = 2'-col = 'col1 = 1) AND (col2 = 2'-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col = 'select 1; select 2'-col = 'select 1; select 2'-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col = 'abc -- comment'-col = 'abc -- comment'-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col1 = 1) AND (col2 = 2)-QueryClauseValidationException-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[(col1 = 1) AND (col2 = 2-QueryClauseValidationException-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[col1 = 1) AND (col2 = 2-QueryClauseValidationException-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[(col1 = 1)) AND ((col2 = 2)-QueryClauseValidationException-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sanitize_clause[TRUE; SELECT 1-QueryClauseValidationException-base]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.bar')-expected0-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.bar')-expected0-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.bar')-expected0-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition(' foo.bar ')-expected1-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition(' foo.bar ')-expected1-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition(' foo.bar ')-expected1-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format('bar'))-expected2-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format('bar'))-expected2-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format('bar'))-expected2-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_sub_partition('foo.bar', baz='qux')-expected3-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_sub_partition('foo.bar', baz='qux')-expected3-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_sub_partition('foo.bar', baz='qux')-expected3-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format(str('bar')))-expected4-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format(str('bar')))-expected4-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.%s'|format(str('bar')))-expected4-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.{}'.format('bar'))-expected5-hive]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.{}'.format('bar'))-expected5-presto]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql[latest_partition('foo.{}'.format('bar'))-expected5-trino]
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql_disabled
+PASSED tests/unit_tests/sql/parse_tests.py::test_extract_tables_from_jinja_sql_invalid_function
+PASSED tests/unit_tests/sql/parse_tests.py::test_process_jinja_sql_result_object_structure
+PASSED tests/unit_tests/sql/parse_tests.py::test_process_jinja_sql_template_params_parameter
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement_is_select[SELECT * FROM users-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement_is_select[WITH cte AS (SELECT * FROM users) SELECT * FROM cte-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement_is_select[CREATE TABLE users AS SELECT * FROM users-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement_is_select[ALTER TABLE users ADD COLUMN age INT-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_sqlstatement_is_select[SET @value = 42-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[StormEvents | take 10-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[StormEvents | limit 20-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[StormEvents | where State == 'FL' | summarize count()-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[StormEvents | where name has 'limit 10'-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[AnotherTable | take 5-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[datatable(x:int) [1, 2, 3] | take 100-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[.create table StormEvents (x:int)-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_kqlstatement_is_select[.ingest inline into table StormEvents <| StormEvents | take 10-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_singlestore_engine_mapping
+PASSED tests/unit_tests/sql/parse_tests.py::test_awsathena_engine_mapping
+PASSED tests/unit_tests/sql/parse_tests.py::test_remove_quotes
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[SELECT * FROM table-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[SELECT VERSION()-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[SELECT query_to_xml()-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[WITH cte AS (SELECT * FROM table) SELECT * FROM cte-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[\nSELECT *\nFROM query_to_xml('SELECT * from some_table WHERE id = 42')\n            -postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_functions_present[Table | limit 10-kustokql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM my_table-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM pg_stat_activity-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM PG_STAT_ACTIVITY-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM pg_roles-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[WITH cte AS (SELECT 1) SELECT * FROM cte-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM my_table; SELECT * FROM pg_settings-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[SELECT * FROM schema.pg_stat_activity-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_check_tables_present[Table | limit 10-kustokql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_tokenize_kql[StormEvents | take 10-expected0]
+PASSED tests/unit_tests/sql/parse_tests.py::test_tokenize_kql['test'-expected1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_tokenize_kql[```test```-expected2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[a = 1-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[(SELECT * FROM table)-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM table-postgresql-False]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM (SELECT 1)-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM (SELECT 1) AS subquery-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[WITH cte AS (SELECT 1) SELECT * FROM cte-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM table WHERE EXISTS (SELECT 1)-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM table WHERE NOT EXISTS (SELECT 1)-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_has_subquery[SELECT * FROM table WHERE id IN (SELECT id FROM other_table)-postgresql-True]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM database.`6`-base-expected_tables0]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM database.`6` LIMIT 100-base-expected_tables1]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM `my_table`-base-expected_tables2]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM `my_schema`.`my_table`-base-expected_tables3]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT `col1`, `col2` FROM `schema`.`table` WHERE `id` = 1-base-expected_tables4]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM `table_name`-unknown-engine-expected_tables5]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM `t1` JOIN `t2` ON `t1`.id = `t2`.id-base-expected_tables6]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_quoted_identifiers_base_dialect[SELECT * FROM (SELECT * FROM `inner_table`) AS sub-base-expected_tables7]
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_normal_sql_still_works
+PASSED tests/unit_tests/sql/parse_tests.py::test_backtick_invalid_sql_still_fails
+PASSED tests/unit_tests/sql_lab_test.py::test_execute_query
+PASSED tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_exceeds_payload_limit
+PASSED tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_within_payload_limit
+PASSED tests/unit_tests/sql_lab_test.py::test_get_sql_results_oauth2
+PASSED tests/unit_tests/sql_lab_test.py::test_apply_rls
+PASSED tests/unit_tests/sql_lab_test.py::test_get_predicates_for_table
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_convert_dttm[Date-toDate('2019-01-02')]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_convert_dttm[DateTime-toDateTime('2019-01-02 03:04:05')]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_convert_dttm[UnknownType-None]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_execute_connection_error
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_convert_dttm[Date-toDate('2019-01-02')]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_convert_dttm[DateTime-toDateTime('2019-01-02 03:04:05')]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_convert_dttm[UnknownType-None]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[String-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(String)-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(String)-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(String))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Array(UInt8)-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Enum('hello', 'world')-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Enum('UInt32', 'Bool')-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Enum('hello', 'world'))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(Enum('hello', 'world'))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(Enum('hello', 'world')))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[FixedString(16)-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(FixedString(16))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(FixedString(16)))-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UUID-String-None-1-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int8-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int16-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int32-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int64-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int128-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Int256-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(Int256)-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(Int256))-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt8-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt16-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt32-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt64-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt128-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[UInt256-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(UInt256)-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(UInt256))-Integer-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Float32-Float-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Float64-Float-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Decimal(1, 2)-DECIMAL-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Decimal32(2)-DECIMAL-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Decimal64(2)-DECIMAL-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Decimal128(2)-DECIMAL-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Decimal256(2)-DECIMAL-None-0-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Bool-Boolean-None-3-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(Bool)-Boolean-None-3-False]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Date-Date-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(Date)-Date-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(Date))-Date-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Date32-Date-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Datetime-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Nullable(Datetime)-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[LowCardinality(Nullable(Datetime))-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Datetime('UTC')-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Datetime64(3)-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_connect_get_column_spec[Datetime64(3, 'UTC')-DateTime-None-2-True]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_adjust_engine_params_fully_qualified[None-clickhousedb+connect://localhost:443/__default__]
+PASSED tests/unit_tests/db_engine_specs/test_clickhouse.py::test_adjust_engine_params_fully_qualified[new_schema-clickhousedb+connect://localhost:443/new_schema]
+557 passed in 12.71s
+pytest_exit=0
+Wrote JSON report to /home/ubuntu/evidence/coverage.json
+coverage report (scoped: --include=superset/sql/parse.py,superset/sql_lab.py,superset/db_engine_specs/clickhouse.py; repo .coveragerc source=superset was overridden for reporting)
+Name                                     Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------
+superset/db_engine_specs/clickhouse.py     166     71     36      1    50%   124, 161-163, 175-202, 257-258, 385, 389-394, 399-412, 417, 425-433, 449-456, 471-518
+superset/sql/parse.py                      447     11    128      0    98%   1602-1622
+superset/sql_lab.py                        308    102    100     30    61%   107, 112-115, 120->123, 126, 131-134, 142-143, 156-159, 209-222, 239, 241->exit, 261, 291-319, 329-333, 355, 364, 387-388, 397, 413, 421-427, 430, 433-435, 440-455, 481->485, 490-491, 508-523, 527, 535, 561->642, 577->591, 593, 605-623, 642->644, 648->666, 666->682, 674-675, 684, 698-721
+------------------------------------------------------------------------------------
+TOTAL                                      921    184    264     31    77%

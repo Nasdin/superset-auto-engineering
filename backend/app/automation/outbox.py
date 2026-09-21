@@ -145,6 +145,18 @@ class PublicationOutbox:
         receipt = item.get("receipt")
         try:
             if not receipt:
+                if payload.get("activity"):
+                    from .activity import ValidationActivityService
+
+                    if not ValidationActivityService(
+                        self.settings, self.store, self.providers
+                    ).current(payload["activity"]):
+                        self.store.finish_publication(
+                            key,
+                            "stale",
+                            error="Validation progress changed before activity delivery",
+                        )
+                        return
                 if payload.get("validation"):
                     try:
                         current = self.current_report(payload["validation"])

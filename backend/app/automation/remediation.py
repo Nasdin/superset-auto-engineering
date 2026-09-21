@@ -1,5 +1,6 @@
 """Bounded, durable Devin repair and fresh independent revalidation."""
 
+from .execution_evidence import count
 from .outbox import PublicationOutbox
 from .readiness import ci_status, current_pr
 
@@ -26,11 +27,20 @@ class RemediationService:
             pr = current_pr(self.settings, self.providers, job["pr_number"], job["candidate_sha"])
         except ValueError:
             return []
-        code_failure = (result.get("ci") or {}).get("state") == "failure" or any(
-            c.get("passed") is False
-            and c.get("name") in {"regression", "api", "browser", "database"}
-            for c in result.get("checks", [])
-            if isinstance(c, dict)
+        tests = result.get("test_results")
+        # Numeric failures override an agent's contradictory passing summary.
+        failed_tests = (
+            isinstance(tests, dict) and count(tests.get("failed")) and tests["failed"] > 0
+        )
+        code_failure = (
+            failed_tests
+            or (result.get("ci") or {}).get("state") == "failure"
+            or any(
+                c.get("passed") is False
+                and c.get("name") in {"regression", "api", "browser", "database"}
+                for c in result.get("checks", [])
+                if isinstance(c, dict)
+            )
         )
         payload = {
             **job["payload"],
@@ -42,11 +52,21 @@ class RemediationService:
             "recovery_root": job["payload"].get("recovery_root", job["id"]),
             "recovery_mode": "code_repair" if code_failure else "evidence_recollection",
             "failure_context": {
-                k: result.get(k) for k in ("summary", "blocker", "checks", "gate_failures", "ci")
+                k: result.get(k)
+                for k in (
+                    "summary",
+                    "blocker",
+                    "checks",
+                    "test_results",
+                    "api_requests",
+                    "gate_failures",
+                    "ci",
+                )
             },
             "implementation_jobs": job["payload"].get("implementation_jobs", [job["parent_id"]]),
             "automation_actor": "devin",
             "publisher": "configured_github_integration",
+            "failure_publication_key": result.get("failure_publication_key"),
         }
         return [
             {
@@ -62,7 +82,7 @@ class RemediationService:
     def preflight_validation(self, job):
         """Cheap CI failure goes to Devin before paying for a runtime validator."""
         ci = ci_status(self.settings, self.providers, job["pr_number"], job["candidate_sha"])
-        if ci["state"] != "failure":
+        if ci["state"] != "failure" or self.settings.capture_failure_evidence:
             return True
         result = {
             "candidate_sha": job["candidate_sha"],
@@ -118,6 +138,15 @@ class RemediationService:
         except ValueError as error:
             self.store.update(job["id"], state="stale", error=str(error))
             return False
+        if key := job["payload"].get("failure_publication_key"):
+            if not any(
+                p["key"] == key and p["state"] == "sent" for p in self.store.all_publications()
+            ):
+                self.store.update(
+                    job["id"], error="Waiting for failed-validation report delivery to be confirmed"
+                )
+                return False
+            self.store.update(job["id"], error=None)
         return True
 
     def finish(self, job, result):

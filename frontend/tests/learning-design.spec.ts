@@ -113,6 +113,9 @@ test("compact learning journal preserves complete evidence and survives polling"
   );
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/#learning");
+  await page
+    .getByRole("button", { name: "Run observations", exact: true })
+    .click();
   const primary = page.getByRole("navigation", { name: "Workspace" });
   await expect(primary.getByRole("button")).toHaveCount(4);
   await expect(
@@ -247,6 +250,9 @@ test("learning details fit a phone and missing sources are explicit", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#learning");
   await page
+    .getByRole("button", { name: "Run observations", exact: true })
+    .click();
+  await page
     .getByRole("button", {
       name: "Read observation: " + run.payload.title,
       exact: true,
@@ -279,6 +285,9 @@ test("an outcome update cannot close the selected observation during refresh", a
   let data = structuredClone(base);
   await page.route("**/api/live/learning", (r) => r.fulfill({ json: data }));
   await page.goto("/#learning");
+  await page
+    .getByRole("button", { name: "Run observations", exact: true })
+    .click();
   await page.getByText("Filter observations", { exact: true }).click();
   await page.getByLabel("Outcome", { exact: true }).selectOption("reported");
   await page

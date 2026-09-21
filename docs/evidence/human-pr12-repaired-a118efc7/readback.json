@@ -1,0 +1,153 @@
+{
+  "verified_at": "2026-09-21T11:09:25.069276+00:00",
+  "job_id": "f43c0bbf-d635-4db8-96f7-b47affa4876a",
+  "candidate_sha": "a118efc7dace13270f920607944aab8173b08b79",
+  "current_job_state": "awaiting_ci",
+  "recorded_gate": "awaiting_ci",
+  "gate_failures": [],
+  "validator_session": "https://app.devin.ai/sessions/c9851e6e5032476c97c6c82c8a9e4232",
+  "tests": {
+    "failed": 0,
+    "passed": 557,
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] COVERAGE_FILE=~/evidence/.coverage python -m coverage run --branch --include=superset/sql/parse.py,superset/sql_lab.py,superset/db_engine_specs/clickhouse.py -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py tests/unit_tests/db_engine_specs/test_clickhouse.py -p no:cacheprovider -rA -q",
+    "skipped": 0,
+    "report_url": "https://app.devin.ai/attachments/11e75c2a-fd77-4b7c-a353-f7c131467061/regression-test-report.txt"
+  },
+  "coverage": {
+    "scope": "superset/sql/parse.py, superset/sql_lab.py, superset/db_engine_specs/clickhouse.py (branch coverage, coverage.py 7.6.8)",
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] COVERAGE_FILE=~/evidence/.coverage python -m coverage run --branch --include=superset/sql/parse.py,superset/sql_lab.py,superset/db_engine_specs/clickhouse.py -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py tests/unit_tests/db_engine_specs/test_clickhouse.py -p no:cacheprovider -rA -q && python -m coverage json --include=<same> -o ~/evidence/coverage.json",
+    "report_url": "https://app.devin.ai/attachments/6cb7013c-15b1-4f39-b498-85d03b0de990/coverage.json",
+    "lines_total": 921,
+    "lines_covered": 737,
+    "branches_total": 264,
+    "branches_covered": 175
+  },
+  "publications": [
+    {
+      "key": "github:f43c0bbf-d635-4db8-96f7-b47affa4876a:12:0336cb524fbab076",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/12#issuecomment-5759479894",
+      "error": null,
+      "updated": 1789988773.074144
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "sqllab-limit-by-browser-journey.mp4",
+      "kind": "video",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/077d9e9df325eaff252f05706de738daec034dce2bbd0bec0fb0c3dcfabe9b48.mp4",
+      "sha256": "077d9e9df325eaff252f05706de738daec034dce2bbd0bec0fb0c3dcfabe9b48",
+      "bytes": 2729795,
+      "http_status": 200,
+      "committed_copy": "sqllab-limit-by-browser-journey.mp4"
+    },
+    {
+      "name": "01-sqllab-limit2-offset1-by-id.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/4494f355802ca5f1bd313f9b97a4efaa255e90a8d2412bfe4393f815eca737c4.png",
+      "sha256": "4494f355802ca5f1bd313f9b97a4efaa255e90a8d2412bfe4393f815eca737c4",
+      "bytes": 242628,
+      "http_status": 200,
+      "committed_copy": "01-sqllab-limit2-offset1-by-id.png"
+    },
+    {
+      "name": "02-sqllab-limit2-by-id-6rows.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/144ed936c4a04bc12264d21348b525f8d66dca834cf70c3bceca0010c7204767.png",
+      "sha256": "144ed936c4a04bc12264d21348b525f8d66dca834cf70c3bceca0010c7204767",
+      "bytes": 240938,
+      "http_status": 200
+    },
+    {
+      "name": "03-sqllab-comma-form-5rows.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/e2536b3e530881dcd954dc9d836afa14f03876d54d54674c3ea1091a7c10da68.png",
+      "sha256": "e2536b3e530881dcd954dc9d836afa14f03876d54d54674c3ea1091a7c10da68",
+      "bytes": 240997,
+      "http_status": 200
+    },
+    {
+      "name": "04-dashboard-limit-by-offset-chart.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/42d8475d4da9dc4fd077a147a929d33290d2502f2b4867bbc4fd5f77226fef38.png",
+      "sha256": "42d8475d4da9dc4fd077a147a929d33290d2502f2b4867bbc4fd5f77226fef38",
+      "bytes": 217028,
+      "http_status": 200,
+      "committed_copy": "04-dashboard-limit-by-offset-chart.png"
+    },
+    {
+      "name": "05-explore-saved-dataset-5rows.png",
+      "kind": "screenshot",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/d620da04380a9d8caf41b975cc99b466a4ea3440c7b6ed490ff00264f544e952.png",
+      "sha256": "d620da04380a9d8caf41b975cc99b466a4ea3440c7b6ed490ff00264f544e952",
+      "bytes": 283835,
+      "http_status": 200
+    },
+    {
+      "name": "api-transcript.txt",
+      "kind": "api",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/4935f9062d5e51ea921b1236238e203f58c3925e1eb38ca83a847fd22fa0b42c.txt",
+      "sha256": "4935f9062d5e51ea921b1236238e203f58c3925e1eb38ca83a847fd22fa0b42c",
+      "bytes": 6838,
+      "http_status": 200,
+      "committed_copy": "api-transcript.txt"
+    },
+    {
+      "name": "superset-server-log.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/971afa4a3489550a74942ae6f6c33b464fedc52c40ddfd1723b893ac4486601b.txt",
+      "sha256": "971afa4a3489550a74942ae6f6c33b464fedc52c40ddfd1723b893ac4486601b",
+      "bytes": 40772,
+      "http_status": 200
+    },
+    {
+      "name": "superset-access-log.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/40a255c88772c71c7f63ddd5a338f593bd6e8ccf799c324059a9782c7ce15409.txt",
+      "sha256": "40a255c88772c71c7f63ddd5a338f593bd6e8ccf799c324059a9782c7ce15409",
+      "bytes": 44354,
+      "http_status": 200
+    },
+    {
+      "name": "clickhouse-server-log.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/973afe24cc60a256ac40a4bb325e57d05a034356226d291e784721dfa50b4c56.txt",
+      "sha256": "973afe24cc60a256ac40a4bb325e57d05a034356226d291e784721dfa50b4c56",
+      "bytes": 593555,
+      "http_status": 200
+    },
+    {
+      "name": "clickhouse-direct-results.txt",
+      "kind": "logs",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/6c07401f8f91f530d4c43550acf093fa3ac1f24c52278f33eb32e3a6b2b5d634.txt",
+      "sha256": "6c07401f8f91f530d4c43550acf093fa3ac1f24c52278f33eb32e3a6b2b5d634",
+      "bytes": 286,
+      "http_status": 200
+    },
+    {
+      "name": "regression-test-report.txt",
+      "kind": "tests",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/0e0a1fff9c931fc3071f9db6b06c76030b744fe5d5088ebddc57121d3bd627dc.txt",
+      "sha256": "0e0a1fff9c931fc3071f9db6b06c76030b744fe5d5088ebddc57121d3bd627dc",
+      "bytes": 127625,
+      "http_status": 200,
+      "committed_copy": "regression-test-report.txt"
+    },
+    {
+      "name": "coverage.json",
+      "kind": "coverage",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/1f832558d24275bfca69f61108cee4c4ae3e3339c83dd566a720a29eea052935.txt",
+      "sha256": "1f832558d24275bfca69f61108cee4c4ae3e3339c83dd566a720a29eea052935",
+      "bytes": 77851,
+      "http_status": 200,
+      "committed_copy": "coverage.json"
+    }
+  ],
+  "limitations": [
+    "Checkpoint evidence, not merge approval.",
+    "Original failed evidence is historical after the repair.",
+    "Repaired runtime evidence awaits GitHub CI.",
+    "Scoped coverage; source Python with prebuilt frontend assets and local ClickHouse due image rate limits.",
+    "Original tunnel URLs depend on local server lifetime; committed copies persist."
+  ]
+}

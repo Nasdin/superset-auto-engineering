@@ -114,6 +114,18 @@ def test_report_includes_curl_response_coverage_and_embedded_superset_image():
     assert '"value":1' in report
 
 
+def test_report_does_not_show_passing_regression_when_test_totals_fail():
+    payload = result()
+    payload["test_results"]["failed"] = 1
+    report = ReleaseReportBuilder().build(
+        {"candidate_sha": SHA, "session_url": "https://app.devin.ai/sessions/validator"},
+        payload,
+        "validation_failed",
+    )
+    assert "| regression | FAIL (1 failed test(s)) |" in report
+    assert "| regression | pass |" not in report
+
+
 def test_execution_text_is_redacted_before_report_and_durable_storage():
     from app.automation.redaction import sanitize
 
@@ -157,6 +169,38 @@ def test_authentication_or_health_only_is_not_functional_api_evidence(url):
 
 
 @pytest.mark.parametrize(
+    "url", ["http://localhost:8088/api/v1/security/login", "http://localhost:8088/api/health"]
+)
+def test_setup_request_can_accompany_verified_functional_api_evidence(url):
+    payload = result()
+    setup = {**payload["api_requests"][0], "name": "setup", "url": url}
+    payload["api_requests"].insert(0, setup)
+    assert assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("actual_status", 500),
+        ("passed", False),
+        ("assertion", ""),
+        ("evidence_url", "https://example.com/unconfirmed"),
+        ("url", "https://external.example/api/v1/security/login"),
+    ],
+)
+def test_functional_success_does_not_hide_invalid_setup_evidence(field, value):
+    payload = result()
+    setup = {
+        **payload["api_requests"][0],
+        "name": "login",
+        "url": "http://localhost:8088/api/v1/security/login",
+    }
+    setup[field] = value
+    payload["api_requests"].insert(0, setup)
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
     "option",
     [
         "-u alice:PRIVATE",
@@ -173,3 +217,46 @@ def test_curl_credential_options_are_redacted(option):
     assert "PRIVATE" not in str(
         sanitize({"curl": f"curl {option} http://localhost:8088/api/v1/chart/"})
     )
+
+
+@pytest.mark.parametrize("status", [400, 401, 403, 422])
+def test_explicit_security_rejection_is_valid_alongside_functional_success(status):
+    payload = result()
+    negative = {
+        **payload["api_requests"][0],
+        "name": "Tampered JWT rejected",
+        "expected_outcome": "rejection",
+        "expected_status": status,
+        "actual_status": status,
+        "assertion": "Tampered JWT cannot access dashboard data",
+        "response_excerpt": '{"message":"Invalid token"}',
+    }
+    payload["api_requests"].append(negative)
+    assert assess(payload).passed
+    payload["api_requests"] = [negative]
+    assert not assess(payload).passed
+
+
+@pytest.mark.parametrize(
+    "outcome,expected,actual",
+    [
+        ("success", 401, 401),
+        ("rejection", 401, 200),
+        ("rejection", 401, 403),
+        ("rejection", 500, 500),
+        ("rejection", 302, 302),
+        ("unknown", 200, 200),
+        ("success", 200.0, 200),
+    ],
+)
+def test_negative_test_metadata_cannot_hide_unexpected_or_server_errors(outcome, expected, actual):
+    payload = result()
+    payload["api_requests"].append(
+        {
+            **payload["api_requests"][0],
+            "expected_outcome": outcome,
+            "expected_status": expected,
+            "actual_status": actual,
+        }
+    )
+    assert not assess(payload).passed

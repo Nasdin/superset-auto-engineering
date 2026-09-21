@@ -1,5 +1,7 @@
 # Why this product: from repository activity to reviewable evidence
 
+> Historical exploratory analysis: the tables and classifier below preserve the original sample. The live application now uses explicit documentation, maintenance, refactor, build and other named classifications, with unresolved records marked Needs classification. Do not use this early taxonomy as the current dashboard definition.
+
 We started with a practical question: what recurring Superset work can an autonomous engineer complete, and what proof would make a senior engineer willing to merge it? The observations favor bounded dependency and regression work, followed by independent validation. The data does not demonstrate hours saved or a causal effect from this system.
 
 ## 1. Measure the repository before choosing the workflow

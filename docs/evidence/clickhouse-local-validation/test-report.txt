@@ -1,0 +1,56 @@
+test report — SHA 2e52222e6dcd4596972e37472a32915e4697c8b9 — 2026-09-21T07:54:50Z
+command: cd ~/repos/superset && SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab --junitxml=~/evidence/junit.xml -p no:cacheprovider -q -o addopts=''
+venv: fresh ~/venv-val from requirements/base.txt + development.txt (sqlglot 28.10.0, SQLAlchemy 1.4.54, pytest 7.4.4, coverage 7.6.8)
+
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 49%]
+........................................................................ [ 61%]
+........................................................................ [ 73%]
+........................................................................ [ 86%]
+........................................................................ [ 98%]
+..........                                                               [100%]
+=============================== warnings summary ===============================
+../../venv-val/lib/python3.12/site-packages/flask_babel/__init__.py:224
+../../venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:14
+../../venv-val/lib/python3.12/site-packages/flask_sqlalchemy/__init__.py:14
+../../venv-val/lib/python3.12/site-packages/flask_appbuilder/models/sqla/base_legacy.py:105
+tests/unit_tests/sql/parse_tests.py: 594 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 198 warnings
+tests/unit_tests/sql_lab_test.py: 204 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 198 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 198 warnings
+tests/unit_tests/sql/parse_tests.py: 6 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 2 warnings
+tests/unit_tests/sql_lab_test.py: 5 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 2 warnings
+tests/unit_tests/sql/parse_tests.py::test_table
+tests/unit_tests/sql/parse_tests.py::test_custom_dialect[app0]
+tests/unit_tests/sql/parse_tests.py::test_is_mutating[SELECT 1-False-ascend]
+tests/unit_tests/db_engine_specs/test_clickhouse.py::test_convert_dttm[Date-toDate('2019-01-02')]
+tests/unit_tests/sql_lab_test.py::test_execute_query
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py::test_streaming_sql_result_export_command_init
+tests/unit_tests/commands/sql_lab/test_estimate.py::test_validate_raises_when_database_not_found
+tests/unit_tests/sql/parse_tests.py: 6 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 2 warnings
+tests/unit_tests/sql_lab_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 2 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 2 warnings
+tests/unit_tests/sql/parse_tests.py: 9 warnings
+tests/unit_tests/db_engine_specs/test_clickhouse.py: 3 warnings
+tests/unit_tests/sql_lab_test.py: 3 warnings
+tests/unit_tests/commands/sql_lab/streaming_export_command_test.py: 3 warnings
+tests/unit_tests/commands/sql_lab/test_estimate.py: 3 warnings
+tests/unit_tests/sql_lab_test.py: 28 warnings
+tests/unit_tests/sql_lab_test.py::test_execute_query
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_exceeds_payload_limit
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_within_payload_limit
+tests/unit_tests/sql_lab_test.py::test_execute_sql_statement_within_payload_limit
+tests/unit_tests/sql_lab_test.py::test_get_sql_results_oauth2
+tests/unit_tests/sql_lab_test.py::test_get_sql_results_oauth2
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------------- generated xml file: /home/ubuntu/evidence/junit.xml --------------
+586 passed, 1489 warnings in 10.38s
+PYTEST_EXIT=0

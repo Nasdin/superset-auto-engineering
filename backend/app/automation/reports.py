@@ -54,8 +54,17 @@ class ReleaseReportBuilder:
                     str(value).replace("|", "/").replace("\n", " ").replace("`", "\u2032")[:300]
                 )
 
+            verdict = "pass" if check.get("passed") else "FAIL"
+            tests = result.get("test_results")
+            if (
+                check["name"] == "regression"
+                and isinstance(tests, dict)
+                and count(tests.get("failed"))
+                and tests["failed"] > 0
+            ):
+                verdict = f"FAIL ({tests['failed']} failed test(s))"
             lines.append(
-                f"| {clean(check['name'])} | {'pass' if check.get('passed') else 'FAIL'} | `{clean(check.get('command', ''))}` |"
+                f"| {clean(check['name'])} | {verdict} | `{clean(check.get('command', ''))}` |"
             )
         lines += ["", "### API requests executed against running Superset"]
         requests = result.get("api_requests")

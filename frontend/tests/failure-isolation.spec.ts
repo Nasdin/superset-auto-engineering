@@ -79,3 +79,47 @@ test("login recovers from a proxy failure and keeps the workspace closed until a
     0,
   );
 });
+
+test("a failed lazy page load refreshes once and recovers without starting work", async ({
+  page,
+}) => {
+  let attempts = 0;
+  let mutations = 0;
+  page.on("request", (request) => {
+    if (request.method() === "POST" && !request.url().includes("/auth/"))
+      mutations++;
+  });
+  await page.route(
+    /\/src\/pages\/Automations\.tsx|\/assets\/Automations-[^/]+\.js/,
+    async (route) => {
+      attempts++;
+      if (attempts === 1) await route.abort();
+      else await route.continue();
+    },
+  );
+  await page.goto("/#automations");
+  await expect(
+    page.getByRole("heading", { name: "Automations", exact: true }),
+  ).toBeVisible();
+  expect(attempts).toBe(2);
+  expect(mutations).toBe(0);
+});
+
+test("persistent missing page code cannot cause a reload loop", async ({
+  page,
+}) => {
+  let attempts = 0;
+  await page.route(
+    /\/src\/pages\/Automations\.tsx|\/assets\/Automations-[^/]+\.js/,
+    async (route) => {
+      attempts++;
+      await route.abort();
+    },
+  );
+  await page.goto("/#automations");
+  await expect(
+    page.getByRole("heading", { name: "This view could not be displayed" }),
+  ).toBeVisible();
+  await expect.poll(() => attempts).toBe(2);
+  await expect(page.getByRole("button", { name: "Reload page" })).toBeVisible();
+});

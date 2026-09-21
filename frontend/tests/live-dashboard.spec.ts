@@ -323,6 +323,9 @@ test("learning page honestly reports empty history and workflow lanes", async ({
   await page.goto("/");
   await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page.getByRole("button", { name: "Learning", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Run observations", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Learning & memory", exact: true }),
   ).toBeVisible();
@@ -414,6 +417,9 @@ test("learning source, memory snapshot and evidence remain linked", async ({
   await page.goto("/");
   await page.getByRole("button", { name: "Workflows", exact: true }).click();
   await page.getByRole("button", { name: "Learning", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Run observations", exact: true })
+    .click();
   await expect(page.getByText("0% (n=1)")).toBeVisible();
   await page.getByText("Memory supplied to runs", { exact: true }).click();
   await page.getByText("Inspect supplied memories").click();

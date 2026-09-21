@@ -4,6 +4,36 @@ Superset analyzing Superset: a FastAPI + React/TypeScript control plane for GitH
 
 Issues and Dependabot PRs → Devin implementation → exact candidate SHA → a fresh validation session → screenshots, API transcripts, logs and test evidence → GitHub/Slack report → human review.
 
+**Canonical public repository:** [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering). The former private `Nasdin/cognition` repository is archived and is no longer a development or deployment source. “Cognition” remains the UI name and some internal service names; it does not require a second application repository. [Nasdin/superset](https://github.com/Nasdin/superset) is the separate target fork where Devin opens and repairs PRs.
+
+## Product tour
+
+These screenshots were captured from the hosted application on **21 September 2026**, not generated mockups. Counts and operational states are snapshots; open the live workspace for current results. Reviewer access is required and credentials are not published here.
+
+### Analytics: understand delivery over time
+
+Native Superset charts compare **Fixes, Features and Bots**, with repository/date filters and monthly or weekly buckets. Delivery starts with merged PR counts and total commits in those PRs, followed by merge time, rework and code metrics. Missing commit enrichment leaves gaps rather than misleading partial totals. The launch marker is a date, not proof of a causal improvement.
+
+![Live Analytics Delivery view with monthly PR and commit counts](docs/images/analytics-delivery-2026-09-21.jpg)
+
+### Workflows: follow execution and recovery
+
+Scheduled, manual and repository-triggered work flows through durable lanes. Provider holds, retry state and delivery receipts are visible. At capture time the worker reported degraded status, including a GitHub authentication hold; this screenshot does not imply all queued work is healthy.
+
+![Live workflow queue health and recovery status](docs/images/workflows-live-2026-09-21.jpg)
+
+### Learning: trace human corrections
+
+Human feedback records the author, rationale and source run. Editable guidance has revision history; native Knowledge receipts and subsequent use are tracked separately from evidence that a fix works.
+
+![Live Learning page with feedback and memory provenance](docs/images/learning-live-2026-09-21.jpg)
+
+### Evidence: review the exact revision
+
+Release gates tie browser/API/test evidence to a candidate SHA. **Recorded demos** retain completed examples separately from current release readiness. An old passing recording cannot approve a newer commit.
+
+![Live Evidence release gates and recorded demo navigation](docs/images/evidence-live-2026-09-21.jpg)
+
 ## Choose a setup
 
 | Goal | Command / instructions | Included |
@@ -25,9 +55,9 @@ No Devin, GitHub or Slack credentials are required to boot and inspect the appli
 | Public analytics | [Analytics workspace](https://superset-devin.nasrudinsalim.com/#analytics) | Native Superset delivery and rework charts behind the same reviewer login |
 | Public source | [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering) | Application code, documentation and CI |
 
-The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker is authoritative; local automatic dispatch is disabled. The first independent candidate has accepted evidence in [the PR report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737); deployment health and each later candidate still require their own checks.
+The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker owns the hosted target; local automatic dispatch is disabled by default. A separately authorized [real local demonstration](docs/LOCAL_AUTONOMOUS_RUN.md) uses an isolated fork branch, label, database and worker lock. The featured complete recorded case is [PR #10](https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623), with an autonomous fix and fresh validation. [PR #12](https://github.com/Nasdin/superset/pull/12#issuecomment-5759479894) demonstrates an incomplete human patch, runtime failure, Devin repair and renewed evidence. Recorded checkpoints do not assert current merge readiness.
 
-[Live analytics screenshot](docs/images/superset-analytics-live.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
+[Current analytics screenshot](docs/images/analytics-delivery-2026-09-21.jpg) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
 ## 1. Clone and configure `.env`
 
@@ -109,7 +139,7 @@ curl --fail http://127.0.0.1:8000/api/health
 curl --fail http://127.0.0.1:8189/bi/health
 ```
 
-Open [the dashboard](http://127.0.0.1:8000) and choose **Analytics**. No Superset admin login is needed for embedding. Initial image downloads and Superset metadata migrations can take several minutes. `analytics-superset-init` exiting with code **0** is expected; its job is to provision the datasets and five Delivery charts and four Rework & code charts, with desktop/mobile and calendar week/month layouts.
+Open [the dashboard](http://127.0.0.1:8000) and choose **Analytics**. No Superset admin login is needed for embedding. Initial image downloads and Superset metadata migrations can take several minutes. `analytics-superset-init` exiting with code **0** is expected; its job is to provision the datasets and seven Delivery charts and four Rework & code charts, with desktop/mobile and calendar week/month layouts.
 
 | Service | Role |
 | --- | --- |
@@ -252,14 +282,14 @@ For Slack, install a bot in the intended workspace, grant the posting/readback p
 
 ## Workspace navigation
 
-Five sections keep related features together:
+Four primary sections keep related features together:
 
 | Section | Features |
 |---|---|
-| Release gates | Exact-SHA validation, PR evidence, repository lineage and evidence delivery recovery |
+| Evidence | Release gates, recorded demos, exact-SHA validation, PR evidence, repository lineage and delivery recovery |
 | Workflows | Workflow lanes, automations, Learning & memory, Devin sessions, Dependabot and durable queue recovery |
 | Analytics | Superset charts, repository/date selection, Delivery, Rework & code, Impact estimate |
-| Operations | Provider status, worker health, limits and delivery receipts |
+| System | Provider status, worker health, limits and delivery receipts |
 
 View links can be bookmarked, such as `/#learning` and `/#pull-requests`. The original [design mockup](docs/dashboard-mockup.png) informs the revision-first evidence layout.
 
@@ -424,9 +454,11 @@ Analytics history uses **read-through monthly loading**. Selecting a period outs
 
 Superset chart results are cached **in Redis memory for five minutes**, shared across its processes. Repository, filters, layout and data revision isolate results. Imports change the selection identity so a refreshed dashboard requests new data; an already open selection has a bounded five-minute cache lifetime. FastAPI also caches analytics responses in process memory for 60 seconds, with at most 32 entries and an 8 MiB serialized budget. Cache hits still perform a small revision lookup, but skip reading and analyzing the full PR history. Chart-cache failures fall back to database reads with timeouts; authentication and rate-limit storage retain their existing failure protections. `ANALYTICS_CHART_CACHE_SECONDS` controls the chart TTL and must match in the Superset service and bootstrap environment when reprovisioning.
 
-The **Delivery** tab compares Fixes, Features and Bots in native Superset charts: commits per PR, median merge hours, commits after first review, lines changed per PR, and **Total merge hours by work type · calendar month**. The **Rework & code** tab expands review rework and added/removed lines. **Impact estimate** exposes the editable effort model without loading BI charts. Repository and date dropdowns stay visible, with calendar **Week / Month** granularity. Custom ranges cover 1–366 completed UTC days; the first and last buckets are clipped to the exact selected dates. Advanced cohort filters and previous/six-month/custom baselines live under **Analysis controls**.
+The **Delivery** tab compares Fixes, Features and Bots in native Superset charts: merged PR counts, total commits in merged PRs, commits per PR, median merge hours, commits after first review, lines changed per PR, and **Total merge hours by work type · calendar month**. The **Rework & code** tab expands review rework and added/removed lines. **Impact estimate** exposes the editable effort model without loading BI charts. Repository and date dropdowns stay visible, with calendar **Week / Month** granularity. Custom ranges cover 1–366 completed UTC days; the first and last buckets are clipped to the exact selected dates. Advanced cohort filters and previous/six-month/custom baselines live under **Analysis controls**.
 
 There is no **Other** bucket. Bot-authored PRs belong exclusively to Bots. Dependencies, documentation, refactoring, tests, build/CI, performance, releases, reverts and maintenance remain explicitly named under **Measurement details**, rather than being relabeled as features or fixes. A title without reliable signals remains visibly **Needs classification**. The three-series overview is a focused comparison, not a claim that these three groups account for all engineering work.
+
+**Monthly PR and commit volume** groups PRs by merge date in UTC, clipped to the selected range. Commit totals sum all commits belonging to those merged PRs; they do not count commits by their authored date. A category/bucket with incomplete commit enrichment remains blank. Verified empty periods are zero. These charts follow the Week / Month control.
 
 **Total merge hours** sums `(merged_at - created_at)` for PRs merged in each selected UTC calendar month. Three PRs taking 10, 20 and 30 hours contribute 60 hours; overlapping waits count separately. It stays monthly when other charts use weeks. Missing history or invalid durations produce a gap; verified empty months produce zero. The accessible monthly table includes the complete all-work total and every named category.
 
@@ -451,7 +483,7 @@ Open **Workflows → Automations**. The page shows the saved cadence, next due t
 
 For PRs to show images without a Devin login, set `EVIDENCE_PUBLIC_URL=https://YOUR_APP_DOMAIN` and recreate the app and worker. The worker downloads only provider-confirmed attachments through the organization API, redacts known credentials from text, and stores immutable PNG/MP4/plaintext copies in the shared artifact volume. These copies are deliberately public at `/public-evidence/<content-hash>.<extension>`; the dashboard and other APIs retain login protection. Use synthetic test data and sanitize captures at source. Public files are not backed up in this demo; deleting the host can break old evidence links.
 
-The gate checks session independence, current candidate SHA, six required checks, artifact ownership and structured API/test/coverage evidence. A passing gate prepares a human review; it never merges automatically. A provider suspension or unknown outcome stays visible and blocks further paid dispatch until reconciled. **Resume same session** preserves the existing provider session and budget; it does not create a replacement.
+The gate checks session independence, current candidate SHA, six required checks, artifact ownership and structured API/test/coverage evidence. API evidence must contain a successful functional Superset request; login or health checks alone cannot pass. Valid setup requests can accompany functional requests, but every reported request still needs a successful result, assertion and confirmed transcript. A passing gate prepares a human review; it never merges automatically. A provider suspension or unknown outcome stays visible and blocks further paid dispatch until reconciled. **Resume same session** preserves the existing provider session and budget; it does not create a replacement.
 
 Older sessions with an immutable v1 output schema can provide a same-SHA `evidence-report.json` attachment. It must agree with the final session verdict and pass the same v2 gate. To reassess a completed legacy session, run `PYTHONPATH=backend python scripts/recover_validation_handoff.py --job JOB_ID` in the configured runtime. This reads existing evidence; it cannot start paid work. Revised reports get distinct durable publication receipts, preserving the earlier failed-gate history.
 
@@ -475,14 +507,28 @@ See [the reliability design and operational recovery runbook](docs/RESILIENCE.md
 
 Per-message/session usage limits are handled as local job holds, separately from organization credit exhaustion. The original repair session cap was verified at $20; it is now awaiting instructions with its PR prepared. No new paid run was required to clear its exceeded-limit state. See [limit handling and catalogue durability](docs/AUTOMATIONS.md).
 
-Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). A searchable journal shows the newest observation per run, with full findings, Knowledge identifiers and source evidence in an on-demand detail panel. Recorded observations, confirmed notes, supplied context and independent validation remain separate signals; none alone proves improvement caused by memory.
+Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). **Human feedback** records who corrected Devin, why, the source run and editable guidance with immutable revision history. Use **Execution access** with `OPERATOR_TOKEN` to add, override or retire guidance. The worker disables superseded native Knowledge notes and records the exact revision supplied to later sessions. **Run observations** retains the searchable evidence journal. Monthly outcomes, native receipts and agent-reported application are distinct signals; none alone proves improvement caused by memory. See [the feedback guide and real PR #6 memory handoff](docs/HUMAN_FEEDBACK.md).
+
+## Human PR validation and repair
+
+For an existing human-authored PR in your configured fork and `TARGET_BRANCH`, add the `cognition:validate` label. Signed GitHub events or polling create a validation job for its current SHA. Devin performs the work; the application publishes its results and manages the handoffs.
+
+Set `VALIDATION_CAPTURE_FAILURE_EVIDENCE=true` when you need the full failed-runtime demonstration before repair. This runs a validator even if CI is red, captures the available browser/API/test evidence, and waits for the failure report to be confirmed on GitHub before dispatching a repair. If Superset cannot start, the failure report must state that limitation; no screenshot is invented. The default is `false` to avoid spending on runtime validation when CI already identifies a failure.
+
+Devin pushes repairs to the **same PR branch**, adds regression coverage for missed edge cases, and hands the new SHA to a different validator. Only fresh runtime evidence plus passing current CI produces review readiness. Cancelled CI stays pending; duplicate Actions checks are superseded only after confirming their workflow, event, branch and revision identity. Human merge remains separate.
+
+See [the human-change demonstration record](docs/HUMAN_PR_RECOVERY.md), including the intentionally incomplete seed and actual provider receipts.
 
 ## Autonomous repair after validation failure
 
-The worker closes the loop on a tracked PR: a failed functional check or GitHub CI check creates a durable **Devin remediation** job on the same fork branch. Devin diagnoses and pushes the repair; a different Devin session then checks out the new SHA, starts Superset, exercises APIs and browser flows, and uploads fresh screenshots, video, logs, tests and scoped coverage. Earlier evidence remains historical and cannot approve the new commit. Evidence-format failures request fresh validation rather than unnecessary code edits.
+Release source: `main` in the public `Nasdin/superset-auto-engineering` repository. Feature branches are merged after verification; deploy the tested main revision. The hosted release includes recorded evidence examples under Evidence → Recorded demos, alongside the separate live validation ledger. Recorded isolated demonstrations remain distinct from the live cloud queue. See the [local execution record](docs/LOCAL_AUTONOMOUS_RUN.md) for provenance.
 
-The release gate also checks current GitHub CI. Pending checks remain **awaiting CI**; failures trigger recovery. Accepted evidence and successful CI allow the integration to mark a draft **ready for review**, with a durable intent and GitHub readback. Human review and merge remain separate. Recovery defaults to at most two attempts per validation chain, respects existing session/ACU limits, and never blindly retries uncertain paid requests. Completed sessions with malformed handoffs receive at most one automatic corrective message; credit or usage suspensions stay visible holds.
+The worker closes the loop on a tracked PR: a failed functional check or GitHub CI check creates a durable **Devin remediation** job on the same fork branch. Devin diagnoses and pushes the repair; a different Devin session then checks out the new SHA, starts Superset, exercises APIs and browser flows, and uploads fresh screenshots, video, logs, tests and scoped coverage. Earlier evidence remains historical and cannot approve the new commit. Missing evidence requests fresh validation rather than unnecessary code edits. When an otherwise complete report cites unconfirmed attachment URLs, one bounded clarification gives the original validator its provider-confirmed attachment index so Devin can correct its own references. The application never substitutes files by name or accepts an old handoff merely because a message was delivered.
+
+The release gate also checks current GitHub CI. Pending checks remain **awaiting CI**; failures trigger recovery. While a gate remains pending, changing check progress updates the dashboard without repeating the full PR report. A later readiness or failure transition gets a new durable delivery receipt, including after a worker restart. Accepted evidence and successful CI allow the integration to mark a draft **ready for review**, with a durable intent and GitHub readback. Human review and merge remain separate. Recovery defaults to at most two attempts per validation chain, respects existing session/ACU limits, and never blindly retries uncertain paid requests. Completed sessions with malformed handoffs receive at most one automatic corrective message; credit or usage suspensions stay visible holds.
 
 In **Workflows → Autonomous patches and fixes**, recovery jobs link back to the failed gate and their Devin session. The release-gate detail shows GitHub checks and attempt context. `AUTONOMOUS_REMEDIATION=false` disables new recovery intents; `MAX_REMEDIATION_ATTEMPTS` bounds repair attempts (default two, maximum three); handoff correction is limited to one follow-up. `AUTOMATION_ENABLED=false` still prevents new paid dispatch.
+
+Bot PRs show the recorded evidence gate, candidate SHA, active Devin session and specific queue holds in the workbench. A durable automatic PR comment links the validator when it starts; this progress update is separate from the final evidence report. Security checks can record intentional 4xx rejection tests alongside a successful functional API request; unexpected errors still fail. See [the bot validation flow and PR #6 recovery record](docs/BOT_PR_VALIDATION.md).
 
 **Who posts the replies?** Devin performs Superset investigation, code changes and runtime evidence collection. This application's durable outbox publishes those results through the configured GitHub token. With a personal token, comments display that account's username; this is not evidence that a human typed them. Provider sessions, exact SHAs, parent jobs and publication receipts distinguish execution from delivery. Older PR #4 handoffs required operator-assisted recovery and must not be presented as a fully hands-off demonstration. See [the autonomy record](docs/AUTONOMOUS_WORKFLOW.md).

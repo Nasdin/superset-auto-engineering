@@ -246,7 +246,9 @@ SELECT w.selection_id,w.repository,w.cadence,w.chart_date,w.window_start,w.windo
  avg(p.additions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL)::double precision AS avg_additions,
  avg(p.deletions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL)::double precision AS avg_deletions,
  reporting.history_covered(w.repository,w.window_start,w.window_end) AS history_covered,
- sum(p.hours_to_merge)::double precision AS total_hours
+ sum(p.hours_to_merge)::double precision AS total_hours,
+ count(p.commits_count) AS commit_samples,
+ sum(p.commits_count)::double precision AS total_commits
 FROM reporting.focus_periods w CROSS JOIN (VALUES ('Fixes'),('Features'),('Bots')) g(segment)
 LEFT JOIN reporting.selected_prs p ON p.selection_id=w.selection_id AND p.segment=g.segment
  AND p.merged_at>=(w.window_start::timestamp AT TIME ZONE 'UTC')
@@ -261,12 +263,15 @@ SELECT selection_id,cadence,chart_date,segment,
  CASE WHEN history_covered THEN avg_lines_changed END AS avg_lines_changed,
  CASE WHEN history_covered THEN avg_additions END AS avg_additions,
  CASE WHEN history_covered THEN avg_deletions END AS avg_deletions,
- CASE WHEN history_covered AND merged_prs=measured_prs THEN COALESCE(total_hours,0)::double precision END AS segment_total_hours
+ CASE WHEN history_covered AND merged_prs=measured_prs THEN COALESCE(total_hours,0)::double precision END AS segment_total_hours,
+ CASE WHEN history_covered THEN merged_prs::double precision END AS pr_count,
+ CASE WHEN history_covered AND commit_samples=merged_prs THEN COALESCE(total_commits,0) END AS commit_count
 FROM reporting.focus_aggregates
 UNION ALL
 SELECT s.selection_id,c.cadence,DATE '2026-09-24',g.segment,
  NULL::double precision,NULL::double precision,NULL::double precision,NULL::double precision,
- NULL::double precision,NULL::double precision,NULL::double precision
+ NULL::double precision,NULL::double precision,NULL::double precision,
+ NULL::double precision,NULL::double precision
 FROM public.analytics_selections s
 CROSS JOIN (VALUES ('Fixes'),('Features'),('Bots')) g(segment)
 CROSS JOIN (VALUES ('monthly'),('weekly')) c(cadence)

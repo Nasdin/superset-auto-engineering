@@ -48,6 +48,28 @@ Table(
     col("note_id"),
 )
 Table(
+    "learning_guard",
+    automation,
+    col("id", primary_key=True),
+    col("owner", nullable=False),
+    col("expires", Float, nullable=False),
+)
+Table(
+    "feedback_heads",
+    automation,
+    col("id", primary_key=True),
+    col("source_job_id", nullable=False),
+    col("lesson_id", nullable=False),
+)
+Table(
+    "learning_context_history",
+    automation,
+    col("id", primary_key=True),
+    col("job_id", nullable=False),
+    col("body", nullable=False),
+    col("created", Float, nullable=False),
+)
+Table(
     "learning_contexts",
     automation,
     col("job_id", primary_key=True),

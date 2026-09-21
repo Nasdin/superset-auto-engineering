@@ -28,6 +28,7 @@ const Automations = lazy(() =>
     default: module.Automations,
   })),
 );
+const RecordedDemos = lazy(() => import("./pages/RecordedDemos"));
 const LiveWorkspace = lazy(() => import("./LiveWorkspace"));
 const DemoApp = lazy(() => import("./DemoApp"));
 
@@ -159,7 +160,9 @@ export default function App({ onLogout }: { onLogout?: () => void }) {
                 </main>
               }
             >
-              {page === "Analytics" ? (
+              {page === "Recorded demos" ? (
+                <RecordedDemos />
+              ) : page === "Analytics" ? (
                 <RepositoryAnalytics />
               ) : page === "Dependabot runs" || page === "PR evidence" ? (
                 <PullRequestWorkbench

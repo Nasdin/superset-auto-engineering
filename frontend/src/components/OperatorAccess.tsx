@@ -67,8 +67,8 @@ export function OperatorAccess() {
     >
       <p className="quiet">
         Reviewers can inspect all work. Starting paid Devin work and editing
-        schedules requires the owner’s operator key. Access stays in this tab’s
-        memory for 15 minutes.
+        schedules or memories requires the owner’s operator key. Access stays in
+        this tab’s memory for 15 minutes.
       </p>
       {access.token ? (
         <button className="button" onClick={access.lock}>

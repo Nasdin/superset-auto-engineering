@@ -15,7 +15,13 @@ Reviewed against Asmar’s original assignment, as supplied by Nasrudin. Snapsho
 | Public Docker solution with README | [Solution repository](https://github.com/Nasdin/superset-auto-engineering), root README, Compose/Postgres/Superset and optional SQLite setup | Available |
 | Loom link within five minutes | Outline below | **Still required. Not recorded or submitted.** |
 
-## What the real validation proves
+## Latest local autonomous demonstration
+
+The isolated local worker completed a new real chain: Devin discovered [issue #8](https://github.com/Nasdin/superset/issues/8), authored [fix PR #9](https://github.com/Nasdin/superset/pull/9), and a separate Devin validator exercised [integration PR #10](https://github.com/Nasdin/superset/pull/10#issuecomment-5757320037). The application automatically published the accepted screenshots, video, API transcripts, 586 passing tests and scoped coverage, then marked PR #10 ready for review. Before readiness, CI had 44 passed and six skipped. Marking the PR ready triggered a same-SHA CI rerun; that rerun failed because the Cypress executable was missing after a cache-service error. Devin repaired the Cypress installation at new head `e7abd6aa`; all reported CI checks pass. A fresh independent validator then passed the new revision with 586 tests and all six runtime checks; the application published [the new ready report](https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623). Selected real media and readback are preserved in `docs/evidence/clickhouse-repaired-e7abd6aa`. Nothing was merged or deployed. Use this chain in the Loom instead of presenting the historical PR #4 recovery as fully autonomous.
+
+Two evidence-gate failures and the application fixes made during this development run remain documented. [Full execution and readback record](LOCAL_AUTONOMOUS_RUN.md). The five-minute Loom is still required.
+
+## What the historical MySQL validation proves
 
 Devin built the integrated candidate in its own isolated VM with Superset 6.1.0, SQLGlot 28.10.0, Postgres, Redis and MySQL 8.0.46. The baseline failed six of nine sub-day bucket cases. The candidate passed all nine direct database checks, returned expected rows through SQL Lab and chart APIs, and displayed correct buckets in Explore and a reloaded dashboard. The report includes actual curl commands/status/results, three screenshots, a browser recording, service/database logs, test output and coverage JSON.
 
@@ -39,7 +45,7 @@ PR #5’s independent validation and [Dependabot PR #6](https://github.com/Nasdi
 | --- | --- | --- |
 | 0:00–0:40 | Analytics, upstream/fork selector | Engineers lose time to repetitive fixes and dependency reviews; the missing piece is credible proof that the integrated revision works. Explain the actual baseline metrics and their limits. |
 | 0:40–1:25 | Schedules & triggers, workflow lane, original issue | Show webhook/schedule/manual entry points and the same durable queue. Point to the real issue → Devin → PR chain. |
-| 1:25–2:25 | PR #4 evidence reply, screenshot, curl output, tests | Show the exact SHA, baseline failure and candidate success. Explain why a fresh validator and real Superset runtime matter. |
+| 1:25–2:25 | PR #10 accepted evidence reply, screenshot, curl output, tests | Show the exact SHA, baseline failure and candidate success. Explain why a fresh validator and real Superset runtime matter. |
 | 2:25–3:20 | Source: worker, providers, validation, outbox | Explain bounded execution, idempotency, unknown outcomes, current-SHA checks and readback-confirmed publication. FastAPI/React/Postgres/Compose keep the system maintainable. |
 | 3:20–4:05 | Learning, later session context; Dependabot lane | Devin can inspect, diagnose, edit, run services and interact with the browser. Memory transfers observations into later work; it does not itself prove improvement. |
 | 4:05–4:45 | Analytics trends and Operations | Explain next steps: more repaired/validated cases, measured review effort, stronger isolation/retention and customer-specific policy. Mention the single-host demo limit and human merge boundary. |

@@ -181,3 +181,37 @@ def test_parallel_logins_bound_password_hash_memory(app, monkeypatch):
         assert len(set(tokens)) == 8
         assert all(auth.authenticated(token) for token in tokens)
         assert peak == 2
+
+
+def test_reviewer_cannot_write_feedback_but_operator_can(app):
+    import uuid
+
+    with TestClient(app, base_url="https://testserver") as client:
+        job = app.state.engine.store.enqueue("feedback-source", "scan", {})
+        body = {
+            "request_id": str(uuid.uuid4()),
+            "source_job_id": job["id"],
+            "author": "Nasrudin",
+            "title": "Check counts",
+            "reason": "Observed failure",
+            "correction": "Preserve failing tests",
+        }
+        assert client.post("/api/live/learning/feedback", json=body).status_code == 401
+        signin(client)
+        assert (
+            client.post("/api/live/learning/feedback", json=body, headers=INTENT).status_code == 401
+        )
+        headers = {**INTENT, "Authorization": "Bearer operator-test"}
+        saved = client.post("/api/live/learning/feedback", json=body, headers=headers)
+        assert saved.status_code == 200
+        assert client.post("/api/live/learning/feedback", json=body, headers=headers).json()[
+            "replayed"
+        ]
+        assert (
+            client.post(
+                "/api/live/learning/feedback",
+                json={**body, "native_state": "confirmed"},
+                headers=headers,
+            ).status_code
+            == 422
+        )

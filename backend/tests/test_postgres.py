@@ -541,3 +541,52 @@ def test_postgres_automation_schedules_and_provenance_survive_restart(postgres):
         assert history[0]["automations"][0]["id"] == "code_patterns"
     finally:
         restarted.database.close()
+
+
+def test_feedback_compare_and_swap_is_atomic_across_postgres_connections(postgres):
+    import uuid
+
+    from app.automation.config import Settings
+    from app.automation.feedback import FeedbackConflict, FeedbackService
+    from app.automation.routes import FeedbackRequest
+
+    store, _ = postgres
+    job = store.enqueue("feedback-source", "scan", {})
+    service = FeedbackService(Settings(), store)
+    initial = FeedbackRequest(
+        request_id=str(uuid.uuid4()),
+        source_job_id=job["id"],
+        author="Nasrudin",
+        title="Preserve failures",
+        reason="Agent summary contradicted tests",
+        correction="Fail when counts report failures",
+    ).model_dump(mode="json")
+    receipt = service.save(initial)
+
+    def edit(number):
+        try:
+            return service.save(
+                {
+                    **initial,
+                    "request_id": str(uuid.uuid4()),
+                    "feedback_id": receipt["feedback_id"],
+                    "expected_revision": receipt["id"],
+                    "correction": f"Revision {number}",
+                }
+            )
+        except FeedbackConflict:
+            return "conflict"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(edit, [1, 2]))
+    assert results.count("conflict") == 1
+    with store.connect() as c:
+        assert (
+            len(
+                c.execute(
+                    "SELECT * FROM lessons WHERE job_id=:id",
+                    {"id": "feedback:" + receipt["feedback_id"]},
+                ).fetchall()
+            )
+            == 2
+        )

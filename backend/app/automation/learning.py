@@ -5,6 +5,7 @@ import json
 import time
 from urllib.parse import quote
 
+from .learning_lock import learning_lease
 from .providers import ProviderError, UnknownEffect
 
 
@@ -18,6 +19,7 @@ class LearningService:
             result = job.get("result") or {}
             if not result or job["kind"] not in {
                 "repair",
+                "remediation",
                 "patch",
                 "dependency",
                 "scan",
@@ -64,6 +66,30 @@ class LearningService:
             f"<!-- cognition-lesson:{lesson['id']} -->\n{lesson['body']}"
         )
 
+    def active_ids(self, lessons=None):
+        """Corrections have their own stream and cannot be overwritten by capture."""
+        latest = {}
+        with self.store.connect() as c:
+            heads = {
+                "feedback:" + r["id"]: r["lesson_id"]
+                for r in c.execute("SELECT * FROM feedback_heads")
+            }
+        for lesson in lessons if lessons is not None else self.lessons():
+            if lesson["job_id"] in heads and lesson["id"] != heads[lesson["job_id"]]:
+                continue
+            latest.setdefault(lesson["job_id"], lesson)
+        overridden = {
+            lesson["observation"]["job_id"]
+            for lesson in latest.values()
+            if lesson["observation"].get("source_lesson_id")
+        }
+        return {
+            lesson["id"]
+            for lesson in latest.values()
+            if lesson["observation"]["status"] not in {"stale", "retired"}
+            and lesson["job_id"] not in overridden
+        }
+
     def _owned(self, note, lesson):
         return (
             note.get("org_id") == self.settings.org
@@ -75,7 +101,7 @@ class LearningService:
     def _matches(self, note, lesson):
         return self._owned(note, lesson) and note.get("is_enabled") is True
 
-    def _reconcile_note(self, lesson, note, active):
+    def _reconcile_note(self, lesson, note, active, renew):
         if not self._owned(note, lesson):
             raise ProviderError("Knowledge receipt content or scope mismatch")
         path = "knowledge/notes/" + quote(note["note_id"], safe="")
@@ -84,19 +110,19 @@ class LearningService:
             # Devin's PUT uses the complete create schema, not a partial PATCH.
             payload = {key: note[key] for key in ("name", "body", "trigger", "pinned_repo")}
             payload.update(is_enabled=active, folder_id=note.get("folder_id"))
-            self.providers.devin("PUT", path, json=payload)
-            note = self.providers.devin("GET", path)
+            self._provider(renew, "PUT", path, json=payload)
+            note = self._provider(renew, "GET", path)
             if not self._owned(note, lesson) or note.get("is_enabled") is not active:
                 raise ProviderError("Knowledge enablement readback mismatch")
         self._native(lesson["id"], "confirmed" if active else "retired", note["note_id"])
 
-    def _find_note(self, lesson):
+    def _find_note(self, lesson, renew):
         cursor = None
         while True:
             params = {"first": 100, "search": f"cognition-lesson:{lesson['id']}"}
             if cursor:
                 params["after"] = cursor
-            page = self.providers.devin("GET", "knowledge/notes", params=params)
+            page = self._provider(renew, "GET", "knowledge/notes", params=params)
             found = next((n for n in page["items"] if self._owned(n, lesson)), None)
             if found or not page.get("has_next_page"):
                 return found
@@ -106,6 +132,10 @@ class LearningService:
             cursor = next_cursor
 
     def sync(self):
+        with learning_lease(self.store) as renew:
+            self._sync(renew)
+
+    def _sync(self, renew):
         self.capture()
         if not self.settings.devin_key:
             self.store.remember(
@@ -113,29 +143,27 @@ class LearningService:
             )
             return
         try:
-            latest = {}
-            for lesson in self.lessons():
-                latest.setdefault(lesson["job_id"], lesson["id"])
-                active = (
-                    self.settings.learning_enabled
-                    and latest[lesson["job_id"]] == lesson["id"]
-                    and lesson["observation"]["status"] != "stale"
-                )
+            lessons = self.lessons()
+            active_ids = self.active_ids(lessons)
+            # Retire overridden guidance before publishing its replacement.
+            for lesson in sorted(lessons, key=lambda x: x["id"] in active_ids):
+                renew()
+                active = self.settings.learning_enabled and lesson["id"] in self.active_ids()
                 if lesson["note_id"]:
-                    note = self.providers.devin(
-                        "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
+                    note = self._provider(
+                        renew, "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
                     )
-                    self._reconcile_note(lesson, note, active)
+                    self._reconcile_note(lesson, note, active, renew)
                     continue
                 # Reconcile uncertain creates even when the observation has since become stale.
                 found = (
-                    self._find_note(lesson)
+                    self._find_note(lesson, renew)
                     if active or lesson["native_state"] != "pending"
                     else None
                 )
                 if found:
                     self._native(lesson["id"], "receipt", found["note_id"])
-                    self._reconcile_note(lesson, found, active)
+                    self._reconcile_note(lesson, found, active, renew)
                     continue
                 if not active or lesson["native_state"] != "pending":
                     continue
@@ -148,6 +176,7 @@ class LearningService:
                     continue
                 note = self._create_note(
                     lesson["id"],
+                    renew,
                     json={
                         "name": f"Cognition · {lesson['observation']['kind']} · {lesson['id']}",
                         "body": self._body(lesson),
@@ -159,10 +188,10 @@ class LearningService:
                 if not isinstance(note, dict) or not note.get("note_id"):
                     raise UnknownEffect("Knowledge creation missing identity")
                 self._native(lesson["id"], "receipt", note["note_id"])
-                readback = self.providers.devin(
-                    "GET", "knowledge/notes/" + quote(note["note_id"], safe="")
+                readback = self._provider(
+                    renew, "GET", "knowledge/notes/" + quote(note["note_id"], safe="")
                 )
-                self._reconcile_note(lesson, readback, active)
+                self._reconcile_note(lesson, readback, active, renew)
             unresolved = any(
                 x["native_state"] in {"writing", "unknown_effect", "receipt", "updating"}
                 for x in self.lessons()
@@ -180,15 +209,28 @@ class LearningService:
                 "learning_sync", {"state": "attention", "error": str(error), "at": time.time()}
             )
 
-    def _create_note(self, identity, **kwargs):
+    def _create_note(self, identity, renew, **kwargs):
         try:
-            return self.providers.devin("POST", "knowledge/notes", **kwargs)
+            return self._provider(renew, "POST", "knowledge/notes", **kwargs)
         except ProviderError:
             self._native(identity, "pending", None)
             raise
         except UnknownEffect:
             self._native(identity, "unknown_effect", None)
             raise
+
+    def _provider(self, renew, method, path, **kwargs):
+        renew()
+        result = self.providers.devin(method, path, **kwargs)
+        try:
+            renew()
+        except ProviderError:
+            if method != "GET":
+                raise UnknownEffect(
+                    "Knowledge lease expired after provider mutation; reconcile receipt"
+                ) from None
+            raise
+        return result
 
     def _native(self, identity, state, note_id):
         with self.store.connect() as c:
@@ -198,52 +240,81 @@ class LearningService:
             )
 
     def retire_before_dispatch(self):
+        with learning_lease(self.store) as renew:
+            self._retire_before_dispatch(renew)
+
+    def _retire_before_dispatch(self, renew):
         """Pinned provider memories must be retired before a new session can retrieve them."""
-        latest = {}
         for lesson in self.lessons():
-            latest.setdefault(lesson["job_id"], lesson["id"])
-            active = (
-                self.settings.learning_enabled
-                and latest[lesson["job_id"]] == lesson["id"]
-                and lesson["observation"]["status"] != "stale"
-            )
+            renew()
+            active = self.settings.learning_enabled and lesson["id"] in self.active_ids()
             if active or lesson["native_state"] == "pending":
                 continue
             if lesson["note_id"]:
-                note = self.providers.devin(
-                    "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
+                note = self._provider(
+                    renew, "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
                 )
             else:
-                note = self._find_note(lesson)
+                note = self._find_note(lesson, renew)
                 if not note:
                     raise ProviderError(
                         "Uncertain stale Knowledge note must be reconciled before dispatch"
                     )
-            self._reconcile_note(lesson, note, False)
+            self._reconcile_note(lesson, note, False, renew)
 
-    def context(self, job):
+    def context(self, job, *, renew=None):
+        if renew is None:
+            with learning_lease(self.store) as guarded_renew:
+                return self._context(job, guarded_renew)
+        return self._context(job, renew)
+
+    def _context(self, job, renew):
         """Freeze the exact observations supplied; supply is not proof of agent consumption."""
         self.capture()
-        self.retire_before_dispatch()
+        self._retire_before_dispatch(renew)
+        lessons = self.lessons()
+        active_ids = self.active_ids(lessons)
+        eligible = [
+            lesson
+            for lesson in sorted(
+                lessons, key=lambda x: x["observation"]["kind"] != "human_feedback"
+            )
+            if lesson["id"] in active_ids and lesson["job_id"] != job["id"]
+        ][:10]
         with self.store.connect() as c:
             prior = c.execute(
                 "SELECT body FROM learning_contexts WHERE job_id=:p0", {"p0": job["id"]}
             ).fetchone()
             if prior:
-                return json.loads(prior["body"])
+                snapshot = json.loads(prior["body"])
+                current = self.store.get(job["id"]) or job
+                obsolete = [m["lesson_id"] for m in snapshot] != [m["id"] for m in eligible]
+                if (
+                    not obsolete
+                    or current.get("session_id")
+                    or current["state"] == "unknown_effect"
+                ):
+                    return snapshot
+                # No session effect exists: preserve the abandoned snapshot as
+                # history, then rebuild before another creation attempt.
+                c.execute(
+                    "INSERT INTO learning_context_history(id,job_id,body,created) VALUES(:id,:job,:body,:at) ON CONFLICT DO NOTHING",
+                    {
+                        "id": hashlib.sha256((job["id"] + prior["body"]).encode()).hexdigest(),
+                        "job": job["id"],
+                        "body": prior["body"],
+                        "at": time.time(),
+                    },
+                )
+                c.execute("DELETE FROM learning_contexts WHERE job_id=:id", {"id": job["id"]})
         selected = []
-        seen = set()
-        for lesson in self.lessons():
-            if lesson["job_id"] in seen or lesson["job_id"] == job["id"]:
-                continue
-            seen.add(lesson["job_id"])
-            if lesson["observation"]["status"] == "stale":
-                continue
+        for lesson in eligible:
+            renew()
             native_id = None
             if lesson["native_state"] == "confirmed" and self.settings.learning_enabled:
                 try:
-                    note = self.providers.devin(
-                        "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
+                    note = self._provider(
+                        renew, "GET", "knowledge/notes/" + quote(lesson["note_id"], safe="")
                     )
                     if self._matches(note, lesson):
                         native_id = lesson["note_id"]
@@ -256,8 +327,6 @@ class LearningService:
                     "observation": lesson["observation"],
                 }
             )
-            if len(selected) == 10:
-                break
         with self.store.connect() as c:
             c.execute(
                 "INSERT INTO learning_contexts(job_id,body,created) VALUES(:p0,:p1,:p2) ON CONFLICT DO NOTHING",
@@ -277,21 +346,52 @@ class LearningService:
                 {"job_id": r["job_id"], "created": r["created"], "memories": json.loads(r["body"])}
                 for r in c.execute("SELECT * FROM learning_contexts ORDER BY created DESC")
             ]
+        with self.store.connect() as c:
+            heads = {r["lesson_id"] for r in c.execute("SELECT * FROM feedback_heads")}
         cohorts = {}
         for job in jobs:
-            if job["kind"] != "validation" or job["state"] not in {
-                "review_ready",
-                "validation_failed",
-            }:
+            result = job.get("result") or {}
+            gate = result.get("gate", job["state"])
+            at = result.get("gate_recorded_at")
+            if job["kind"] != "validation" or gate not in {"review_ready", "validation_failed"}:
                 continue
-            month = time.strftime("%Y-%m", time.gmtime(job["updated"]))
+            if at is None:
+                # Older captured observations retain the actual gate date even
+                # after a new candidate makes their evidence historical.
+                recorded = next(
+                    (
+                        lesson
+                        for lesson in lessons
+                        if lesson["job_id"] == job["id"]
+                        and lesson["observation"]["status"] in {"validated", "validation_failed"}
+                    ),
+                    None,
+                )
+                at = (
+                    recorded["created"]
+                    if recorded
+                    else (
+                        job["updated"]
+                        if job["state"] in {"review_ready", "validation_failed"}
+                        else None
+                    )
+                )
+            if at is None:
+                continue
+            month = time.strftime("%Y-%m", time.gmtime(at))
             row = cohorts.setdefault(month, {"month": month, "passed": 0, "failed": 0})
-            row["passed" if job["state"] == "review_ready" else "failed"] += 1
+            row["passed" if gate == "review_ready" else "failed"] += 1
         return {
             "repository": self.settings.repo,
             "branch": self.settings.branch,
             "sync": self.store.recall("learning_sync", {"state": "not_synced"}),
-            "lessons": [{k: v for k, v in x.items() if k != "body"} for x in lessons],
+            "lessons": [
+                {
+                    **{k: v for k, v in x.items() if k != "body"},
+                    "is_current": x["id"] in heads if x["observation"].get("feedback_id") else None,
+                }
+                for x in lessons
+            ],
             "contexts": contexts,
             "cohorts": sorted(cohorts.values(), key=lambda x: x["month"]),
             "jobs": jobs,

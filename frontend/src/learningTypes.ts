@@ -9,12 +9,20 @@ export type Observation = {
   candidate_sha: string | null;
   pr_number: number | null;
   session_url: string | null;
+  feedback_id?: string;
+  previous_revision?: string | null;
+  source_lesson_id?: string | null;
+  author?: string;
+  original_author?: string;
+  attribution?: "operator_reported";
+  reason?: string;
 };
 export type Lesson = {
   id: string;
   created: number;
   native_state: string;
   note_id: string | null;
+  is_current?: boolean | null;
   observation: Observation;
 };
 export type LearningData = {
@@ -39,8 +47,10 @@ export type LearningData = {
 export function latestObservations(lessons: Lesson[]) {
   const bySource = new Map<string, Lesson>();
   for (const lesson of [...lessons].sort((a, b) => b.created - a.created)) {
-    if (!bySource.has(lesson.observation.job_id)) {
-      bySource.set(lesson.observation.job_id, lesson);
+    if (lesson.observation.feedback_id && lesson.is_current === false) continue;
+    const source = lesson.observation.feedback_id || lesson.observation.job_id;
+    if (!bySource.has(source)) {
+      bySource.set(source, lesson);
     }
   }
   return [...bySource.values()];

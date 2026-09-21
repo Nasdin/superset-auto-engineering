@@ -3,9 +3,17 @@
 import hashlib
 import json
 
-from .artifacts import EvidenceArchive, attachment_records, complete_handoff
+from .artifacts import (
+    EvidenceArchive,
+    attachment_records,
+    complete_handoff,
+    provider_attachment_index,
+    unconfirmed_evidence_urls,
+)
 from .config import Settings
-from .evidence import assess_evidence
+from .evidence import REQUIRED_ARTIFACTS, assess_evidence
+from .execution_evidence import execution_failures
+from .links import safe_link
 from .outbox import PublicationOutbox
 from .ports import ProviderGateway
 from .redaction import provider_secrets, sanitize
@@ -83,6 +91,57 @@ class ValidationService:
             and job["payload"].get("work_type") == "pr_validation"
             and self.store.has_audit(job["id"], "session_created"),
         )
+        followup = self.store.recall(f"handoff-followup:{job['id']}", {})
+        # A provider upload can exist while the agent cites a different attachment ID.
+        # Only its owner may correct that handoff; never bind files by their names.
+        if (
+            self.settings.autonomous_remediation
+            and not assessment.passed
+            and followup.get("attempts", 0) < self.settings.max_handoff_followups
+            and result.get("task_complete") is True
+            and result.get("passed") is True
+            and result.get("evidence_version") == 2
+            and not result.get("blocker")
+            and result.get("candidate_sha") == job["candidate_sha"]
+            and not any(
+                failure.startswith(("Mandatory checks", "Validator independence"))
+                for failure in assessment.failures
+            )
+            # These declared references classify the problem only. Actual acceptance
+            # still requires a fresh agent handoff checked against provider ownership.
+            and not execution_failures(result, result.get("artifacts", []))
+            and REQUIRED_ARTIFACTS.issubset(a.get("kind") for a in result.get("artifacts", []))
+            and all(
+                a.get("kind") in REQUIRED_ARTIFACTS
+                and isinstance(a.get("url"), str)
+                and safe_link(a["url"])
+                for a in result.get("artifacts", [])
+            )
+            and len({a["url"] for a in result.get("artifacts", [])})
+            == len(result.get("artifacts", []))
+            and provider_attachment_index(attachments)
+            and unconfirmed_evidence_urls(result, attachments)
+        ):
+            # Attachment reads can outlive this candidate. Check the provider again,
+            # then use the transactional stale guard so concurrent intake cannot be revived.
+            if not self.is_current(job):
+                return
+            self.store.commit_handoff(
+                job["id"],
+                values={
+                    "state": "needs_attention",
+                    "result": {
+                        **result,
+                        "artifacts": [],
+                        "provenance": "unverified_validation",
+                        "gate": "needs_attention",
+                        "gate_failures": list(assessment.failures),
+                        "handoff_correction": "attachment_references",
+                    },
+                    "error": "Evidence references do not match this session's provider attachment index; awaiting bounded Devin handoff correction",
+                },
+            )
+            return
         valid = assessment.passed
         ci = None
         if valid:
@@ -126,6 +185,31 @@ class ValidationService:
             "limit": self.settings.max_remediation_attempts,
             "next": followups[0]["kind"] if followups else None,
         }
+        prior = self.store.get(job["id"])
+        prior_result = prior.get("result") or {}
+        evidence_fields = (
+            "handoff_attachment_id",
+            "candidate_sha",
+            "evidence_version",
+            "task_complete",
+            "passed",
+            "summary",
+            "blocker",
+            "checks",
+            "artifacts",
+            "api_requests",
+            "coverage",
+            "test_results",
+        )
+        evidence = {key: result.get(key) for key in evidence_fields}
+        unchanged_pending = prior["state"] == status == "awaiting_ci" and evidence == {
+            key: prior_result.get(key) for key in evidence_fields
+        }
+        # Persist the latest CI progress without repeatedly publishing unchanged evidence.
+        # A later return to review-ready must still have its own durable delivery identity.
+        result["report_transition"] = prior_result.get("report_transition", 0) + int(
+            prior["state"] != status
+        )
         report = self.reports.build(job, result, status)
         targets = [job["pr_number"]]
         if job["payload"].get("issue_number"):
@@ -140,20 +224,26 @@ class ValidationService:
                 for m in job["payload"].get("members", [])
             ],
         }
-        if self.settings.autonomous_remediation:
-            metadata["revision"] = hashlib.sha256(
-                json.dumps(
-                    {"handoff": result.get("handoff_attachment_id"), "status": status, "ci": ci},
-                    sort_keys=True,
-                ).encode()
-            ).hexdigest()[:16]
-        elif result.get("handoff_attachment_id"):
-            metadata["revision"] = result["handoff_attachment_id"]
+        metadata["revision"] = hashlib.sha256(
+            json.dumps(
+                {
+                    "evidence": evidence,
+                    "status": status,
+                    "ci": {"state": "pending"} if status == "awaiting_ci" else ci,
+                    "transition": result["report_transition"],
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:16]
         publications = [
             self.outbox.prepare_github(job["id"], number, report, validation=metadata)
-            for number in dict.fromkeys(targets)
+            for number in (dict.fromkeys(targets) if not unchanged_pending else [])
         ]
-        if self.settings.slack_token and self.settings.slack_channel:
+        if status == "validation_failed" and self.settings.capture_failure_evidence:
+            result["failure_publication_key"] = publications[0]["key"]
+            for followup in followups:
+                followup["payload"]["failure_publication_key"] = publications[0]["key"]
+        if not unchanged_pending and self.settings.slack_token and self.settings.slack_channel:
             publications.append(self.outbox.prepare_slack(job, report, validation=metadata))
         if valid and self.providers.pr(job["pr_number"]).get("draft", False):
             publications.append(self.outbox.prepare_ready(job, metadata.get("revision", "initial")))

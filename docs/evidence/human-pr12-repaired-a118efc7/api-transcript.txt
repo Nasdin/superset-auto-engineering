@@ -1,0 +1,80 @@
+SHA: a118efc7dace13270f920607944aab8173b08b79
+Date: Mon Sep 21 10:55:07 UTC 2026
+Superset: gunicorn from /home/ubuntu/repos/superset (detached checkout); ClickHouse 26.10.1.332 at 127.0.0.1:8123
+
+### 1. POST /api/v1/security/login (expected 200)
+curl -s -X POST $BASE/api/v1/security/login -H "Content-Type: application/json" -d "{\"username\":\"$SUPERSET_USER\",\"password\":\"$SUPERSET_PASSWORD\",\"provider\":\"db\",\"refresh\":true}"
+status=200 body={"access_token":"[REDACTED]","refresh_token":"[REDACTED]"}
+
+### 2. GET /api/v1/database/?q=(filters:!((col:database_name,opr:eq,value:clickhouse_fixtures))) (expected 200; connection created earlier via POST /api/v1/database/ with sqlalchemy_uri clickhousedb://default:@127.0.0.1:8123/fixtures -> 201 id=1)
+curl -s "$BASE/api/v1/database/?q=(filters:!((col:database_name,opr:eq,value:clickhouse_fixtures)))" -H "Authorization: [REDACTED]"
+status=200 body_excerpt={"count":1,"result":[{"id":1,"database_name":"clickhouse_fixtures","backend":"clickhousedb",...}]}
+ASSERTION: PASS
+
+### 3. simple LIMIT 2 BY id  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 BY id","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=6
+executed_sql=SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2 BY id ) LIMIT 1001
+rows=(1,1),(1,2),(2,1),(2,2),(3,1),(3,2)
+expected=(1,1),(1,2),(2,1),(2,2),(3,1),(3,2)
+ASSERTION: PASS
+
+### 4. LIMIT 2 OFFSET 1 BY id  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 OFFSET 1 BY id","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=5
+executed_sql=SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2   OFFSET 1 BY id ) LIMIT 1001
+rows=(1,2),(1,3),(2,2),(2,3),(3,2)
+expected=(1,2),(1,3),(2,2),(2,3),(3,2)
+ASSERTION: PASS
+
+### 5. comma form LIMIT 1, 2 BY id  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1, 2 BY id","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=5
+executed_sql=SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2   OFFSET 1 BY id ) LIMIT 1001
+rows=(1,2),(1,3),(2,2),(2,3),(3,2)
+expected=(1,2),(1,3),(2,2),(2,3),(3,2)
+ASSERTION: PASS
+
+### 6. multi-expression LIMIT 1 BY id, val  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1 BY id, val","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=11
+executed_sql=SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 1 BY id, val ) LIMIT 1001
+rows=(1,1),(1,2),(1,3),(1,4),(1,5),(2,1),(2,2),(2,3),(2,4),(3,1),(3,2)
+expected=(1,1),(1,2),(1,3),(1,4),(1,5),(2,1),(2,2),(2,3),(2,4),(3,1),(3,2)
+ASSERTION: PASS
+
+### 7. ordinary global LIMIT 5  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 5","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=5
+executed_sql=SELECT   id,   val FROM fixtures.events ORDER BY   id,   val LIMIT 6
+rows=(1,1),(1,2),(1,3),(1,4),(1,5)
+expected=(1,1),(1,2),(1,3),(1,4),(1,5)
+ASSERTION: PASS
+
+### 8. LIMIT 1 OFFSET 2 BY id, val (offset + multi-expr; every (id,val) group has 1 row so offset 2 yields none)  POST /api/v1/sqllab/execute/ (expected 200)
+curl -s -X POST $BASE/api/v1/sqllab/execute/ -H "Authorization: [REDACTED]" -H "Content-Type: application/json" -d '{"database_id":1,"sql":"SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1 OFFSET 2 BY id, val","runAsync":false,"queryLimit":1000,"schema":"fixtures"}'
+status=200 status_field=success row_count=0
+executed_sql=SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 1   OFFSET 2 BY id, val ) LIMIT 1001
+rows=
+expected=
+ASSERTION: PASS
+
+### 9. Negative: tampered JWT on GET /api/v1/database/ (expected 422 rejection; flask-jwt-extended reports invalid signature as 422)
+curl -s -o /dev/null -w "%{http_code}" $BASE/api/v1/database/ -H "Authorization: [REDACTED]"
+status=422 body={"msg":"Signature verification failed"}
+ASSERTION: PASS
+
+### 10. Superset query table (persisted executed_sql) vs direct ClickHouse (behavioral log)
+curl -s "$BASE/api/v1/query/?q=(order_column:start_time,order_direction:desc,page_size:6)" -H "Authorization: [REDACTED]"
+query_id=13 status=success rows=0 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1 OFFSET 2 BY id, val'
+   executed_sql= SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 1   OFFSET 2 BY id, val ) LIMIT 1001
+query_id=12 status=success rows=5 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 5'
+   executed_sql= SELECT   id,   val FROM fixtures.events ORDER BY   id,   val LIMIT 6
+query_id=11 status=success rows=11 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1 BY id, val'
+   executed_sql= SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 1 BY id, val ) LIMIT 1001
+query_id=10 status=success rows=5 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1, 2 BY id'
+   executed_sql= SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2   OFFSET 1 BY id ) LIMIT 1001
+query_id=9 status=success rows=5 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 OFFSET 1 BY id'
+   executed_sql= SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2   OFFSET 1 BY id ) LIMIT 1001
+query_id=8 status=success rows=6 sql='SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 BY id'
+   executed_sql= SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2 BY id ) LIMIT 1001

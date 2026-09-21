@@ -17,6 +17,28 @@ from test_automation import SHA, FakeProvider, result, validation
 NEW = "b" * 40
 
 
+def test_unreferenced_uploads_do_not_truncate_actual_ownership(system):
+    from app.automation.artifacts import unconfirmed_evidence_urls
+
+    db, p, e, _ = system
+    attachments = FakeProvider().attachments("validator")
+    extras = [
+        {
+            **attachments[0],
+            "url": f"https://attachments.devin.ai/unused/{i}",
+            "attachment_id": f"unused-{i}",
+        }
+        for i in range(24)
+    ]
+    p.attachments = lambda sid: extras + attachments
+    payload = {**result(), "task_complete": True}
+    assert not unconfirmed_evidence_urls(payload, p.attachments("validator"))
+    job = validation(db)
+    e.finish_validation(job, payload)
+    assert db.get(job["id"])["state"] == "review_ready"
+    assert not p.messages
+
+
 class Provider(FakeProvider):
     def __init__(self):
         self.document = super().pr(2)
@@ -122,6 +144,71 @@ def test_evidence_gap_creates_read_only_validator_not_code_repair(system):
     prompt = session_payload(e.settings, child, [])["prompt"]
     assert "Do not edit code or tests, push commits" in prompt
     assert "collect the missing measurements or attachments yourself" in prompt
+
+
+def test_cancelled_ci_holds_readiness_without_dispatching_a_code_repair(system):
+    db, p, e, service = system
+    p.checks = [{"name": "hold-label", "status": "completed", "conclusion": "cancelled"}]
+    job = validation(db)
+    assert ci_status(e.settings, p, 2, SHA)["state"] == "pending"
+    assert service.preflight_validation(job) is True
+    assert db.by_key("recovery:" + job["id"]) is None
+    e.finish_validation(job, result())
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+    assert db.by_key("recovery:" + job["id"]) is None
+    p.checks = [{"name": "hold-label", "status": "completed", "conclusion": "success"}]
+    service.reconcile()
+    assert db.get(job["id"])["state"] == "review_ready"
+
+
+def test_failure_capture_runs_validator_before_repair_even_with_red_ci(system):
+    db, p, e, _ = system
+    configured = Settings.from_env({"VALIDATION_CAPTURE_FAILURE_EVIDENCE": "true"})
+    assert configured.capture_failure_evidence is True
+    assert Settings().capture_failure_evidence is False
+    e = Engine(replace(e.settings, capture_failure_evidence=True), db, p)
+    service = RemediationService(e.settings, db, p)
+    p.checks = [{"name": "regression", "status": "completed", "conclusion": "failure"}]
+    job = validation(db)
+    assert service.preflight_validation(job) is True
+    assert db.get(job["id"])["state"] == "running"
+    assert db.by_key("recovery:" + job["id"]) is None
+    handoff = result()
+    handoff["test_results"]["failed"] = 1
+    e.finish_validation(job, handoff)
+    assert db.get(job["id"])["state"] == "validation_failed"
+    assert db.by_key("recovery:" + job["id"])["kind"] == "remediation"
+    assert db.get(job["id"])["result"]["artifacts"]
+    assert db.publications()
+    child = db.by_key("recovery:" + job["id"])
+    key = child["payload"]["failure_publication_key"]
+    assert service.preflight(child) is False
+    db.finish_publication(
+        key, "delivered", url="https://github.com/Nasdin/superset/pull/2#issuecomment-1"
+    )
+    assert service.preflight(child) is False
+    db.finish_publication(
+        key, "sent", url="https://github.com/Nasdin/superset/pull/2#issuecomment-1"
+    )
+    assert service.preflight(child) is True
+
+
+def test_failed_test_count_routes_to_repair_even_when_agent_claims_checks_pass(system):
+    db, p, e, service = system
+    job = validation(db)
+    handoff = result()
+    handoff["test_results"]["failed"] = 1
+    assert all(c["passed"] for c in handoff["checks"])
+    e.finish_validation(job, handoff)
+    failed = db.get(job["id"])
+    assert failed["state"] == "validation_failed"
+    assert "Regression suite reports 1 failing test(s)" in failed["result"]["gate_failures"]
+    child = db.by_key("recovery:" + job["id"])
+    assert child["kind"] == "remediation"
+    assert child["payload"]["failure_context"]["test_results"] == handoff["test_results"]
+    assert child["payload"]["failure_context"]["api_requests"] == handoff["api_requests"]
+    service.reconcile()
+    assert len([j for j in db.jobs() if j["kind"] == "remediation"]) == 1
 
 
 def test_repair_requires_new_same_branch_sha_then_fresh_independent_validator(system):
@@ -412,3 +499,387 @@ def test_poll_cannot_accept_pre_followup_completed_handoff(system):
     e.poll(db.get(job["id"]))
     assert db.get(job["id"])["state"] == "running"
     assert len(p.messages) == 1
+
+
+def mismatched_attachment_handoff(db, provider):
+    """Simulate a provider-owned index whose URLs differ from the agent's final claims."""
+    job = validation(db)
+    canonical = {**result(), "task_complete": True}
+    handoff = copy.deepcopy(canonical)
+    for artifact in handoff["artifacts"]:
+        artifact["url"] = artifact["url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    for request in handoff["api_requests"]:
+        request["evidence_url"] = request["evidence_url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    for field in ("coverage", "test_results"):
+        handoff[field]["report_url"] = handoff[field]["report_url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    indexed = [
+        {**item, "name": item["attachment_id"] + ".fixture"}
+        for item in FakeProvider.attachments(provider, job["session_id"])
+    ]
+    provider.attachments = lambda session_id: copy.deepcopy(indexed)
+    provider.response = {
+        "status": "running",
+        "status_detail": "finished",
+        "tags": [f"cognition-job:{job['id']}"],
+        "structured_output": copy.deepcopy(handoff),
+    }
+    return job, handoff, canonical
+
+
+def test_attachment_reference_mismatch_requests_one_correction_without_filename_binding(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    held = db.get(job["id"])
+    assert held["state"] == "needs_attention"
+    assert held["result"]["handoff_correction"] == "attachment_references"
+    assert held["result"]["artifacts"] == []
+    assert db.by_key("recovery:" + job["id"]) is None
+    assert db.publications() == []
+    assert p.response["structured_output"] == handoff  # No fabricated URL substitution.
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "running"
+    assert len(p.messages) == 1 and p.created == 0
+    message = p.messages[0]["message"]
+    assert "https://attachments.devin.ai/screenshot" in message
+    assert "screenshot.fixture" in message
+    assert "attachment" in message.lower() and (
+        "mismatch" in message.lower() or "match" in message.lower()
+    )
+    HandoffRecovery(e).tick()
+    assert len(p.messages) == 1
+
+
+def test_attachment_correction_stale_handoff_is_rejected_after_restart(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    intent = db.recall("handoff-followup:" + job["id"])
+    assert intent["original_handoff"] == HandoffRecovery.fingerprint(handoff)
+    assert intent["requested_at"] > 0 and intent["attempts"] == 1
+    restarted = Engine(e.settings, Store(db.path), p)
+    p.response["updated_at"] = 9999999999  # Message receipt timestamp cannot approve stale output.
+    restarted.poll(restarted.store.get(job["id"]))
+    HandoffRecovery(restarted).tick()
+    assert restarted.store.get(job["id"])["state"] == "running"
+    assert len(p.messages) == 1 and p.created == 0
+    assert restarted.store.publications() == []
+
+
+def test_attachment_correction_unknown_delivery_persists_full_guard_and_never_resends(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    p.message_failure = UnknownEffect("simulated lost correction acknowledgement")
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "unknown_effect"
+    intent = db.recall("handoff-followup:" + job["id"])
+    assert intent["original_handoff"] == HandoffRecovery.fingerprint(handoff)
+    assert intent["requested_at"] > 0
+    restarted = Engine(e.settings, Store(db.path), p)
+    HandoffRecovery(restarted).tick()
+    assert len(p.messages) == 1 and p.created == 0
+    assert restarted.store.get(job["id"])["state"] == "unknown_effect"
+
+
+def test_agent_corrected_attachment_references_pass_ordinary_independent_gate(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    canonical["summary"] = (
+        "Agent rechecked and corrected references from its actual session attachments"
+    )
+    p.response["structured_output"] = canonical
+    e.poll(db.get(job["id"]))
+    ready = db.get(job["id"])
+    assert ready["state"] == "review_ready" and ready["result"]["gate_failures"] == []
+    assert {a["url"] for a in ready["result"]["artifacts"]} == {
+        a["url"] for a in canonical["artifacts"]
+    }
+    assert ready["session_id"] == job["session_id"]
+    assert len(p.messages) == 1 and p.created == 0
+    assert db.by_key("recovery:" + job["id"]) is None
+
+
+def test_attachment_correction_still_invalid_after_one_followup_uses_normal_recollection(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    p.response["structured_output"]["summary"] = (
+        "Agent attempted correction but still references missing attachment IDs"
+    )
+    e.poll(db.get(job["id"]))
+    failed = db.get(job["id"])
+    assert failed["state"] == "validation_failed"
+    assert failed["result"]["gate_failures"]
+    followup = db.by_key("recovery:" + job["id"])
+    assert followup["kind"] == "validation" and followup["session_id"] is None
+    HandoffRecovery(e).tick()
+    assert len(p.messages) == 1 and p.created == 0
+
+
+@pytest.mark.parametrize(
+    "defect",
+    ["missing_measurement", "wrong_sha", "failed_check", "legacy_schema", "missing_artifact_kind"],
+)
+def test_non_manifest_failures_never_qualify_for_reference_only_correction(system, defect):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    if defect == "missing_measurement":
+        handoff.pop("coverage")
+    elif defect == "wrong_sha":
+        handoff["candidate_sha"] = NEW
+    elif defect == "failed_check":
+        next(c for c in handoff["checks"] if c["name"] == "regression")["passed"] = False
+    elif defect == "legacy_schema":
+        handoff.pop("evidence_version")
+    else:
+        handoff["artifacts"] = [a for a in handoff["artifacts"] if a["kind"] != "video"]
+    e.finish_validation(job, handoff)
+    observed = db.get(job["id"])
+    assert observed["state"] == "validation_failed"
+    assert observed["result"].get("handoff_correction") != "attachment_references"
+    assert p.messages == []
+
+
+@pytest.mark.parametrize("guard", ["archived", "credits", "approval", "working"])
+def test_attachment_correction_does_not_message_non_quiescent_or_unavailable_sessions(
+    system, guard
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    if guard == "archived":
+        p.response["is_archived"] = True
+    elif guard == "credits":
+        p.response.update(status="suspended", status_detail="usage_limit_exceeded")
+    elif guard == "approval":
+        p.response["status_detail"] = "waiting_for_approval"
+    else:
+        p.response["status_detail"] = "working"
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "needs_attention"
+    assert p.messages == [] and p.created == 0
+
+
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "truthy_complete",
+        "truthy_pass",
+        "blocker",
+        "missing_owned_index",
+        "unowned_index",
+        "validator_is_implementer",
+        "duplicate_claimed_url",
+    ],
+)
+def test_attachment_reference_hold_requires_literal_finality_ownership_and_independence(
+    system, defect
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    if defect == "truthy_complete":
+        handoff["task_complete"] = "true"
+    elif defect == "truthy_pass":
+        handoff["passed"] = 1
+    elif defect == "blocker":
+        handoff["blocker"] = "Runtime evidence remains incomplete"
+    elif defect == "missing_owned_index":
+        p.attachments = lambda session_id: []
+    elif defect == "unowned_index":
+        supplied = p.attachments(job["session_id"])
+        p.attachments = lambda session_id: [{**item, "source": "user"} for item in supplied]
+    elif defect == "validator_is_implementer":
+        db.update(job["parent_id"], session_id=job["session_id"])
+    else:
+        handoff["artifacts"][1]["url"] = handoff["artifacts"][0]["url"]
+    e.finish_validation(job, handoff)
+    observed = db.get(job["id"])
+    assert observed["state"] == "validation_failed"
+    assert observed["result"].get("handoff_correction") != "attachment_references"
+    assert p.messages == []
+
+
+@pytest.mark.parametrize("invalidate_after_readback", [False, True])
+def test_attachment_correction_cannot_revive_concurrently_superseded_validation(
+    system, invalidate_after_readback
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    fetch = p.attachments
+    read_pr = p.pr
+
+    def invalidate():
+        p.document["head"]["sha"] = NEW
+        db.supersede_validation(job, NEW, e.settings.repo)
+        assert db.get(job["id"])["state"] == "stale"
+
+    if invalidate_after_readback:
+        # The provider freshness read succeeded, but intake won the DB lock before the hold.
+        reads = 0
+
+        def race_after_readback(number):
+            nonlocal reads
+            document = read_pr(number)
+            reads += 1
+            if reads == 2:
+                invalidate()
+            return document
+
+        p.pr = race_after_readback
+    else:
+        # Candidate changes during attachment collection, before the final provider check.
+        def race_during_attachments(session_id):
+            attachments = fetch(session_id)
+            invalidate()
+            return attachments
+
+        p.attachments = race_during_attachments
+    e.finish_validation(job, handoff)
+    assert db.get(job["id"])["state"] == "stale"
+    replacements = [j for j in db.jobs() if j["kind"] == "validation" and j["candidate_sha"] == NEW]
+    assert len(replacements) == 1 and replacements[0]["state"] == "queued"
+    assert db.recall("handoff-followup:" + job["id"]) is None
+    assert db.publications() == [] and p.messages == []
+
+
+def test_pending_ci_progress_dedupes_across_restart_and_republishes_final_readiness(system):
+    db, p, e, service = system
+    job = validation(db)
+    e.finish_validation(job, result())
+    for _ in range(5):
+        e.flush_publication()
+    initial_ready_comments = len(p.comments)
+    assert initial_ready_comments == 2 and p.ready_calls == 1
+    initial_success_checks = copy.deepcopy(p.checks)
+
+    # Marking ready can trigger a same-SHA CI rerun; publish that state once.
+    p.checks[0].update(status="queued", conclusion=None)
+    service.reconcile()
+    for _ in range(3):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+    pending_comments = len(p.comments)
+    assert pending_comments == initial_ready_comments + 2
+    receipts_before_restart = {item["key"] for item in db.all_publications()}
+    e = Engine(e.settings, Store(db.path), p)
+    db = e.store
+    service = RemediationService(e.settings, db, p)
+
+    # Different jobs start/finish, but the pending gate and runtime evidence are unchanged.
+    for checks in [
+        [{"name": "regression", "status": "in_progress", "conclusion": None}],
+        [
+            {"name": "regression", "status": "completed", "conclusion": "success"},
+            {"name": "browser", "status": "queued", "conclusion": None},
+        ],
+        [
+            {"name": "regression", "status": "completed", "conclusion": "success"},
+            {"name": "browser", "status": "in_progress", "conclusion": None},
+        ],
+    ]:
+        p.checks = checks
+        service.reconcile()
+        for _ in range(3):
+            e.flush_publication()
+        assert db.get(job["id"])["state"] == "awaiting_ci"
+        assert db.get(job["id"])["result"]["ci"]["state"] == "pending"
+        assert len(p.comments) == pending_comments
+        assert {item["key"] for item in db.all_publications()} == receipts_before_restart
+
+    # Even an identical success snapshot to the initial one needs a new final report:
+    # the last delivered report is now the awaiting-CI transition.
+    p.checks = initial_success_checks
+    service.reconcile()
+    for _ in range(4):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "review_ready"
+    assert len(p.comments) == pending_comments + 2
+    assert all("release validation — review ready" in body for _, body in p.comments[-2:])
+    assert db.get(job["id"])["result"]["report_transition"] == 3
+    service.reconcile()
+    e.flush_publication()
+    assert len(p.comments) == pending_comments + 2
+
+    # A genuine later failure is not swallowed by the pending-progress deduplication.
+    p.checks[0]["conclusion"] = "failure"
+    service.reconcile()
+    for _ in range(3):
+        e.flush_publication()
+    assert db.get(job["id"])["state"] == "validation_failed"
+    assert len(p.comments) == pending_comments + 4
+    assert all("release validation — validation failed" in body for _, body in p.comments[-2:])
+
+
+def test_pending_ci_revised_evidence_is_not_suppressed(system):
+    db, p, e, service = system
+    p.checks[0].update(status="queued", conclusion=None)
+    job = validation(db)
+    handoff = result()
+    e.finish_validation(job, handoff)
+    initial = {item["key"] for item in db.all_publications()}
+    revised = copy.deepcopy(handoff)
+    revised["summary"] = "Agent supplied a revised measured test report"
+    revised["test_results"]["passed"] += 1
+    e.finish_validation(db.get(job["id"]), revised)
+    publications = db.all_publications()
+    assert len(publications) == len(initial) + 2
+    assert initial < {item["key"] for item in publications}
+    e.finish_validation(db.get(job["id"]), revised)
+    assert len(db.all_publications()) == len(publications)
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+
+
+def test_existing_pending_gate_without_new_counter_does_not_republish_after_patch(system):
+    db, p, e, service = system
+    p.checks[0].update(status="queued", conclusion=None)
+    job = validation(db)
+    e.finish_validation(job, result())
+    for _ in range(3):
+        e.flush_publication()
+    old_result = db.get(job["id"])["result"]
+    old_result.pop("report_transition")  # Simulate a persisted gate from before this change.
+    db.update(job["id"], result=old_result)
+    existing = {item["key"] for item in db.all_publications()}
+    e = Engine(e.settings, Store(db.path), p)
+    p.checks[0]["status"] = "in_progress"
+    RemediationService(e.settings, e.store, p).reconcile()
+    e.flush_publication()
+    assert {item["key"] for item in e.store.all_publications()} == existing
+    assert len(p.comments) == 2
+    assert e.store.get(job["id"])["result"]["ci"]["checks"][0]["status"] == "in_progress"
+
+
+@pytest.mark.parametrize("changed_branch", [False, True])
+def test_repair_handoff_allows_its_own_push_but_not_a_different_branch(system, changed_branch):
+    db, p, e, _ = system
+    ref = p.document["head"]["ref"]
+    job = db.enqueue("paused", "remediation", {"head_ref": ref}, pr_number=2, candidate_sha=SHA)
+    db.update(
+        job["id"],
+        state="needs_attention",
+        session_id="paused",
+        session_url="https://app.devin.ai/sessions/paused",
+    )
+    p.response = {
+        "status": "running",
+        "status_detail": "waiting_for_user",
+        "tags": ["cognition-job:" + job["id"]],
+        "structured_output": {"task_complete": False, "blocker": "Final handoff missing"},
+    }
+    p.document["head"]["sha"] = NEW
+    if changed_branch:
+        p.document["head"]["ref"] = "different-branch"
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == ("stale" if changed_branch else "running")
+    assert len(p.messages) == (0 if changed_branch else 1)

@@ -72,6 +72,13 @@ def create_app(
 
     application = FastAPI(title="Cognition Evidence API", version="0.1.0", lifespan=lifespan)
 
+    @application.middleware("http")
+    async def revalidate_frontend_entry(request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path in {"/", "/index.html"}:
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     install_auth(application, authentication, configured.operator_token)
     # Outside auth: its database lookups can fail before a route is reached.
     application.add_middleware(InfrastructureErrorsMiddleware)
