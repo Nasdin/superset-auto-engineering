@@ -44,7 +44,8 @@ class PullRequestValidationService:
             return {"status": "ignored", "reason": "Superseded PR event"}
         # Own implementation pushes are handled after its structured handoff.
         if any(
-            j["kind"] in {"repair", "patch", "dependency"} and j["state"] in ACTIVE for j in related
+            j["kind"] in {"repair", "patch", "dependency", "maintenance"} and j["state"] in ACTIVE
+            for j in related
         ):
             return {"status": "deferred", "reason": "Implementation handoff pending"}
         validations = [j for j in related if j["kind"] == "validation"]
@@ -60,7 +61,9 @@ class PullRequestValidationService:
         ):
             return {"status": "deferred", "reason": "Prior validator must finish or be reconciled"}
         originals = [
-            j for j in related if j["kind"] in {"repair", "patch", "dependency", "integration"}
+            j
+            for j in related
+            if j["kind"] in {"repair", "patch", "dependency", "maintenance", "integration"}
         ]
         if originals and not validations and all(j["candidate_sha"] == sha for j in originals):
             return {
@@ -71,7 +74,9 @@ class PullRequestValidationService:
             if old["state"] != "stale":
                 self.store.supersede_validation(old, None, self.settings.repo)
         implementation_ids = {
-            j["id"] for j in originals if j["kind"] in {"repair", "patch", "dependency"}
+            j["id"]
+            for j in originals
+            if j["kind"] in {"repair", "patch", "dependency", "maintenance"}
         }
         for prior in related:
             implementation_ids.update(prior["payload"].get("implementation_jobs", []))

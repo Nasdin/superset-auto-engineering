@@ -40,6 +40,9 @@ export function WorkflowLanes({
                   </span>
                   <strong>{j.payload.title || j.kind}</strong>
                   <State value={j.state} />
+                  {!!j.automations?.length && (
+                    <small>{j.automations.map((a) => a.name).join(", ")}</small>
+                  )}
                   {j.parent_id && <small>From {j.parent_id.slice(0, 8)}</small>}
                   {j.error && <small>{j.error}</small>}
                 </button>

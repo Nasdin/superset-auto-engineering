@@ -132,3 +132,130 @@ test("uncertain resume never claims success or changes retry intent", async ({
   await page.getByRole("button", { name: "Resume same session" }).click();
   expect(intents[0]).toBe(intents[1]);
 });
+
+test("catalogue persists controls, attributes runs and retains retry intent", async ({
+  page,
+}) => {
+  let recipe = {
+    id: "code_patterns",
+    name: "Code Pattern Enforcer",
+    description: "Fork conventions",
+    category: "Engineering",
+    kind: "scan",
+    enabled: 0,
+    interval_seconds: 604800,
+    next_run: 2000000000,
+    updated: 10,
+    run_count: 2,
+    configuration_required: null,
+  };
+  let stale = false;
+  const child = {
+    ...job,
+    id: "repair-one",
+    kind: "repair",
+    payload: { title: "Repair convention drift", source: "scheduled_scan" },
+    automations: [{ id: recipe.id, name: recipe.name }],
+  };
+  await page.route("**/api/live/automations", (r) =>
+    r.fulfill(
+      stale
+        ? { status: 503, json: { detail: "Unavailable" } }
+        : {
+            json: {
+              ...data,
+              catalogue: [
+                recipe,
+                {
+                  ...recipe,
+                  id: "cloudflare_audit",
+                  enabled: 0,
+                  name: "Cloudflare Security Audit",
+                  kind: "audit",
+                  configuration_required: "Configure read-only audit access",
+                },
+              ],
+              automation_history: [
+                child,
+                {
+                  ...job,
+                  id: "other",
+                  payload: { title: "Other recipe" },
+                  automations: [{ id: "discovery", name: "Discovery" }],
+                },
+              ],
+            },
+          },
+    ),
+  );
+  await page.route("**/api/live/operator", (r) =>
+    r.fulfill({ json: { authenticated: true } }),
+  );
+  await page.route("**/api/live/schedules/code_patterns", (r) => {
+    const body = r.request().postDataJSON();
+    expect(body.expected_updated).toBe(recipe.updated);
+    recipe = {
+      ...recipe,
+      enabled: Number(body.enabled),
+      interval_seconds: body.interval_seconds,
+      updated: recipe.updated + 1,
+    };
+    return r.fulfill({ json: recipe });
+  });
+  const intents: string[] = [];
+  await page.route("**/api/live/automations/code_patterns/run", (r) => {
+    intents.push(r.request().postDataJSON().request_id);
+    return r.fulfill(
+      intents.length === 1
+        ? { status: 503, json: { detail: "Temporarily unavailable" } }
+        : { json: { ...job, state: "queued" } },
+    );
+  });
+  await page.goto("/#automations");
+  const enable = page.getByRole("button", {
+    name: "Enable Code Pattern Enforcer",
+  });
+  await expect(enable).toBeDisabled();
+  await page.getByText("Execution access", { exact: true }).click();
+  await page.getByLabel("Operator key").fill("test-operator");
+  await page.getByRole("button", { name: "Unlock execution controls" }).click();
+  await enable.click();
+  const pause = page.getByRole("button", {
+    name: "Pause Code Pattern Enforcer",
+  });
+  await expect(pause).toBeEnabled();
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(pause).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Enable Cloudflare Security Audit" }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Run Cloudflare Security Audit now" }),
+  ).toBeDisabled();
+  const run = page.getByRole("button", {
+    name: "Run Code Pattern Enforcer now",
+  });
+  await run.click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Temporarily unavailable",
+  );
+  await run.click();
+  await expect(page.getByRole("status")).toContainText(
+    "queue record is not yet a started",
+  );
+  expect(intents).toHaveLength(2);
+  expect(intents[0]).toBe(intents[1]);
+  const history = page.getByRole("region", { name: "Automation runs" });
+  await expect(history).toContainText("Repair convention drift");
+  await expect(history).not.toContainText("Other recipe");
+  await history
+    .getByRole("button", { name: /Repair convention drift/ })
+    .click();
+  await expect(
+    page.getByRole("region", { name: "Automation run", exact: true }),
+  ).toContainText("Code Pattern Enforcer");
+  stale = true;
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(run).toBeDisabled();
+  await expect(pause).toBeDisabled();
+});

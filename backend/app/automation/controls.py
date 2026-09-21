@@ -40,11 +40,11 @@ class ScheduleUpdate(BaseModel):
     expected_updated: float
 
 
-@router.post("/schedules/discovery", dependencies=[Depends(operator)])
-def configure_schedule(body: ScheduleUpdate, eng: Engine = Depends(get_engine)):
+@router.post("/schedules/{automation_id}", dependencies=[Depends(operator)])
+def configure_schedule(automation_id: str, body: ScheduleUpdate, eng: Engine = Depends(get_engine)):
     try:
         return ScheduleService(eng.settings, eng.store, eng.providers).configure(
-            body.enabled, body.interval_seconds, body.expected_updated
+            body.enabled, body.interval_seconds, body.expected_updated, automation_id
         )
     except ScheduleConflict as error:
         raise HTTPException(409, str(error)) from None
@@ -59,6 +59,21 @@ def scan(body: ManualRun, eng: Engine = Depends(get_engine)):
         return ScheduleService(eng.settings, eng.store, eng.providers).run_now(str(body.request_id))
     except ScheduleConflict as error:
         raise HTTPException(409, str(error)) from None
+    except ProviderError as error:
+        raise HTTPException(502, str(error)) from None
+
+
+@router.post("/automations/{automation_id}/run", dependencies=[Depends(operator)])
+def run_automation(automation_id: str, body: ManualRun, eng: Engine = Depends(get_engine)):
+    require_execution(eng)
+    try:
+        return ScheduleService(eng.settings, eng.store, eng.providers).run_now(
+            str(body.request_id), automation_id
+        )
+    except ScheduleConflict as error:
+        raise HTTPException(409, str(error)) from None
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from None
     except ProviderError as error:
         raise HTTPException(502, str(error)) from None
 

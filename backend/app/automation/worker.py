@@ -36,7 +36,7 @@ def cycle(engine):
             ("freshness", engine.refresh_readiness),
         ]
     if s.enabled and s.github_token and time.time() - db.recall("last_schedule_tick", 0) >= 60:
-        tasks += [("schedule", engine.schedule_scan)]
+        tasks += [("schedule", engine.schedule_automations)]
     failures = []
     for name, action in tasks:
         try:

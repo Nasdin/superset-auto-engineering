@@ -69,6 +69,19 @@ export function JobDetail({
         <State value={job.state} />
       </div>
       <div className="detail-body">
+        {!!job.automations?.length && (
+          <p className="quiet">
+            Automation: {job.automations.map((a) => a.name).join(", ")} ·{" "}
+            {job.payload.source || "derived work"}
+          </p>
+        )}
+        {!!job.result?.observations?.length && (
+          <ul>
+            {job.result.observations.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        )}
         <div className="live-links">
           {job.session_url && (
             <External url={job.session_url}>Open Devin session</External>

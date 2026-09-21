@@ -103,7 +103,7 @@ test("every workspace view fits desktop and phone with discoverable controls", a
     ["pull-requests", "Pull request evidence", "Filter pull requests"],
     ["lineage", "Repository lineage", "Filter records"],
     ["workflows", "Workflow lanes", "Filter records"],
-    ["automations", "Schedules & triggers", "Edit schedule"],
+    ["automations", "Automations", "Edit schedule"],
     ["runs", "Devin runs", "Filter records"],
     ["dependencies", "Dependency updates", "Filter pull requests"],
     ["learning", "Learning & memory", "Filter observations"],

@@ -28,6 +28,8 @@ class Settings:
     dependabot_enabled: bool = True
     learning_enabled: bool = True
     enabled: bool = False
+    cloudflare_account_id: str = ""
+    cloudflare_audit_secret_id: str = field(default="", repr=False)
     evidence_public_url: str = ""
     artifacts: Path = Path("data/artifacts")
 
@@ -44,6 +46,9 @@ class Settings:
         """Read configuration at startup, not at module import time."""
         env = os.environ if environ is None else environ
         values = {}
+        for name in ("cloudflare_account_id", "cloudflare_audit_secret_id"):
+            if name.upper() in env:
+                values[name] = str(env[name.upper()])
         if "AUTOMATION_DATABASE" in env:
             values["database"] = str(env["AUTOMATION_DATABASE"])
         if "GITHUB_REPOSITORY" in env:

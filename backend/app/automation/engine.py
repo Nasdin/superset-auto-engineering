@@ -89,6 +89,11 @@ class Engine:
 
         return ScheduleService(self.settings, self.store, self.providers).tick()
 
+    def schedule_automations(self):
+        from .schedules import ScheduleService
+
+        return ScheduleService(self.settings, self.store, self.providers).tick_all()
+
     def tick(self):
         if not self.settings.devin_key or not self.settings.github_token:
             self.store.remember(
@@ -148,9 +153,15 @@ class Engine:
                 )
                 return
         used = self.store.session_count(excluding=job["id"])
-        required_slots = {"repair": 2, "dependency": 2, "patch": 2, "scan": 3, "validation": 1}[
-            job["kind"]
-        ]
+        required_slots = {
+            "repair": 2,
+            "dependency": 2,
+            "patch": 2,
+            "scan": 3,
+            "validation": 1,
+            "audit": 1,
+            "maintenance": 2,
+        }[job["kind"]]
         if used + required_slots > self.settings.max_sessions:
             Recovery(self.store).job_failure(
                 job,
@@ -238,6 +249,14 @@ class Engine:
                 )
             elif job["kind"] == "scan":
                 self.finish_scan(job, result)
+            elif job["kind"] == "maintenance":
+                from .maintenance import finish_maintenance
+
+                finish_maintenance(self.settings, self.store, self.providers, job, result)
+            elif job["kind"] == "audit":
+                from .reviews import finish_review
+
+                finish_review(self.store, job, result)
             else:
                 self.finish_validation(job, result)
             return
@@ -247,7 +266,12 @@ class Engine:
             self.store.update(
                 job["id"],
                 state="needs_attention",
-                error=f"Devin {session.get('status')}: {session.get('status_detail')}",
+                error=(
+                    "Devin paused at its per-message/session spending limit. This does not establish that organization credits are exhausted. Open this session's usage limits, then resume the same session if work remains."
+                    if session.get("status_detail")
+                    in {"usage_limit_exceeded", "total_session_limit_exceeded"}
+                    else f"Devin {session.get('status')}: {session.get('status_detail')}"
+                ),
             )
         elif time.time() - (job.get("started") or time.time()) > self.settings.session_timeout:
             # Archive is a real provider action; an ambiguous result is never called stopped.
@@ -301,7 +325,18 @@ class Engine:
         )
 
     def finish_scan(self, job, result):
-        findings = result.get("findings", [])
+        from .scans import ScanResult
+
+        handoff = ScanResult.model_validate(result)
+        if not handoff.task_complete or handoff.blocker:
+            self.store.update(
+                job["id"],
+                state="needs_attention",
+                result=result,
+                error=handoff.blocker or "Scan is not complete",
+            )
+            return
+        findings = [finding.model_dump() for finding in handoff.findings]
         if len(findings) > 1:
             raise ValueError("Discovery exceeded one-issue scope")
         for finding in findings:

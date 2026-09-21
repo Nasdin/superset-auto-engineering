@@ -194,12 +194,16 @@ def test_scan_retry_after_issue_created_ensures_child_and_lineage(setup):
     db.remember(key, {"issue": 7, "sha": SHA})
     # Webhook wins the race; scan completion must reconcile its existing repair.
     child = db.enqueue(f"issue:{engine.settings.repo}:7", "repair", {"source": "github_webhook"})
-    engine.finish_scan(scan, {"findings": [finding], "summary": "Found one defect"})
+    engine.finish_scan(
+        scan, {"task_complete": True, "findings": [finding], "summary": "Found one defect"}
+    )
     child = db.get(child["id"])
     assert child["parent_id"] == scan["id"]
     assert workflow_lane(child, db) == "Autonomous patches and fixes"
     assert db.get(scan["id"])["result"]["findings"] == [finding]
-    engine.finish_scan(scan, {"findings": [finding]})
+    engine.finish_scan(
+        scan, {"task_complete": True, "findings": [finding], "summary": "Found one defect"}
+    )
     assert len(db.operational_jobs()) == 2
 
 

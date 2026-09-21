@@ -9,13 +9,11 @@ MAX_ATTEMPTS = 5
 BASE_SECONDS = 30
 MAX_SECONDS = 1800
 CREDIT_REASONS = {
-    "usage_limit_exceeded",
     "out_of_credits",
     "out_of_quota",
     "no_quota_allocation",
     "payment_declined",
     "org_usage_limit_exceeded",
-    "total_session_limit_exceeded",
 }
 
 

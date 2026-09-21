@@ -7,6 +7,7 @@ export type Artifact = {
 export type Job = {
   id: string;
   kind: string;
+  automations?: { id: string; name: string }[];
   lane?: string;
   state: string;
   session_url: string | null;
@@ -19,6 +20,7 @@ export type Job = {
   started: number | null;
   parent_id: string | null;
   payload: {
+    automation_id?: string;
     title?: string;
     work_type?: string;
     issue_number?: number;
@@ -28,6 +30,7 @@ export type Job = {
   };
   result?: {
     summary?: string;
+    observations?: string[];
     gate_failures?: string[];
     provenance?: string;
     artifacts?: Artifact[];

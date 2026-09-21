@@ -513,3 +513,31 @@ def test_postgres_disconnect_mid_handoff_rolls_back_and_allows_retry(postgres, m
     assert store.get(job["id"])["state"] == "prepared"
     assert store.by_key("child") is not None
     assert store.claim_publication()["key"] == "report"
+
+
+def test_postgres_automation_schedules_and_provenance_survive_restart(postgres):
+    from dataclasses import replace
+    from uuid import uuid4
+
+    from app.automation.config import Settings
+    from app.automation.schedules import ScheduleService
+
+    store, _ = postgres
+    settings = replace(Settings(), database=store.path, scan_interval=0)
+    provider = SimpleNamespace(gh=lambda *args, **kwargs: {"sha": "a" * 40})
+    service = ScheduleService(settings, store, provider)
+    row = service.schedule("code_patterns")
+    enabled = service.configure(True, 3600, row["updated"], "code_patterns")
+    intent = str(uuid4())
+    with ThreadPoolExecutor(4) as pool:
+        jobs = list(pool.map(lambda _: service.run_now(intent, "code_patterns"), range(4)))
+    assert len({job["id"] for job in jobs}) == 1
+    restarted = Store(store.path)
+    try:
+        after = ScheduleService(settings, restarted, provider)
+        assert after.schedule("code_patterns")["updated"] == enabled["updated"]
+        assert after.run_now(intent, "code_patterns")["id"] == jobs[0]["id"]
+        history = after.overview()["automation_history"]
+        assert history[0]["automations"][0]["id"] == "code_patterns"
+    finally:
+        restarted.database.close()

@@ -1,3 +1,7 @@
+import {
+  AutomationCatalogue,
+  type AutomationRecipe,
+} from "../components/AutomationCatalogue";
 import { External } from "../components/External";
 import { useRef, useState } from "react";
 import { Clock3, Play, RefreshCw, Zap } from "lucide-react";
@@ -26,6 +30,8 @@ type Data = {
   branch: string;
   enabled: boolean;
   schedule: Schedule;
+  catalogue?: AutomationRecipe[];
+  automation_history?: Job[];
   worker: { state?: string; at?: number };
   holds: Job[];
   active: Job[];
@@ -104,7 +110,7 @@ export function Automations() {
       <div className="heading">
         <div>
           <div className="eyebrow">TRIGGER → DEVIN → RELEASE GATE</div>
-          <h1>Schedules & triggers</h1>
+          <h1>Automations</h1>
           <p>
             Autonomous discovery on a cadence. Repository events as they happen.
             A manual run when you need one.
@@ -157,7 +163,7 @@ export function Automations() {
                 {job.state === "needs_attention" && job.session_url && (
                   <button
                     className="button"
-                    disabled={!token || busy}
+                    disabled={!token || busy || Boolean(error)}
                     onClick={() =>
                       void run(
                         `jobs/${job.id}/resume`,
@@ -173,6 +179,15 @@ export function Automations() {
             </div>
           ))}
           <OperatorAccess />
+          <AutomationCatalogue
+            recipes={data.catalogue || []}
+            history={data.automation_history || []}
+            repository={data.repository}
+            dispatchEnabled={data.enabled}
+            maxAcu={data.max_acu}
+            stale={Boolean(error)}
+            refresh={refresh}
+          />
           <section className="panel schedule-card">
             <div className="panel-heading">
               <div>
@@ -215,7 +230,7 @@ export function Automations() {
             <div className="automation-actions">
               <button
                 className="button primary"
-                disabled={!token || busy || !data.enabled}
+                disabled={!token || busy || !data.enabled || Boolean(error)}
                 onClick={() =>
                   void run(
                     "scan",
@@ -257,7 +272,7 @@ export function Automations() {
                   <select
                     name="interval"
                     defaultValue={data.schedule.interval_seconds}
-                    disabled={!token || busy}
+                    disabled={!token || busy || Boolean(error)}
                   >
                     {Object.entries(cadences).map(([value, label]) => (
                       <option value={value} key={value}>
@@ -271,11 +286,14 @@ export function Automations() {
                     type="checkbox"
                     name="enabled"
                     defaultChecked={Boolean(data.schedule.enabled)}
-                    disabled={!token || busy}
+                    disabled={!token || busy || Boolean(error)}
                   />{" "}
                   Schedule enabled
                 </label>
-                <button className="button" disabled={!token || busy}>
+                <button
+                  className="button"
+                  disabled={!token || busy || Boolean(error)}
+                >
                   Save schedule
                 </button>
                 <p className="quiet">
@@ -357,7 +375,7 @@ export function Automations() {
               </label>
               <button
                 className="button"
-                disabled={!token || busy || !data.enabled}
+                disabled={!token || busy || !data.enabled || Boolean(error)}
               >
                 Queue work
               </button>

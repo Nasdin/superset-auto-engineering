@@ -66,7 +66,8 @@ def pull_requests(
         {
             job["pr_number"]
             for job in jobs
-            if job["kind"] in {"repair", "patch", "dependency"} and job.get("pr_number")
+            if job["kind"] in {"repair", "patch", "dependency", "maintenance"}
+            and job.get("pr_number")
         }
         if repository == engine.settings.repo
         else set()
@@ -76,7 +77,14 @@ def pull_requests(
         for job in jobs
         if job["pr_number"] in tracked
         and job.get("session_id")
-        and job["state"] in {"implemented", "prepared"}
+        and (
+            job["state"] in {"implemented", "prepared"}
+            or (
+                job["kind"] == "maintenance"
+                and job["state"] == "completed"
+                and job.get("candidate_sha")
+            )
+        )
     }
     store = request.app.state.analytics
     cache = request.app.state.analytics_cache

@@ -29,7 +29,7 @@ export const sections = [
       { page: "Workflows", label: "Workflow lanes", slug: "workflows" },
       {
         page: "Schedules & triggers",
-        label: "Schedules & triggers",
+        label: "Automations",
         slug: "automations",
       },
       { page: "Devin runs", label: "Devin runs", slug: "runs" },

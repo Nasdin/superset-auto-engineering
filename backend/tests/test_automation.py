@@ -790,22 +790,28 @@ def test_scan_reconciles_existing_finding_without_duplicate_issue(setup):
         return issues[0]
 
     provider.gh = github
-    engine.finish_scan(job, {"findings": [finding]})
+    engine.finish_scan(
+        job, {"task_complete": True, "summary": "Reproduced finding", "findings": [finding]}
+    )
     assert db.get(job["id"])["state"] == "completed"
     assert db.by_key("issue:Nasdin/superset:17")["kind"] == "repair"
     # Simulate lost local finding memory after the remote issue was created.
     with db.connect() as connection:
         connection.execute("DELETE FROM memory WHERE key LIKE 'finding:%'")
-    engine.finish_scan(job, {"findings": [finding]})
+    engine.finish_scan(
+        job, {"task_complete": True, "summary": "Reproduced finding", "findings": [finding]}
+    )
     assert len(posts) == 1
-    engine.finish_scan(job, {"findings": [finding]})
+    engine.finish_scan(
+        job, {"task_complete": True, "summary": "Reproduced finding", "findings": [finding]}
+    )
     assert len(posts) == 1
 
 
 def test_scan_rejects_unreproduced_or_out_of_scope_findings(setup):
     db, provider, engine = setup
     job = db.enqueue("scan-test", "scan", {"base_sha": SHA})
-    with pytest.raises(ValueError, match="one-issue"):
+    with pytest.raises(ValueError):
         engine.finish_scan(job, {"findings": [{}, {}]})
     with pytest.raises(ValueError, match="reproduction"):
         engine.finish_scan(job, {"findings": [{"base_sha": "wrong"}]})

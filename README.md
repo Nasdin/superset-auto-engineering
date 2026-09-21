@@ -81,7 +81,8 @@ Compose reads `.env` for interpolation and passes an explicit set of settings to
 | `DEVIN_MAX_ACU`, `DEVIN_MAX_SESSIONS` | Fresh-install defaults: 10 ACU per new session, 6 sessions across the ledger's lifetime. Current hosted configuration: 20 ACU / 20 sessions; provider credit and organization limits still apply |
 | `SESSION_TIMEOUT_SECONDS` | Default: 7200 seconds per session |
 | `POLL_SECONDS`, `BATCH_WINDOW_SECONDS` | Default polling/batching: 30/60 seconds |
-| `SCAN_INTERVAL_SECONDS` | Seeds the first discovery schedule (86400 daily; 0 paused). After first startup, edit the durable schedule in Workflows → Schedules & triggers |
+| `SCAN_INTERVAL_SECONDS` | Seeds the first discovery schedule (86400 daily; 0 paused). After first startup, edit the durable schedule in Workflows → Automations |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AUDIT_SECRET_ID` | Optional account and dedicated Devin secret ID for read-only Cloudflare audit; no raw Cloudflare token in application configuration |
 | `EVIDENCE_PUBLIC_URL` | Optional HTTPS app origin for public, sanitized evidence copies embedded in PR comments; blank keeps authenticated Devin links |
 | `DEPENDABOT_ENABLED` | Default `true`; dependency intake/dispatch remains subject to automation limits |
 | `LEARNING_ENABLED` | Default `true`; syncs scoped observations to Devin Knowledge. Turning it off may retire app-owned notes |
@@ -433,9 +434,11 @@ Analytics compares **Fixes, Features, Bots and Other** across seven calendar mon
 The local BI/storage verification is [recorded here](docs/analysis/superset-postgres-verification.json). It is distinct from repaired-candidate acceptance, which has its own [public validation report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737). See [the continuation checkpoint](docs/CONTINUE.md) for workflow evidence and remaining presentation work.
 
 
-## Schedules, manual work and release gates
+## Schedules, automation catalogue and release gates
 
-Open **Workflows → Schedules & triggers**. The page shows the saved cadence, next due time, discovery history, repository triggers, worker health and session capacity. Expand **Execution access** and enter the `OPERATOR_TOKEN` from your private `.env` to run work or edit schedules. It stays only in tab memory for 15 minutes and disappears on refresh. The reviewer password grants viewing access, not paid execution.
+The [automation catalogue](docs/AUTOMATIONS.md) provides saved enable/pause controls, cadence, manual runs and run attribution for dependency vulnerabilities, secret fixes, fork convention checks, OWASP checks, bug triage, release reviews and Cloudflare audit. New recipes start paused. Pattern checks use the Superset fork’s own conventions. Cloudflare audit requires a dedicated read-only secret configured in Devin.
+
+Open **Workflows → Automations**. The page shows the saved cadence, next due time, discovery history, repository triggers, worker health and session capacity. Expand **Execution access** and enter the `OPERATOR_TOKEN` from your private `.env` to run work or edit schedules. It stays only in tab memory for 15 minutes and disappears on refresh. The reviewer password grants viewing access, not paid execution.
 
 - **Edit schedule:** hourly, every six hours, daily or weekly; enable/pause persists in Postgres or SQLite. Saving sets the next tick one full interval ahead. Missed ticks coalesce; an active scan prevents duplicates.
 - **Run discovery now:** creates a separate manual intent. Network retries use the same request ID. Existing issue/PR intake uses the same scope and label checks as webhooks.
@@ -466,3 +469,5 @@ See [challenge acceptance and five-minute demo plan](docs/CHALLENGE_ACCEPTANCE.m
 The hosted application now permits **20 total sessions and 20 ACU per newly created session**. Separately, the Devin provider's default **Message usage** limit was raised from **$20 to $40**, and the existing dependency session's provider cap from **$10 to $20**. Dollar caps and application ACU/session limits are independent controls; changing one does not update the others or purchase credits. Other existing session caps are not automatically increased. Fresh clones retain conservative app defaults. Check the current provider account and queue before increasing capacity.
 
 See [the reliability design and operational recovery runbook](docs/RESILIENCE.md) for failure behavior, provider recovery, dead-letter replay, publication confirmation and explicitly unimplemented production improvements.
+
+Per-message/session usage limits are handled as local job holds, separately from organization credit exhaustion. The original repair session cap was verified at $20; it is now awaiting instructions with its PR prepared. No new paid run was required to clear its exceeded-limit state. See [limit handling and catalogue durability](docs/AUTOMATIONS.md).

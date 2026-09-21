@@ -76,7 +76,7 @@ def test_slow_sync_route_and_auth_do_not_block_event_loop(tmp_path, monkeypatch,
         if stage == "auth":
             monkeypatch.setattr(app.state.reviewer_auth, "authenticated", slow_io)
         else:
-            monkeypatch.setattr(app.state.engine.store, "jobs", slow_io)
+            monkeypatch.setattr(app.state.engine.store, "operational_jobs", slow_io)
         asyncio.run(scenario())
 
 

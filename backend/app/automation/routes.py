@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
+from .catalogue import attributed_jobs
 from .config import Settings
 from .engine import Engine
 from .inbox import Inbox
@@ -32,7 +33,7 @@ def operator(authorization: str = Header(default=""), settings: Settings = Depen
 def overview(eng: Engine = Depends(get_engine)):
     db = eng.store
     settings = eng.settings
-    jobs = db.jobs()
+    jobs = attributed_jobs(db.operational_jobs())[:100]
     return {
         "mode": "live",
         "enabled": settings.enabled,

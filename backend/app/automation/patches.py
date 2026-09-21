@@ -31,9 +31,12 @@ class PatchService(DependencyService):
 
     def accept(self, number, source, event_sha=None):
         for job in self.store.operational_jobs():
-            if job["kind"] in {"repair", "integration"} and job["pr_number"] == number:
+            if (
+                job["kind"] in {"repair", "integration", "maintenance"}
+                and job["pr_number"] == number
+            ):
                 return job  # Already owned by the issue/integration pipeline.
-            if job["kind"] == "repair" and job["state"] in {
+            if job["kind"] in {"repair", "maintenance"} and job["state"] in {
                 "dispatching",
                 "running",
                 "unknown_effect",
@@ -47,7 +50,7 @@ class PatchService(DependencyService):
     def preflight(self, job):
         for prior in self.store.operational_jobs():
             if (
-                prior["kind"] in {"repair", "integration"}
+                prior["kind"] in {"repair", "integration", "maintenance"}
                 and prior["pr_number"] == job["pr_number"]
             ):
                 self.store.update(

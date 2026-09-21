@@ -307,6 +307,9 @@ def workflow_lane(job, store=None):
     parent = store.get(job["parent_id"]) if store and job.get("parent_id") else None
     if parent and parent["kind"] == "scan":
         return "Autonomous patches and fixes"
-    if job["kind"] in {"scan", "patch"} or job["payload"].get("source") == "scheduled_scan":
+    if (
+        job["kind"] in {"scan", "audit", "maintenance", "patch"}
+        or job["payload"].get("source") == "scheduled_scan"
+    ):
         return "Autonomous patches and fixes"
     return "Requested fixes"
