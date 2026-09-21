@@ -24,6 +24,20 @@ Postgres is the deployed store; SQLite supports local workflow use. Jobs, webhoo
 
 The worker takes an operating-system file lock in the shared data volume. A second worker sharing that volume cannot run concurrently. This is a **single-host lock**, not distributed leader election: do not scale workers across different VMs or different data volumes. Compose restarts failed processes; it does not restore lost data or restart a container merely because its health status changes.
 
+## Transactional outbox boundary
+
+Postgres is both the workflow ledger and the publication queue. `Store.commit_handoff` uses one short database transaction for:
+
+1. The repair/preparation/integration state and result.
+2. Any follow-up independent-validation job (dependency, autonomous-patch and integration handoffs).
+3. The pending GitHub/Slack reports for that handoff.
+
+Final validation uses the same boundary through `commit_validation`: the gate decision and all of its reports commit together. Superseded (`stale`) or missing jobs cannot create follow-up work or reports. Stable deduplication keys preserve the original queued job/report, including a recorded delivery receipt, when the same handoff is replayed.
+
+There are no provider calls inside this transaction. Before commit, an exception rolls back the state, follow-up jobs and reports together. After commit, a process restart can resume the pending report from the same database. The worker sends it separately, persists the acknowledged provider receipt before readback, and confirms the destination before marking it sent. If a send might have succeeded but its receipt was not saved, recovery stops at `unknown_effect`; it does not assume the send failed.
+
+This closes the local database dual-write gap. It does **not** make database commits and external provider writes one distributed transaction, promise exactly-once delivery, or make the single worker safe to scale across hosts. Devin session creation and discovery issue creation have separate durable intent/reconciliation flows. Evidence files also live outside the transaction; an unreferenced archived file is possible after rollback, but it cannot authorize a release gate.
+
 ## Failure behavior
 
 | Failure | System response | Operator action |
@@ -103,6 +117,8 @@ Restart persistence requires the original database and data volume to remain int
 Before using this architecture for unattended production, add and test off-host database backups and restore drills, move evidence to durable object storage, configure external alerting, and introduce a managed redundant database. Multiple workers would additionally require distributed claims/fencing and isolated execution; increasing the replica count alone is unsafe. These are future steps, not deployed capabilities.
 
 ## Verification
+
+SQLite and real-Postgres tests force a failure after a child job and the first report have been inserted, then verify that state, child and reports all roll back. Restart/replay tests verify that committed work and acknowledged receipts survive without duplicate queue records. A Postgres connection-loss test terminates an uncommitted transaction and verifies rollback and a successful retry. Caller tests cover repair, PR preparation and integration handoffs.
 
 The automated suite is designed to exercise temporary provider failures, rate limits, exhausted retry attempts, restart persistence, stale heartbeat, ambiguous writes, receipt-only confirmation and owner-only recovery. Browser tests exercise stable request IDs and disabled replay for uncertain outcomes. Run the repository's backend and frontend checks before releasing changes; a passing fixture test does not prove a live provider outage was recovered.
 

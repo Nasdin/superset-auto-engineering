@@ -344,3 +344,25 @@ def test_workbench_connects_component_pr_to_integrated_validation(setup):
         f"github:{validation['id']}:4",
         f"github:validation-status-v2:{validation['id']}:4",
     ]
+
+
+def test_preparation_cannot_queue_validation_without_its_report(setup, monkeypatch):
+    from app.automation.outbox import PublicationOutbox
+
+    db, provider, engine, service = setup
+    job = service.accept(7, "test")
+    engine.tick()
+    provider.document["head"]["sha"] = NEW
+    monkeypatch.setattr(
+        PublicationOutbox,
+        "prepare_github",
+        lambda *args, **kwargs: {"key": "broken-report", "payload": object()},
+    )
+    with pytest.raises(TypeError):
+        service.finish(
+            db.get(job["id"]), {"pr_url": provider.document["html_url"], "candidate_sha": NEW}
+        )
+    assert db.get(job["id"])["state"] == "running"
+    assert len(db.jobs()) == 1
+    assert db.publications() == []
+    assert provider.comments == []

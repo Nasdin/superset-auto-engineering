@@ -284,17 +284,20 @@ class Engine:
         ):
             raise ValueError("PR target or state mismatch")
         sha = pr["head"]["sha"]
-        self.publish(
+        publication = PublicationOutbox(self.settings, self.store, self.providers).prepare_github(
             job["id"],
             job["payload"]["issue_number"],
             f"Implementation prepared: {pr['html_url']}\n\nDevin session: {job['session_url']}\n\nCandidate `{sha}` is waiting for the integration batch and independent validation. It is not yet verified.",
         )
-        self.store.update(
+        self.store.commit_handoff(
             job["id"],
-            state="implemented",
-            pr_number=number,
-            candidate_sha=sha,
-            result=result,
+            values={
+                "state": "implemented",
+                "pr_number": number,
+                "candidate_sha": sha,
+                "result": result,
+            },
+            publications=[publication],
         )
 
     def finish_scan(self, job, result):

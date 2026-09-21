@@ -184,18 +184,22 @@ class IntegrationService:
             "base_sha": base,
             "branch": branch,
         }
-        self.store.enqueue(
-            f"validation:{self.settings.repo}:{pr['number']}:{current}",
-            "validation",
-            payload,
-            parent_id=members[0]["job_id"],
-            candidate_sha=current,
-            pr_number=pr["number"],
-        )
-        self.store.update(
+        self.store.commit_handoff(
             job["id"],
-            state="integrated",
-            candidate_sha=current,
-            pr_number=pr["number"],
-            result={**checkpoint, "pr_url": pr["html_url"], "members": members},
+            values={
+                "state": "integrated",
+                "candidate_sha": current,
+                "pr_number": pr["number"],
+                "result": {**checkpoint, "pr_url": pr["html_url"], "members": members},
+            },
+            followups=[
+                {
+                    "key": f"validation:{self.settings.repo}:{pr['number']}:{current}",
+                    "kind": "validation",
+                    "payload": payload,
+                    "parent_id": members[0]["job_id"],
+                    "candidate_sha": current,
+                    "pr_number": pr["number"],
+                }
+            ],
         )

@@ -404,3 +404,112 @@ def test_superset_mobile_layout_uses_fixed_dashboard_with_same_row_scope(
             ("mobile-" + cadence, desktop["selection_id"]),
         ]
         assert client.post("/api/analytics/superset/session?layout=attacker").status_code == 422
+
+
+@pytest.fixture(params=["sqlite", "postgres"])
+def handoff_store(request, tmp_path):
+    if request.param == "postgres":
+        return request.getfixturevalue("postgres")[0]
+    store = Store(tmp_path / "handoff.db")
+    request.addfinalizer(store.database.close)
+    return store
+
+
+def test_handoff_rolls_back_state_child_and_all_reports(handoff_store):
+    store = handoff_store
+    job = store.enqueue("parent", "dependency", {})
+    store.update(job["id"], state="running")
+    with pytest.raises(TypeError):
+        store.commit_handoff(
+            job["id"],
+            values={"state": "prepared", "result": {"candidate_sha": "a" * 40}},
+            followups=[
+                {"key": "child", "kind": "validation", "payload": {}, "parent_id": job["id"]}
+            ],
+            publications=[
+                {"key": "valid", "payload": {"body": "ready"}},
+                {"key": "invalid", "payload": {"body": object()}},
+            ],
+        )
+    assert store.get(job["id"])["state"] == "running"
+    assert store.get(job["id"])["result"] is None
+    assert store.by_key("child") is None
+    assert store.publications() == []
+
+
+def test_handoff_restart_and_replay_preserve_child_and_receipt(handoff_store):
+    store = handoff_store
+    job = store.enqueue("parent", "dependency", {})
+    handoff = {
+        "values": {"state": "prepared", "candidate_sha": "a" * 40},
+        "followups": [
+            {"key": "child", "kind": "validation", "payload": {}, "parent_id": job["id"]}
+        ],
+        "publications": [{"key": "report", "payload": {"provider": "github", "number": 7}}],
+    }
+    assert store.commit_handoff(job["id"], **handoff)
+    store.database.close()
+    restarted = Store(store.path)
+    try:
+        assert restarted.get(job["id"])["state"] == "prepared"
+        assert restarted.by_key("child")["parent_id"] == job["id"]
+        assert restarted.claim_publication()["key"] == "report"
+        restarted.finish_publication("report", "delivered", receipt={"id": 123})
+        assert restarted.commit_handoff(job["id"], **handoff)
+        assert len(restarted.jobs()) == 2
+        assert len(restarted.publications()) == 1
+        assert restarted.claim_publication()["receipt"] == {"id": 123}
+    finally:
+        restarted.database.close()
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_handoff_rejects_stale_or_missing_parent(handoff_store, missing):
+    store = handoff_store
+    job = store.enqueue("parent", "dependency", {})
+    store.update(job["id"], state="stale")
+    assert not store.commit_handoff(
+        "missing" if missing else job["id"],
+        values={"state": "prepared"},
+        followups=[{"key": "child", "kind": "validation", "payload": {}}],
+        publications=[{"key": "report", "payload": {}}],
+    )
+    assert store.get(job["id"])["state"] == "stale"
+    assert store.by_key("child") is None
+    assert store.publications() == []
+
+
+def test_postgres_disconnect_mid_handoff_rolls_back_and_allows_retry(postgres, monkeypatch):
+    from sqlalchemy.exc import DBAPIError
+
+    store, _ = postgres
+    job = store.enqueue("parent", "dependency", {})
+    store.update(job["id"], state="running")
+    handoff = {
+        "values": {"state": "prepared"},
+        "followups": [{"key": "child", "kind": "validation", "payload": {}}],
+        "publications": [{"key": "report", "payload": {"body": "prepared"}}],
+    }
+    queue = store._queue_publication
+
+    def disconnect_after_insert(connection, key, payload):
+        queue(connection, key, payload)
+        pid = connection.execute("SELECT pg_backend_pid() AS pid").fetchone()["pid"]
+        # A second connection kills only this test's still-uncommitted transaction.
+        with store.connect() as control:
+            assert control.execute(
+                "SELECT pg_terminate_backend(:pid) AS terminated", {"pid": pid}
+            ).fetchone()["terminated"]
+        connection.execute("SELECT 1")
+
+    monkeypatch.setattr(store, "_queue_publication", disconnect_after_insert)
+    with pytest.raises(DBAPIError):
+        store.commit_handoff(job["id"], **handoff)
+    assert store.get(job["id"])["state"] == "running"
+    assert store.by_key("child") is None
+    assert store.publications() == []
+    monkeypatch.setattr(store, "_queue_publication", queue)
+    assert store.commit_handoff(job["id"], **handoff)
+    assert store.get(job["id"])["state"] == "prepared"
+    assert store.by_key("child") is not None
+    assert store.claim_publication()["key"] == "report"

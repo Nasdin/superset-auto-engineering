@@ -26,26 +26,27 @@ class Store:
         return d
 
     def enqueue(self, key, kind, payload, parent_id=None, candidate_sha=None, pr_number=None):
-        now = time.time()
         with self.connect() as c:
-            c.execute(
-                "INSERT INTO jobs(id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated) VALUES(:p0,:p1,:p2,:p3,:p4,:p5,:p6,:p7,:p8,:p9) ON CONFLICT DO NOTHING",
-                {
-                    "p0": str(uuid.uuid4()),
-                    "p1": key,
-                    "p2": kind,
-                    "p3": "queued",
-                    "p4": json.dumps(payload),
-                    "p5": parent_id,
-                    "p6": candidate_sha,
-                    "p7": pr_number,
-                    "p8": now,
-                    "p9": now,
-                },
-            )
-            return self.decode(
-                c.execute("SELECT * FROM jobs WHERE dedup=:p0", {"p0": key}).fetchone()
-            )
+            return self._enqueue(c, key, kind, payload, parent_id, candidate_sha, pr_number)
+
+    def _enqueue(self, c, key, kind, payload, parent_id=None, candidate_sha=None, pr_number=None):
+        now = time.time()
+        c.execute(
+            "INSERT INTO jobs(id,dedup,kind,state,payload,parent_id,candidate_sha,pr_number,created,updated) VALUES(:p0,:p1,:p2,:p3,:p4,:p5,:p6,:p7,:p8,:p9) ON CONFLICT DO NOTHING",
+            {
+                "p0": str(uuid.uuid4()),
+                "p1": key,
+                "p2": kind,
+                "p3": "queued",
+                "p4": json.dumps(payload),
+                "p5": parent_id,
+                "p6": candidate_sha,
+                "p7": pr_number,
+                "p8": now,
+                "p9": now,
+            },
+        )
+        return self.decode(c.execute("SELECT * FROM jobs WHERE dedup=:p0", {"p0": key}).fetchone())
 
     def claim(self, allow_dispatch=True):
         now = time.time()
@@ -77,6 +78,12 @@ class Store:
             return self.decode(row)
 
     def update(self, jid, **values):
+        with self.connect() as c:
+            self._update(c, jid, values)
+
+    @staticmethod
+    def _update(c, jid, values, *, unless_stale=False):
+        values = dict(values)
         allowed = {
             "state",
             "session_id",
@@ -96,39 +103,36 @@ class Store:
         if "result" in values and values["result"] is not None:
             values["result"] = json.dumps(values["result"])
         values["updated"] = time.time()
-        with self.connect() as c:
-            c.execute(
-                "UPDATE jobs SET " + ",".join(k + "=:" + k for k in values) + " WHERE id=:id",
-                {**values, "id": jid},
-            )
+        return c.execute(
+            "UPDATE jobs SET "
+            + ",".join(k + "=:" + k for k in values)
+            + " WHERE id=:id"
+            + (" AND state!='stale'" if unless_stale else ""),
+            {**values, "id": jid},
+        ).rowcount
 
-    def commit_validation(self, jid, state, result, error, publications=()):
+    def commit_handoff(self, jid, *, values, publications=(), followups=()):
+        """Commit state, follow-up jobs and reports together; never call providers here.
+
+        Stable job/publication keys make replay safe. Superseded jobs cannot publish
+        or enqueue new work. A serialization/DB error rolls back the whole handoff.
+        """
         with self.connect() as c:
             c.lock()
-            changed = bool(
-                c.execute(
-                    "UPDATE jobs SET state=:state,result=:result,error=:error,updated=:now "
-                    "WHERE id=:id AND state!='stale'",
-                    {
-                        "id": jid,
-                        "state": state,
-                        "result": json.dumps(result),
-                        "error": error,
-                        "now": time.time(),
-                    },
-                ).rowcount
-            )
-            if changed:
-                for item in publications:
-                    c.execute(
-                        "INSERT INTO publications(key,state,updated,payload) VALUES(:key,'pending',:now,:payload) ON CONFLICT DO NOTHING",
-                        {
-                            "key": item["key"],
-                            "now": time.time(),
-                            "payload": json.dumps(item["payload"]),
-                        },
-                    )
-            return changed
+            if not self._update(c, jid, values, unless_stale=True):
+                return False
+            for job in followups:
+                self._enqueue(c, **job)
+            for item in publications:
+                self._queue_publication(c, **item)
+            return True
+
+    def commit_validation(self, jid, state, result, error, publications=()):
+        return self.commit_handoff(
+            jid,
+            values={"state": state, "result": result, "error": error},
+            publications=publications,
+        )
 
     def by_key(self, key):
         with self.connect() as c:
@@ -287,10 +291,14 @@ class Store:
 
     def queue_publication(self, key, payload):
         with self.connect() as c:
-            c.execute(
-                "INSERT INTO publications(key,state,updated,payload) VALUES(:p0,'pending',:p1,:p2) ON CONFLICT DO NOTHING",
-                {"p0": key, "p1": time.time(), "p2": json.dumps(payload)},
-            )
+            self._queue_publication(c, key, payload)
+
+    @staticmethod
+    def _queue_publication(c, key, payload):
+        c.execute(
+            "INSERT INTO publications(key,state,updated,payload) VALUES(:p0,'pending',:p1,:p2) ON CONFLICT DO NOTHING",
+            {"p0": key, "p1": time.time(), "p2": json.dumps(payload)},
+        )
 
     def claim_publication(self):
         with self.connect() as c:

@@ -452,7 +452,8 @@ def test_intake_outage_does_not_skip_provider_poll(setup):
     assert db.recall("worker_status")["state"] == "degraded"
 
 
-def test_integration_never_merges_default_or_release_branch(setup):
+@pytest.mark.parametrize("interrupt_handoff", [False, True])
+def test_integration_never_merges_default_or_release_branch(setup, monkeypatch, interrupt_handoff):
     db, p, e = setup
     j = repair(db)
     db.update(
@@ -484,6 +485,19 @@ def test_integration_never_merges_default_or_release_branch(setup):
         return {}
 
     p.gh = github
+    if interrupt_handoff:
+        enqueue = db._enqueue
+
+        def fail_after_child(*args, **kwargs):
+            enqueue(*args, **kwargs)
+            raise RuntimeError("Interrupted before handoff commit")
+
+        monkeypatch.setattr(db, "_enqueue", fail_after_child)
+        with pytest.raises(RuntimeError, match="Interrupted"):
+            e.assemble_candidate(batch)
+        assert db.get(batch["id"])["state"] == "queued"
+        assert not any(job["kind"] == "validation" for job in db.jobs())
+        monkeypatch.setattr(db, "_enqueue", enqueue)
     e.assemble_candidate(batch)
     assert all(
         body["base"].startswith("cognition/integration/")
@@ -829,3 +843,24 @@ def test_return_to_previous_sha_creates_new_validation_attempt(setup):
     assert fresh["session_id"] is None
     assert fresh["id"] != first["id"]
     assert db.get(first["id"])["session_id"] == "original-validator"
+
+
+def test_repair_handoff_rolls_back_when_report_cannot_be_saved(setup, monkeypatch):
+    from app.automation.outbox import PublicationOutbox
+
+    db, provider, engine = setup
+    job = repair(db)
+    engine.tick()
+    monkeypatch.setattr(
+        PublicationOutbox,
+        "prepare_github",
+        lambda *args, **kwargs: {"key": "broken-report", "payload": object()},
+    )
+    with pytest.raises(TypeError):
+        engine.finish_repair(
+            db.get(job["id"]), {"pr_url": "https://github.com/Nasdin/superset/pull/7"}
+        )
+    assert db.get(job["id"])["state"] == "running"
+    assert db.get(job["id"])["pr_number"] is None
+    assert db.publications() == []
+    assert provider.comments == []

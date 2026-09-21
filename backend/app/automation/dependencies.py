@@ -191,17 +191,23 @@ class DependencyService:
                 "Dependency handoff must match the original PR, head branch and live SHA"
             )
         payload = {**job["payload"], "implementation_jobs": [job["id"]]}
-        self.store.enqueue(
-            f"validation:{self.settings.repo}:{job['pr_number']}:{sha}",
-            "validation",
-            payload,
-            parent_id=job["id"],
-            candidate_sha=sha,
-            pr_number=job["pr_number"],
-        )
-        PublicationOutbox(self.settings, self.store, self.providers).publish(
+        publication = PublicationOutbox(self.settings, self.store, self.providers).prepare_github(
             job["id"],
             job["pr_number"],
             f"{self.kind.title()} update prepared at `{sha}`.\n\nDevin: {job['session_url']}\n\nFresh independent validation is queued. This is not release approval. Evidence will be posted to this PR.",
         )
-        self.store.update(job["id"], state="prepared", candidate_sha=sha, result=result)
+        self.store.commit_handoff(
+            job["id"],
+            values={"state": "prepared", "candidate_sha": sha, "result": result},
+            followups=[
+                {
+                    "key": f"validation:{self.settings.repo}:{job['pr_number']}:{sha}",
+                    "kind": "validation",
+                    "payload": payload,
+                    "parent_id": job["id"],
+                    "candidate_sha": sha,
+                    "pr_number": job["pr_number"],
+                }
+            ],
+            publications=[publication],
+        )

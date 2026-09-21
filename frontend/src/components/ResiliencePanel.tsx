@@ -350,9 +350,11 @@ export function ResiliencePanel({ release = false }: { release?: boolean }) {
             <div className="recovery-records">
               <h3>Evidence publication outbox</h3>
               <p className="quiet">
-                PR and Slack reports stay pending until the destination confirms
-                delivery. An uncertain send is checked before it can be sent
-                again.
+                Handoff state, follow-up validation and pending reports are
+                saved together in one database transaction. Delivery runs
+                separately; reports survive worker restarts. Recorded receipts
+                are checked before any retry, and uncertain sends require
+                reconciliation.
               </p>
               {!data.publications.length && (
                 <p className="quiet">No publication recovery records.</p>
