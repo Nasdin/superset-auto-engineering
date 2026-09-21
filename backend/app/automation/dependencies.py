@@ -51,11 +51,9 @@ class DependencyService:
         sha = pr["head"]["sha"]
         if event_sha is not None and event_sha != sha:
             return {"status": "ignored", "reason": "Superseded PR event"}
-        related = [
-            j
-            for j in self.store.operational_jobs()
-            if j["pr_number"] == number and j["payload"].get("work_type") == self.kind
-        ]
+        related = [j for j in self.store.operational_jobs() if j["pr_number"] == number]
+        # Remediation changes work_type; the PR identity still owns the same
+        # validation chain. Coalesce all current work, including repaired heads.
         # Coalesce our own pushes and uncertain in-flight work. No second paid session.
         active = next((j for j in related if j["state"] in ACTIVE), None)
         if active:

@@ -370,3 +370,24 @@ def test_preparation_cannot_queue_validation_without_its_report(setup, monkeypat
     assert len(db.jobs()) == 1
     assert db.publications() == []
     assert provider.comments == []
+
+
+@pytest.mark.parametrize("state", ["queued", "running", "awaiting_ci", "review_ready"])
+def test_intake_reuses_validator_after_remediation(setup, state):
+    db, provider, engine, service = setup
+    _, original = prepare(db, provider, engine, service)
+    db.update(original["id"], state="stale")
+    repaired = "d" * 40
+    provider.document["head"]["sha"] = repaired
+    current = db.enqueue(
+        "validation:after:repair",
+        "validation",
+        {**original["payload"], "work_type": "remediation"},
+        candidate_sha=repaired,
+        pr_number=7,
+    )
+    db.update(current["id"], state=state)
+    before = len(db.jobs())
+    accepted = service.accept(7, "scheduled_poll")
+    assert accepted["id"] == current["id"]
+    assert len(db.jobs()) == before
