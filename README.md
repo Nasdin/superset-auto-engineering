@@ -295,7 +295,7 @@ View links can be bookmarked, such as `/#learning` and `/#pull-requests`. The or
 
 ## Workspace login
 
-![Workspace login](docs/screenshots/login-desktop.png)
+![Current hosted workspace login, captured 21 September 2026](docs/images/login-live-2026-09-21.jpg)
 
 The first visit shows a password-only login page. Configure the shared reviewer password with `python3 scripts/configure_login.py --local-http` for localhost, or omit `--local-http` for HTTPS hosting. The helper stores a salted scrypt hash in ignored `.env`; the password is never built into the frontend or repository. Recreate the API container after changing it.
 

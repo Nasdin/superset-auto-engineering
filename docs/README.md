@@ -1,6 +1,6 @@
 # Cognition: the story, the analysis, and the evidence
 
-Start with the [current product tour and live screenshots](../README.md#product-tour), then inspect the slides and underlying data. The screenshots below are dated historical checkpoints; the README gallery reflects the 21 September deployment. The charts describe public Superset activity; the workflow diagrams describe our implementation. Slides are explanatory material, **not validation evidence for a release**.
+Start with the [current product tour and live screenshots](../README.md#product-tour), then inspect the slides and underlying data. The current product captures below reflect the 21 September deployment. The slide deck and linked historical receipts retain their original dates. The charts describe public Superset activity; the workflow diagrams describe our implementation. Slides are explanatory material, **not validation evidence for a release**.
 
 - [Editable nine-slide deck](slides/cognition-story.pptx)
 - [Product and analysis explainer](EXPLAINER.md)
@@ -49,22 +49,24 @@ Start with the [current product tour and live screenshots](../README.md#product-
 
 The [slide source](slides/build.mjs) uses `@oai/artifact-tool` and the supplied Codex presentation runtime. Set `ARTIFACT_TOOL_SKILL_DIR`, `RUNTIME_NODE_MODULES` and `RUNTIME_PYTHON` when rebuilding; run the source where that package can resolve. Charts have editable embedded workbooks and the workflow uses native shapes/connectors. The PPTX was structurally validated and all nine rendered slides inspected; opening in desktop PowerPoint was not part of verification. The analysis script runs offline with the project Python environment. Replacing the dated snapshot requires reviewing the slide captions too.
 
-## Actual dashboard
+## Current dashboard
 
-Captured on 20 September 2026 after GitHub created Dependabot PR #6 and its signed event was accepted. The queue hold and absent artifacts are real; this is UI verification, not a passing release report.
+Captured from the hosted application on 21 September 2026. Queue holds remain visible; these captures document the UI, not a passing release report.
 
-![Live Dependabot PR and visible budget hold](screenshots/dependabot-pr-6.png)
+![Current release validation dashboard](images/evidence-live-2026-09-21.jpg)
+
+[Historical Dependabot intake capture, 20 September](screenshots/dependabot-pr-6.png).
 
 ## Learning and autonomous patches
 
 [Learning loop, native Devin Knowledge and workflow lanes](LEARNING.md) explains evidence-backed observations, memory supply snapshots, provider retirement of stale notes and autonomous issue/PR repair boundaries.
 
-![Live learning journal](screenshots/learning-memory.png)
+![Current human feedback and learning workspace](images/learning-live-2026-09-21.jpg)
 
-![Workflow lanes with autonomous discovery and repair](screenshots/workflow-lanes.png)
+![Current workflow health and recovery](images/workflows-live-2026-09-21.jpg)
 
 ## Superset analyzing Superset
 
 The analytics page now embeds actual Superset charts backed by Postgres. [Architecture and migration](POSTGRES_SUPERSET.md), [AWS preparation](AWS_DEPLOYMENT.md), and [local verification receipt](analysis/superset-postgres-verification.json).
 
-![Live Superset analytics](images/superset-analytics-live.png)
+![Current monthly PR and commit charts in Superset](images/analytics-delivery-2026-09-21.jpg)
