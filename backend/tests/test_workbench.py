@@ -225,3 +225,11 @@ def test_displayed_session_usage_matches_store_exactly(ledger, state, session_id
     job = enqueue(ledger, kind)
     ledger.update(job["id"], state=state, session_id=session_id)
     assert context(ledger)["sessions_used"] == ledger.session_count(excluding="none") == count
+
+
+def test_started_receipt_is_progress_not_an_accepted_evidence_report(ledger):
+    job = enqueue(ledger)
+    publication = {"key": f"github:{job['id']}:6:started-sessionhash", "state": "sent"}
+    row = pull_request_rows([], ledger.operational_jobs(), [publication])[0]
+    assert row["publications"][0]["purpose"] == "activity"
+    assert not row["progress"]["ready"]

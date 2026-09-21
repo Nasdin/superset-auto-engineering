@@ -434,7 +434,9 @@ export function PullRequestWorkbench({ botOnly }: { botOnly: boolean }) {
                       <External url={pub.url}>
                         {pub.purpose === "readiness"
                           ? "PR readiness confirmed"
-                          : "Published report"}
+                          : pub.purpose === "activity"
+                            ? "Validation started"
+                            : "Published report"}
                       </External>
                     ) : (
                       <span className="quiet">

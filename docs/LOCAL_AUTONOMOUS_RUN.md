@@ -1,6 +1,6 @@
 # Isolated local Devin demonstration
 
-Current status: the runtime proof passed and was published, but a later CI rerun failed because the Cypress executable was missing. An automatic Devin repair is running; this candidate is not currently cleared for merge.
+Current status: Devin repaired the later Cypress CI failure and all reported checks pass at the new head `e7abd6aa`. A fresh independent validator is running against that revision; current runtime acceptance is pending. The earlier accepted runtime proof belongs to the previous SHA.
 
 This run uses the real Devin and GitHub APIs, driven by the ordinary application worker on the local machine. The worker, database and dashboard run locally; Devin executes its code changes and Superset validation in its hosted session environment. This is separate from the AWS deployment. Do not merge the orchestration feature branch or deploy it without Nasrudin's explicit instruction.
 

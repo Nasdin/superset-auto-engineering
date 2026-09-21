@@ -85,7 +85,8 @@ def publication_for(pub, row):
     if parts[0] == "github":
         for index, part in enumerate(parts[1:-1], 1):
             if part in by_id and parts[index + 1] == str(row["number"]):
-                return {**pub, "purpose": "report"}
+                purpose = "activity" if parts[-1].startswith("started-") else "report"
+                return {**pub, "purpose": purpose}
     elif parts[0] == "slack" and len(parts) >= 2 and parts[1] in by_id:
         return {**pub, "purpose": "report"}
     elif parts[0] == "github-ready" and len(parts) >= 3 and parts[1] in by_id:

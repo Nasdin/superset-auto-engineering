@@ -5,6 +5,7 @@ import logging
 import time
 from contextlib import contextmanager
 
+from .activity import ValidationActivityService
 from .config import Settings
 from .dependencies import DependencyService
 from .inbox import Inbox
@@ -35,6 +36,10 @@ def cycle(engine):
         tasks.append(("inbox", Inbox(engine).tick))
     if s.github_token and s.devin_key:
         tasks.append(("jobs", engine.tick))
+    if s.github_token:
+        tasks.append(
+            ("validation_activity", ValidationActivityService(s, db, engine.providers).tick)
+        )
     if s.enabled and s.github_token:
         tasks.append(("batch", engine.schedule_batch))
     if s.devin_key and time.time() - db.recall("learning_sync", {}).get("at", 0) >= 300:
