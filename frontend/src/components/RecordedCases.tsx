@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowUpRight, FileCheck2 } from "lucide-react";
-import cases from "../data/recordedCases.json";
+import cases from "../recordedCases.json";
 import "../recorded-cases.css";
 
 /** Immutable, real execution checkpoints; deliberately separate from the live ledger. */

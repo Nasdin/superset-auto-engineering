@@ -1,0 +1,98 @@
+[
+  {
+    "id": "autonomous",
+    "title": "From a reproduced bug to reviewable proof.",
+    "problem": "Superset was rewriting ClickHouse LIMIT BY as a global row limit. Correct-looking SQL returned incomplete groups.",
+    "outcome": "Recorded gate passed \u00b7 human merge remains separate",
+    "recorded_at": "2026-09-21T09:21:40.120271+00:00",
+    "sha": "e7abd6aa25a60f108f8b34fde2e0aa323821f171",
+    "validator": "https://app.devin.ai/sessions/5eb6e99b69e340c8aee15f2cf60e57f0",
+    "report": "https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623",
+    "tests": 586,
+    "failed": 0,
+    "coverage": "531/613 lines \u00b7 133/164 branches",
+    "images": [
+      {
+        "label": "Independent validation \u00b7 correct grouped rows",
+        "url": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/clickhouse-repaired-e7abd6aa/02_limit_by_5_rows.png"
+      }
+    ],
+    "video": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/clickhouse-repaired-e7abd6aa/limit-by-browser.mp4",
+    "api": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/clickhouse-repaired-e7abd6aa/api_transcript.txt",
+    "test_report": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/clickhouse-repaired-e7abd6aa/test_report.txt",
+    "receipt": "https://github.com/Nasdin/superset-auto-engineering/blob/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/clickhouse-repaired-e7abd6aa/readback.json",
+    "steps": [
+      {
+        "label": "Discover",
+        "detail": "Devin reproduced the defect",
+        "url": "https://github.com/Nasdin/superset/issues/8"
+      },
+      {
+        "label": "Repair",
+        "detail": "Devin authored the fix",
+        "url": "https://github.com/Nasdin/superset/pull/9"
+      },
+      {
+        "label": "Integrate",
+        "detail": "Candidate + CI repair",
+        "url": "https://github.com/Nasdin/superset/pull/10"
+      },
+      {
+        "label": "Validate",
+        "detail": "Fresh Devin session",
+        "url": "https://app.devin.ai/sessions/5eb6e99b69e340c8aee15f2cf60e57f0"
+      }
+    ],
+    "scope": "Isolated branch cognition-local-e2e-20260921. Real Superset / ClickHouse journey; scoped coverage. This is a saved checkpoint, not a live readiness signal. Codex developed and corrected the orchestrator; Devin authored the Superset fixes and runtime evidence."
+  },
+  {
+    "id": "human",
+    "title": "A passing unit suite was not enough.",
+    "problem": "The intentionally incomplete human seed passed 496 unit tests, but the offset query returned six rows instead of five. Devin reproduced it before changing the branch.",
+    "outcome": "Runtime checks passed \u00b7 CI pending at this checkpoint",
+    "recorded_at": "2026-09-21T11:09:25.069276+00:00",
+    "sha": "a118efc7dace13270f920607944aab8173b08b79",
+    "validator": "https://app.devin.ai/sessions/c9851e6e5032476c97c6c82c8a9e4232",
+    "report": "https://github.com/Nasdin/superset/pull/12#issuecomment-5759479894",
+    "tests": 557,
+    "failed": 0,
+    "coverage": "737/921 lines \u00b7 175/264 branches",
+    "images": [
+      {
+        "label": "Before \u00b7 04bff00 \u00b7 six rows, wrong result",
+        "url": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-failed-04bff00/04_query_c_offset_by_fail.png"
+      },
+      {
+        "label": "After \u00b7 a118efc7 \u00b7 five rows, correct result",
+        "url": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-repaired-a118efc7/01-sqllab-limit2-offset1-by-id.png"
+      }
+    ],
+    "video": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-repaired-a118efc7/sqllab-limit-by-browser-journey.mp4",
+    "api": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-repaired-a118efc7/api-transcript.txt",
+    "test_report": "https://raw.githubusercontent.com/Nasdin/superset-auto-engineering/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-repaired-a118efc7/regression-test-report.txt",
+    "receipt": "https://github.com/Nasdin/superset-auto-engineering/blob/562b1a282d55f077b66b683f319f12b7ab50e4c5/docs/evidence/human-pr12-repaired-a118efc7/readback.json",
+    "steps": [
+      {
+        "label": "Human seed",
+        "detail": "Disclosed incomplete fix",
+        "url": "https://github.com/Nasdin/superset/pull/12/commits/04bff00adce72e92a948a0b195510f11df85f54b"
+      },
+      {
+        "label": "Report failure",
+        "detail": "Screenshots + API evidence",
+        "url": "https://github.com/Nasdin/superset/pull/12#issuecomment-5759200865"
+      },
+      {
+        "label": "Devin repair",
+        "detail": "Pushed to the same branch",
+        "url": "https://github.com/Nasdin/superset/commit/a118efc7dace13270f920607944aab8173b08b79"
+      },
+      {
+        "label": "Revalidate",
+        "detail": "Fresh session, new SHA",
+        "url": "https://app.devin.ai/sessions/c9851e6e5032476c97c6c82c8a9e4232"
+      }
+    ],
+    "scope": "Codex authored the intentionally incomplete seed at Nasrudin\u2019s request; Devin validated and repaired it. Isolated branch cognition-human-evidence-20260921. The initial failed runtime used prebuilt frontend assets; these scoped journeys do not establish a full candidate frontend build. Final CI was pending at this checkpoint."
+  }
+]
