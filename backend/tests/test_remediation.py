@@ -146,6 +146,24 @@ def test_evidence_gap_creates_read_only_validator_not_code_repair(system):
     assert "collect the missing measurements or attachments yourself" in prompt
 
 
+def test_failed_test_count_routes_to_repair_even_when_agent_claims_checks_pass(system):
+    db, p, e, service = system
+    job = validation(db)
+    handoff = result()
+    handoff["test_results"]["failed"] = 1
+    assert all(c["passed"] for c in handoff["checks"])
+    e.finish_validation(job, handoff)
+    failed = db.get(job["id"])
+    assert failed["state"] == "validation_failed"
+    assert "Regression suite reports 1 failing test(s)" in failed["result"]["gate_failures"]
+    child = db.by_key("recovery:" + job["id"])
+    assert child["kind"] == "remediation"
+    assert child["payload"]["failure_context"]["test_results"] == handoff["test_results"]
+    assert child["payload"]["failure_context"]["api_requests"] == handoff["api_requests"]
+    service.reconcile()
+    assert len([j for j in db.jobs() if j["kind"] == "remediation"]) == 1
+
+
 def test_repair_requires_new_same_branch_sha_then_fresh_independent_validator(system):
     db, p, e, service = system
     failed = fail(e, db)

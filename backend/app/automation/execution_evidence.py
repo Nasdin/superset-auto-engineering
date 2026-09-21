@@ -90,12 +90,13 @@ def execution_failures(result, artifacts):
     if not isinstance(tests, dict) or not (
         all(count(tests.get(k)) for k in ("passed", "failed", "skipped"))
         and tests["passed"] > 0
-        and tests["failed"] == 0
         and isinstance(tests.get("command"), str)
         and tests["command"].strip()
         and tests.get("report_url") in urls["tests"]
     ):
         failures.append("Passing test counts, exact command and confirmed test report are required")
+    if isinstance(tests, dict) and count(tests.get("failed")) and tests["failed"] > 0:
+        failures.append(f"Regression suite reports {tests['failed']} failing test(s)")
     return failures
 
 
