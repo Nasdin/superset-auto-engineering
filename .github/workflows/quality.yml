@@ -73,3 +73,24 @@ jobs:
           python ../scripts/test_login_e2e.py
       - name: Build production container
         run: docker build -t cognition-quality .
+
+      - name: Verify production container startup
+        run: |
+          docker run -d --name cognition-quality-smoke -p 127.0.0.1:18000:8000 \
+            -e AUTOMATION_ENABLED=false -e DATABASE_URL= \
+            -e AUTOMATION_DATABASE=/app/data/automation.db cognition-quality
+          trap 'docker logs --tail=40 cognition-quality-smoke; docker rm -f cognition-quality-smoke' EXIT
+          curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:18000/api/health
+          python - <<'PYTHON'
+          import json, re, urllib.request
+          origin = "http://127.0.0.1:18000"
+          with urllib.request.urlopen(origin + "/api/health") as response:
+              assert json.load(response)["automation_enabled"] is False
+          with urllib.request.urlopen(origin + "/") as response:
+              html = response.read().decode()
+          script = re.search(r'src="(/assets/[^" ]+\.js)"', html)
+          assert script, "Compiled frontend entry is missing from the image"
+          with urllib.request.urlopen(origin + script.group(1)) as response:
+              assert response.status == 200 and len(response.read()) > 1000
+          print("Fresh production image serves API and compiled frontend")
+          PYTHON

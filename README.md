@@ -4,11 +4,22 @@ Superset analyzing Superset: a FastAPI + React/TypeScript control plane for GitH
 
 Issues and Dependabot PRs → Devin implementation → exact candidate SHA → a fresh validation session → screenshots, API transcripts, logs and test evidence → GitHub/Slack report → human review.
 
+## Choose a setup
+
+| Goal | Command / instructions | Included |
+| --- | --- | --- |
+| **Run everything (recommended)** | Configure `.env` below, then `docker compose up --build -d --wait --wait-timeout 600` | React UI, FastAPI, workflow worker, history importer, Postgres, Redis, embedded Superset |
+| Lightweight local workspace | `docker compose -f compose.sqlite.yaml up --build -d --wait` | UI, API and workers with SQLite; no embedded BI |
+| Plain Docker | [Single-container setup](#docker-without-compose) | UI and API, SQLite or your existing Postgres; workers are optional separate processes |
+| Edit frontend/backend independently | [Development setup](#run-frontend-and-backend-independently) | Vite hot reload and an independently buildable FastAPI backend |
+
+No Devin, GitHub or Slack credentials are required to boot and inspect the application. Paid dispatch starts disabled. The complete analytics experience uses the first option; Compose creates Postgres and its users/databases automatically. These paths were checked from a fresh GitHub clone with new credentials and empty volumes; see the [setup verification record](docs/analysis/onboarding-verification.json).
+
 ## Where it runs
 
 | Environment | Address | Status |
 | --- | --- | --- |
-| Current local dashboard | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Running locally; open **Analytics** for embedded Superset |
+| Current local dashboard | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Available after Compose startup; open **Analytics** for embedded Superset |
 | Local BI Superset | [http://127.0.0.1:8189/bi](http://127.0.0.1:8189/bi) | Separate from candidate-validation Superset |
 | Public AWS dashboard | [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com) | Live in Sydney; reviewer password required |
 | Public analytics | [Analytics workspace](https://superset-devin.nasrudinsalim.com/#analytics) | Six real Superset charts behind the same reviewer login |
@@ -20,7 +31,7 @@ The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, prov
 
 ## 1. Clone and configure `.env`
 
-Prerequisites: Git, Python 3 for the credential helper, Docker Engine or Docker Desktop, and the Docker Compose plugin **2.20 or newer** (the default stack uses `include`). Node and local Python packages are not needed for Docker builds. The full stack runs several containers; allow sufficient Docker memory for Superset, Postgres and a frontend build.
+Prerequisites: Git, Python 3 for the credential helper, Docker Engine or Docker Desktop, and the Docker Compose plugin **2.20.3 or newer** ([the default stack uses `include`](https://docs.docker.com/compose/how-tos/multiple-compose-files/include/)). Node and local Python packages are not needed for Docker builds. For local builds, allocate at least 4 GB to Docker, with 6–8 GB preferable when other containers are running. Shell examples use a POSIX terminal (macOS, Linux or WSL).
 
 ```sh
 git clone https://github.com/Nasdin/superset-auto-engineering.git
@@ -29,6 +40,15 @@ cp .env.example .env
 python3 scripts/configure_local_postgres.py
 python3 scripts/configure_login.py --local-http
 docker compose version
+```
+
+Without host Python, replace the two `python3` commands above with these Docker commands (the login helper asks for your own password):
+
+```sh
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/workspace" -w /workspace \
+  python:3.12-slim python scripts/configure_local_postgres.py
+docker run --rm -it --user "$(id -u):$(id -g)" -v "$PWD:/workspace" -w /workspace \
+  python:3.12-slim python scripts/configure_login.py --local-http
 ```
 
 Run the copy step only on a fresh clone. The helper creates missing/empty database, Superset, operator and webhook secrets, keeps existing nonempty values, and restricts `.env` to mode 0600. Do not commit `.env` or copy another installation's live database into Git.
@@ -81,7 +101,8 @@ Generated secrets are intentionally absent from `.env.example`; run the helper i
 From the repository root, after configuring `.env`:
 
 ```sh
-docker compose up --build -d
+docker compose config --quiet
+docker compose up --build -d --wait --wait-timeout 600
 docker compose ps -a
 curl --fail http://127.0.0.1:8000/api/health
 curl --fail http://127.0.0.1:8189/bi/health
@@ -98,6 +119,8 @@ Open [the dashboard](http://127.0.0.1:8000) and choose **Analytics**. No Superse
 | `analytics-redis` | Superset cache |
 | `analytics-superset-init` | One-time/idempotent BI metadata and dashboard provisioning |
 | `analytics-superset` | Apache Superset 6.1, loopback port 8189 under `/bi` |
+
+Use the reviewer password you chose during setup. `.env` contains only its hash. Local Postgres runs in Docker; you do not need to install or create a database on your computer. Its data and uploaded evidence survive normal container replacement in separate named volumes.
 
 A fresh installation starts with no workflow runs. The importer initializes Postgres from the committed public GitHub snapshot and refreshes it; anonymous GitHub requests can hit rate limits. Data age and import errors remain visible. The generated Superset administrator is `cognition-admin`; its password is in local `.env`, and is not required to view embedded charts.
 
@@ -119,27 +142,73 @@ SQLite supports the workflow ledger, memories, publication receipts and imported
 Choose one stack on port 8000 at a time. After preparing `.env` and setting the execution scope:
 
 ```sh
-docker compose -p cognition-sqlite -f compose.sqlite.yaml up --build -d
+docker compose -p cognition-sqlite -f compose.sqlite.yaml up --build -d --wait --wait-timeout 300
 curl --fail http://127.0.0.1:8000/api/health
 docker compose -p cognition-sqlite -f compose.sqlite.yaml down
 ```
 
 This standalone Compose file starts API, worker and history importer, with a separate `cognition-sqlite-data` volume. It needs no Postgres/Superset credentials. To run alongside the Postgres stack, prefix the SQLite command with `COGNITION_PORT=8002` and visit port 8002. The supplied operator helper always targets port 8000, so use the default port for that helper.
 
-For a single API/frontend container, without workers or Superset:
+### Docker without Compose
+
+Build from the repository root. This multi-stage build compiles TypeScript/React, installs the Python backend, and puts only the compiled frontend assets into the final application image. Node is not needed at runtime.
 
 ```sh
 docker build -t superset-auto-engineering .
-docker volume create cognition-sqlite-data
-docker run --rm --name cognition-sqlite-api \
-   -p 127.0.0.1:8000:8000 \
-   -e AUTOMATION_ENABLED=false \
-   -e AUTOMATION_DATABASE=/app/data/automation.db \
-   -v cognition-sqlite-data:/app/data \
-   superset-auto-engineering
+docker volume create cognition-docker-data
+docker run -d --name cognition-api --restart unless-stopped \
+  --env-file .env \
+  -p 127.0.0.1:8000:8000 \
+  -e AUTOMATION_ENABLED=false -e DATABASE_URL= \
+  -e AUTOMATION_DATABASE=/app/data/automation.db \
+  -e SUPERSET_INTERNAL_URL= \
+  -v cognition-docker-data:/app/data \
+  superset-auto-engineering
+curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:8000/api/health
+docker logs --tail=100 cognition-api
 ```
 
-That command uses the example fork scope and creates no Devin sessions. For live integrations use Compose, which supplies the configured credentials and separate worker. Direct Python processes support `DATABASE_URL=postgresql+psycopg://...` for Postgres or a **bare file path** in `AUTOMATION_DATABASE` for SQLite. Do not use a `sqlite://` URL here: the companion analytics filename currently expects a filesystem path.
+Open port 8000 and sign in using your configured reviewer password. `--env-file .env` loads your fork and login settings; the explicit overrides select SQLite and disable the absent BI service. This starts only the UI/API. Use SQLite Compose above when you also want the workflow worker and history importer. Stop this container with `docker stop cognition-api`; remove the stopped container with `docker rm cognition-api` to recreate it after changing `.env`. Keep the named volume to preserve data.
+
+### Use an existing Postgres database with Docker
+
+Create an empty database owned by a dedicated login role that can create tables in its schema. Put its connection URL into your ignored `.env` (percent-encode special characters in the username/password):
+
+```dotenv
+DATABASE_URL=postgresql+psycopg://app_user:URL_ENCODED_PASSWORD@db.example.com:5432/cognition?sslmode=require
+```
+
+Then run the same application image using that URL:
+
+```sh
+docker run -d --name cognition-postgres-api --restart unless-stopped \
+  --env-file .env \
+  -p 127.0.0.1:8000:8000 \
+  -e AUTOMATION_ENABLED=false -e SUPERSET_INTERNAL_URL= \
+  -v cognition-docker-data:/app/data \
+  superset-auto-engineering
+curl --retry 30 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:8000/api/health
+```
+
+The backend creates its application tables on startup. Postgres must be reachable **from the container**: `localhost` means the container itself. For a database on Docker Desktop's host, use `host.docker.internal`; on Linux add `--add-host host.docker.internal:host-gateway`. Use the host's mapped Postgres port where appropriate. On the same Docker network, use the database container name and its internal port 5432. Configure TLS and network access for a managed database according to its provider.
+
+For background work, launch the same image with the same `.env`, database URL, network and artifact volume, replacing its command with `python -m app.automation.worker` or `python -m app.analytics.sync`. Keep automation disabled until the integration checks below pass. SQLite requires all these processes to share the same volume on one host; Postgres shares the ledger through the database. Neither single-container example provisions Redis, Superset metadata or embedded dashboards. **Use the recommended Compose stack for the complete BI setup**; its Postgres/Superset roles and databases are provisioned together. Setting `DATABASE_URL` in `.env` does not redirect that default stack to an external database.
+
+Direct Python processes also accept `DATABASE_URL` for Postgres or a **bare file path** in `AUTOMATION_DATABASE` for SQLite. Do not use `sqlite://` URLs in `AUTOMATION_DATABASE`.
+
+### Ports and startup troubleshooting
+
+| Symptom | Check / fix |
+| --- | --- |
+| Required variable is missing | Copy `.env.example` once and run `configure_local_postgres.py`; use `docker compose config --quiet` to validate without printing secrets |
+| Port already in use | Set `COGNITION_PORT`, `POSTGRES_PORT` or `SUPERSET_PORT` in `.env`; also update `SUPERSET_PUBLIC_URL` and `SUPERSET_ALLOWED_ORIGINS` to match browser-facing ports |
+| Login repeatedly returns to the login page | Local HTTP needs `AUTH_COOKIE_SECURE=false`; HTTPS deployment needs `true`. Recreate the API after editing settings |
+| BI startup is slow or fails | Inspect `docker compose logs --tail=100 analytics-superset-init analytics-superset`; a successful init exits 0, and first migrations may take several minutes |
+| Charts refuse to embed from Vite | Include the exact port-5173 origin in `SUPERSET_ALLOWED_ORIGINS`, rerun `docker compose run --rm analytics-superset-init`, then recreate `analytics-superset` |
+| Postgres rejects a changed password | Generated secrets initialize **new volumes only**; changing `.env` does not rotate users in an existing database |
+| History is incomplete | Check import status in Analytics; add a read-capable `GITHUB_TOKEN` to avoid anonymous rate limits |
+
+Use a different `docker compose -p project-name ...` for an independent installation. Projects have isolated volumes, networks and built database/BI images; change host ports if running them concurrently. Never delete another installation's volumes to fix a port conflict.
 
 ## 4. Connect Devin API v3 and GitHub
 
@@ -282,13 +351,55 @@ docker compose -f compose.yaml -f compose.public.yaml logs --tail=100 ingress
 
 Caddy obtains HTTPS certificates once DNS and ports 80/443 work. The reviewer login protects the dashboard and `/bi`; login/session routes and minimal health checks stay public, and the GitHub POST webhook verifies its own signature. Keep database/API/BI diagnostic ports loopback-only. Run operator commands through SSM against local port 8000 with the separate operator token.
 
-Verify public HTTPS, reviewer login, all five guest charts in each cadence, repository filters and restart persistence before updating the permanent GitHub webhook URL. [Full deployment/recovery guide](docs/AWS_DEPLOYMENT.md). Host replacement does **not** migrate Docker volumes. The root disk is retained after instance termination, so stack deletion is not a full data cleanup; retained disks continue to incur charges. Back up both databases/artifacts and plan recovery before replacing a host.
+Verify public HTTPS, reviewer login, all six guest charts in each cadence, repository filters and restart persistence before updating the permanent GitHub webhook URL. [Full deployment/recovery guide](docs/AWS_DEPLOYMENT.md). Host replacement does **not** migrate Docker volumes. The root disk is retained after instance termination, so stack deletion is not a full data cleanup; retained disks continue to incur charges. Back up both databases/artifacts and plan recovery before replacing a host.
 
 ## Development, tests and architecture
 
 The application uses FastAPI with explicit thread-pool boundaries for synchronous database/provider I/O, and React 19/TypeScript/Vite with lazy pages, error isolation and bounded requests. Database pools and query waits are bounded for the small deployment. The [architecture guide](docs/CODE_QUALITY.md) explains factories, service/provider boundaries, async usage, Superset embedding and the changes needed before distributing workers across hosts.
 
-Python 3.12 and Node 22 are used in the Docker build. For backend-only development, the default file adapter works without Postgres; full analytics requires the Compose BI stack. Standalone Python does not automatically load `.env`: explicitly export the needed values using your development environment's dotenv loader. Use host-mapped Postgres port 55432 and BI port 8189 instead of Docker service hostnames. For Vite on port 5173, add its exact origin to `SUPERSET_ALLOWED_ORIGINS` and rerun Superset initialization to update the dashboard allowlist.
+### Source boundaries
+
+```text
+frontend/             React + TypeScript + Vite; views, client API, browser tests
+backend/app/          FastAPI HTTP layer, analytics and workflow services, persistence
+backend/tests/        Python unit/integration tests; disposable databases and fake providers
+infra/                Postgres/Superset images, reverse proxy and CloudFormation
+scripts/              Setup, migration, operator and verification helpers
+Dockerfile            frontend build → independent backend stage → bundled production image
+compose.yaml          Full application orchestration; includes Postgres and BI service files
+```
+
+The frontend talks to `/api/...` over HTTP and imports no Python/server code. Provider credentials stay in backend containers. FastAPI serves the compiled frontend only in the production image; `docker build --target backend` builds an API-only image without running npm. Separate source trees and an HTTP boundary remain intact even though production uses one inexpensive web container.
+
+### Run frontend and backend independently
+
+**Frontend changes against the full stack:** start Compose as above, install Node 22, then in a second terminal:
+
+```sh
+npm --prefix frontend ci
+npm --prefix frontend run dev
+```
+
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173). Vite proxies `/api` and `/public-evidence` to the backend on port 8000; it does not receive `.env` secrets. New setups allow both port-8000 and port-5173 embedding origins. For older setups, update `SUPERSET_ALLOWED_ORIGINS` and rerun BI initialization as described in troubleshooting. If the API uses another host port, update the two proxy targets in `frontend/vite.config.ts`.
+
+**Backend hot reload, without the full BI stack:** stop any other service using port 8000, prepare `.env`, and run:
+
+```sh
+docker build --target backend -t cognition-api-dev .
+docker volume create cognition-dev-data
+docker run --rm --name cognition-api-dev --env-file .env \
+  -p 127.0.0.1:8000:8000 \
+  -e AUTOMATION_ENABLED=false -e DATABASE_URL= \
+  -e AUTOMATION_DATABASE=/app/data/automation.db -e SUPERSET_INTERNAL_URL= \
+  -v cognition-dev-data:/app/data -v "$PWD/backend/app:/app/app:ro" \
+  cognition-api-dev uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Run Vite in the second terminal as above. Python edits reload the API; TypeScript edits update Vite. This SQLite development mode has no Superset charts. For existing Postgres, remove `-e DATABASE_URL=` and use the `.env` URL from the Docker/Postgres instructions. Open `/docs` on the backend after signing in to inspect its API independently.
+
+### Tests
+
+Python 3.12 and Node 22 are the supported development versions. Standalone Python commands do not load `.env` automatically; the tests intentionally use isolated settings. No live provider keys are needed for the default suite.
 
 ```sh
 python3 -m venv backend/.venv

@@ -1,0 +1,29 @@
+{
+  "verified_at": "2026-09-21T03:17:46.665549+00:00",
+  "source": "Fresh clone of https://github.com/Nasdin/superset-auto-engineering with the accompanying onboarding changes applied",
+  "isolation": {
+    "new_compose_project": true,
+    "empty_database_volumes": true,
+    "copied_private_environment": false,
+    "live_provider_credentials": false,
+    "paid_automation_enabled": false
+  },
+  "checks": {
+    "complete_compose_stack": "passed: API, workflow worker, importer, Postgres, Redis, successful Superset initialization, healthy BI service",
+    "embedded_charts": "passed: six native charts, numeric parity, repository filters, monthly/rolling cadence, desktop/mobile",
+    "reviewer_login": "passed: rejection, login, refresh and logout",
+    "plain_docker_sqlite": "passed: environment settings, reviewer login, API and compiled frontend",
+    "plain_docker_existing_postgres": "passed: reachable existing database on a Docker network, login, API and frontend",
+    "independent_backend_build": "passed: backend target builds without npm; API responds and frontend root is absent",
+    "vite_development": "passed: independent port 5173 frontend, authenticated API proxy, real Superset query from development origin",
+    "docker_only_env_generation": "passed: helper runs in python:3.12-slim without host Python dependencies",
+    "secret_preservation": "passed: repeated setup preserves nonempty credentials and custom URLs, repairs blank defaults",
+    "production_image_smoke": "passed locally; also added as a required CI step"
+  },
+  "limits": [
+    "Single-container recipes do not provision workers or embedded Superset.",
+    "External Postgres recipe verifies application connectivity, not a managed cloud database or its network/TLS policy.",
+    "Public GitHub history starts from the committed public snapshot; anonymous refreshes remain rate limited.",
+    "Existing installations and the public AWS deployment were not changed by this setup check."
+  ]
+}

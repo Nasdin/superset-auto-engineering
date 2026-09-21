@@ -2,7 +2,7 @@ x-bi: &bi
   build:
     context: .
     dockerfile: infra/AnalyticsSuperset.Dockerfile
-  image: cognition-analytics-superset:6.1.0
+  image: ${COMPOSE_PROJECT_NAME:-cognition}-analytics-superset:6.1.0
   environment: &bi-environment
     POSTGRES_SUPERSET_PASSWORD: ${POSTGRES_SUPERSET_PASSWORD:?required}
     ANALYTICS_SUPERSET_SECRET_KEY: ${ANALYTICS_SUPERSET_SECRET_KEY:?required}
@@ -39,7 +39,7 @@ services:
     <<: *bi
     command: ['/usr/bin/run-server.sh']
     ports:
-      - '127.0.0.1:8189:8088'
+      - '127.0.0.1:${SUPERSET_PORT:-8189}:8088'
     depends_on:
       analytics-superset-init:
         condition: service_completed_successfully

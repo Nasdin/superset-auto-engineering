@@ -18,7 +18,10 @@ SECRET_KEYS = (
 DEFAULTS = {
     "SUPERSET_INTERNAL_URL": "http://analytics-superset:8088/bi",
     "SUPERSET_PUBLIC_URL": "http://127.0.0.1:8189/bi",
-    "SUPERSET_ALLOWED_ORIGINS": "http://127.0.0.1:8000,http://localhost:8000",
+    "SUPERSET_ALLOWED_ORIGINS": (
+        "http://127.0.0.1:8000,http://localhost:8000,"
+        "http://127.0.0.1:5173,http://localhost:5173"
+    ),
 }
 
 
@@ -34,7 +37,9 @@ def configure(path: Path) -> int:
         for key in SECRET_KEYS
         if not known.get(key, "").strip("\"'")
     }
-    values.update({key: value for key, value in DEFAULTS.items() if key not in known})
+    values.update(
+        {key: value for key, value in DEFAULTS.items() if not known.get(key, "").strip("\"'")}
+    )
     # Replace explicitly blank secrets instead of accumulating duplicate keys.
     output = [line for line in lines if line.partition("=")[0].strip() not in values]
     output.extend(f"{key}={value}" for key, value in values.items())
