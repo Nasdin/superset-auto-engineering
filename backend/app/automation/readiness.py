@@ -2,6 +2,7 @@
 
 from urllib.parse import quote
 
+from .check_runs import current_checks
 from .providers import ProviderError
 
 
@@ -25,7 +26,7 @@ def current_pr(settings, providers, number, sha):
 def ci_status(settings, providers, number, sha):
     """Inspect every reported check; absence is explicit, never fabricated passing CI."""
     current_pr(settings, providers, number, sha)
-    checks = []
+    raw_checks = []
     page = 1
     while True:
         result = providers.gh(
@@ -38,20 +39,22 @@ def ci_status(settings, providers, number, sha):
                 "GitHub checks response is incomplete", category="invalid_result", retryable=False
             )
         rows = result["check_runs"]
-        checks.extend(
-            {
-                "name": c["name"],
-                "status": c["status"],
-                "conclusion": c.get("conclusion"),
-                "url": c.get("html_url", ""),
-            }
-            for c in rows
-        )
+        raw_checks.extend(rows)
         if len(rows) < 100:
             break
         page += 1
         if page > 20:
             raise ProviderError("CI check pagination exceeds inspection limit")
+    active, superseded = current_checks(settings, providers, sha, raw_checks)
+    checks = [
+        {
+            "name": c["name"],
+            "status": c["status"],
+            "conclusion": c.get("conclusion"),
+            "url": c.get("html_url", ""),
+        }
+        for c in active
+    ]
     # Combined status lists the most recent status for each context; paginate it too.
     page = 1
     while True:
@@ -107,13 +110,21 @@ def ci_status(settings, providers, number, sha):
         for name in sorted(required - reported)
     )
     failed = any(
-        c["status"] == "completed" and c["conclusion"] not in {"success", "neutral", "skipped"}
+        c["status"] == "completed"
+        and c["conclusion"] not in {"success", "neutral", "skipped", "cancelled"}
         for c in checks
     )
-    pending = any(c["status"] != "completed" for c in checks)
+    # GitHub concurrency commonly cancels a run when a same-SHA label event
+    # starts its replacement. Cancellation is neither code failure nor proof
+    # of success. Keep the gate pending until a subsequent check resolves it.
+    pending = any(c["status"] != "completed" or c["conclusion"] == "cancelled" for c in checks)
     return {
         "sha": sha,
         "state": "failure" if failed else "pending" if pending else "success",
         "checks": checks,
         "configured": bool(checks),
+        "superseded_checks": [
+            {"name": c["name"], "conclusion": c.get("conclusion"), "url": c.get("html_url", "")}
+            for c in superseded
+        ],
     }

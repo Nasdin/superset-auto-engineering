@@ -29,6 +29,7 @@ class Settings:
     learning_enabled: bool = True
     enabled: bool = False
     autonomous_remediation: bool = True
+    capture_failure_evidence: bool = False
     max_remediation_attempts: int = 2
     max_handoff_followups: int = 1
     cloudflare_account_id: str = ""
@@ -94,6 +95,10 @@ class Settings:
             values["dependabot_enabled"] = env["DEPENDABOT_ENABLED"].lower() == "true"
         if "AUTONOMOUS_REMEDIATION" in env:
             values["autonomous_remediation"] = env["AUTONOMOUS_REMEDIATION"].lower() == "true"
+        if "VALIDATION_CAPTURE_FAILURE_EVIDENCE" in env:
+            values["capture_failure_evidence"] = (
+                env["VALIDATION_CAPTURE_FAILURE_EVIDENCE"].lower() == "true"
+            )
         if "MAX_REMEDIATION_ATTEMPTS" in env:
             values["max_remediation_attempts"] = int(env["MAX_REMEDIATION_ATTEMPTS"])
         if "AUTOMATION_ENABLED" in env:

@@ -477,6 +477,16 @@ Per-message/session usage limits are handled as local job holds, separately from
 
 Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). A searchable journal shows the newest observation per run, with full findings, Knowledge identifiers and source evidence in an on-demand detail panel. Recorded observations, confirmed notes, supplied context and independent validation remain separate signals; none alone proves improvement caused by memory.
 
+## Human PR validation and repair
+
+For an existing human-authored PR in your configured fork and `TARGET_BRANCH`, add the `cognition:validate` label. Signed GitHub events or polling create a validation job for its current SHA. Devin performs the work; the application publishes its results and manages the handoffs.
+
+Set `VALIDATION_CAPTURE_FAILURE_EVIDENCE=true` when you need the full failed-runtime demonstration before repair. This runs a validator even if CI is red, captures the available browser/API/test evidence, and waits for the failure report to be confirmed on GitHub before dispatching a repair. If Superset cannot start, the failure report must state that limitation; no screenshot is invented. The default is `false` to avoid spending on runtime validation when CI already identifies a failure.
+
+Devin pushes repairs to the **same PR branch**, adds regression coverage for missed edge cases, and hands the new SHA to a different validator. Only fresh runtime evidence plus passing current CI produces review readiness. Cancelled CI stays pending; duplicate Actions checks are superseded only after confirming their workflow, event, branch and revision identity. Human merge remains separate.
+
+See [the human-change demonstration record](docs/HUMAN_PR_RECOVERY.md), including the intentionally incomplete seed and actual provider receipts.
+
 ## Autonomous repair after validation failure
 
 Deployment status: this recovery loop is under local verification on `feat/devin-autonomous-verification`. The existing AWS worker has not been restarted with it. Further merges and AWS deployment require Nasrudin's explicit instruction; follow the [local execution record](docs/LOCAL_AUTONOMOUS_RUN.md) for actual results.

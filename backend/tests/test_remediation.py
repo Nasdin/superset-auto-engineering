@@ -146,6 +146,53 @@ def test_evidence_gap_creates_read_only_validator_not_code_repair(system):
     assert "collect the missing measurements or attachments yourself" in prompt
 
 
+def test_cancelled_ci_holds_readiness_without_dispatching_a_code_repair(system):
+    db, p, e, service = system
+    p.checks = [{"name": "hold-label", "status": "completed", "conclusion": "cancelled"}]
+    job = validation(db)
+    assert ci_status(e.settings, p, 2, SHA)["state"] == "pending"
+    assert service.preflight_validation(job) is True
+    assert db.by_key("recovery:" + job["id"]) is None
+    e.finish_validation(job, result())
+    assert db.get(job["id"])["state"] == "awaiting_ci"
+    assert db.by_key("recovery:" + job["id"]) is None
+    p.checks = [{"name": "hold-label", "status": "completed", "conclusion": "success"}]
+    service.reconcile()
+    assert db.get(job["id"])["state"] == "review_ready"
+
+
+def test_failure_capture_runs_validator_before_repair_even_with_red_ci(system):
+    db, p, e, _ = system
+    configured = Settings.from_env({"VALIDATION_CAPTURE_FAILURE_EVIDENCE": "true"})
+    assert configured.capture_failure_evidence is True
+    assert Settings().capture_failure_evidence is False
+    e = Engine(replace(e.settings, capture_failure_evidence=True), db, p)
+    service = RemediationService(e.settings, db, p)
+    p.checks = [{"name": "regression", "status": "completed", "conclusion": "failure"}]
+    job = validation(db)
+    assert service.preflight_validation(job) is True
+    assert db.get(job["id"])["state"] == "running"
+    assert db.by_key("recovery:" + job["id"]) is None
+    handoff = result()
+    handoff["test_results"]["failed"] = 1
+    e.finish_validation(job, handoff)
+    assert db.get(job["id"])["state"] == "validation_failed"
+    assert db.by_key("recovery:" + job["id"])["kind"] == "remediation"
+    assert db.get(job["id"])["result"]["artifacts"]
+    assert db.publications()
+    child = db.by_key("recovery:" + job["id"])
+    key = child["payload"]["failure_publication_key"]
+    assert service.preflight(child) is False
+    db.finish_publication(
+        key, "delivered", url="https://github.com/Nasdin/superset/pull/2#issuecomment-1"
+    )
+    assert service.preflight(child) is False
+    db.finish_publication(
+        key, "sent", url="https://github.com/Nasdin/superset/pull/2#issuecomment-1"
+    )
+    assert service.preflight(child) is True
+
+
 def test_failed_test_count_routes_to_repair_even_when_agent_claims_checks_pass(system):
     db, p, e, service = system
     job = validation(db)

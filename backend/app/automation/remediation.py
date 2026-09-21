@@ -66,6 +66,7 @@ class RemediationService:
             "implementation_jobs": job["payload"].get("implementation_jobs", [job["parent_id"]]),
             "automation_actor": "devin",
             "publisher": "configured_github_integration",
+            "failure_publication_key": result.get("failure_publication_key"),
         }
         return [
             {
@@ -81,7 +82,7 @@ class RemediationService:
     def preflight_validation(self, job):
         """Cheap CI failure goes to Devin before paying for a runtime validator."""
         ci = ci_status(self.settings, self.providers, job["pr_number"], job["candidate_sha"])
-        if ci["state"] != "failure":
+        if ci["state"] != "failure" or self.settings.capture_failure_evidence:
             return True
         result = {
             "candidate_sha": job["candidate_sha"],
@@ -137,6 +138,15 @@ class RemediationService:
         except ValueError as error:
             self.store.update(job["id"], state="stale", error=str(error))
             return False
+        if key := job["payload"].get("failure_publication_key"):
+            if not any(
+                p["key"] == key and p["state"] == "sent" for p in self.store.all_publications()
+            ):
+                self.store.update(
+                    job["id"], error="Waiting for failed-validation report delivery to be confirmed"
+                )
+                return False
+            self.store.update(job["id"], error=None)
         return True
 
     def finish(self, job, result):

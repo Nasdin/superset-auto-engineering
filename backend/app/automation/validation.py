@@ -239,6 +239,10 @@ class ValidationService:
             self.outbox.prepare_github(job["id"], number, report, validation=metadata)
             for number in (dict.fromkeys(targets) if not unchanged_pending else [])
         ]
+        if status == "validation_failed" and self.settings.capture_failure_evidence:
+            result["failure_publication_key"] = publications[0]["key"]
+            for followup in followups:
+                followup["payload"]["failure_publication_key"] = publications[0]["key"]
         if not unchanged_pending and self.settings.slack_token and self.settings.slack_channel:
             publications.append(self.outbox.prepare_slack(job, report, validation=metadata))
         if valid and self.providers.pr(job["pr_number"]).get("draft", False):
