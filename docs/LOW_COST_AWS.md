@@ -1,6 +1,8 @@
 # Low-cost AWS deployment
 
-Live: [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com), region **ap-southeast-2 (Sydney)**, approved for this demo because the current AWS project is region-restricted. DNS and valid public HTTPS are active. Login/logout, all six Superset charts, upstream/fork filters, rolling-window parity and signed GitHub duplicate delivery passed on the public domain. The cloud worker is enabled; the original validator was resumed and its passing evidence is now published. The pilot has ten total session slots and a ten-ACU per-session cap; the local worker is disabled. See [current challenge acceptance](CHALLENGE_ACCEPTANCE.md). See [current evidence](analysis/sydney-deployment.json). A created project or a completed CloudFormation stack is not evidence of a live application.
+Live: [superset-devin.nasrudinsalim.com](https://superset-devin.nasrudinsalim.com), region **ap-southeast-2 (Sydney)**. The public application is deployed from reviewed `main` revisions. This is a single Lightsail VM, not AWS serverless compute. See the [current and proposed scale-out architecture diagrams](../README.md#architecture-demo-today-a-different-topology-at-scale) for service boundaries, outbox durability and the changes required for multiple workers.
+
+The reviewer login protects the dashboard and embedded BI. Current queue holds, provider limits and validation outcomes are visible in System and Workflows; older deployment receipts are historical checkpoints, not evidence of present provider health. Fresh clones disable paid dispatch by default. See [challenge acceptance](CHALLENGE_ACCEPTANCE.md) and the [historical deployment record](analysis/sydney-deployment.json).
 
 ## Capacity and cost
 
@@ -74,7 +76,7 @@ Create only the `superset-devin` DNS-only A record in Cloudflare, pointing to th
 Acceptance requires all of:
 
 - Valid HTTPS; anonymous dashboard and `/bi` require authentication; diagnostic ports are inaccessible externally.
-- All five embedded charts in each cadence load, agree with the Postgres-backed API, and respect upstream/fork and sliding-window filters.
+- All seven Delivery and four Rework & code charts in each cadence load, agree with the Postgres-backed API, and respect upstream/fork and sliding-window filters.
 - Service and host restart persistence; no OOM kills, disk exhaustion or sustained swap thrashing under the expected low concurrent load.
 - Existing job/publication/memory/audit counts and budget holds survive migration.
 - Automatic snapshots and scheduled database backups remain disabled as requested for the demo.

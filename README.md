@@ -307,6 +307,91 @@ The public Compose overlay always enables authentication and Secure cookies, and
 
 ## 5. AWS with CloudFormation and the custom domain
 
+### Architecture: demo today, a different topology at scale
+
+**This deployment is deliberately sized for a demo. A larger customer deployment would use a different infrastructure topology.** The reusable foundation is the application protocol: persisted intent, transactional outbox, bounded retries, provider reconciliation and revision-scoped evidence. These patterns make the system easier to evolve and recover; they do not make the current VM highly available or horizontally scalable by themselves.
+
+**Today: one AWS Lightsail VM, not an AWS serverless deployment.** CloudFormation provisions the host and static IP; it is infrastructure as code, not the application's execution engine. Cloudflare supplies DNS. Caddy terminates HTTPS and routes traffic to FastAPI or embedded Superset. Docker Compose runs the services on the same Sydney host. There is no Lambda, SQS, EventBridge, ECS/Fargate or managed RDS database in the deployed template.
+
+```mermaid
+flowchart TB
+    Reviewer[Reviewer browser] --> DNS[Cloudflare DNS]
+    DNS --> HTTPS
+    GitHub[GitHub fork events] -->|Signed webhook| HTTPS
+    CF[CloudFormation: host and static IP] -. provisions .-> VM
+    subgraph VM["AWS Lightsail · Sydney · one demo VM"]
+        HTTPS[Caddy HTTPS and routing]
+        API[FastAPI and built React frontend]
+        BI[Apache Superset analytics]
+        Worker[Single workflow worker and schedule polling]
+        Importer[GitHub history importer]
+        PG[(Postgres: workflow ledger, inbox, outbox, history and BI metadata)]
+        Cache[(Redis chart cache)]
+        Files[(Persistent evidence volume)]
+        HTTPS --> API
+        HTTPS -->|Authenticated BI route| BI
+        API -->|Persist accepted events| PG
+        Worker <-->|Jobs, schedules and delivery receipts| PG
+        Importer --> PG
+        BI -->|Read-only reporting views| PG
+        BI --> Cache
+        Worker --> Files
+        API --> Files
+    end
+    Importer -->|Read public PR history| GitHub
+    Worker <-->|Start and observe sessions| Devin[Devin API and provider-hosted execution]
+    Devin --> Sandbox[Isolated candidate Superset runtime: browser, API and tests]
+    Worker -->|Deliver outbox reports| Reports[GitHub PR comments and optional Slack]
+```
+
+The analytics Superset on AWS reads engineering history. The candidate Superset that Devin builds and validates runs separately in Devin's environment. Expensive coding and browser validation therefore do not compete with the small dashboard VM for CPU and memory. This is externally managed agent execution, not a claim that our application runs on AWS Lambda.
+
+#### How work survives ordinary failures
+
+1. **Accept durably:** verify a GitHub webhook signature and persist its delivery identity before processing it. Manual requests and schedule ticks also create durable intent; the UI need not stay open.
+2. **Execute and observe:** the worker starts or observes a Devin session, retaining provider IDs and workflow state. Temporary read failures back off; authentication, credit limits and uncertain writes remain explicit holds.
+3. **Commit the handoff:** save a workflow transition, pending publication and applicable next validation job in one Postgres transaction. A crash after commit leaves the outbox available for delivery after restart.
+4. **Deliver and reconcile:** the outbox publisher records destination-specific receipts. A timeout after an external write is ambiguous, so the system checks receipts instead of blindly creating another paid session or posting another report.
+5. **Validate the new revision:** repairs require fresh independent evidence at the new SHA. A delivered report and a passed gate are separate facts; a human still decides whether to merge.
+
+The queue, retry/dead-letter states and schedules are database-backed today; they are not SQS or EventBridge resources. Redis caches charts and is not the workflow system of record. Docker volumes preserve Postgres and evidence across container replacement. They do **not** protect against host/disk loss: backups are disabled for this demo, and the host is a single point of failure. The worker uses a shared-volume file lock, so adding workers on other hosts is unsafe without further coordination work. See [failure behavior and recovery](docs/RESILIENCE.md).
+
+#### Proposed scale-out architecture — not deployed
+
+```mermaid
+flowchart TB
+    Clients[Reviewers and signed GitHub events] --> Edge[HTTPS ingress and authentication]
+    Edge --> API2[FastAPI service on ECS Fargate]
+    Schedule[EventBridge Scheduler] --> Intake[Short Lambda intake handler]
+    Intake --> DB[(Managed Postgres: durable inbox, jobs and outbox)]
+    API2 --> DB
+    DB --> Relay[Outbox relay with durable claims]
+    Relay --> Queue[SQS work and publication queues]
+    Queue --> Workers[Fargate workers or bounded Lambda handlers]
+    Queue --> DLQ[Dead-letter queue and operator recovery]
+    Workers <-->|State, leases and receipts| DB
+    Workers <-->|Dispatch and observe| Agent[Devin API and isolated execution]
+    Workers --> Destinations[GitHub and Slack]
+    Workers --> Objects[(S3 evidence objects)]
+    API2 --> Objects
+    Edge --> BI2[Separately sized Superset service]
+    BI2 --> Reporting[(Reporting database or replica)]
+    DB -. replicated or materialized reporting data .-> Reporting
+    BI2 --> Redis2[(Managed Redis cache)]
+```
+
+This is a design direction, not an implemented template or a capacity claim. [Fargate](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html) provides serverless container compute without managing the underlying servers. It fits the existing API and long-running worker processes better than treating an entire Devin session as one synchronous function call. Optional Lambda handlers should do bounded intake/observation work, persist progress, and return; Devin keeps running independently.
+
+| Scale pressure | Change before increasing concurrency |
+| --- | --- |
+| More independent workflows | Replace the host file lock with database leases, fencing and atomic claims. Enforce repository/branch ordering and shared organization budgets across workers. Test crash recovery, duplicate deliveries and concurrent claims. |
+| Bursty intake or publication | Add an outbox-to-SQS relay. Mark dispatch only after send acknowledgement; tolerate duplicates if a relay crashes between sending and recording success. Consumers deduplicate against the ledger and reconcile ambiguous external effects. |
+| Host loss or uptime requirements | Move Postgres to a managed deployment with backups, restore drills and appropriate availability; move evidence to S3. Keep object checksums and access policy explicit. Deploy API replicas behind managed ingress. |
+| Expensive analytics | Scale Superset separately, use reporting replicas/materialized aggregates, and retain bounded caches and query timeouts. Account for reporting lag. |
+| More customers and operators | Add tenant isolation, individual identity/RBAC, managed secrets, external alerting, audit retention, release rollback and load tests. Cap concurrency by DB connections, provider rate limits and paid execution budgets. |
+
+[SQS/Lambda event processing can deliver records more than once](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html). Serverless infrastructure does not remove the need for idempotency, durable state or reconciliation. The existing outbox and evidence contracts are the parts to preserve through this migration; high availability and distributed worker safety still need implementation and verification. Managed services also introduce a different cost profile from the single-VM demo.
+
 ### Low-cost deployment (preferred)
 
 Use [the Lightsail template](infra/cloudformation/lightsail.yaml) for a low-traffic installation on one VM: FastAPI/React, Postgres, Superset and Redis. The 2 GiB Linux bundle includes 60 GB disk and public IPv4 at **US$12/month**, before taxes, excess transfer and Devin usage. Scheduled snapshots and backups are disabled for this demo; no free-tier credits are assumed. A 4 GiB bundle costs US$24/month if measured load needs more headroom. [AWS pricing](https://aws.amazon.com/lightsail/pricing/).
@@ -381,7 +466,7 @@ docker compose -f compose.yaml -f compose.public.yaml logs --tail=100 ingress
 
 Caddy obtains HTTPS certificates once DNS and ports 80/443 work. The reviewer login protects the dashboard and `/bi`; login/session routes and minimal health checks stay public, and the GitHub POST webhook verifies its own signature. Keep database/API/BI diagnostic ports loopback-only. Run operator commands through SSM against local port 8000 with the separate operator token.
 
-Verify public HTTPS, reviewer login, all six guest charts in each cadence, repository filters and restart persistence before updating the permanent GitHub webhook URL. [Full deployment/recovery guide](docs/AWS_DEPLOYMENT.md). Host replacement does **not** migrate Docker volumes. The root disk is retained after instance termination, so stack deletion is not a full data cleanup; retained disks continue to incur charges. Back up both databases/artifacts and plan recovery before replacing a host.
+Verify public HTTPS, reviewer login, all seven Delivery and four Rework & code charts in each cadence, repository filters and restart persistence before updating the permanent GitHub webhook URL. [Full deployment/recovery guide](docs/AWS_DEPLOYMENT.md). Host replacement does **not** migrate Docker volumes. The root disk is retained after instance termination, so stack deletion is not a full data cleanup; retained disks continue to incur charges. Back up both databases/artifacts and plan recovery before replacing a host.
 
 ## Development, tests and architecture
 
