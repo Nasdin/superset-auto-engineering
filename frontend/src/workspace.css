@@ -928,6 +928,39 @@
 }
 .automation-recipe {
   min-width: 0;
+  padding: 22px;
+}
+.automation-catalogue > .panel-heading {
+  padding: 8px 0 12px;
+}
+.automation-catalogue h2 {
+  font-size: 19px;
+  line-height: 1.4;
+}
+.automation-catalogue > .panel-heading p,
+.automation-catalogue > .quiet {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.automation-recipe h3 {
+  margin: 18px 0 10px;
+  font-size: 17px;
+  line-height: 1.4;
+}
+.automation-recipe p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.automation-recipe > small {
+  display: block;
+  margin-top: 12px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.automation-catalogue > .panel > .quiet,
+.automation-catalogue > .panel > .empty {
+  padding: 0 20px 14px;
 }
 .automation-recipe p {
   overflow-wrap: anywhere;
