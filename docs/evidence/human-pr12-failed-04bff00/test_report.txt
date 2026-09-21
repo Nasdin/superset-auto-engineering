@@ -1,0 +1,48 @@
+candidate_sha: 04bff00adce72e92a948a0b195510f11df85f54b
+cmd: SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] coverage run --branch --include='superset/sql/parse.py,superset/sql_lab.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/sql_lab_test.py -p no:cacheprovider --junitxml=junit.xml -q
+(full-repo coverage table rows omitted; scoped report below)
+
+/home/ubuntu/venv-superset/lib/python3.12/site-packages/coverage/inorout.py:461: CoverageWarning: --include is ignored because --source is set (include-ignored)
+  self.warn("--include is ignored because --source is set", slug="include-ignored")
+........................................................................ [ 14%]
+........................................................................ [ 29%]
+........................................................................ [ 43%]
+........................................................................ [ 58%]
+........................................................................ [ 72%]
+........................................................................ [ 87%]
+................................................................         [100%]
+------------- generated xml file: /home/ubuntu/evidence/junit.xml --------------
+496 passed in 7.41s
+exit=0
+Name                                                                                                             Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+superset/sql/parse.py                                                                                              448     11    128      0    98%   1592-1612
+superset/sql_lab.py                                                                                                308    102    100     30    61%   107, 112-115, 120->123, 126, 131-134, 142-143, 156-159, 209-222, 239, 241->exit, 261, 291-319, 329-333, 355, 364, 387-388, 397, 413, 421-427, 430, 433-435, 440-455, 481->485, 490-491, 508-523, 527, 535, 561->642, 577->591, 593, 605-623, 642->644, 648->666, 666->682, 674-675, 684, 698-721
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                                                            67197  40739  15362    189    33%
+
+=== scoped coverage report (coverage report --include=superset/sql/parse.py,superset/sql_lab.py)
+Name                    Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------------
+superset/sql/parse.py     448     11    128      0    98%   1592-1612
+superset/sql_lab.py       308    102    100     30    61%   107, 112-115, 120->123, 126, 131-134, 142-143, 156-159, 209-222, 239, 241->exit, 261, 291-319, 329-333, 355, 364, 387-388, 397, 413, 421-427, 430, 433-435, 440-455, 481->485, 490-491, 508-523, 527, 535, 561->642, 577->591, 593, 605-623, 642->644, 648->666, 666->682, 674-675, 684, 698-721
+-------------------------------------------------------------------
+TOTAL                     756    113    228     30    82%
+
+=== parser probe
+SHA 04bff00adce72e92a948a0b195510f11df85f54b sqlglot 28.10.0
+IN : SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 BY id
+  get_limit_value -> None
+  after cap 1001 -> SELECT   * FROM (   SELECT     id,     val   FROM fixtures.events   ORDER BY     id,     val   LIMIT 2 BY id ) LIMIT 1001
+IN : SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 2 OFFSET 1 BY id
+  get_limit_value -> 2
+  after cap 1001 -> SELECT   id,   val FROM fixtures.events ORDER BY   id,   val LIMIT 1001 OFFSET 1 BY id
+IN : SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 1, 2 BY id
+  get_limit_value -> 2
+  after cap 1001 -> SELECT   id,   val FROM fixtures.events ORDER BY   id,   val LIMIT 1001 OFFSET 1 BY id
+IN : SELECT id, val, ts FROM fixtures.events ORDER BY id, val LIMIT 1 BY id, val
+  get_limit_value -> None
+  after cap 1001 -> SELECT   * FROM (   SELECT     id,     val,     ts   FROM fixtures.events   ORDER BY     id,     val   LIMIT 1 BY id, val ) LIMIT 1001
+IN : SELECT id, val FROM fixtures.events ORDER BY id, val LIMIT 5
+  get_limit_value -> 5
+  after cap 1001 -> SELECT   id,   val FROM fixtures.events ORDER BY   id,   val LIMIT 1001
