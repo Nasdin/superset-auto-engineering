@@ -137,7 +137,11 @@ class Store:
     def commit_validation(self, jid, state, result, error, publications=(), followups=()):
         return self.commit_handoff(
             jid,
-            values={"state": state, "result": result, "error": error},
+            values={
+                "state": state,
+                "result": {**result, "gate_recorded_at": time.time()},
+                "error": error,
+            },
             publications=publications,
             followups=followups,
         )

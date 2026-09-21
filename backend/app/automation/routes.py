@@ -1,13 +1,15 @@
 import hashlib
 import hmac
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from .catalogue import attributed_jobs
 from .config import Settings
 from .engine import Engine
+from .feedback import FeedbackConflict, FeedbackService
 from .inbox import Inbox
 from .learning import LearningService, workflow_lane
 from .providers import ProviderError
@@ -276,3 +278,27 @@ def pull_requests(
 @router.get("/learning")
 def learning(eng: Engine = Depends(get_engine)):
     return LearningService(eng.settings, eng.store, eng.providers).overview()
+
+
+class FeedbackRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    request_id: UUID
+    feedback_id: UUID | None = None
+    expected_revision: UUID | None = None
+    source_job_id: str = Field(min_length=1, max_length=100)
+    source_lesson_id: str | None = Field(default=None, max_length=100)
+    author: str = Field(min_length=1, max_length=80, pattern=r"\S")
+    title: str = Field(min_length=1, max_length=160, pattern=r"\S")
+    reason: str = Field(min_length=1, max_length=1500, pattern=r"\S")
+    correction: str = Field(min_length=1, max_length=3000, pattern=r"\S")
+    retired: bool = False
+
+
+@router.post("/learning/feedback", dependencies=[Depends(operator)])
+def feedback(body: FeedbackRequest, eng: Engine = Depends(get_engine)):
+    try:
+        return FeedbackService(eng.settings, eng.store).save(body.model_dump(mode="json"))
+    except FeedbackConflict as error:
+        raise HTTPException(409, str(error)) from None
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from None

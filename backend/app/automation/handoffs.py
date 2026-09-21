@@ -91,9 +91,16 @@ class HandoffRecovery:
                 from .readiness import current_pr
 
                 try:
-                    current_pr(
-                        self.settings, self.providers, job["pr_number"], job["candidate_sha"]
-                    )
+                    sha = job["candidate_sha"]
+                    if job["kind"] == "remediation":
+                        # A repair is expected to advance its authorized branch.
+                        # Its provider-owned final handoff still has to confirm
+                        # that head before fresh independent validation.
+                        pr = self.providers.pr(job["pr_number"])
+                        if pr["head"]["ref"] != job["payload"]["head_ref"]:
+                            raise ValueError("Remediation branch changed")
+                        sha = pr["head"]["sha"]
+                    current_pr(self.settings, self.providers, job["pr_number"], sha)
                 except ValueError:
                     self.store.update(
                         job["id"], state="stale", error="Candidate changed before handoff follow-up"

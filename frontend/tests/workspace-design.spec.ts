@@ -134,6 +134,10 @@ test("every workspace view fits desktop and phone with discoverable controls", a
     await expect(
       page.getByRole("heading", { name: title, exact: true }).first(),
     ).toBeVisible();
+    if (slug === "learning")
+      await page
+        .getByRole("button", { name: "Run observations", exact: true })
+        .click();
     await expect(page.getByText(control, { exact: true })).toBeVisible();
     if (slug === "analytics")
       await expect(page.locator(".impact-kpi")).toHaveCount(4);

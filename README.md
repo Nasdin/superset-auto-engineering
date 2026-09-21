@@ -475,7 +475,7 @@ See [the reliability design and operational recovery runbook](docs/RESILIENCE.md
 
 Per-message/session usage limits are handled as local job holds, separately from organization credit exhaustion. The original repair session cap was verified at $20; it is now awaiting instructions with its PR prepared. No new paid run was required to clear its exceeded-limit state. See [limit handling and catalogue durability](docs/AUTOMATIONS.md).
 
-Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). A searchable journal shows the newest observation per run, with full findings, Knowledge identifiers and source evidence in an on-demand detail panel. Recorded observations, confirmed notes, supplied context and independent validation remain separate signals; none alone proves improvement caused by memory.
+Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). **Human feedback** records who corrected Devin, why, the source run and editable guidance with immutable revision history. Use **Execution access** with `OPERATOR_TOKEN` to add, override or retire guidance. The worker disables superseded native Knowledge notes and records the exact revision supplied to later sessions. **Run observations** retains the searchable evidence journal. Monthly outcomes, native receipts and agent-reported application are distinct signals; none alone proves improvement caused by memory. See [the feedback guide and real PR #6 memory handoff](docs/HUMAN_FEEDBACK.md).
 
 ## Human PR validation and repair
 

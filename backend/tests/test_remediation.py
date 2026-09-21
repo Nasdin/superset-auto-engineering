@@ -858,3 +858,28 @@ def test_existing_pending_gate_without_new_counter_does_not_republish_after_patc
     assert {item["key"] for item in e.store.all_publications()} == existing
     assert len(p.comments) == 2
     assert e.store.get(job["id"])["result"]["ci"]["checks"][0]["status"] == "in_progress"
+
+
+@pytest.mark.parametrize("changed_branch", [False, True])
+def test_repair_handoff_allows_its_own_push_but_not_a_different_branch(system, changed_branch):
+    db, p, e, _ = system
+    ref = p.document["head"]["ref"]
+    job = db.enqueue("paused", "remediation", {"head_ref": ref}, pr_number=2, candidate_sha=SHA)
+    db.update(
+        job["id"],
+        state="needs_attention",
+        session_id="paused",
+        session_url="https://app.devin.ai/sessions/paused",
+    )
+    p.response = {
+        "status": "running",
+        "status_detail": "waiting_for_user",
+        "tags": ["cognition-job:" + job["id"]],
+        "structured_output": {"task_complete": False, "blocker": "Final handoff missing"},
+    }
+    p.document["head"]["sha"] = NEW
+    if changed_branch:
+        p.document["head"]["ref"] = "different-branch"
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == ("stale" if changed_branch else "running")
+    assert len(p.messages) == (0 if changed_branch else 1)

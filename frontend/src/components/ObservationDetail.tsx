@@ -10,12 +10,14 @@ export function ObservationDetail({
   sourceAvailable,
   inspect,
   close,
+  correct,
 }: {
   lesson?: Lesson;
   repository: string;
   sourceAvailable: boolean;
   inspect: (id: string) => void;
   close: () => void;
+  correct?: (lesson: Lesson) => void;
 }) {
   if (!lesson)
     return (
@@ -104,6 +106,11 @@ export function ObservationDetail({
           </div>
         </dl>
         <div className="memory-detail-actions">
+          {correct && (
+            <button className="button" onClick={() => correct(lesson)}>
+              Correct this learning
+            </button>
+          )}
           <button
             className="button primary"
             disabled={!sourceAvailable}
