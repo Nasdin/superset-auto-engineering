@@ -1,10 +1,4 @@
-import {
-  Activity,
-  BrainCircuit,
-  GitPullRequest,
-  Settings2,
-  ShieldCheck,
-} from "lucide-react";
+import { Activity, GitPullRequest, Settings2, ShieldCheck } from "lucide-react";
 
 export const sections = [
   {
@@ -32,23 +26,12 @@ export const sections = [
         label: "Automations",
         slug: "automations",
       },
+      { page: "Learning & memory", label: "Learning", slug: "learning" },
       { page: "Devin runs", label: "Devin runs", slug: "runs" },
       {
         page: "Dependabot runs",
         label: "Dependabot runs",
         slug: "dependencies",
-      },
-    ],
-  },
-  {
-    name: "Learning",
-    icon: BrainCircuit,
-    description: "Remember & improve",
-    views: [
-      {
-        page: "Learning & memory",
-        label: "Learning & memory",
-        slug: "learning",
       },
     ],
   },

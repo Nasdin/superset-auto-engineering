@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("five workspaces retain every feature, deep links and mobile navigation", async ({
+test("four workspaces retain every feature, deep links and mobile navigation", async ({
   page,
 }) => {
   await page.goto("/");
@@ -20,14 +20,8 @@ test("five workspaces retain every feature, deep links and mobile navigation", a
     animations: "disabled",
   });
   const primary = page.getByRole("navigation", { name: "Workspace" });
-  await expect(primary.getByRole("button")).toHaveCount(5);
-  for (const name of [
-    "Release gates",
-    "Workflows",
-    "Learning",
-    "Analytics",
-    "Operations",
-  ])
+  await expect(primary.getByRole("button")).toHaveCount(4);
+  for (const name of ["Release gates", "Workflows", "Analytics", "Operations"])
     await expect(
       primary.getByRole("button", { name, exact: true }),
     ).toBeVisible();
@@ -93,7 +87,10 @@ test("five workspaces retain every feature, deep links and mobile navigation", a
   });
   await learning.focus();
   await page.keyboard.press("Enter");
-  await expect(learning).toHaveAttribute("aria-current", "page");
+  await expect(learning).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    primary.getByRole("button", { name: "Workflows", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
   await expect(
     page.getByRole("heading", { name: "Learning & memory", exact: true }),
   ).toBeVisible();

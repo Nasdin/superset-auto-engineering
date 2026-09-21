@@ -257,8 +257,7 @@ Five sections keep related features together:
 | Section | Features |
 |---|---|
 | Release gates | Exact-SHA validation, PR evidence, repository lineage and evidence delivery recovery |
-| Workflows | Workflow lanes, schedules/manual runs, Devin sessions, Dependabot and durable queue recovery |
-| Learning | Repository observations, Devin Knowledge synchronization and later-session reuse |
+| Workflows | Workflow lanes, automations, Learning & memory, Devin sessions, Dependabot and durable queue recovery |
 | Analytics | Superset charts, repository selection, rolling-window comparisons |
 | Operations | Provider status, worker health, limits and delivery receipts |
 
@@ -471,3 +470,5 @@ The hosted application now permits **20 total sessions and 20 ACU per newly crea
 See [the reliability design and operational recovery runbook](docs/RESILIENCE.md) for failure behavior, provider recovery, dead-letter replay, publication confirmation and explicitly unimplemented production improvements.
 
 Per-message/session usage limits are handled as local job holds, separately from organization credit exhaustion. The original repair session cap was verified at $20; it is now awaiting instructions with its PR prepared. No new paid run was required to clear its exceeded-limit state. See [limit handling and catalogue durability](docs/AUTOMATIONS.md).
+
+Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). A searchable journal shows the newest observation per run, with full findings, Knowledge identifiers and source evidence in an on-demand detail panel. Recorded observations, confirmed notes, supplied context and independent validation remain separate signals; none alone proves improvement caused by memory.

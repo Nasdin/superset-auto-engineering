@@ -415,6 +415,9 @@ test("learning source, memory snapshot and evidence remain linked", async ({
   await page.getByText("Memory supplied to runs", { exact: true }).click();
   await page.getByText("Inspect supplied memories").click();
   await expect(page.getByText("prior-lesson", { exact: true })).toBeVisible();
+  await page
+    .getByRole("button", { name: "Read observation: Fix date grain" })
+    .click();
   await page.getByRole("button", { name: "Inspect source & evidence" }).click();
   await expect(
     page.getByText("Missing browser evidence", { exact: true }),
