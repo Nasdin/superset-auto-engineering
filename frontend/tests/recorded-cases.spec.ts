@@ -4,6 +4,13 @@ test("recorded cases keep historical proof separate from current release readine
   page,
 }) => {
   await page.goto("/#evidence");
+  await expect(
+    page.getByRole("region", { name: "Recorded engineering demonstrations" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Recorded demos", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#recorded-demos$/);
   const proof = page.getByRole("region", {
     name: "Recorded engineering demonstrations",
   });

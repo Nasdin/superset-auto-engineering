@@ -16,6 +16,11 @@ export const sections = [
         label: "Release validation",
         slug: "evidence",
       },
+      {
+        page: "Recorded demos",
+        label: "Recorded demos",
+        slug: "recorded-demos",
+      },
       { page: "PR evidence", label: "PR evidence", slug: "pull-requests" },
       { page: "Repository graph", label: "Repository graph", slug: "lineage" },
     ],
