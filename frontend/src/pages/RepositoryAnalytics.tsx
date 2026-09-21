@@ -7,6 +7,7 @@ import { Disclosure } from "../components/Disclosure";
 import { SupersetAnalytics } from "../components/SupersetAnalytics";
 import {
   MonthlyCoverage,
+  HistoryCoverage,
   ImpactOverview,
   CategoryComparison,
   ImpactEstimate,
@@ -106,6 +107,34 @@ export function RepositoryAnalytics() {
           </button>
         </Disclosure>
       </div>
+      <section className="analytics-source" aria-label="Analytics repository">
+        <label className="compact-field">
+          Repository
+          <select
+            value={filters.repository}
+            onChange={(e) => change("repository", e.target.value)}
+          >
+            {(response?.value.repositories || ["apache/superset"]).map(
+              (repo) => (
+                <option key={repo} value={repo}>
+                  {repo === "apache/superset"
+                    ? "Original repository"
+                    : "Workflow fork"}{" "}
+                  · {repo}
+                </option>
+              ),
+            )}
+          </select>
+        </label>
+        <p>
+          Explore the original project or your workflow fork. Automation always
+          runs in{" "}
+          <strong>
+            {response?.value.workflow_repository || "the configured fork"}
+          </strong>
+          .
+        </p>
+      </section>
       <Disclosure
         title="Analysis controls"
         summary={`${filters.repository} · ${filters.days} days to ${filters.end} · ${filters.comparison === "six_months" ? "vs six months earlier" : filters.comparison === "previous" ? "vs previous window" : `vs ${filters.baseline_end || "custom baseline"}`}${[
@@ -121,24 +150,6 @@ export function RepositoryAnalytics() {
         className="analysis-controls"
       >
         <div className="analytics-filters">
-          <label className="compact-field">
-            Repository
-            <select
-              value={filters.repository}
-              onChange={(e) => change("repository", e.target.value)}
-            >
-              {(response?.value.repositories || ["apache/superset"]).map(
-                (repo) => (
-                  <option key={repo} value={repo}>
-                    {repo === "apache/superset"
-                      ? "Original repository"
-                      : "Workflow fork"}{" "}
-                    · {repo}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
           <label className="compact-field">
             Window end (UTC)
             <input
@@ -286,6 +297,7 @@ export function RepositoryAnalytics() {
               required.
             </div>
           )}
+          {data.backfill && <HistoryCoverage backfill={data.backfill} />}
           <ImpactOverview impact={data.impact} />
           <div className="impact-trend-heading">
             <div>
@@ -309,7 +321,17 @@ export function RepositoryAnalytics() {
               ))}
             </div>
           </div>
-          <SupersetAnalytics key={chartRevision} query={query} />
+          <SupersetAnalytics
+            key={`${chartRevision}:${data.data_revision}`}
+            query={query}
+          />
+          <p className="impact-footnote merge-hours-definition">
+            Total merge hours sums the elapsed time from opening to merging for
+            every selected PR merged in each UTC month. All work groups are
+            included unless you filter the cohort. Waiting time and overlapping
+            PRs count separately; this is not engineering labour or time saved.
+            The latest month includes completed days only.
+          </p>
           <Disclosure
             title="Data source & freshness"
             summary={`${data.stored_prs.toLocaleString()} PRs imported · ${data.sync.state.replaceAll("_", " ")}`}

@@ -159,3 +159,38 @@ test("changing cadence during initialization keeps exactly the new frame", async
     /rolling/,
   );
 });
+
+test("polling retains cached charts until the imported data revision changes", async ({
+  page,
+  request,
+}) => {
+  const reference = await (
+    await request.get("/api/analytics/pull-requests")
+  ).json();
+  let revision = 1;
+  let loads = 0;
+  await page.clock.install();
+  await page.route("**/api/analytics/pull-requests?*", (route) => {
+    loads += 1;
+    return route.fulfill({ json: { ...reference, data_revision: revision } });
+  });
+  await sessions(page);
+  await page.route("**/synthetic-bi/embedded/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: frame }),
+  );
+  await page.goto("/#analytics");
+  const iframe = page.locator(".superset-panel iframe");
+  await expect(iframe).toHaveCSS("height", "900px");
+  const original = await iframe.elementHandle();
+  await page.clock.fastForward(60_000);
+  await expect.poll(() => loads).toBe(2);
+  expect(await original!.evaluate((element) => element.isConnected)).toBe(true);
+  revision += 1;
+  await page.clock.fastForward(60_000);
+  await expect.poll(() => loads).toBe(3);
+  await expect
+    .poll(() => original!.evaluate((element) => element.isConnected))
+    .toBe(false);
+  await expect(iframe).toHaveCount(1);
+  await expect(iframe).toHaveCSS("height", "900px");
+});

@@ -55,7 +55,14 @@ class Selection(BaseModel):
 
 
 def remember_selection(store, values):
-    identity = hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
+    # Superset includes guest RLS in its native chart cache key. A revision salt
+    # changes the server-owned selection_id after ingestion, without accepting
+    # SQL/cache keys from the browser or sharing a cohort across repositories.
+    identity = hashlib.sha256(
+        json.dumps(
+            {**values, "data_revision": store.revision(values["repository"])}, sort_keys=True
+        ).encode()
+    ).hexdigest()
     with store.connect() as db:
         db.execute(
             "DELETE FROM analytics_selections WHERE requested_at<:cutoff",

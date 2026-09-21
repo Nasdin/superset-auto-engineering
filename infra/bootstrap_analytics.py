@@ -22,6 +22,7 @@ def database_url(user, password, database):
 
 
 def provision():
+    chart_cache_seconds = max(1, int(os.getenv("ANALYTICS_CHART_CACHE_SECONDS", "300")))
     engine = create_engine(
         database_url("cognition_app", os.environ["POSTGRES_APP_PASSWORD"], "cognition"),
         hide_parameters=True,
@@ -88,6 +89,7 @@ def provision():
         },
     }
     database.extra = json.dumps(extra)
+    database.cache_timeout = chart_cache_seconds
     database.expose_in_sqllab = False
     database.allow_dml = False
     database.allow_ctas = False
@@ -105,6 +107,7 @@ def provision():
         "impact_categories",
         "impact_monthly_chart",
         "impact_rolling_chart",
+        "impact_total_monthly_chart",
     ):
         table = (
             db.session.query(SqlaTable)
@@ -117,6 +120,7 @@ def provision():
             )
             db.session.add(table)
         db.session.flush()
+        table.cache_timeout = chart_cache_seconds
         table.fetch_metadata()
         if name in {
             "trend",
@@ -296,11 +300,13 @@ def provision():
             query["columns"] = columns
         db.session.flush()
         params["slice_id"] = chart.id
+        chart.cache_timeout = chart_cache_seconds
         chart.viz_type = viz
         chart.params = json.dumps(params)
         query_context = {
             "datasource": {"id": table.id, "type": "table"},
             "queries": [query],
+            "force": False,
             "result_format": "json",
             "result_type": "full",
             "form_data": params,
@@ -381,7 +387,19 @@ def provision():
             chart_for(name, f"impact_{cadence}_chart", metric)
             for name, metric in measures
         ]
-        charts += [detail_chart]
+        total_chart = chart_for(
+            "Total hours before merge · calendar month",
+            "impact_total_monthly_chart",
+            "total_hours",
+        )
+        total_chart.description = (
+            "Sum of elapsed hours from PR creation to merge for all selected PRs merged "
+            "in each UTC calendar month. Always monthly, including in the rolling dashboard. "
+            "A partial final month ends on the selected date. Overlapping PR durations are "
+            "summed: this is neither working hours nor time saved. Uncovered months or "
+            "months containing invalid durations stay blank; fully covered empty months are zero."
+        )
+        charts += [total_chart, detail_chart]
         slug = (
             "superset-engineering"
             + ("-rolling" if cadence == "rolling" else "")
@@ -391,8 +409,8 @@ def provision():
         if dashboard is None:
             dashboard = Dashboard(slug=slug, owners=[admin])
             db.session.add(dashboard)
-        dashboard.dashboard_title = (
-            f"Superset analyzing Superset · {cadence}" + (" · mobile" if mobile else "")
+        dashboard.dashboard_title = f"Superset analyzing Superset · {cadence}" + (
+            " · mobile" if mobile else ""
         )
         dashboard.slices = charts
         dashboard.published = True
@@ -410,7 +428,7 @@ def provision():
         rows = (
             [[chart] for chart in charts]
             if mobile
-            else (charts[:2], charts[2:4], charts[4:5])
+            else (charts[:2], charts[2:4], charts[4:5], charts[5:6])
         )
         for row_number, row_charts in enumerate(rows):
             row_id = f"ROW-{row_number}"
@@ -490,7 +508,7 @@ def provision():
         json.dumps(
             {
                 "dashboards": dashboards,
-                "charts_per_dashboard": 5,
+                "charts_per_dashboard": 6,
                 "datasets": len(tables),
             }
         )

@@ -56,7 +56,16 @@ CACHE_CONFIG = {
     "CACHE_KEY_PREFIX": "cognition_bi_",
     "CACHE_REDIS_URL": "redis://analytics-redis:6379/0",
 }
-DATA_CACHE_CONFIG = CACHE_CONFIG
+# Query results live in Redis memory shared by all Superset workers. Keep them
+# separate from metadata/filter state and bounded in time; a chart/dataset-level
+# timeout takes precedence, so bootstrap sets the same value explicitly.
+ANALYTICS_CHART_CACHE_SECONDS = max(1, int(os.getenv("ANALYTICS_CHART_CACHE_SECONDS", "300")))
+DATA_CACHE_CONFIG = {
+    **CACHE_CONFIG,
+    "CACHE_TYPE": "chart_cache.ResilientChartCache",
+    "CACHE_KEY_PREFIX": "cognition_chart_data_v2_",
+    "CACHE_DEFAULT_TIMEOUT": ANALYTICS_CHART_CACHE_SECONDS,
+}
 FILTER_STATE_CACHE_CONFIG = {
     **CACHE_CONFIG,
     "CACHE_KEY_PREFIX": "cognition_filters_",

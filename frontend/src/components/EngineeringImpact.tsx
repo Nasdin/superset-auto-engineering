@@ -9,7 +9,7 @@ import {
   Code2,
   Calculator,
 } from "lucide-react";
-import type { Impact } from "../analyticsTypes";
+import type { Analytics, Impact } from "../analyticsTypes";
 
 export const number = (value: number | null, digits = 1) =>
   value === null
@@ -157,7 +157,10 @@ export function CategoryComparison({ impact }: { impact: Impact }) {
                   />
                   {row.segment}
                 </th>
-                <td>{number(row[period].merged_prs, 0)}</td>
+                <td>
+                  {number(row[period].merged_prs, 0)}
+                  {!row[period].covered && <small>observed · incomplete</small>}
+                </td>
                 {(
                   [
                     ["avg_commits", "commits_samples"],
@@ -346,6 +349,39 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
       </p>
       <div className="impact-table-scroll">
         <table className="impact-table">
+          <caption>Total hours before merge · calendar months</caption>
+          <thead>
+            <tr>
+              <th>Merge month (UTC)</th>
+              <th>Total elapsed PR hours</th>
+              <th>PR durations measured</th>
+              <th>Date coverage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {impact.monthly_totals?.map((row) => (
+              <tr key={row.month}>
+                <th>{row.month.slice(0, 7)}</th>
+                <td>{number(row.covered_total_hours)}</td>
+                <td>
+                  {row.merge_samples} / {row.merged_prs}
+                </td>
+                <td>
+                  {row.covered ? "Complete" : "Incomplete · total withheld"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Monthly totals include every work group in the selected cohort and stay
+        on calendar months when the other charts use rolling windows. Missing
+        history or invalid durations leave a gap; only a verified empty month is
+        zero.
+      </p>
+      <div className="impact-table-scroll">
+        <table className="impact-table">
           <thead>
             <tr>
               <th>Month / group</th>
@@ -362,7 +398,10 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
                 <th>
                   {row.month.slice(0, 7)} · {row.segment}
                 </th>
-                <td>{row.merged_prs}</td>
+                <td>
+                  {row.merged_prs}
+                  {!row.covered && <small>observed · incomplete</small>}
+                </td>
                 <td>{row.commits_samples}</td>
                 <td>{row.rework_samples}</td>
                 <td>{row.code_samples}</td>
@@ -373,5 +412,67 @@ export function MonthlyCoverage({ impact }: { impact: Impact }) {
         </table>
       </div>
     </details>
+  );
+}
+
+export function HistoryCoverage({
+  backfill,
+}: {
+  backfill: Analytics["backfill"];
+}) {
+  const labels = {
+    queued: "Queued",
+    running: "Loading from GitHub",
+    ready: "Stored",
+    retry: "Retry scheduled",
+    blocked: "Import paused",
+    dead_letter: "Needs operator attention",
+  };
+  const title =
+    backfill.state === "ready"
+      ? "Selected history is available"
+      : backfill.state === "attention"
+        ? "History import needs attention"
+        : "Loading missing months from GitHub";
+  return (
+    <section className="analytics-history" aria-label="Historical coverage">
+      <div className="analytics-history-status" role="status">
+        <strong>{title}</strong>
+        <span
+          className={`badge ${backfill.state === "ready" ? "green" : "amber"}`}
+        >
+          {backfill.pending_months
+            ? `${backfill.pending_months} months pending`
+            : backfill.state === "ready"
+              ? "Up to date"
+              : "Needs review"}
+        </span>
+      </div>
+      <p>
+        Missing months load automatically without Devin credits. Charts update
+        as history arrives; incomplete months remain gaps, not zero activity.
+      </p>
+      {backfill.months.length > 0 && (
+        <details>
+          <summary>Monthly import progress</summary>
+          <ul className="analytics-months">
+            {backfill.months.map((month) => (
+              <li key={month.month}>
+                <strong>{month.month.slice(0, 7)}</strong>
+                <span>{labels[month.state]}</span>
+                <small>
+                  {month.covered_through
+                    ? `Stored through ${month.covered_through}`
+                    : "No verified coverage yet"}
+                  {month.state === "retry" && month.next_retry > 0
+                    ? ` · Retry ${new Date(month.next_retry * 1000).toLocaleString()}`
+                    : ""}
+                </small>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
   );
 }

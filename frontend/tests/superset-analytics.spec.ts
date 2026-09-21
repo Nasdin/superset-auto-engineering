@@ -21,6 +21,7 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
       "Commits per PR",
       "Rework after review",
       "Lines changed per PR",
+      "Total hours before merge · calendar month",
       "Merged changes · current window",
     ]) {
       await page.locator(".superset-panel").scrollIntoViewIfNeeded();
@@ -34,7 +35,7 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
         () => responses.filter((r) => !r.request().frame().isDetached()).length,
         { timeout: 60_000 },
       )
-      .toBeGreaterThanOrEqual(5);
+      .toBeGreaterThanOrEqual(6);
     const captured = responses.filter((r) => !r.request().frame().isDetached());
     const charts = await Promise.all(
       captured.map(async (r) => {
@@ -51,7 +52,10 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
       await page.request.get(`/api/analytics/pull-requests?${query}`)
     ).json();
     const trendCharts = charts.filter((c) => c.colnames.includes("chart_date"));
-    expect(trendCharts).toHaveLength(4);
+    expect(trendCharts).toHaveLength(5);
+    const comparisonCharts = trendCharts.filter(
+      (c) => c.metric !== "total_hours",
+    );
     const mergeTrend = trendCharts.find((c) => c.metric === "median_hours");
     expect(mergeTrend).toBeDefined();
     if (!query.includes("cadence=rolling")) {
@@ -70,7 +74,23 @@ test("real Superset impact charts match cohorts, switch cadence and isolate repo
         else expect(actual[expected.segment]).toBeNull();
       }
     }
-    for (const chart of trendCharts) {
+    const monthlyTotal = trendCharts.find((c) => c.metric === "total_hours");
+    expect(monthlyTotal).toBeDefined();
+    for (const expected of reference.impact.monthly_totals) {
+      const actual = monthlyTotal.data.find(
+        (r: { chart_date: number }) =>
+          new Date(r.chart_date).toISOString().slice(0, 10) === expected.month,
+      );
+      expect(actual).toBeDefined();
+      if (expected.covered_total_hours === null)
+        expect(actual["All selected PRs"]).toBeNull();
+      else
+        expect(actual["All selected PRs"]).toBeCloseTo(
+          expected.covered_total_hours,
+          8,
+        );
+    }
+    for (const chart of comparisonCharts) {
       expect(
         chart.annotation_data?.["System introduced"]?.records?.[0]?.start_dttm,
       ).toBeTruthy();

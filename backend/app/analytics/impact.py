@@ -37,6 +37,7 @@ def measure(rows):
         "rework_samples": len(rework),
         "code_samples": len(code),
         "median_hours": median(durations) if durations else None,
+        "total_hours": sum(durations) if durations else (0 if not rows else None),
         "avg_commits": mean(commits) if commits else None,
         "avg_rework": mean(rework) if rework else None,
         "additions": sum(pr["additions"] for pr in code) if code else None,
@@ -49,7 +50,16 @@ def measure(rows):
 
 def window(rows, status, end, days):
     bounds = {"start": (end - timedelta(days=days - 1)).isoformat(), "end": end.isoformat()}
-    return {**bounds, **measure(cohort(rows, end, days)), "covered": covered(status, bounds)}
+    measured = measure(cohort(rows, end, days))
+    complete = covered(status, bounds)
+    return {
+        **bounds,
+        **measured,
+        "covered": complete,
+        "covered_total_hours": measured["total_hours"]
+        if complete and measured["merge_samples"] == measured["merged_prs"]
+        else None,
+    }
 
 
 def changes(current, baseline):
@@ -85,9 +95,16 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
             {"segment": name, "current": now, "baseline": before, "changes": changes(now, before)}
         )
     monthly = []
+    monthly_totals = []
     for offset in range(6, -1, -1):
         start = months_before(end.replace(day=1), offset)
         stop = min(months_before(start, -1) - timedelta(days=1), end)
+        monthly_totals.append(
+            {
+                "month": start.isoformat(),
+                **window(rows, status, stop, (stop - start).days + 1),
+            }
+        )
         for name in SEGMENTS:
             monthly.append(
                 {
@@ -119,6 +136,7 @@ def impact_report(rows, status, *, end, days, baseline_end, tracked, completed=N
         "changes": changes(current, baseline),
         "categories": categories,
         "monthly": monthly,
+        "monthly_totals": monthly_totals,
         "rollout": {
             "before": before,
             "after": after,

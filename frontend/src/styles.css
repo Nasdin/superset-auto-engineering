@@ -2606,3 +2606,79 @@ td small {
     font-size: 30px;
   }
 }
+
+/* Keep the selected repository visible while detailed cohort controls collapse. */
+.analytics-source {
+  display: grid;
+  grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  background: #f0f3ed;
+  border: 1px solid #d8dfd2;
+  border-radius: 9px;
+}
+.analytics-source p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.merge-hours-definition {
+  margin: -8px 0 24px;
+  max-width: 950px;
+}
+@media (max-width: 700px) {
+  .analytics-source {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+}
+
+.analytics-history {
+  margin: 18px 0;
+  padding: 16px 20px;
+  border-left: 3px solid #8b9d87;
+  background: #f5f6f1;
+  font-size: 12px;
+}
+.analytics-history-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.analytics-history p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.analytics-history summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.analytics-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  padding: 0;
+  margin: 16px 0 0;
+  list-style: none;
+}
+.analytics-months li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.analytics-months small {
+  flex-basis: 100%;
+  color: var(--muted);
+  line-height: 1.6;
+}

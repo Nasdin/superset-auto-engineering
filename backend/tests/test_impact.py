@@ -133,3 +133,47 @@ def test_queued_or_failed_tracked_work_never_earns_effort_credit():
         [row], STATUS, end=date(2026, 9, 22), days=30, baseline_end=date(2026, 3, 20), tracked={1}
     )
     assert result["estimate"]["eligible_prs"] == 0
+
+
+def test_monthly_totals_sum_full_pr_durations_at_utc_merge_date():
+    rows = [
+        record(1, created="2026-02-28T23:00:00Z", merged="2026-03-01T01:00:00Z"),
+        record(
+            2,
+            created="2026-03-31T20:00:00Z",
+            merged="2026-03-31T23:00:00Z",
+            author="dependabot[bot]",
+        ),
+        record(3, created="2026-03-31T23:00:00Z", merged="2026-04-01T01:00:00Z"),
+        record(4, created="2026-03-01T00:00:00Z", merged=None),
+        record(5, created="2026-09-21T00:00:00Z", merged="2026-09-21T01:00:00Z"),
+    ]
+    months = {row["month"]: row for row in report(rows)["monthly_totals"]}
+    assert len(months) == 7
+    assert months["2026-03-01"]["total_hours"] == 5
+    assert months["2026-03-01"]["covered_total_hours"] == 5
+    assert months["2026-03-01"]["merged_prs"] == 2
+    assert months["2026-04-01"]["covered_total_hours"] == 2
+    assert months["2026-05-01"]["covered_total_hours"] == 0
+    assert months["2026-09-01"]["covered_total_hours"] == 0
+
+
+def test_monthly_total_is_unknown_for_incomplete_history_or_invalid_duration():
+    rows = [
+        record(1, created="2026-03-01T00:00:00Z", merged="2026-03-01T02:00:00Z"),
+        record(2, created="2026-03-02T00:00:00Z", merged="2026-03-01T01:00:00Z"),
+    ]
+    march = report(rows)["monthly_totals"][0]
+    assert march["total_hours"] == 2  # Retain the measured subtotal for diagnostics.
+    assert march["merge_samples"] == 1
+    assert march["merged_prs"] == 2
+    assert march["covered_total_hours"] is None
+    missing = impact_report(
+        [],
+        {},
+        end=date(2026, 9, 20),
+        days=30,
+        baseline_end=date(2026, 3, 20),
+        tracked=set(),
+    )
+    assert all(row["covered_total_hours"] is None for row in missing["monthly_totals"])

@@ -8,6 +8,7 @@ from pathlib import Path
 import httpx
 
 from ..automation.config import Settings
+from .backfill import MonthBackfill
 from .enrichment import enrich_repository
 from .store import AnalyticsStore
 
@@ -104,13 +105,19 @@ def main():
         headers["Authorization"] = f"Bearer {settings.github_token}"
     logging.basicConfig(level=logging.INFO)
     with httpx.Client(headers=headers, timeout=45) as client:
+        next_sync = 0.0
+        backfill = MonthBackfill(store)
         while True:
+            backfill.run_once(client)
+            if time.monotonic() < next_sync:
+                time.sleep(5)
+                continue
             for repository in dict.fromkeys([settings.repo, "apache/superset"]):
                 sync_repository(store, repository, client)
                 logging.info("Analytics %s: %s", repository, store.status(repository)["state"])
                 progress = enrich_repository(store, repository, client)
                 logging.info("Analytics detail enrichment %s: %s", repository, progress)
-            time.sleep(3600)
+            next_sync = time.monotonic() + 3600
 
 
 if __name__ == "__main__":

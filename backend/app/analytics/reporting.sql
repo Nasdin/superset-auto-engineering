@@ -41,16 +41,36 @@ WHERE (s.author='' OR s.author=p.author) AND (s.label='' OR p.labels ? s.label)
  AND (s.base='' OR s.base=p.base) AND (s.kind='' OR (s.kind='bot' AND p.is_bot) OR (s.kind<>'bot' AND s.kind=p.category))
  AND (s.provenance='all' OR (s.provenance='tracked' AND p.tracked) OR (s.provenance='untracked' AND NOT p.tracked));
 
+-- Explicit month repairs override broad scan claims, including unverified gaps.
+-- A retained month prefix remains valid while its later days are being fetched.
+CREATE OR REPLACE FUNCTION reporting.history_covered(repo text, starts_on date, ends_on date)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
+ WITH broad AS (
+   SELECT COALESCE((
+     SELECT COALESCE((s.data::jsonb->>'complete')::boolean,false)
+       AND (s.data::jsonb->>'coverage_from')::date<=starts_on
+       AND (s.data::jsonb->>'last_success')::timestamptz>=((ends_on+1)::timestamp AT TIME ZONE 'UTC')
+     FROM public.sync_status s WHERE s.repository=repo
+   ),false) AS covered
+ )
+ SELECT ends_on>=starts_on AND NOT EXISTS (
+   SELECT 1 FROM generate_series(date_trunc('month',starts_on::timestamp),
+     date_trunc('month',ends_on::timestamp),interval '1 month') m(month)
+   CROSS JOIN broad
+   LEFT JOIN public.analytics_months a ON a.repository=repo AND a.month=m.month::date::text
+   WHERE CASE WHEN a.month IS NOT NULL THEN NOT COALESCE(
+     a.covered_through::date>=LEAST(ends_on,(m.month+interval '1 month'-interval '1 day')::date),false)
+     ELSE NOT broad.covered END
+ )
+$$;
+
 CREATE OR REPLACE VIEW reporting.windows AS
 SELECT s.selection_id,s.repository,s.days,c.cohort,c.window_end,
  ((c.window_end-(s.days-1))::timestamp AT TIME ZONE 'UTC') AS starts_at,
  ((c.window_end+1)::timestamp AT TIME ZONE 'UTC') AS stops_at,
- COALESCE((status.data::jsonb->>'complete')::boolean,false)
- AND (status.data::jsonb->>'coverage_from')::date <= c.window_end-(s.days-1)
- AND (status.data::jsonb->>'last_success')::timestamptz >= ((c.window_end+1)::timestamp AT TIME ZONE 'UTC') AS covered
+ reporting.history_covered(s.repository,c.window_end-(s.days-1),c.window_end) AS covered
 FROM public.analytics_selections s
-CROSS JOIN LATERAL (VALUES ('Current',s.window_end::date),('Baseline',s.baseline_end::date)) c(cohort,window_end)
-LEFT JOIN public.sync_status status ON status.repository=s.repository;
+CROSS JOIN LATERAL (VALUES ('Current',s.window_end::date),('Baseline',s.baseline_end::date)) c(cohort,window_end);
 
 CREATE OR REPLACE VIEW reporting.cohorts AS
 SELECT w.selection_id,w.repository,w.cohort,w.window_end,w.days,COALESCE(w.covered,false) AS history_covered,
@@ -78,12 +98,9 @@ WITH periods AS (
 ), aggregates AS (
  SELECT p.selection_id,p.repository,p.window_end,p.days,count(r.hours_to_merge) AS measured_prs,
  percentile_cont(0.5) WITHIN GROUP (ORDER BY r.hours_to_merge)::double precision AS median_hours,
- COALESCE((status.data::jsonb->>'complete')::boolean,false)
- AND (status.data::jsonb->>'coverage_from')::date<=p.window_end-(p.days-1)
- AND (status.data::jsonb->>'last_success')::timestamptz>=p.stops_at AS history_covered
+ reporting.history_covered(p.repository,p.window_end-(p.days-1),p.window_end) AS history_covered
  FROM periods p LEFT JOIN reporting.selected_prs r ON r.selection_id=p.selection_id AND r.merged_at>=p.starts_at AND r.merged_at<p.stops_at
- LEFT JOIN public.sync_status status ON status.repository=p.repository
- GROUP BY p.selection_id,p.repository,p.window_end,p.days,p.stops_at,status.data
+ GROUP BY p.selection_id,p.repository,p.window_end,p.days,p.stops_at
 )
 SELECT *,CASE WHEN history_covered THEN median_hours END AS covered_median_hours FROM aggregates;
 
@@ -123,16 +140,14 @@ SELECT w.selection_id,w.repository,w.cadence,w.cohort,w.month,w.window_start,w.w
  sum(p.additions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL) AS additions,
  sum(p.deletions) FILTER (WHERE p.additions IS NOT NULL AND p.deletions IS NOT NULL) AS deletions,
  avg(p.additions+p.deletions)::double precision AS avg_lines_changed,
- COALESCE((status.data::jsonb->>'complete')::boolean,false)
- AND COALESCE((status.data::jsonb->>'coverage_from')::date<=w.window_start,false)
- AND COALESCE((status.data::jsonb->>'last_success')::timestamptz>=((w.window_end+1)::timestamp AT TIME ZONE 'UTC'),false) AS history_covered
+ reporting.history_covered(w.repository,w.window_start,w.window_end) AS history_covered,
+ sum(p.hours_to_merge)::double precision AS total_hours
 FROM reporting.impact_periods w
 CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Other')) g(segment)
 LEFT JOIN reporting.selected_prs p ON p.selection_id=w.selection_id AND p.segment=g.segment
  AND p.merged_at>=(w.window_start::timestamp AT TIME ZONE 'UTC')
  AND p.merged_at<((w.window_end+1)::timestamp AT TIME ZONE 'UTC')
-LEFT JOIN public.sync_status status ON status.repository=w.repository
-GROUP BY w.selection_id,w.repository,w.cadence,w.cohort,w.month,w.window_start,w.window_end,g.segment,status.data;
+GROUP BY w.selection_id,w.repository,w.cadence,w.cohort,w.month,w.window_start,w.window_end,g.segment;
 
 CREATE OR REPLACE VIEW reporting.impact_monthly AS
 SELECT * FROM reporting.impact_aggregates WHERE cadence='monthly';
@@ -168,8 +183,26 @@ SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
  NULL::double precision,NULL::double precision,NULL::double precision,NULL::double precision
 FROM public.analytics_selections s CROSS JOIN (VALUES ('Bots'),('Fixes'),('Features'),('Other')) g(segment);
 
+-- A month is one non-overlapping UTC merge-date cohort. Totals represent elapsed
+-- PR time, not engineer labour: overlapping PR durations are intentionally summed.
+-- Blank periods are incomplete. Only fully covered empty months measure zero.
+CREATE OR REPLACE VIEW reporting.impact_total_monthly_chart AS
+SELECT selection_id,month AS chart_date,'All selected PRs'::text AS segment,
+ CASE WHEN bool_and(history_covered) AND sum(measured_prs)=sum(merged_prs)
+ THEN COALESCE(sum(total_hours),0)::double precision END AS total_hours
+FROM reporting.impact_monthly
+GROUP BY selection_id,month
+UNION ALL
+SELECT s.selection_id,CASE WHEN abs(s.window_end::date-DATE '2026-09-21')<=7
+ THEN GREATEST(s.window_end::date,DATE '2026-09-24') ELSE s.window_end::date END,
+ 'All selected PRs'::text,NULL::double precision
+FROM public.analytics_selections s;
+
+REVOKE EXECUTE ON FUNCTION reporting.history_covered(text,date,date) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION reporting.history_covered(text,date,date) TO cognition_reader;
 REVOKE ALL ON SCHEMA reporting FROM PUBLIC;
 GRANT USAGE ON SCHEMA reporting TO cognition_reader;
 GRANT SELECT ON reporting.comparison,reporting.cohorts,reporting.trend,reporting.details,
  reporting.impact_monthly,reporting.impact_rolling,reporting.impact_categories,
- reporting.impact_monthly_chart,reporting.impact_rolling_chart TO cognition_reader;
+ reporting.impact_monthly_chart,reporting.impact_rolling_chart,
+ reporting.impact_total_monthly_chart TO cognition_reader;

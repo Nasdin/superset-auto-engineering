@@ -82,12 +82,26 @@ def summarize(pulls, end, days):
 
 
 def covered(status, summary):
-    return bool(
+    broad = bool(
         status.get("complete")
         and status.get("coverage_from", "9999") <= summary["start"]
         and status.get("last_success")
         and timestamp(status["last_success"]) >= bounds(date.fromisoformat(summary["end"]), 1)[1]
     )
+    cursor = date.fromisoformat(summary["start"])
+    stop = date.fromisoformat(summary["end"])
+    months = {row["month"]: row for row in status.get("months", [])}
+    while cursor <= stop:
+        next_month = (cursor.replace(day=28) + timedelta(days=4)).replace(day=1)
+        required = min(stop, next_month - timedelta(days=1)).isoformat()
+        receipt = months.get(cursor.replace(day=1).isoformat())
+        if receipt is not None:
+            if (receipt.get("covered_through") or "") < required:
+                return False
+        elif not broad:
+            return False
+        cursor = next_month
+    return True
 
 
 def analyze(

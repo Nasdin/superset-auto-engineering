@@ -8,7 +8,8 @@ test("collapsed controls keep context and keyboard access across refresh", async
   const summary = controls.locator("summary").first();
   await expect(
     page.getByRole("combobox", { name: "Repository", exact: true }),
-  ).toBeHidden();
+  ).toBeVisible();
+  await expect(page.getByLabel("Window end (UTC)")).toBeHidden();
   await expect(summary).toContainText("apache/superset");
   await summary.focus();
   await page.keyboard.press("Enter");

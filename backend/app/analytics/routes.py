@@ -1,15 +1,18 @@
+from contextlib import contextmanager
 from datetime import UTC, date, datetime, timedelta
 from threading import BoundedSemaphore
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 
+from .backfill import MonthBackfill
 from .metrics import analyze, months_before
 
 router = APIRouter(prefix="/api/analytics", tags=["repository analytics"])
 analysis_slots = BoundedSemaphore(1)
 
 
+@contextmanager
 def analysis_capacity():
     """Bound full-history Python allocations, not just database connections.
 
@@ -28,9 +31,10 @@ def analysis_capacity():
         analysis_slots.release()
 
 
-@router.get("/pull-requests", dependencies=[Depends(analysis_capacity)])
+@router.get("/pull-requests")
 def pull_requests(
     request: Request,
+    response: Response,
     repository: str = "apache/superset",
     end: date | None = None,
     days: int = Query(default=30, ge=7, le=180),
@@ -57,10 +61,11 @@ def pull_requests(
     )
     if baseline_end is None or not date(2009, 1, 1) <= baseline_end < end:
         raise HTTPException(422, "Baseline end must precede the current end date")
+    jobs = engine.store.operational_jobs() if repository == engine.settings.repo else []
     tracked = (
         {
             job["pr_number"]
-            for job in engine.store.operational_jobs()
+            for job in jobs
             if job["kind"] in {"repair", "patch", "dependency"} and job.get("pr_number")
         }
         if repository == engine.settings.repo
@@ -68,30 +73,71 @@ def pull_requests(
     )
     completed = {
         job["pr_number"]
-        for job in engine.store.operational_jobs()
+        for job in jobs
         if job["pr_number"] in tracked
         and job.get("session_id")
         and job["state"] in {"implemented", "prepared"}
     }
     store = request.app.state.analytics
-    return {
-        "repository": repository,
-        "repositories": repositories,
-        "workflow_repository": engine.settings.repo,
-        "provenance": "GitHub REST API / persisted public PR metadata",
-        **analyze(
-            store.pulls(repository),
-            store.status(repository),
-            end=end,
-            days=days,
-            baseline_end=baseline_end,
-            author=author,
-            label=label,
-            base=base,
-            kind=kind,
-            tracked=tracked,
-            completed=completed,
-            provenance=provenance,
-            offset=offset,
-        ),
-    }
+    cache = request.app.state.analytics_cache
+    # A cheap revision lookup replaces repeated full-history reads. Workflow
+    # provenance is another input and must invalidate independently of ingestion.
+    key = (
+        repository,
+        store.revision(repository),
+        end,
+        days,
+        baseline_end,
+        author,
+        label,
+        base,
+        kind,
+        provenance,
+        offset,
+        tuple(sorted(tracked)),
+        tuple(sorted(completed)),
+    )
+    if (result := cache.get(key)) is not None:
+        response.headers["X-Analytics-Cache"] = "hit"
+        return result
+    with analysis_capacity():
+        # A concurrent miss may have completed while this request read its key.
+        if (result := cache.get(key)) is not None:
+            response.headers["X-Analytics-Cache"] = "hit"
+            return result
+        stored_pulls = store.pulls(repository)
+        loading = MonthBackfill(store).request_selection(
+            repository, end=end, days=days, baseline_end=baseline_end, stored_pulls=stored_pulls
+        )
+        latest_revision = store.revision(repository)
+        if latest_revision != key[1]:
+            # Queue creation or concurrent ingestion changed the snapshot. Capture
+            # its revision before rereading, never label old rows with a new key.
+            key = (key[0], latest_revision, *key[2:])
+            stored_pulls = store.pulls(repository)
+        result = {
+            "repository": repository,
+            "data_revision": key[1],
+            "repositories": repositories,
+            "workflow_repository": engine.settings.repo,
+            "provenance": "GitHub REST API / persisted public PR metadata",
+            "backfill": loading,
+            **analyze(
+                stored_pulls,
+                store.status(repository),
+                end=end,
+                days=days,
+                baseline_end=baseline_end,
+                author=author,
+                label=label,
+                base=base,
+                kind=kind,
+                tracked=tracked,
+                completed=completed,
+                provenance=provenance,
+                offset=offset,
+            ),
+        }
+        cache.put(key, result)
+        response.headers["X-Analytics-Cache"] = "miss"
+        return result

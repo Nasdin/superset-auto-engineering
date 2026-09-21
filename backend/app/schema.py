@@ -157,3 +157,25 @@ Table(
     col("created", Float, nullable=False),
     col("updated", Float, nullable=False),
 )
+
+Table(
+    "analytics_revisions",
+    analytics,
+    col("repository", primary_key=True),
+    col("revision", Integer, nullable=False, server_default="0"),
+)
+Table(
+    "analytics_months",
+    analytics,
+    col("repository", primary_key=True),
+    col("month", primary_key=True),
+    col("requested_through", nullable=False),
+    col("covered_through"),
+    col("state", nullable=False),
+    col("progress", nullable=False),
+    col("attempts", Integer, nullable=False, server_default="0"),
+    col("next_retry", Float, nullable=False, server_default="0"),
+    col("lease_token"),
+    col("lease_until", Float, nullable=False, server_default="0"),
+    col("updated", Float, nullable=False),
+)

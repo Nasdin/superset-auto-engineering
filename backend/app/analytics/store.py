@@ -59,7 +59,23 @@ class AnalyticsStore:
     def connect(self):
         return self.database.connect()
 
-    def upsert(self, repository, pulls):
+    @staticmethod
+    def bump(db, repository):
+        db.execute(
+            "INSERT INTO analytics_revisions(repository,revision) VALUES(:repository,1) "
+            "ON CONFLICT(repository) DO UPDATE SET revision=analytics_revisions.revision+1",
+            {"repository": repository},
+        )
+
+    def revision(self, repository):
+        with self.connect() as db:
+            row = db.execute(
+                "SELECT revision FROM analytics_revisions WHERE repository=:repository",
+                {"repository": repository},
+            ).fetchone()
+            return row["revision"] if row else 0
+
+    def upsert(self, repository, pulls, *, month_claim=None):
         """Refresh list metadata without discarding detail measurements.
 
         Any provider update invalidates the snapshot, including updates to closed
@@ -67,6 +83,14 @@ class AnalyticsStore:
         """
         with self.connect() as db:
             db.lock()
+            if month_claim is not None:
+                month, token, now = month_claim
+                if not db.execute(
+                    "SELECT 1 FROM analytics_months WHERE repository=:repository AND month=:month "
+                    "AND lease_token=:token AND lease_until>:now AND state='running'",
+                    {"repository": repository, "month": month, "token": token, "now": now},
+                ).fetchone():
+                    return False
             records = []
             for pr in pulls:
                 previous = db.execute(
@@ -108,6 +132,10 @@ class AnalyticsStore:
                 records,
             )
 
+            if records:
+                self.bump(db, repository)
+            return True
+
     def enrich(self, repository, number, measurements, *, expected_updated_at):
         """Publish only if the list snapshot has not changed during HTTP requests."""
         with self.connect() as db:
@@ -127,6 +155,7 @@ class AnalyticsStore:
                 "UPDATE pull_requests SET data=:data WHERE repository=:repository AND number=:number",
                 {**parameters, "data": json.dumps(record)},
             )
+            self.bump(db, repository)
             return True
 
     def pulls(self, repository):
@@ -145,11 +174,21 @@ class AnalyticsStore:
                 "SELECT data FROM sync_status WHERE repository=:repository",
                 {"repository": repository},
             ).fetchone()
-            return json.loads(row["data"]) if row else {"state": "not_synced"}
+            status = json.loads(row["data"]) if row else {"state": "not_synced"}
+            status["months"] = [
+                dict(item)
+                for item in db.execute(
+                    "SELECT month,covered_through,state FROM analytics_months WHERE repository=:repository",
+                    {"repository": repository},
+                )
+            ]
+            return status
 
     def set_status(self, repository, value):
+        value = {key: item for key, item in value.items() if key != "months"}
         with self.connect() as db:
             db.execute(
                 "INSERT INTO sync_status(repository,data) VALUES(:repository,:data) ON CONFLICT(repository) DO UPDATE SET data=excluded.data",
                 {"repository": repository, "data": json.dumps(value)},
             )
+            self.bump(db, repository)

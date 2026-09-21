@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.concurrency import contextmanager_in_threadpool
 from fastapi.staticfiles import StaticFiles
 
+from .analytics.cache import AnalyticsResultCache
 from .analytics.embedding import SupersetClient
 from .analytics.embedding import router as superset_router
 from .analytics.routes import router as analytics_router
@@ -49,6 +50,7 @@ def create_app(
             application.state.analytics = AnalyticsStore(
                 configured.analytics_database, seed=analytics_seed
             )
+            application.state.analytics_cache = AnalyticsResultCache()
             stack.callback(application.state.analytics.database.close)
             application.state.superset = (
                 SupersetClient(

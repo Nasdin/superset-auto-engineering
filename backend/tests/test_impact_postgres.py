@@ -236,3 +236,167 @@ def test_impact_charts_hide_uncovered_periods_and_do_not_extend_historic_ranges(
     historic = select(history, window_end="2025-09-20", baseline_end="2025-03-20")
     for view in ("impact_monthly_chart", "impact_rolling_chart"):
         assert max(row["chart_date"] for row in rows(history, view, historic)) == date(2025, 9, 20)
+
+
+def test_monthly_total_sums_selected_pr_durations_and_preserves_missingness(postgres):  # noqa: F811
+    from app.analytics.impact import impact_report
+    from test_analytics import record
+
+    store, history = postgres
+    install(store)
+    selected = [
+        record(1, created="2026-02-28T23:00:00Z", merged="2026-03-01T01:00:00Z"),
+        record(
+            2,
+            created="2026-03-31T20:00:00Z",
+            merged="2026-03-31T23:00:00Z",
+            author="dependabot[bot]",
+        ),
+        record(3, created="2026-03-31T23:00:00Z", merged="2026-04-01T01:00:00Z"),
+        record(4, created="2026-03-01T00:00:00Z", merged=None),
+        record(5, created="2026-09-21T00:00:00Z", merged="2026-09-21T01:00:00Z"),
+    ]
+    with history.connect() as connection:
+        for pr in selected:
+            connection.execute(
+                "INSERT INTO pull_requests(repository,number,data) VALUES(:repo,:number,:data)",
+                {"repo": "apache/superset", "number": pr["number"], "data": json.dumps(pr)},
+            )
+    status = {
+        "complete": True,
+        "coverage_from": "2020-01-01",
+        "last_success": "2026-09-21T00:00:00Z",
+    }
+    history.set_status("apache/superset", status)
+    identity = select(history)
+    chart = rows(history, "impact_total_monthly_chart", identity)
+    by_month = {row["chart_date"].isoformat(): row["total_hours"] for row in chart}
+    python = impact_report(
+        selected,
+        status,
+        end=date(2026, 9, 20),
+        days=30,
+        baseline_end=date(2026, 3, 20),
+        tracked=set(),
+    )
+    assert all(
+        by_month[row["month"]] == row["covered_total_hours"] for row in python["monthly_totals"]
+    )
+    assert by_month["2026-03-01"] == 5
+    assert by_month["2026-04-01"] == 2
+    assert by_month["2026-05-01"] == 0
+    assert by_month["2026-09-24"] is None  # Annotation extent cannot invent data.
+    bot_selection = select(history, kind="bot")
+    bot_march = rows(
+        history, "impact_total_monthly_chart", bot_selection, "AND chart_date=DATE '2026-03-01'"
+    )
+    assert bot_march[0]["total_hours"] == 3
+    fork = select(history, repository="Nasdin/superset")
+    assert all(
+        row["total_hours"] is None for row in rows(history, "impact_total_monthly_chart", fork)
+    )
+    invalid = record(6, created="2026-03-02T00:00:00Z", merged="2026-03-01T00:00:00Z")
+    with history.connect() as connection:
+        connection.execute(
+            "INSERT INTO pull_requests(repository,number,data) VALUES(:repo,:number,:data)",
+            {"repo": "apache/superset", "number": 6, "data": json.dumps(invalid)},
+        )
+    assert (
+        rows(history, "impact_total_monthly_chart", identity, "AND chart_date=DATE '2026-03-01'")[
+            0
+        ]["total_hours"]
+        is None
+    )
+    history.set_status("apache/superset", {**status, "complete": False})
+    assert all(
+        row["total_hours"] is None for row in rows(history, "impact_total_monthly_chart", identity)
+    )
+
+
+def test_lazy_month_coverage_drives_native_charts_and_reader_can_query(postgres):  # noqa: F811
+    store, history = postgres
+    seed(history)
+    history.set_status("apache/superset", {"complete": False})
+    install(store)
+    identity = select(history)
+    with history.connect() as connection:
+        for month, requested, covered, state in (
+            ("2026-03-01", "2026-03-31", "2026-03-31", "complete"),
+            ("2026-08-01", "2026-08-31", "2026-08-31", "complete"),
+            ("2026-09-01", "2026-09-30", "2026-09-20", "running"),
+        ):
+            connection.execute(
+                "INSERT INTO analytics_months(repository,month,requested_through,covered_through,"
+                "state,progress,updated) VALUES(:repo,:month,:requested,:covered,:state,'{}',0)",
+                {
+                    "repo": "apache/superset",
+                    "month": month,
+                    "requested": requested,
+                    "covered": covered,
+                    "state": state,
+                },
+            )
+        # Verify the actual Superset read-only role, not merely the test DB owner.
+        connection.execute("SET LOCAL ROLE cognition_reader")
+        chart = connection.execute(
+            "SELECT chart_date,total_hours FROM reporting.impact_total_monthly_chart "
+            "WHERE selection_id=:id",
+            {"id": identity},
+        ).fetchall()
+    values = {row["chart_date"]: row["total_hours"] for row in chart}
+    assert values[date(2026, 3, 1)] is not None
+    assert values[date(2026, 4, 1)] is None
+    assert values[date(2026, 9, 1)] is not None  # A verified prefix survives continued import.
+    assert all(
+        row["history_covered"]
+        for row in rows(history, "impact_rolling", identity)
+        if row["window_end"] == date(2026, 9, 20)
+    )
+    tomorrow = select(history, window_end="2026-09-21")
+    assert (
+        rows(history, "impact_total_monthly_chart", tomorrow, "AND chart_date=DATE '2026-09-01'")[
+            0
+        ]["total_hours"]
+        is None
+    )
+
+
+def test_explicit_month_gap_overrides_broad_coverage_until_verified(postgres):  # noqa: F811
+    store, history = postgres
+    seed(history)  # Broad horizon says every displayed month is complete.
+    install(store)
+    identity = select(history)
+    with history.connect() as connection:
+        connection.execute(
+            "INSERT INTO analytics_months(repository,month,requested_through,covered_through,"
+            "state,progress,updated) VALUES('apache/superset','2026-09-01','2026-09-30',NULL,"
+            "'queued','{}',0)"
+        )
+    monthly = rows(history, "impact_total_monthly_chart", identity)
+    values = {row["chart_date"]: row["total_hours"] for row in monthly}
+    assert values[date(2026, 9, 1)] is None
+    assert values[date(2026, 3, 1)] is not None  # No explicit gap: broad proof still applies.
+    current = [
+        row
+        for row in rows(history, "impact_rolling", identity)
+        if row["window_end"] == date(2026, 9, 20)
+    ]
+    assert all(not row["history_covered"] for row in current)
+    with history.connect() as connection:
+        connection.execute(
+            "UPDATE analytics_months SET state='retry',covered_through='2026-09-20' "
+            "WHERE repository='apache/superset' AND month='2026-09-01'"
+        )
+    assert (
+        rows(history, "impact_total_monthly_chart", identity, "AND chart_date=DATE '2026-09-01'")[
+            0
+        ]["total_hours"]
+        is not None
+    )
+    tomorrow = select(history, window_end="2026-09-21")
+    assert (
+        rows(history, "impact_total_monthly_chart", tomorrow, "AND chart_date=DATE '2026-09-01'")[
+            0
+        ]["total_hours"]
+        is None
+    )
