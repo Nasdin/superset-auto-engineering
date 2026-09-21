@@ -1,3 +1,4 @@
+import { RecordedCases } from "../components/RecordedCases";
 import { Disclosure, Inspection } from "../components/Disclosure";
 import { ResiliencePanel } from "../components/ResiliencePanel";
 import { ExecutionEvidence } from "../components/ExecutionEvidence";
@@ -243,6 +244,7 @@ export function LiveDashboard({ page }: { page: Page }) {
           </button>
         </Disclosure>
       </div>
+      {page === "Release validation" && <RecordedCases />}
       {page === "Workflows" && (
         <div className="workflow-entry">
           <p>See the queue below, or choose when and how work begins.</p>
