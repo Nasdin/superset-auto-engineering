@@ -1,0 +1,298 @@
+{
+  "verified_at": "2026-09-21T09:21:40.120271+00:00",
+  "candidate_sha": "e7abd6aa25a60f108f8b34fde2e0aa323821f171",
+  "gate": "review_ready",
+  "validator_session": "https://app.devin.ai/sessions/5eb6e99b69e340c8aee15f2cf60e57f0",
+  "job_id": "fb588070-d991-4973-b503-e3817982f5ec",
+  "tests": {
+    "failed": 0,
+    "passed": 586,
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab --junitxml=junit.xml -p no:cacheprovider -q -o addopts=''",
+    "skipped": 0,
+    "report_url": "https://app.devin.ai/attachments/5ae3cba7-7b18-4797-80a5-d8f8748c2cb9/test_report.txt"
+  },
+  "coverage": {
+    "scope": "superset/sql/parse.py (changed module) and superset/db_engine_specs/clickhouse.py; branch coverage; git HEAD e7abd6aa25a60f108f8b34fde2e0aa323821f171",
+    "command": "SUPERSET_TESTENV=true SUPERSET_SECRET_KEY=[REDACTED] ~/venv-val/bin/python -m coverage run --branch --include='superset/sql/parse.py,superset/db_engine_specs/clickhouse.py' -m pytest tests/unit_tests/sql/parse_tests.py tests/unit_tests/db_engine_specs/test_clickhouse.py tests/unit_tests/sql_lab_test.py tests/unit_tests/commands/sql_lab -p no:cacheprovider -q -o addopts=''; coverage json -o coverage.json; coverage xml -o coverage.xml; coverage report -m",
+    "report_url": "https://app.devin.ai/attachments/d48dcd9e-b04c-42e9-8437-44419458d8c5/coverage.json",
+    "lines_total": 613,
+    "lines_covered": 531,
+    "branches_total": 164,
+    "branches_covered": 133
+  },
+  "ci": {
+    "state": "success",
+    "checks": 57
+  },
+  "github": {
+    "number": 10,
+    "state": "open",
+    "draft": false,
+    "merged": false,
+    "head_sha": "e7abd6aa25a60f108f8b34fde2e0aa323821f171",
+    "base": "cognition-local-e2e-20260921"
+  },
+  "publications": [
+    {
+      "key": "github:fb588070-d991-4973-b503-e3817982f5ec:9:b8ccf7b233992ed5",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/9#issuecomment-5758184097",
+      "error": null,
+      "updated": 1789982400.337719
+    },
+    {
+      "key": "github:fb588070-d991-4973-b503-e3817982f5ec:8:b8ccf7b233992ed5",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/issues/8#issuecomment-5758178655",
+      "error": null,
+      "updated": 1789982374.147965
+    },
+    {
+      "key": "github:fb588070-d991-4973-b503-e3817982f5ec:10:b8ccf7b233992ed5",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10#issuecomment-5758174623",
+      "error": null,
+      "updated": 1789982355.129008
+    },
+    {
+      "key": "github:fb588070-d991-4973-b503-e3817982f5ec:10:started-01e6bfad652d0734f1979125",
+      "state": "sent",
+      "url": "https://github.com/Nasdin/superset/pull/10#issuecomment-5758087358",
+      "error": null,
+      "updated": 1789981951.480942
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "video",
+      "name": "limit-by-browser.mp4",
+      "url": "https://app.devin.ai/attachments/5ece102c-b2e0-44c4-b4e9-3371718cb09f/limit-by-browser.mp4",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/270cec96352146b8467c2598f5ed3fad06ec842e7b2b9632120618a588ad4510.mp4",
+      "http_status": 200,
+      "content_type": "video/mp4",
+      "sha256": "270cec96352146b8467c2598f5ed3fad06ec842e7b2b9632120618a588ad4510",
+      "bytes": 2932437,
+      "committed_copy": "limit-by-browser.mp4"
+    },
+    {
+      "kind": "screenshot",
+      "name": "01_login.png",
+      "url": "https://app.devin.ai/attachments/2436cf69-6ea0-47a9-9326-d667c0fafa3b/01_login.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/e149b110145d1e4376320a78cec5d62f29f728734135b7d8ec512ad4e7705570.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "e149b110145d1e4376320a78cec5d62f29f728734135b7d8ec512ad4e7705570",
+      "bytes": 204004
+    },
+    {
+      "kind": "screenshot",
+      "name": "01b_signed_in.png",
+      "url": "https://app.devin.ai/attachments/bdaf717d-1107-4b67-aa6b-b0098f364d89/01b_signed_in.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/9b4253c7826d1770718aa7bf51920b0d3811c092ce6c33ed0915d64beb597764.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "9b4253c7826d1770718aa7bf51920b0d3811c092ce6c33ed0915d64beb597764",
+      "bytes": 228873
+    },
+    {
+      "kind": "screenshot",
+      "name": "02_limit_by_5_rows.png",
+      "url": "https://app.devin.ai/attachments/b7e7638f-154b-4095-9f97-53e4db95f471/02_limit_by_5_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/36e1085bd6bebb9a8311bc58d8abe92d7876692194917f4a49f4d0f846cf942c.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "36e1085bd6bebb9a8311bc58d8abe92d7876692194917f4a49f4d0f846cf942c",
+      "bytes": 260996,
+      "committed_copy": "02_limit_by_5_rows.png"
+    },
+    {
+      "kind": "screenshot",
+      "name": "03_offset_by_4_rows.png",
+      "url": "https://app.devin.ai/attachments/55268c24-e4f6-4f21-b580-564408fdec83/03_offset_by_4_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/78a736b7b4cf4928e522bf1f659af5ff9f01373848d077e4f8b510e8150f8176.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "78a736b7b4cf4928e522bf1f659af5ff9f01373848d077e4f8b510e8150f8176",
+      "bytes": 258889
+    },
+    {
+      "kind": "screenshot",
+      "name": "04_plain_limit_2_rows.png",
+      "url": "https://app.devin.ai/attachments/1726b06c-99bd-45a9-8fe5-855ef9706297/04_plain_limit_2_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/b3810e7c841b236ccd12e9fcd721518b9dc53fa1e4448a34bceec535eed7ab43.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "b3810e7c841b236ccd12e9fcd721518b9dc53fa1e4448a34bceec535eed7ab43",
+      "bytes": 249198
+    },
+    {
+      "kind": "screenshot",
+      "name": "05_raw_table_5_rows.png",
+      "url": "https://app.devin.ai/attachments/6b3e1318-6c4c-4c62-afd5-146b090a65f3/05_raw_table_5_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/49e3d1b8d67e0fa732c7e3e1e6220c6ac251e3510a31c3c0fbd9240e66024a58.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "49e3d1b8d67e0fa732c7e3e1e6220c6ac251e3510a31c3c0fbd9240e66024a58",
+      "bytes": 308879
+    },
+    {
+      "kind": "screenshot",
+      "name": "06_save_new_dashboard.png",
+      "url": "https://app.devin.ai/attachments/b19db9ff-ac5d-430b-8487-5703c06f7445/06_save_new_dashboard.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/3c80409eb8618fe82ab6d843cfa2d62c35b8c0fcfb856b87bb83323d188b0ba2.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "3c80409eb8618fe82ab6d843cfa2d62c35b8c0fcfb856b87bb83323d188b0ba2",
+      "bytes": 326768
+    },
+    {
+      "kind": "screenshot",
+      "name": "07_dashboard_5_rows.png",
+      "url": "https://app.devin.ai/attachments/f82a38f6-3c17-46a2-89f2-a525ff74bbb4/07_dashboard_5_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/6b718ccc7018e690aa1b3b9c1bdc20d810645e217e483dc6c142e18fb0675286.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "6b718ccc7018e690aa1b3b9c1bdc20d810645e217e483dc6c142e18fb0675286",
+      "bytes": 264519
+    },
+    {
+      "kind": "screenshot",
+      "name": "08_dashboard_reloaded_5_rows.png",
+      "url": "https://app.devin.ai/attachments/ca9acae7-4425-48f8-8a1c-42b1caaf6bec/08_dashboard_reloaded_5_rows.png",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/f6b7d16fd3b5feb6720190b680aed396a4a29e501d327bdd5938587f5d359d0a.png",
+      "http_status": 200,
+      "content_type": "image/png",
+      "sha256": "f6b7d16fd3b5feb6720190b680aed396a4a29e501d327bdd5938587f5d359d0a",
+      "bytes": 235590,
+      "committed_copy": "08_dashboard_reloaded_5_rows.png"
+    },
+    {
+      "kind": "logs",
+      "name": "expected_behavior.txt",
+      "url": "https://app.devin.ai/attachments/d89ec21b-34f1-42fc-b35b-b81766a2eb98/expected_behavior.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/435b1fa315a30bcce225cd1d3e0136bf827fdb28d6938f6a26bb597024c1ae60.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "435b1fa315a30bcce225cd1d3e0136bf827fdb28d6938f6a26bb597024c1ae60",
+      "bytes": 2984
+    },
+    {
+      "kind": "tests",
+      "name": "behavior_parse_check.txt",
+      "url": "https://app.devin.ai/attachments/f9c2d5da-ae76-461c-9a82-9febcfcf68c4/behavior_parse_check.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/c9ee8e9ba17d105dcfb8e37d8af75e41fdc887a3e1068e7b1c1ff4ecaf5c6e5f.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "c9ee8e9ba17d105dcfb8e37d8af75e41fdc887a3e1068e7b1c1ff4ecaf5c6e5f",
+      "bytes": 5153
+    },
+    {
+      "kind": "api",
+      "name": "api_transcript.txt",
+      "url": "https://app.devin.ai/attachments/a640557f-18ee-428a-b6d4-3d89af4050e0/api_transcript.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/09abf121a178192e924169df2ad51787b5b0571336ff09bfeeed153da756216a.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "09abf121a178192e924169df2ad51787b5b0571336ff09bfeeed153da756216a",
+      "bytes": 7736,
+      "committed_copy": "api_transcript.txt"
+    },
+    {
+      "kind": "tests",
+      "name": "test_report.txt",
+      "url": "https://app.devin.ai/attachments/5ae3cba7-7b18-4797-80a5-d8f8748c2cb9/test_report.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/3367d591a3e66519b987d248a3d7581d9ad5a183cd9eb862ebc0ce9f1a3942e1.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "3367d591a3e66519b987d248a3d7581d9ad5a183cd9eb862ebc0ce9f1a3942e1",
+      "bytes": 8229,
+      "committed_copy": "test_report.txt"
+    },
+    {
+      "kind": "tests",
+      "name": "junit.xml",
+      "url": "https://app.devin.ai/attachments/8e1da3da-fa2b-4c7d-b14f-2efc46995ce6/junit.xml",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/c7cdd8ff8703b4b2053425674f5bebeb3c2bcbfbd49011c4d5473020b8354086.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "c7cdd8ff8703b4b2053425674f5bebeb3c2bcbfbd49011c4d5473020b8354086",
+      "bytes": 93465
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage.json",
+      "url": "https://app.devin.ai/attachments/d48dcd9e-b04c-42e9-8437-44419458d8c5/coverage.json",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/d0c9e056e415d085310f0f9e1cc497366b6f0a2b643a5cc34ba60cf80c67c852.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "d0c9e056e415d085310f0f9e1cc497366b6f0a2b643a5cc34ba60cf80c67c852",
+      "bytes": 62798,
+      "committed_copy": "coverage.json"
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage.xml",
+      "url": "https://app.devin.ai/attachments/6d0d9bd9-7394-4b32-9037-b2ce86e0f672/coverage.xml",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/66f3a86dc33bca06e65c417522be3d353c5101987315834ed55fd24f7115c0ab.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "66f3a86dc33bca06e65c417522be3d353c5101987315834ed55fd24f7115c0ab",
+      "bytes": 27489
+    },
+    {
+      "kind": "coverage",
+      "name": "coverage_report.txt",
+      "url": "https://app.devin.ai/attachments/5e24ca44-7ba9-4edc-a210-9e24f6881413/coverage_report.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/81628b6091f5e41353886d7396585db064caebfafc15e0d500dda38df14a62c2.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "81628b6091f5e41353886d7396585db064caebfafc15e0d500dda38df14a62c2",
+      "bytes": 756
+    },
+    {
+      "kind": "logs",
+      "name": "database_behavior_log.txt",
+      "url": "https://app.devin.ai/attachments/5c2af542-179b-4103-840e-fdffe0d62974/database_behavior_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/259f8782edfcffac1abb67223165d09506702e9c0399087ac7b366a78cb371e8.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "259f8782edfcffac1abb67223165d09506702e9c0399087ac7b366a78cb371e8",
+      "bytes": 864
+    },
+    {
+      "kind": "logs",
+      "name": "superset_server_log.txt",
+      "url": "https://app.devin.ai/attachments/1f514649-b7e7-4310-9df4-69db0d2d965a/superset_server_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/e26bcbc67e3f6ef112555502acea7673f9c5e5fbd5e4783b379dfd9b22e0eb73.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "e26bcbc67e3f6ef112555502acea7673f9c5e5fbd5e4783b379dfd9b22e0eb73",
+      "bytes": 136051
+    },
+    {
+      "kind": "logs",
+      "name": "frontend_build_log.txt",
+      "url": "https://app.devin.ai/attachments/aa8bf8a5-1523-413f-977c-97671fcc9ac0/frontend_build_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/2deaa2946277b5dd33808ec9e90074f2a7f22f9e38c9ef0f94629a08ae6078f6.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "2deaa2946277b5dd33808ec9e90074f2a7f22f9e38c9ef0f94629a08ae6078f6",
+      "bytes": 34314
+    },
+    {
+      "kind": "logs",
+      "name": "setup_log.txt",
+      "url": "https://app.devin.ai/attachments/5c675910-fa5c-475b-a8d5-491bd99930a8/setup_log.txt",
+      "public_url": "https://controlling-shorter-particles-firm.trycloudflare.com/public-evidence/8b5c3e96c77a7d5aac2528d6caf9d9479dc071d934cee77052e56742a3ba902e.txt",
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "sha256": "8b5c3e96c77a7d5aac2528d6caf9d9479dc071d934cee77052e56742a3ba902e",
+      "bytes": 22987
+    }
+  ],
+  "limitations": [
+    "Temporary evidence URLs require the local server and tunnel.",
+    "Coverage is scoped, not repository-wide.",
+    "Human review still required; no merge or AWS deployment."
+  ]
+}

@@ -1,0 +1,100 @@
+HEAD e7abd6aa25a60f108f8b34fde2e0aa323821f171
+DATE 2026-09-21T09:09:24Z
+
+=== 1. POST /api/v1/security/login (expect 200, access_token present)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/security/login -H 'Content-Type: application/json' -d '{"username":"$SUPERSET_USER","password":"[REDACTED]","provider":"db","refresh":true}'
+STATUS: 200
+RESPONSE EXCERPT: {"access_token": "[REDACTED]", ...}
+ASSERT PASS: login status 200
+ASSERT PASS: access_token non-empty
+
+=== 2. POST /api/v1/database/ (expect 201, backend clickhousedb)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/database/ -H 'Authorization: [REDACTED]' -H 'Content-Type: application/json' -d '{"database_name":"clickhouse_val_1789981764","sqlalchemy_uri":"clickhousedb://[REDACTED]@localhost:18123/default","expose_in_sqllab":true,"allow_ctas":false,"allow_dml":false}'
+STATUS: 201
+RESPONSE EXCERPT: {"id": 3, "result": {"database_name": "clickhouse_val_1789981764", "sqlalchemy_uri": "[REDACTED]", ...}}
+ASSERT PASS: database create 201
+ASSERT PASS: database id returned
+
+=== 3. GET /api/v1/database/3 (expect 200, backend clickhousedb)
+CMD: curl -s -o resp.json -w '%{http_code}' $SUPERSET_URL/api/v1/database/3 -H 'Authorization: [REDACTED]'
+STATUS: 200
+RESPONSE EXCERPT: {"result": {"backend": "clickhousedb", "database_name": "clickhouse_val_1789981764", ...}}
+ASSERT PASS: GET database 200
+ASSERT PASS: backend == clickhousedb
+
+=== 4. sqllab/execute LIMIT 2 BY id (expect 200, 5 rows, ids 1,2,3, wrapped LIMIT 1001)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/sqllab/execute/ -H 'Authorization: [REDACTED]' -H 'Content-Type: application/json' -d '{"database_id":3,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id","runAsync":false,"queryLimit":1000,"client_id":"val21016"}'
+STATUS: 200
+RESPONSE EXCERPT: {"status": "success", "row_count": 5, "ids": [1, 2, 3], "executedSql": "SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id ) LIMIT 1001", "limitingFactor": "NOT_LIMITED", "limit": 1000, "first_rows": [{"id": 1, "ts": "2026-01-03T00:00:00"}, {"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-02T00:00:00"}]}
+ASSERT PASS: status == success
+ASSERT PASS: row_count == 5
+ASSERT PASS: ids == 1,2,3
+ASSERT PASS: executedSql matches /^SELECT \* FROM \( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id \) LIMIT 1001$/
+ASSERT PASS: executedSql does NOT match /LIMIT 3/
+ASSERT PASS: status 200
+
+=== 5. sqllab/execute LIMIT 2 OFFSET 1 BY id (expect 200, 4 rows, ids 1,2)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/sqllab/execute/ -H 'Authorization: [REDACTED]' -H 'Content-Type: application/json' -d '{"database_id":3,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id","runAsync":false,"queryLimit":1000,"client_id":"val15502"}'
+STATUS: 200
+RESPONSE EXCERPT: {"status": "success", "row_count": 4, "ids": [1, 2], "executedSql": "SELECT * FROM ( SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id ) LIMIT 1001", "limitingFactor": "NOT_LIMITED", "limit": 1000, "first_rows": [{"id": 1, "ts": "2026-01-02T00:00:00"}, {"id": 2, "ts": "2026-01-02T00:00:00"}, {"id": 1, "ts": "2026-01-01T00:00:00"}]}
+ASSERT PASS: status == success
+ASSERT PASS: row_count == 4
+ASSERT PASS: ids == 1,2
+ASSERT PASS: executedSql matches /LIMIT 2 OFFSET 1 BY id \) LIMIT 1001$/
+ASSERT PASS: status 200
+
+=== 6. sqllab/execute plain LIMIT 2 (expect 200, 2 rows, in-place LIMIT 3)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/sqllab/execute/ -H 'Authorization: [REDACTED]' -H 'Content-Type: application/json' -d '{"database_id":3,"sql":"SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2","runAsync":false,"queryLimit":1000,"client_id":"val18950"}'
+STATUS: 200
+RESPONSE EXCERPT: {"status": "success", "row_count": 2, "ids": [1, 2], "executedSql": "SELECT id, ts FROM events ORDER BY ts DESC LIMIT 3", "limitingFactor": "QUERY", "limit": 2, "first_rows": [{"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-03T00:00:00"}]}
+ASSERT PASS: status == success
+ASSERT PASS: row_count == 2
+ASSERT PASS: ids == 1,2
+ASSERT PASS: executedSql matches /LIMIT 3$/
+ASSERT PASS: executedSql does NOT match /FROM \(/
+ASSERT PASS: status 200
+
+=== 7. sqllab/execute no LIMIT (expect 200, 7 rows, LIMIT 1001)
+CMD: curl -s -o resp.json -w '%{http_code}' -X POST $SUPERSET_URL/api/v1/sqllab/execute/ -H 'Authorization: [REDACTED]' -H 'Content-Type: application/json' -d '{"database_id":3,"sql":"SELECT id, ts FROM events ORDER BY ts DESC","runAsync":false,"queryLimit":1000,"client_id":"val11925"}'
+STATUS: 200
+RESPONSE EXCERPT: {"status": "success", "row_count": 7, "ids": [1, 2, 3], "executedSql": "SELECT id, ts FROM events ORDER BY ts DESC LIMIT 1001", "limitingFactor": "NOT_LIMITED", "limit": 1000, "first_rows": [{"id": 1, "ts": "2026-01-03T00:00:00"}, {"id": 2, "ts": "2026-01-03T00:00:00"}, {"id": 1, "ts": "2026-01-02T00:00:00"}]}
+ASSERT PASS: status == success
+ASSERT PASS: row_count == 7
+ASSERT PASS: ids == 1,2,3
+ASSERT PASS: executedSql matches /LIMIT 1001$/
+ASSERT PASS: executedSql does NOT match /FROM \(/
+ASSERT PASS: status 200
+
+=== 8. ClickHouse system.query_log: statements received from Superset
+CMD: curl -s -u '[REDACTED]' http://localhost:18123/ --data-binary "SYSTEM FLUSH LOGS; SELECT query, result_rows FROM system.query_log WHERE type='QueryFinish' AND query LIKE '%events%' AND query NOT LIKE '%system.query_log%' AND event_time > now()-INTERVAL 10 MINUTE ORDER BY event_time FORMAT TSV"
+CREATE TABLE IF NOT EXISTS events (id UInt8, ts DateTime) ENGINE=Memory 0
+TRUNCATE TABLE events 0
+INSERT INTO events VALUES 7
+SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id FORMAT TabSeparated 5
+SELECT id, ts FROM events ORDER BY ts DESC LIMIT 3 FORMAT TabSeparated 3
+SELECT * FROM (SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 BY id) LIMIT 1001 FORMAT TabSeparated 5
+SELECT id, ts FROM events ORDER BY ts DESC LIMIT 2 OFFSET 1 BY id FORMAT TabSeparated 4
+SELECT count() FROM events FORMAT TabSeparated 1
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2 BY id ) LIMIT 100001  FORMAT Native 5
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2  OFFSET 1 BY id ) LIMIT 100001  FORMAT Native 4
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 3  FORMAT Native 3
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 100001  FORMAT Native 7
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2 BY id ) LIMIT 1001  FORMAT Native 5
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2  OFFSET 1 BY id ) LIMIT 1001  FORMAT Native 4
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 3  FORMAT Native 3
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 1001  FORMAT Native 7
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2 BY id ) LIMIT 1001  FORMAT Native 5
+SELECT  * FROM (  SELECT  id,  ts  FROM events  ORDER BY  ts DESC  LIMIT 2  OFFSET 1 BY id ) LIMIT 1001  FORMAT Native 4
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 3  FORMAT Native 3
+SELECT  id,  ts FROM events ORDER BY  ts DESC LIMIT 1001  FORMAT Native 7
+ASSERT PASS: query_log contains wrapped LIMIT BY statement
+
+=== 9. NEGATIVE: GET /api/v1/database/ with tampered JWT (expect 422 rejection: flask-jwt-extended returns 422 'Signature verification failed' for a tampered token)
+CMD: curl -s -o resp.json -w '%{http_code}' $SUPERSET_URL/api/v1/database/ -H 'Authorization: [REDACTED]'
+STATUS: 422
+RESPONSE EXCERPT: {
+  "msg": "Signature verification failed"
+}
+ASSERT PASS: tampered token rejected with 422 and Signature verification failed
+
+OVERALL PASS
