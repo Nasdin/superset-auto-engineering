@@ -25,7 +25,7 @@ No Devin, GitHub or Slack credentials are required to boot and inspect the appli
 | Public analytics | [Analytics workspace](https://superset-devin.nasrudinsalim.com/#analytics) | Native Superset delivery and rework charts behind the same reviewer login |
 | Public source | [Nasdin/superset-auto-engineering](https://github.com/Nasdin/superset-auto-engineering) | Application code, documentation and CI |
 
-The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker is authoritative; local automatic dispatch is disabled. The first independent candidate has accepted evidence in [the PR report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737); deployment health and each later candidate still require their own checks.
+The public deployment uses one Lightsail VM in **ap-southeast-2 (Sydney)**, provisioned with the [Lightsail CloudFormation template](infra/cloudformation/lightsail.yaml). The local addresses refer to the computer running Docker. See the [low-cost runbook](docs/LOW_COST_AWS.md) and [verified deployment evidence](docs/analysis/sydney-deployment.json). The cloud worker owns the hosted target; local automatic dispatch is disabled by default. A separately authorized [real local demonstration](docs/LOCAL_AUTONOMOUS_RUN.md) uses an isolated fork branch, label, database and worker lock. The first independent candidate has accepted evidence in [the PR report](https://github.com/Nasdin/superset/pull/4#issuecomment-5751674737); deployment health and each later candidate still require their own checks.
 
 [Live analytics screenshot](docs/images/superset-analytics-live.png) · [architecture and migration](docs/POSTGRES_SUPERSET.md) · [product story/slides](docs/README.md)
 
@@ -478,6 +478,8 @@ Per-message/session usage limits are handled as local job holds, separately from
 Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). A searchable journal shows the newest observation per run, with full findings, Knowledge identifiers and source evidence in an on-demand detail panel. Recorded observations, confirmed notes, supplied context and independent validation remain separate signals; none alone proves improvement caused by memory.
 
 ## Autonomous repair after validation failure
+
+Deployment status: this recovery loop is under local verification on `feat/devin-autonomous-verification`. The existing AWS worker has not been restarted with it. Further merges and AWS deployment require Nasrudin's explicit instruction; follow the [local execution record](docs/LOCAL_AUTONOMOUS_RUN.md) for actual results.
 
 The worker closes the loop on a tracked PR: a failed functional check or GitHub CI check creates a durable **Devin remediation** job on the same fork branch. Devin diagnoses and pushes the repair; a different Devin session then checks out the new SHA, starts Superset, exercises APIs and browser flows, and uploads fresh screenshots, video, logs, tests and scoped coverage. Earlier evidence remains historical and cannot approve the new commit. Evidence-format failures request fresh validation rather than unnecessary code edits.
 
