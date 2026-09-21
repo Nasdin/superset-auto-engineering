@@ -12,7 +12,7 @@ The current feature-branch code was exercised locally without deploying or resta
 
 The local runner uses the same handoff recovery, engine, remediation, freshness and publication services as the normal worker. Its ignored configuration and local database contain provider credentials and execution history; they are not committed. Evidence URLs use the existing temporary evidence-only tunnel and remain available only while its local server is running.
 
-**Current outcome:** the preparation session is running again; independent validation and final acceptance are pending. Do not merge on the strength of the earlier preparation report. Before a later deployment, reconcile the hosted job with the local recovery history and provider receipts rather than replaying it.
+**Current outcome:** the same preparation session completed the embedded SDK and logout evidence, returned its own corrected handoff with an empty blocker, and the application published [the preparation receipt](https://github.com/Nasdin/superset/pull/6#issuecomment-5757958261). It automatically started [independent validator `ae91060b80834cab9dc403fc6e2cd863`](https://app.devin.ai/sessions/ae91060b80834cab9dc403fc6e2cd863), job `e2b7a06e-77a2-4323-93a9-14721ac7fa67`, at exact candidate `feca9891f6bd2d93374ba1db2bc85ca0c424b0d3`. Final independent acceptance is pending. Do not merge on the strength of the earlier preparation report. Before a later deployment, reconcile the hosted job with the local recovery history and provider receipts rather than replaying it.
 
 ## Expected security failures
 
