@@ -114,6 +114,18 @@ def test_report_includes_curl_response_coverage_and_embedded_superset_image():
     assert '"value":1' in report
 
 
+def test_report_does_not_show_passing_regression_when_test_totals_fail():
+    payload = result()
+    payload["test_results"]["failed"] = 1
+    report = ReleaseReportBuilder().build(
+        {"candidate_sha": SHA, "session_url": "https://app.devin.ai/sessions/validator"},
+        payload,
+        "validation_failed",
+    )
+    assert "| regression | FAIL (1 failed test(s)) |" in report
+    assert "| regression | pass |" not in report
+
+
 def test_execution_text_is_redacted_before_report_and_durable_storage():
     from app.automation.redaction import sanitize
 
