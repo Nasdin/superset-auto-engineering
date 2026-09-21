@@ -5,10 +5,11 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
-from superset.app import create_app
 from superset import db, security_manager
+from superset.app import create_app
 
 
 def database_url(user, password, database):
@@ -218,7 +219,7 @@ def provision():
                 legendType="scroll",
                 legendOrientation="bottom",
                 rich_tooltip=True,
-                y_axis_format=",.1f",
+                y_axis_format=",d" if metric_name in {"pr_count", "commit_count"} else ",.1f",
                 x_axis_time_format="%d %b" if view == "focus_weekly_chart" else "%b %Y",
                 show_empty_columns=True,
                 annotation_layers=[
@@ -269,6 +270,12 @@ def provision():
                 "Missing enrichment remains blank; it is never measured zero. The dotted line "
                 "marks 2026-09-21, not a proven effect. An axis-only null row keeps the marker visible."
             )
+            if metric_name in {"pr_count", "commit_count"}:
+                chart.description += (
+                    " PRs are grouped by merge month (or merge week). Commit totals sum all commits "
+                    "in those merged PRs, not commits authored during that period. Uncovered history "
+                    "or incomplete commit counts stays blank; covered empty periods are zero."
+                )
         else:
             params.update(
                 query_mode="raw",
@@ -393,6 +400,8 @@ def provision():
         if focused:
             focus_measures = (
                 [
+                    ("Merged PRs by work type", "pr_count"),
+                    ("Commits in merged PRs by work type", "commit_count"),
                     ("Commits per PR", "avg_commits"),
                     ("Median hours to merge", "median_hours"),
                     ("Commits after first review", "avg_rework"),
@@ -591,11 +600,11 @@ def provision():
 if __name__ == "__main__":
     with create_app().app_context():
         from superset.charts.schemas import ChartDataQueryContextSchema
+        from superset.connectors.sqla.models import SqlaTable, SqlMetric
+        from superset.daos.dashboard import EmbeddedDashboardDAO
         from superset.models.annotations import Annotation, AnnotationLayer
         from superset.models.core import Database
-        from superset.connectors.sqla.models import SqlaTable, SqlMetric
-        from superset.models.slice import Slice
         from superset.models.dashboard import Dashboard
-        from superset.daos.dashboard import EmbeddedDashboardDAO
+        from superset.models.slice import Slice
 
         provision()

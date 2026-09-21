@@ -529,3 +529,34 @@ def test_focus_periods_match_bounded_python_and_isolate_repository(postgres):  #
             assert found["segment_total_hours"] == expected["covered_total_hours"]
     absent = select(history, repository="Nasdin/superset", days=31)
     assert all(r["median_hours"] is None for r in rows(history, "focus_weekly_chart", absent))
+
+
+def test_monthly_pr_and_commit_volume_preserves_missing_data(postgres):  # noqa: F811
+    store, history = postgres
+    seed(history)
+    install(store)
+    install(store)
+    identity = select(history)
+    chart = rows(history, "focus_monthly_chart", identity)
+    september = {r["segment"]: r for r in chart if r["chart_date"] == date(2026, 9, 1)}
+    assert september["Fixes"]["pr_count"] == 2
+    assert september["Fixes"]["commit_count"] is None  # One PR is not enriched.
+    assert september["Features"]["pr_count"] == 1
+    assert september["Features"]["commit_count"] == 1
+    assert september["Bots"]["pr_count"] == 2
+    assert september["Bots"]["commit_count"] is None
+    assert all(
+        r["pr_count"] == r["commit_count"] == 0
+        for r in chart
+        if r["chart_date"] == date(2026, 8, 1)
+    )
+    assert all(
+        r["pr_count"] is None and r["commit_count"] is None
+        for r in chart
+        if r["chart_date"] == date(2026, 9, 24)
+    )
+    fork = select(history, repository="Nasdin/superset")
+    assert all(
+        r["pr_count"] is None and r["commit_count"] is None
+        for r in rows(history, "focus_monthly_chart", fork)
+    )
