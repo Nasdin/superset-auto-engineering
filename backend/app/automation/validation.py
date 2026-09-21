@@ -3,9 +3,17 @@
 import hashlib
 import json
 
-from .artifacts import EvidenceArchive, attachment_records, complete_handoff
+from .artifacts import (
+    EvidenceArchive,
+    attachment_records,
+    complete_handoff,
+    provider_attachment_index,
+    unconfirmed_evidence_urls,
+)
 from .config import Settings
-from .evidence import assess_evidence
+from .evidence import REQUIRED_ARTIFACTS, assess_evidence
+from .execution_evidence import execution_failures
+from .links import safe_link
 from .outbox import PublicationOutbox
 from .ports import ProviderGateway
 from .redaction import provider_secrets, sanitize
@@ -83,6 +91,50 @@ class ValidationService:
             and job["payload"].get("work_type") == "pr_validation"
             and self.store.has_audit(job["id"], "session_created"),
         )
+        followup = self.store.recall(f"handoff-followup:{job['id']}", {})
+        # A provider upload can exist while the agent cites a different attachment ID.
+        # Only its owner may correct that handoff; never bind files by their names.
+        if (
+            self.settings.autonomous_remediation
+            and followup.get("attempts", 0) < self.settings.max_handoff_followups
+            and result.get("task_complete") is True
+            and result.get("passed") is True
+            and result.get("evidence_version") == 2
+            and not result.get("blocker")
+            and result.get("candidate_sha") == job["candidate_sha"]
+            and not any(
+                failure.startswith(("Mandatory checks", "Validator independence"))
+                for failure in assessment.failures
+            )
+            # These declared references classify the problem only. Actual acceptance
+            # still requires a fresh agent handoff checked against provider ownership.
+            and not execution_failures(result, result.get("artifacts", []))
+            and REQUIRED_ARTIFACTS.issubset(a.get("kind") for a in result.get("artifacts", []))
+            and all(
+                a.get("kind") in REQUIRED_ARTIFACTS
+                and isinstance(a.get("url"), str)
+                and safe_link(a["url"])
+                for a in result.get("artifacts", [])
+            )
+            and len({a["url"] for a in result.get("artifacts", [])})
+            == len(result.get("artifacts", []))
+            and provider_attachment_index(attachments)
+            and unconfirmed_evidence_urls(result, attachments)
+        ):
+            self.store.update(
+                job["id"],
+                state="needs_attention",
+                result={
+                    **result,
+                    "artifacts": [],
+                    "provenance": "unverified_validation",
+                    "gate": "needs_attention",
+                    "gate_failures": list(assessment.failures),
+                    "handoff_correction": "attachment_references",
+                },
+                error="Evidence references do not match this session's provider attachment index; awaiting bounded Devin handoff correction",
+            )
+            return
         valid = assessment.passed
         ci = None
         if valid:

@@ -9,12 +9,35 @@ from tempfile import NamedTemporaryFile
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
+from .links import safe_link
 from .providers import ProviderError
 from .redaction import provider_secrets, redact_text
 
 
 def attachment_records(value):
     return value.get("items", value.get("attachments", [])) if isinstance(value, dict) else value
+
+
+def provider_attachment_index(attachments):
+    """Bounded context for the owning agent, never an inferred artifact mapping."""
+    return [
+        {key: item.get(key, "") for key in ("name", "url", "content_type")}
+        for item in attachments
+        if item.get("source") == "devin"
+        and item.get("attachment_id")
+        and isinstance(item.get("url"), str)
+        and safe_link(item["url"])
+    ][:24]
+
+
+def unconfirmed_evidence_urls(result, attachments):
+    known = {item["url"] for item in provider_attachment_index(attachments)}
+    references = [item.get("url") for item in result.get("artifacts", [])]
+    references += [item.get("evidence_url") for item in result.get("api_requests", [])]
+    references += [
+        (result.get(key) or {}).get("report_url") for key in ("coverage", "test_results")
+    ]
+    return sorted({url for url in references if isinstance(url, str) and url and url not in known})
 
 
 def complete_handoff(providers, result, attachments):

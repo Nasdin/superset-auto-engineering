@@ -412,3 +412,212 @@ def test_poll_cannot_accept_pre_followup_completed_handoff(system):
     e.poll(db.get(job["id"]))
     assert db.get(job["id"])["state"] == "running"
     assert len(p.messages) == 1
+
+
+def mismatched_attachment_handoff(db, provider):
+    """Simulate a provider-owned index whose URLs differ from the agent's final claims."""
+    job = validation(db)
+    canonical = {**result(), "task_complete": True}
+    handoff = copy.deepcopy(canonical)
+    for artifact in handoff["artifacts"]:
+        artifact["url"] = artifact["url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    for request in handoff["api_requests"]:
+        request["evidence_url"] = request["evidence_url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    for field in ("coverage", "test_results"):
+        handoff[field]["report_url"] = handoff[field]["report_url"].replace(
+            "attachments.devin.ai/", "attachments.devin.ai/unconfirmed-"
+        )
+    indexed = [
+        {**item, "name": item["attachment_id"] + ".fixture"}
+        for item in FakeProvider.attachments(provider, job["session_id"])
+    ]
+    provider.attachments = lambda session_id: copy.deepcopy(indexed)
+    provider.response = {
+        "status": "running",
+        "status_detail": "finished",
+        "tags": [f"cognition-job:{job['id']}"],
+        "structured_output": copy.deepcopy(handoff),
+    }
+    return job, handoff, canonical
+
+
+def test_attachment_reference_mismatch_requests_one_correction_without_filename_binding(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    held = db.get(job["id"])
+    assert held["state"] == "needs_attention"
+    assert held["result"]["handoff_correction"] == "attachment_references"
+    assert held["result"]["artifacts"] == []
+    assert db.by_key("recovery:" + job["id"]) is None
+    assert db.publications() == []
+    assert p.response["structured_output"] == handoff  # No fabricated URL substitution.
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "running"
+    assert len(p.messages) == 1 and p.created == 0
+    message = p.messages[0]["message"]
+    assert "https://attachments.devin.ai/screenshot" in message
+    assert "screenshot.fixture" in message
+    assert "attachment" in message.lower() and (
+        "mismatch" in message.lower() or "match" in message.lower()
+    )
+    HandoffRecovery(e).tick()
+    assert len(p.messages) == 1
+
+
+def test_attachment_correction_stale_handoff_is_rejected_after_restart(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    intent = db.recall("handoff-followup:" + job["id"])
+    assert intent["original_handoff"] == HandoffRecovery.fingerprint(handoff)
+    assert intent["requested_at"] > 0 and intent["attempts"] == 1
+    restarted = Engine(e.settings, Store(db.path), p)
+    p.response["updated_at"] = 9999999999  # Message receipt timestamp cannot approve stale output.
+    restarted.poll(restarted.store.get(job["id"]))
+    HandoffRecovery(restarted).tick()
+    assert restarted.store.get(job["id"])["state"] == "running"
+    assert len(p.messages) == 1 and p.created == 0
+    assert restarted.store.publications() == []
+
+
+def test_attachment_correction_unknown_delivery_persists_full_guard_and_never_resends(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    p.message_failure = UnknownEffect("simulated lost correction acknowledgement")
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "unknown_effect"
+    intent = db.recall("handoff-followup:" + job["id"])
+    assert intent["original_handoff"] == HandoffRecovery.fingerprint(handoff)
+    assert intent["requested_at"] > 0
+    restarted = Engine(e.settings, Store(db.path), p)
+    HandoffRecovery(restarted).tick()
+    assert len(p.messages) == 1 and p.created == 0
+    assert restarted.store.get(job["id"])["state"] == "unknown_effect"
+
+
+def test_agent_corrected_attachment_references_pass_ordinary_independent_gate(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    canonical["summary"] = (
+        "Agent rechecked and corrected references from its actual session attachments"
+    )
+    p.response["structured_output"] = canonical
+    e.poll(db.get(job["id"]))
+    ready = db.get(job["id"])
+    assert ready["state"] == "review_ready" and ready["result"]["gate_failures"] == []
+    assert {a["url"] for a in ready["result"]["artifacts"]} == {
+        a["url"] for a in canonical["artifacts"]
+    }
+    assert ready["session_id"] == job["session_id"]
+    assert len(p.messages) == 1 and p.created == 0
+    assert db.by_key("recovery:" + job["id"]) is None
+
+
+def test_attachment_correction_still_invalid_after_one_followup_uses_normal_recollection(system):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    HandoffRecovery(e).tick()
+    p.response["structured_output"]["summary"] = (
+        "Agent attempted correction but still references missing attachment IDs"
+    )
+    e.poll(db.get(job["id"]))
+    failed = db.get(job["id"])
+    assert failed["state"] == "validation_failed"
+    assert failed["result"]["gate_failures"]
+    followup = db.by_key("recovery:" + job["id"])
+    assert followup["kind"] == "validation" and followup["session_id"] is None
+    HandoffRecovery(e).tick()
+    assert len(p.messages) == 1 and p.created == 0
+
+
+@pytest.mark.parametrize(
+    "defect",
+    ["missing_measurement", "wrong_sha", "failed_check", "legacy_schema", "missing_artifact_kind"],
+)
+def test_non_manifest_failures_never_qualify_for_reference_only_correction(system, defect):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    if defect == "missing_measurement":
+        handoff.pop("coverage")
+    elif defect == "wrong_sha":
+        handoff["candidate_sha"] = NEW
+    elif defect == "failed_check":
+        next(c for c in handoff["checks"] if c["name"] == "regression")["passed"] = False
+    elif defect == "legacy_schema":
+        handoff.pop("evidence_version")
+    else:
+        handoff["artifacts"] = [a for a in handoff["artifacts"] if a["kind"] != "video"]
+    e.finish_validation(job, handoff)
+    observed = db.get(job["id"])
+    assert observed["state"] == "validation_failed"
+    assert observed["result"].get("handoff_correction") != "attachment_references"
+    assert p.messages == []
+
+
+@pytest.mark.parametrize("guard", ["archived", "credits", "approval", "working"])
+def test_attachment_correction_does_not_message_non_quiescent_or_unavailable_sessions(
+    system, guard
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    e.finish_validation(job, handoff)
+    if guard == "archived":
+        p.response["is_archived"] = True
+    elif guard == "credits":
+        p.response.update(status="suspended", status_detail="usage_limit_exceeded")
+    elif guard == "approval":
+        p.response["status_detail"] = "waiting_for_approval"
+    else:
+        p.response["status_detail"] = "working"
+    HandoffRecovery(e).tick()
+    assert db.get(job["id"])["state"] == "needs_attention"
+    assert p.messages == [] and p.created == 0
+
+
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "truthy_complete",
+        "truthy_pass",
+        "blocker",
+        "missing_owned_index",
+        "unowned_index",
+        "validator_is_implementer",
+        "duplicate_claimed_url",
+    ],
+)
+def test_attachment_reference_hold_requires_literal_finality_ownership_and_independence(
+    system, defect
+):
+    db, p, e, service = system
+    job, handoff, canonical = mismatched_attachment_handoff(db, p)
+    if defect == "truthy_complete":
+        handoff["task_complete"] = "true"
+    elif defect == "truthy_pass":
+        handoff["passed"] = 1
+    elif defect == "blocker":
+        handoff["blocker"] = "Runtime evidence remains incomplete"
+    elif defect == "missing_owned_index":
+        p.attachments = lambda session_id: []
+    elif defect == "unowned_index":
+        supplied = p.attachments(job["session_id"])
+        p.attachments = lambda session_id: [{**item, "source": "user"} for item in supplied]
+    elif defect == "validator_is_implementer":
+        db.update(job["parent_id"], session_id=job["session_id"])
+    else:
+        handoff["artifacts"][1]["url"] = handoff["artifacts"][0]["url"]
+    e.finish_validation(job, handoff)
+    observed = db.get(job["id"])
+    assert observed["state"] == "validation_failed"
+    assert observed["result"].get("handoff_correction") != "attachment_references"
+    assert p.messages == []
