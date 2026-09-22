@@ -168,7 +168,9 @@ async def github_event(
         return {"status": "ignored"}
     if payload.issue is None:
         raise HTTPException(422, "Issue is required for issue events")
-    if settings.label not in [label.name for label in payload.issue.labels]:
+    if not settings.automatic_intake and settings.label not in [
+        label.name for label in payload.issue.labels
+    ]:
         return {"status": "ignored", "reason": "repair label missing"}
     return await run_in_threadpool(
         Inbox(eng).accept,

@@ -6,6 +6,7 @@ import time
 
 from .config import Settings
 from .execution_policy import RESERVED_SESSIONS
+from .intake_policy import automatic_intake
 from .integration import IntegrationService
 from .learning import LearningService
 from .learning_lock import learning_lease
@@ -37,7 +38,9 @@ class Engine:
         issue = self.providers.gh("GET", f"repos/{self.settings.repo}/issues/{number}")
         if issue.get("pull_request") or issue["state"] != "open":
             raise ValueError("Only open issues are eligible")
-        if self.settings.label not in [x["name"] for x in issue.get("labels", [])]:
+        if not automatic_intake(self.settings, issue) and self.settings.label not in [
+            x["name"] for x in issue.get("labels", [])
+        ]:
             raise ValueError("Required repair label is missing")
         if issue["user"]["login"].lower() != self.settings.allowed_actor.lower():
             raise ValueError("Issue author is not authorized")
@@ -68,7 +71,7 @@ class Engine:
             f"repos/{self.settings.repo}/issues",
             params={
                 "state": "open",
-                "labels": self.settings.label,
+                **({} if self.settings.automatic_intake else {"labels": self.settings.label}),
                 "per_page": 50,
                 "page": page,
                 "sort": "created",

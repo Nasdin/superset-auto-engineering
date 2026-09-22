@@ -4,8 +4,15 @@ import re
 import time
 
 from .dependencies import ACTIVE
+from .intake_policy import automatic_intake
 
 VALIDATE_LABEL = "cognition:validate"
+
+
+def automatic_owner_pr(settings, pr):
+    return automatic_intake(settings, pr) and (
+        pr.get("user", {}).get("login", "").lower() == settings.allowed_actor.lower()
+    )
 
 
 def eligible_validation(settings, pr, *, tracked=False):
@@ -20,10 +27,14 @@ def eligible_validation(settings, pr, *, tracked=False):
         or not pr.get("head", {}).get("ref")
         or pr["head"]["ref"] == settings.branch
         or not re.fullmatch(r"[a-f0-9]{40}", pr.get("head", {}).get("sha", ""))
-        or (not tracked and VALIDATE_LABEL not in [x.get("name") for x in pr.get("labels", [])])
+        or (
+            not tracked
+            and not automatic_owner_pr(settings, pr)
+            and VALIDATE_LABEL not in [x.get("name") for x in pr.get("labels", [])]
+        )
     ):
         raise ValueError(
-            "Validation requires a tracked or cognition:validate-labelled open PR within the configured fork and release branch"
+            "Validation requires an eligible open PR within the configured fork and release branch"
         )
 
 

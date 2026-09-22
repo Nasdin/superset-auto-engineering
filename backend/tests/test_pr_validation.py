@@ -181,7 +181,10 @@ def test_changed_integration_keeps_member_sessions_for_independence(setup):
 
 
 @pytest.mark.parametrize("author", ["Nasdin", "devin-ai-integration[bot]"])
-def test_signed_pr_change_event_to_validation_and_confirmed_reply(setup, tmp_path, author):
+@pytest.mark.parametrize("automatic", [False, True])
+def test_signed_pr_change_event_to_validation_and_confirmed_reply(
+    setup, tmp_path, author, automatic
+):
     import hashlib
     import hmac
     import json
@@ -191,7 +194,11 @@ def test_signed_pr_change_event_to_validation_and_confirmed_reply(setup, tmp_pat
     from fastapi.testclient import TestClient
 
     store, p, engine, service = setup
-    engine.settings = replace(engine.settings, webhook_secret="signed-event-test")
+    engine.settings = replace(
+        engine.settings, webhook_secret="signed-event-test", automatic_intake=automatic
+    )
+    if automatic and author == engine.settings.allowed_actor:
+        p.document["labels"] = []
     app = create_app(engine.settings, demo_database=tmp_path / "demo.db")
     app.dependency_overrides[routes.get_engine] = lambda: engine
     p.document["user"]["login"] = author

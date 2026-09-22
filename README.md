@@ -101,6 +101,7 @@ Compose reads `.env` for interpolation and passes an explicit set of settings to
 
 | Setting | Purpose / default |
 | --- | --- |
+| `AUTOMATIC_INTAKE` | Default `false`; opt in to unlabeled owner-created issues and owner PRs within the configured fork/release branch. Polling also reconciles existing eligible open items. Drafts and external head repositories stay excluded; existing bot intake is unchanged |
 | `AUTOMATION_ENABLED` | `false` on a fresh setup; `true` enables paid dispatch |
 | `GITHUB_REPOSITORY`, `TARGET_BRANCH` | Fork and branch that workflows may modify; never set workflow scope to `apache/superset` |
 | `GITHUB_ALLOWED_ACTOR`, `TRIGGER_LABEL` | Authorized issue/validation actor and repair label; default label `cognition:repair` |
@@ -593,6 +594,12 @@ See [the reliability design and operational recovery runbook](docs/RESILIENCE.md
 Per-message/session usage limits are handled as local job holds, separately from organization credit exhaustion. The original repair session cap was verified at $20; it is now awaiting instructions with its PR prepared. No new paid run was required to clear its exceeded-limit state. See [limit handling and catalogue durability](docs/AUTOMATIONS.md).
 
 Learning lives under **Workflows → Learning** (existing `#learning` links remain valid). **Human feedback** records who corrected Devin, why, the source run and editable guidance with immutable revision history. Use **Execution access** with `OPERATOR_TOKEN` to add, override or retire guidance. The worker disables superseded native Knowledge notes and records the exact revision supplied to later sessions. **Run observations** retains the searchable evidence journal. Monthly outcomes, native receipts and agent-reported application are distinct signals; none alone proves improvement caused by memory. See [the feedback guide and real PR #6 memory handoff](docs/HUMAN_FEEDBACK.md).
+
+## Automatic issue and PR intake
+
+Set `AUTOMATIC_INTAKE=true` alongside `AUTOMATION_ENABLED=true` to automatically pick up open issues authored by `GITHUB_ALLOWED_ACTOR` and non-draft PRs by that actor whose head is in the configured fork and whose base is `TARGET_BRANCH`. No repair/validation label is needed in this mode. Set `AUTOMATIC_INTAKE_SINCE` to a timezone-qualified ISO timestamp (for example, `2026-09-22T00:00:00Z`) to automatically accept only items created on or after that rollout boundary. Older items still require labels; leave it empty only when deliberately processing the open backlog. Signed webhooks persist events immediately; periodic polling recovers missed events and also discovers eligible existing open items. This is scoped automation, not permission for arbitrary public visitors to spend Devin credits.
+
+Issues enter the existing repair/integration/independent-validation pipeline. PRs enter validation first; failures enter bounded autonomous repair on that same PR branch and then a fresh validator checks the new SHA. Existing Dependabot and tracked Devin pipelines retain their ownership to avoid duplicate sessions. Provider availability, CI, evidence completeness and organization/session budgets remain gates: automatic intake does not mean every job can finish despite a hold, or that any PR is automatically merged. Keep the explicit labels when `AUTOMATIC_INTAKE=false`.
 
 ## Human PR validation and repair
 

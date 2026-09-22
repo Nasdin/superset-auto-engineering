@@ -6,7 +6,7 @@ import uuid
 
 from .dependencies import DependencyService
 from .patches import PatchService
-from .pr_validation import VALIDATE_LABEL, PullRequestValidationService
+from .pr_validation import VALIDATE_LABEL, PullRequestValidationService, automatic_owner_pr
 from .providers import ProviderError, UnknownEffect
 from .resilience import Recovery
 
@@ -56,9 +56,13 @@ class Inbox:
         if payload["event"] == "issues":
             return eng.accept_webhook(number, delivery)
         pr = eng.providers.pr(number)
-        if VALIDATE_LABEL in [x.get("name") for x in pr.get("labels", [])] or any(
-            j["pr_number"] == number and j["kind"] in {"repair", "integration"}
-            for j in eng.store.operational_jobs()
+        if (
+            automatic_owner_pr(eng.settings, pr)
+            or VALIDATE_LABEL in [x.get("name") for x in pr.get("labels", [])]
+            or any(
+                j["pr_number"] == number and j["kind"] in {"repair", "integration"}
+                for j in eng.store.operational_jobs()
+            )
         ):
             job = PullRequestValidationService(eng.settings, eng.store, eng.providers).accept(
                 number, "pr_validation_webhook", payload["sha"]

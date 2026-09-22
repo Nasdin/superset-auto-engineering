@@ -28,6 +28,8 @@ class Settings:
     dependabot_enabled: bool = True
     learning_enabled: bool = True
     enabled: bool = False
+    automatic_intake: bool = False
+    automatic_intake_since: str = ""
     autonomous_remediation: bool = True
     capture_failure_evidence: bool = False
     max_remediation_attempts: int = 2
@@ -101,6 +103,10 @@ class Settings:
             )
         if "MAX_REMEDIATION_ATTEMPTS" in env:
             values["max_remediation_attempts"] = int(env["MAX_REMEDIATION_ATTEMPTS"])
+        if "AUTOMATIC_INTAKE_SINCE" in env:
+            values["automatic_intake_since"] = env["AUTOMATIC_INTAKE_SINCE"]
+        if "AUTOMATIC_INTAKE" in env:
+            values["automatic_intake"] = env["AUTOMATIC_INTAKE"].lower() == "true"
         if "AUTOMATION_ENABLED" in env:
             values["enabled"] = env["AUTOMATION_ENABLED"].lower() == "true"
         if "EVIDENCE_PUBLIC_URL" in env:
@@ -114,6 +120,13 @@ class Settings:
         return settings
 
     def check_repo(self):
+        if self.automatic_intake_since:
+            from datetime import datetime
+
+            cutoff = datetime.fromisoformat(self.automatic_intake_since.replace("Z", "+00:00"))
+            if cutoff.tzinfo is None:
+                raise ValueError("AUTOMATIC_INTAKE_SINCE requires an ISO timestamp with timezone")
+
         if self.repo.lower() == "apache/superset" or not re.fullmatch(
             r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", self.repo
         ):

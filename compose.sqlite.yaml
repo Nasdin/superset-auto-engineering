@@ -6,6 +6,8 @@ x-runtime: &sqlite-runtime
     AUTOMATION_DATABASE: /app/data/automation.db
     ARTIFACT_DIR: /app/data/artifacts
     AUTOMATION_ENABLED: ${AUTOMATION_ENABLED:-false}
+    AUTOMATIC_INTAKE: ${AUTOMATIC_INTAKE:-false}
+    AUTOMATIC_INTAKE_SINCE: ${AUTOMATIC_INTAKE_SINCE:-}
     GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-Nasdin/superset}
     TARGET_BRANCH: ${TARGET_BRANCH:-cognition-release-6.1}
     DEVIN_ORG_ID: ${DEVIN_ORG_ID:-org-f456da0f2e0940808b5c8b3a20312d8c}
